@@ -1,0 +1,62 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: unclutter the player zip; keep only for cloning or such thanks to chatgpt 5.1's help -->
+# Example: keep in repo, exclude from Download ZIP / archives
+
+# Common image formats (global archive exclude)
+*.png   export-ignore
+*.PNG   export-ignore
+*.jpg   export-ignore
+*.JPG   export-ignore
+*.jpeg  export-ignore
+*.JPEG  export-ignore
+*.gif   export-ignore
+*.GIF   export-ignore
+*.bmp   export-ignore
+*.BMP   export-ignore
+*.webp  export-ignore
+*.WEBP  export-ignore
+*.tif   export-ignore
+*.TIF   export-ignore
+*.tiff  export-ignore
+*.TIFF  export-ignore
+*.svg   export-ignore
+*.SVG   export-ignore
+*.avif  export-ignore
+*.AVIF  export-ignore
+*.heic  export-ignore
+*.HEIC  export-ignore
+# <!-- custom: Paint.NET files in capitalization as well as chatgpt 5.1 confirms and corrected me too thanks -->
+# Paint.NET files in any casing
+*.pdn  export-ignore
+*.PDN  export-ignore
+
+# <!-- custom: config and LLM info -->
+/AGENTS.md            export-ignore
+/.claude/             export-ignore
+/.vscode/             export-ignore
+/.markdownlint.jsonc  export-ignore
+/ruff.toml            export-ignore
+
+# <!-- custom: LLM helpers are not needed in released archives of the mod -->
+/LLM_Helpers/         export-ignore
+
+# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+/.github/             export-ignore
+/.gitattributes       export-ignore
+/.gitignore           export-ignore
+
+# <!-- custom: keep the compiler temp_files placeholder in repo for sanity checks, but exclude it from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+/CvGameCoreDLL/Project/temp_files     export-ignore
+/CvGameCoreDLL/Project/temp_files/**  export-ignore
+
+/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
+/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore
+/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/  export-ignore
+/_0_Common_Docs/git_logs/                                 export-ignore
+/_1_AdvCiv-SAS/git_logs/                                  export-ignore
+/_1_AdvCiv-SAS/Docs/Modding_Ressources/                   export-ignore
+/Assets/Res/Fonts/other_mods/                             export-ignore
+/Assets/Python/Contrib/Sevopedia/Debug/                   export-ignore

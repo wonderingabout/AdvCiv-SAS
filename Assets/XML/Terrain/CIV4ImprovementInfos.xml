@@ -5,9 +5,10 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Improvement -->
+<!-- custom: note: be careful when renaming the improvementinfo types, we use them in CvUnitAI::AI_bestCityBuild as a way to optimize worker improvement choice, so if you change it, also change it there as well and then recompile DLL, among other places that may or not need the change as well but this is the one we specifically implemented in advciv-sas as of now that would require a recompile; see also related code comment at CIV4BonusInfos.xml for details -->
 <Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<ImprovementInfos>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_LAND_WORKED (useful for VS Code upper tree view while scrolling) -->
 			<Type>IMPROVEMENT_LAND_WORKED</Type>
 			<Description>TXT_KEY_IMPROVEMENT_LAND_WORKED</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Civilopedia>
@@ -45,7 +46,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>1</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATER_WORKED -->
 			<Type>IMPROVEMENT_WATER_WORKED</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WATER_WORKED</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Civilopedia>
@@ -83,7 +84,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>1</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_CITY_RUINS -->
 			<Type>IMPROVEMENT_CITY_RUINS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CITY_RUINS</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Civilopedia>
@@ -121,7 +122,7 @@
 			<WorldSoundscapeAudioScript/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_GOODY_HUT -->
 			<Type>IMPROVEMENT_GOODY_HUT</Type>
 			<Description>TXT_KEY_IMPROVEMENT_GOODY_HUT</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_GOODY_HUT_PEDIA</Civilopedia>
@@ -185,7 +186,7 @@
 			<WorldSoundscapeAudioScript>ASSS_FOREST_SELECT_AMB</WorldSoundscapeAudioScript>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FARM -->
 			<Type>IMPROVEMENT_FARM</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FARM</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FARM_PEDIA</Civilopedia>
@@ -236,9 +237,11 @@
 				</TerrainMakesValid>
 			</TerrainMakesValids>
 			<FeatureMakesValids/>
+			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now) are upgraded/improved by improvement_farm, see docs for details -->
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #28 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_CORN</BonusType>
+					<BonusType>BONUS_MAIZE</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
@@ -255,7 +258,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>1</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -286,7 +289,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FISHING_BOATS -->
 			<Type>IMPROVEMENT_FISHING_BOATS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FISHING_BOATS</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FISHING_BOATS_PEDIA</Civilopedia>
@@ -317,16 +320,17 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: currently fish is unfairly to me at least and undesirably too strong, other bonuses have other assets/qualities too -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_CLAM</BonusType>
+					<BonusType>BONUS_MOLLUSCS</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>2</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -337,7 +341,7 @@
 					<YieldChanges>
 						<iYieldChange>2</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -358,7 +362,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WHALING_BOATS -->
 			<Type>IMPROVEMENT_WHALING_BOATS</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WHALING_BOATS</Description>
 			<Civilopedia>TXT_KEY_WHALING_BOATS_PEDIA</Civilopedia>
@@ -389,6 +393,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: not easy to capture, but after they are, give a lot of food, + useful for their oil or such, and finally a touristic attraction source of folk stories and such, but since we gave it as base yield, not doing it again here else whales may be a bit too strong then -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_WHALE</BonusType>
@@ -396,9 +401,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -408,7 +413,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_MINE -->
 			<Type>IMPROVEMENT_MINE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_MINE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_MINE_PEDIA</Civilopedia>
@@ -452,8 +457,8 @@
 					<iDiscoverRand>10000</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -464,7 +469,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>1</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -479,25 +484,28 @@
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
-					<BonusType>BONUS_GEMS</BonusType>
+					<BonusType>BONUS_GEMSTONES</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>5</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>4</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
+					<!-- custom: remove negative yields as can be confusing and no strong reason to change the base yield -->
 				<BonusTypeStruct>
 					<BonusType>BONUS_GOLD</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: for gold specifically, useful to craft items too and such -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>6</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>5</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -516,10 +524,11 @@
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>10000</iDiscoverRand>
+					<!-- custom: for silver specifically, useful to craft items too and such, from a balance standpoint, since we can't make units with silver, buff it by giving gold (i.e. gpt (commerce)) too instead -->
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>-1</iYieldChange>
-						<iYieldChange>4</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -529,8 +538,8 @@
 					<iDiscoverRand>10000</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>3</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -549,7 +558,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WORKSHOP -->
 			<Type>IMPROVEMENT_WORKSHOP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WORKSHOP</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WORKSHOP_PEDIA</Civilopedia>
@@ -588,6 +597,7 @@
 			<iHappiness>0</iHappiness>
 			<iPillageGold>5</iPillageGold>
 			<bOutsideBorders>0</bOutsideBorders>
+			<!-- custom: add terrain_tundra as well as no reason no to, to buff and make tundra more viable as well -->
 			<TerrainMakesValids>
 				<TerrainMakesValid>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
@@ -597,13 +607,18 @@
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<bMakesValid>1</bMakesValid>
 				</TerrainMakesValid>
+				<TerrainMakesValid>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<bMakesValid>1</bMakesValid>
+				</TerrainMakesValid>
 			</TerrainMakesValids>
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was as of now first PrereqTech TECH_GUILDS (now removed) and TECH_CHEMISTRY; also add more hammer at fusion or similar tech, idea i got from rfc doc mod -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_GUILDS</PrereqTech>
+					<PrereqTech>TECH_MACHINERY</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -611,7 +626,15 @@
 					</TechYields>
 				</TechYieldChange>
 				<TechYieldChange>
-					<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+					<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+				<TechYieldChange>
+					<PrereqTech>TECH_FUSION</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -622,7 +645,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_LUMBERMILL -->
 			<Type>IMPROVEMENT_LUMBERMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_LUMBERMILL_PEDIA</Civilopedia>
@@ -671,9 +694,10 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: seems more historically accurate and meshes quite well with our reworked tech tree to buff it at tech_steam_power instead, see also BUILD_LUMBERMILL code comment as well for additional info if any are there, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -693,7 +717,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WINDMILL -->
 			<Type>IMPROVEMENT_WINDMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WINDMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WINDMILL_PEDIA</Civilopedia>
@@ -731,9 +755,10 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: seems more historically accurate or making sense for our reworked tech tree, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_PHYSICS</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -752,7 +777,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WATERMILL -->
 			<Type>IMPROVEMENT_WATERMILL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WATERMILL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WATERMILL_PEDIA</Civilopedia>
@@ -791,9 +816,10 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
+			<!-- custom: TechYieldChange prereq tech, sems more accurate and buffes them too, while making middle game sooner and more relevant, was TECH_GAME_THEORY -->
 			<TechYieldChanges>
 				<TechYieldChange>
-					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+					<PrereqTech>TECH_MACHINERY</PrereqTech>
 					<TechYields>
 						<iYield>0</iYield>
 						<iYield>1</iYield>
@@ -813,7 +839,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_PLANTATION -->
 			<Type>IMPROVEMENT_PLANTATION</Type>
 			<Description>TXT_KEY_IMPROVEMENT_PLANTATION</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_PLANTATION_PEDIA</Civilopedia>
@@ -852,9 +878,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -864,8 +890,8 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>4</iYieldChange>
+						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -876,7 +902,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>5</iYieldChange>
+						<iYieldChange>4</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -886,7 +912,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -909,17 +935,39 @@
 					<YieldChanges>
 						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+					</YieldChanges>
+				</BonusTypeStruct>
+				<!-- custom: Long_Comments_XML.txt #279 -->
+				<BonusTypeStruct>
+					<BonusType>BONUS_GRAPES</BonusType>
+					<bBonusMakesValid>1</bBonusMakesValid>
+					<bBonusTrade>1</bBonusTrade>
+					<iDiscoverRand>0</iDiscoverRand>
+					<YieldChanges>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>0</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: Long_Comments_XML.txt #296 -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+					<TechYields>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_QUARRY -->
 			<Type>IMPROVEMENT_QUARRY</Type>
 			<Description>TXT_KEY_IMPROVEMENT_QUARRY</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_QUARRY_PEDIA</Civilopedia>
@@ -958,8 +1006,8 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -969,7 +1017,7 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -989,7 +1037,7 @@
 			</RouteYieldChanges>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_PASTURE -->
 			<Type>IMPROVEMENT_PASTURE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_PASTURE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_PASTURE_PEDIA</Civilopedia>
@@ -1020,15 +1068,16 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #29 -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
-					<BonusType>BONUS_COW</BonusType>
+					<BonusType>BONUS_CATTLE</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>1</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>0</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1040,7 +1089,18 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+					</YieldChanges>
+				</BonusTypeStruct>
+				<BonusTypeStruct>
+					<BonusType>BONUS_CAMEL</BonusType>
+					<bBonusMakesValid>1</bBonusMakesValid>
+					<bBonusTrade>1</bBonusTrade>
+					<iDiscoverRand>0</iDiscoverRand>
+					<YieldChanges>
 						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
+						<iYieldChange>2</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -1068,11 +1128,22 @@
 			</BonusTypeStructs>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
+					<TechYields>
+						<iYield>1</iYield>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<!-- custom: venison/deer seems super healthy and nutritious, great because in tundra we want more food, increasing food output then: https://www.hunter-ed.com/blog/venison-vs-beef-which-is-healthier/ crossed checked quick here for example https://www.tasteofhome.com/article/ground-venison/ -->
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_CAMP -->
 			<Type>IMPROVEMENT_CAMP</Type>
 			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_CAMP_PEDIA</Civilopedia>
@@ -1103,6 +1174,7 @@
 			<bOutsideBorders>0</bOutsideBorders>
 			<TerrainMakesValids/>
 			<FeatureMakesValids/>
+			<!-- custom: commerce of the horns, or its carrying trucks or such ability, or the fact that it's cheaper seemingly than beef or such, or such other causes or examples or not as long as we can buff deer and that indeed it seems nicely relevant -->
 			<BonusTypeStructs>
 				<BonusTypeStruct>
 					<BonusType>BONUS_DEER</BonusType>
@@ -1110,9 +1182,9 @@
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
-						<iYieldChange>2</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
@@ -1122,18 +1194,18 @@
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>0</iYieldChange>
+						<iYieldChange>1</iYieldChange>
 						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 				<BonusTypeStruct>
-					<BonusType>BONUS_IVORY</BonusType>
+					<BonusType>BONUS_ELEPHANTS</BonusType>
 					<bBonusMakesValid>1</bBonusMakesValid>
 					<bBonusTrade>1</bBonusTrade>
 					<iDiscoverRand>0</iDiscoverRand>
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>2</iYieldChange>
 						<iYieldChange>1</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
@@ -1144,7 +1216,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_WELL -->
 			<Type>IMPROVEMENT_WELL</Type>
 			<Description>TXT_KEY_IMPROVEMENT_WELL</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_WELL_PEDIA</Civilopedia>
@@ -1184,7 +1256,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -1194,7 +1266,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_OFFSHORE_PLATFORM -->
 			<Type>IMPROVEMENT_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
@@ -1234,7 +1306,7 @@
 					<YieldChanges>
 						<iYieldChange>0</iYieldChange>
 						<iYieldChange>2</iYieldChange>
-						<iYieldChange>1</iYieldChange>
+						<iYieldChange>3</iYieldChange>
 					</YieldChanges>
 				</BonusTypeStruct>
 			</BonusTypeStructs>
@@ -1244,58 +1316,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
-			<Type>IMPROVEMENT_WINERY</Type>
-			<Description>TXT_KEY_IMPROVEMENT_WINERY</Description>
-			<Civilopedia>TXT_KEY_IMPROVEMENT_WINERY_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_IMPROVEMENT_WINERY</ArtDefineTag>
-			<bActsAsCity>0</bActsAsCity>
-			<bHillsMakesValid>0</bHillsMakesValid>
-			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
-			<bRiverSideMakesValid>0</bRiverSideMakesValid>
-			<bNoFreshWater>0</bNoFreshWater>
-			<bRequiresFlatlands>0</bRequiresFlatlands>
-			<bRequiresRiverSide>0</bRequiresRiverSide>
-			<bRequiresIrrigation>0</bRequiresIrrigation>
-			<bCarriesIrrigation>0</bCarriesIrrigation>
-			<bRequiresFeature>0</bRequiresFeature>
-			<bWater>0</bWater>
-			<bGoody>0</bGoody>
-			<bPermanent>0</bPermanent>
-			<bUseLSystem>1</bUseLSystem>
-			<iAdvancedStartCost>30</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<iTilesPerGoody>0</iTilesPerGoody>
-			<iGoodyRange>0</iGoodyRange>
-			<iFeatureGrowth>0</iFeatureGrowth>
-			<iUpgradeTime>0</iUpgradeTime>
-			<iAirBombDefense>5</iAirBombDefense>
-			<iDefenseModifier>0</iDefenseModifier>
-			<iHappiness>0</iHappiness>
-			<iPillageGold>10</iPillageGold>
-			<bOutsideBorders>0</bOutsideBorders>
-			<TerrainMakesValids/>
-			<FeatureMakesValids/>
-			<BonusTypeStructs>
-				<BonusTypeStruct>
-					<BonusType>BONUS_WINE</BonusType>
-					<bBonusMakesValid>1</bBonusMakesValid>
-					<bBonusTrade>1</bBonusTrade>
-					<iDiscoverRand>0</iDiscoverRand>
-					<YieldChanges>
-						<iYieldChange>1</iYieldChange>
-						<iYieldChange>0</iYieldChange>
-						<iYieldChange>2</iYieldChange>
-					</YieldChanges>
-				</BonusTypeStruct>
-			</BonusTypeStructs>
-			<ImprovementPillage/>
-			<ImprovementUpgrade/>
-			<TechYieldChanges/>
-			<RouteYieldChanges/>
-			<bGraphicalOnly>0</bGraphicalOnly>
-		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_COTTAGE -->
 			<Type>IMPROVEMENT_COTTAGE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_COTTAGE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_COTTAGE_PEDIA</Civilopedia>
@@ -1352,7 +1373,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_HAMLET -->
 			<Type>IMPROVEMENT_HAMLET</Type>
 			<Description>TXT_KEY_IMPROVEMENT_HAMLET</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_HAMLET_PEDIA</Civilopedia>
@@ -1412,7 +1433,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_VILLAGE -->
 			<Type>IMPROVEMENT_VILLAGE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_VILLAGE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLAGE_PEDIA</Civilopedia>
@@ -1481,7 +1502,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_TOWN -->
 			<Type>IMPROVEMENT_TOWN</Type>
 			<Description>TXT_KEY_IMPROVEMENT_TOWN</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_TOWN_PEDIA</Civilopedia>
@@ -1537,6 +1558,7 @@
 			<FeatureMakesValids/>
 			<ImprovementPillage>IMPROVEMENT_VILLAGE</ImprovementPillage>
 			<ImprovementUpgrade/>
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
 			<TechYieldChanges>
 				<TechYieldChange>
 					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
@@ -1546,11 +1568,19 @@
 						<iYield>1</iYield>
 					</TechYields>
 				</TechYieldChange>
+				<TechYieldChange>
+					<PrereqTech>TECH_TERRAFORMING</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+						<iYield>2</iYield>
+					</TechYields>
+				</TechYieldChange>
 			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FORT -->
 			<Type>IMPROVEMENT_FORT</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FORT</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FORT_PEDIA</Civilopedia>
@@ -1610,7 +1640,7 @@
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>
-		<ImprovementInfo>
+		<ImprovementInfo> <!-- custom: IMPROVEMENT_FOREST_PRESERVE -->
 			<Type>IMPROVEMENT_FOREST_PRESERVE</Type>
 			<Description>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE</Description>
 			<Civilopedia>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE_PEDIA</Civilopedia>
@@ -1663,7 +1693,17 @@
 			</FeatureMakesValids>
 			<ImprovementPillage/>
 			<ImprovementUpgrade/>
-			<TechYieldChanges/>
+			<!-- custom: see code comment at plantation 's techyieldchanges -->
+			<TechYieldChanges>
+				<TechYieldChange>
+					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+					<TechYields>
+						<iYield>0</iYield>
+						<iYield>0</iYield>
+						<iYield>2</iYield>
+					</TechYields>
+				</TechYieldChange>
+			</TechYieldChanges>
 			<RouteYieldChanges/>
 			<bGraphicalOnly>0</bGraphicalOnly>
 		</ImprovementInfo>

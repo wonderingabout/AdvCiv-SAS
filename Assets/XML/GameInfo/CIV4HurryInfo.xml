@@ -9,8 +9,9 @@
 			<Type>HURRY_POPULATION</Type>
 			<Description>TXT_KEY_HURRY_POPULATION</Description>
 			<iGoldPerProduction>0</iGoldPerProduction>
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #21 -->
 			<!-- advc.912d: was 30 -->
-			<iProductionPerPopulation>24</iProductionPerPopulation>
+			<iProductionPerPopulation>27</iProductionPerPopulation>
 			<bAnger>1</bAnger>
 			<Button>Art/Interface/MainScreen/CityScreen/hurry_slavery.dds</Button>
 		</HurryInfo>

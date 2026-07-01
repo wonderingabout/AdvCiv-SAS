@@ -39,8 +39,7 @@ namespace
 	(The template param instead of a call param is just for performance.
 	Probably shouldn't have concerned myself with that ...) */
 template<bool bFORCE_INIT>
-int setupCombatantsImpl(CvUnit const& kAttacker, CvUnit const& kDefender,
-	Combatant& att, Combatant& def, bool bHideFreeWins = true)
+int setupCombatantsImpl(CvUnit const& kAttacker, CvUnit const& kDefender, Combatant& att, Combatant& def, bool bHideFreeWins = true)
 {
 	// Needs to match CvUnit::getDefenderCombatValues, getCombatFirstStrikes.
 	{
@@ -143,9 +142,7 @@ int setupCombatantsImpl(CvUnit const& kAttacker, CvUnit const& kDefender,
 	by the per-round odds; -1 otherwise. Not guaranteed to fully initialize
 	the combatants (it's assumed that the caller won't need them when the
 	odds are trivial). */
-int setupCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
-	Combatant& att, Combatant& def,
-	bool bHideFreeWins = true) // advc.048c
+int setupCombatants(CvUnit const& kAttacker, CvUnit const& kDefender, Combatant& att, Combatant& def, bool bHideFreeWins = true) // advc.048c
 {
 	return setupCombatantsImpl<false>(kAttacker, kDefender, att, def, bHideFreeWins);
 }
@@ -170,9 +167,7 @@ int iBinomial(int iN, int iK)
 	Returns a float value (between 0 and 1)
 	Written by PieceOfMind
 	advc: Cut from CvGameTextMgr.cpp */
-float combat_odds::getCombatOddsSpecific(
-	CvUnit const& kAttacker, CvUnit const& kDefender,
-	int iHitsByDef, int iHitsByAtt) // advc: Renamed from "n_A", "n_D"
+float combat_odds::getCombatOddsSpecific(CvUnit const& kAttacker, CvUnit const& kDefender, int iHitsByDef, int iHitsByAtt) // advc: Renamed from "n_A", "n_D"
 {
 	// <advc> Replacing redundant ACO code
 	Combatant att, def;
@@ -346,8 +341,7 @@ int const LFB_ODDS_EXTRA_ACCURACY = 32;
 
 /*	Perform the actual odds calculation (basically identical to the default algorithm
 	except that we retain a little more accuracy) */
-int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker,
-	int iNeededRoundsDefender, int iAttackerOdds)
+int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
 {
 	int const iMaxRounds = iNeededRoundsAttacker + iNeededRoundsDefender - 1;
 	int iOdds = 0;
@@ -446,8 +440,7 @@ int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker,
 }
 
 
-int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes,
-	int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
 {
 	// Index==0 => AttackerOdds==0 => no chance to win
 	if (iOddsIndex == 0)
@@ -487,8 +480,7 @@ int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes
 }
 
 
-int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes,
-	int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
 {
 	// Grow the arrays as needed
 	// First dimension is the first strikes
@@ -541,8 +533,7 @@ int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrik
 }
 
 // lookup the combat odds in the cache for a specific sub-result
-int LFBlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker,
-	int iNeededRoundsDefender, int iAttackerOdds)
+int LFBlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
 {
 	int iOdds = 0;
 	/*	We actually maintain two caches - one for positive first strikes (plus zero)
@@ -682,8 +673,7 @@ int estimateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, int iSa
 } // (end of unnamed namespace)
 
 // Unlike setupCombatants, this is guaranteed to initialize the combatants.
-void combat_odds::initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
-	Combatant& att, Combatant& def, bool bHideFreeWins)
+void combat_odds::initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender, Combatant& att, Combatant& def, bool bHideFreeWins)
 {
 	setupCombatantsImpl<true>(kAttacker, kDefender, att, def, bHideFreeWins);
 }
@@ -691,8 +681,7 @@ void combat_odds::initCombatants(CvUnit const& kAttacker, CvUnit const& kDefende
 /*	Calculates combat odds, given two units
 	Returns value from 0-1000
 	Written by DeepO (advc: gutted) */
-int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender,
-	bool bHideFreeWins) // advc.048c
+int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, bool bHideFreeWins) // advc.048c
 {
 	PROFILE_FUNC(); // advc: OK - not called all that frequently.
 	// setup battle, calculate strengths and odds

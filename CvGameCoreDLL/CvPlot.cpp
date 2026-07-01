@@ -12,10 +12,13 @@
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Civics.h" // for calculateImprovementYieldChange with bOptimal=true
+#include "CvCivilization.h" // <!-- custom: Resolve the player's civilization-specific Harbor-class building when calculating its assumed water-food yield. (GPT-5.5) -->
 #include "Trigonometry.h"
 #include "CvDLLSymbolIFaceBase.h"
 #include "CvDLLPlotBuilderIFaceBase.h"
 #include "CvDLLFlagEntityIFaceBase.h"
+// <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
+#include "BBAILog.h"
 
 /*	advc.make: I've added safeIntCast calls in a few places that looked at least
 	slightly hazardous. Beyond that, explicit casts would only add clutter.
@@ -578,7 +581,8 @@ void CvPlot::updateSymbols()
 
 	if (iMaxYieldRate > 0)
 	{
-		static int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK"); // advc.opt: static
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK"); // advc.opt: static
 		int iLayers = iMaxYieldRate / iMAX_YIELD_STACK + 1;
 
 		CvSymbol* pSymbol = NULL;
@@ -831,6 +835,13 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
 	// </advc.650>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iNUKE_FEATURE = GC.getDefineINT("NUKE_FEATURE");
+	// <!-- custom: also static const the enum as it shouldn't change as chatgpt 5 agrees as well after i asked it but check if accurate as i don't know too much about these but it does seem so but check to be sure-->
+	static const FeatureTypes eNUKE_FEATURE = (FeatureTypes)iNUKE_FEATURE;
+
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
@@ -853,13 +864,13 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 									GC.getInfo(p.getImprovementType()).getDescription()));
 						}
 						if (p.isFeature() &&
-							p.getFeatureType() != GC.getDefineINT("NUKE_FEATURE"))
+							p.getFeatureType() != iNUKE_FEATURE)
 						{
 							aFeatureDestroyed.push_back(NukeEffect(&p,
 									GC.getInfo(p.getFeatureType()).getDescription()));
 						} // </advc.650>
 						p.setImprovementType(NO_IMPROVEMENT);
-						p.setFeatureType((FeatureTypes)GC.getDefineINT("NUKE_FEATURE"));
+						p.setFeatureType(eNUKE_FEATURE);
 					}
 				}
 			}
@@ -1721,8 +1732,7 @@ int CvPlot::seeThroughLevel() const
 }
 
 
-void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
-	CvUnit const* pUnit, bool bUpdatePlotGroups)
+void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, CvUnit const* pUnit, bool bUpdatePlotGroups)
 {
 	PROFILE_FUNC(); // advc: See comment in canSeeDisplacementPlot
 
@@ -1796,8 +1806,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
 }
 
 
-bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange,
-	DirectionTypes eFacingDirection) const
+bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {
 	PROFILE_FUNC(); // advc.test: See comment in canSeeDisplacementPlot
 	if (pPlot == NULL)
@@ -1835,8 +1844,7 @@ namespace
 	// advc: Moved from CvGameCoreUtils.h b/c it was only used here. Then replaced with:
 	__inline int getSign(int x) { return (x > 0) - (x < 0); }
 }
-bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY,
-	int iOriginalDX, int iOriginalDY, bool bFirstPlot, bool bOuterRing) const
+bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY, int iOriginalDX, int iOriginalDY, bool bFirstPlot, bool bOuterRing) const
 {
 	/*	advc (note): This gets called very frequently.
 		Could adopt some optimizations from "We the People":
@@ -1922,8 +1930,8 @@ bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int iDX, int iDY,
 }
 
 
-bool CvPlot::shouldProcessDisplacementPlot(int iDX, int iDY, //int iRange, // advc: unused
-	DirectionTypes eFacingDirection) const
+// int iRange, // advc: unused <!-- custom: hoisted from multiline signature between `iDY` and `eFacingDirection` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::shouldProcessDisplacementPlot(int iDX, int iDY, DirectionTypes eFacingDirection) const
 {
 	if (eFacingDirection == NO_DIRECTION)
 		return true;
@@ -2060,9 +2068,8 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups)
 }
 
 
-bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
-	bool bIgnoreFeature, // advc.129
-	bool bIgnoreCurrentBonus) const // advc.tsl
+// advc.129 <!-- custom: hoisted from multiline signature between `bIgnoreFeature` and `bIgnoreCurrentBonus` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude, bool bIgnoreFeature, bool bIgnoreCurrentBonus) const // advc.tsl
 {
 	if (eBonus == NO_BONUS)
 		return true;
@@ -2131,8 +2138,7 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
 }
 
 
-bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential,
-	BuildTypes eBuild, bool bAnyBuild) const // kekm.9
+bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, bool bPotential, BuildTypes eBuild, bool bAnyBuild) const // kekm.9
 {
 	/*  K-Mod, 21/dec/10, karadoc
 		changed to check for NO_IMPROVEMENT rather than just assume the input is an actual improvement */
@@ -2285,8 +2291,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 }
 
 
-bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
-	bool bIgnoreFoW) const // advc.181
+bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bIgnoreFoW) const // advc.181
 {
 	if (eBuild == NO_BUILD)
 		return false;
@@ -2423,8 +2428,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer)
 }
 
 
-int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer,
-	int iNowExtra, int iThenExtra, /* advc.011c: */ bool bIncludeUnits) const
+int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer, int iNowExtra, int iThenExtra, /* advc.011c: */ bool bIncludeUnits) const
 {
 	int iNowBuildRate = iNowExtra;
 	int iThenBuildRate = iThenExtra;
@@ -2474,8 +2478,7 @@ int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer) const
 }
 
 
-int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity,
-	CvPlot const* pCityPlot, PlayerTypes eCityOwner) const // advc.031
+int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** ppCity, CvPlot const* pCityPlot, PlayerTypes eCityOwner) const // advc.031
 {
 	*ppCity = NULL; // advc: Don't rely on caller to do this
 	if (!isFeature())
@@ -2497,7 +2500,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
 		eCityOwner = kCity.getOwner();
 		iPopulation = kCity.getPopulation(); // </advc.031>
 	}
-	
+
 	int iProduction = (GC.getInfo(eBuild).getFeatureProduction(getFeatureType()) -
 			std::max(0, plotDistance(this, pCityPlot) - 2) * 5);
 
@@ -2525,8 +2528,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
 }
 
 
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner,
-	/* <advc> */ DefenderFilters& kFilters) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, /* <advc> */ DefenderFilters& kFilters) const
 {
 	PROFILE_FUNC();
 	// Ensure consistency of parameters
@@ -2594,9 +2596,8 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 }
 
 
-int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
-	TeamTypes eAttacker, // advc.012
-	bool bHelp, /* advc.500b: */ bool bGarrisonStrength) const
+// advc.012 <!-- custom: hoisted from multiline signature between `eAttacker` and `bHelp` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, TeamTypes eAttacker, bool bHelp, /* advc.500b: */ bool bGarrisonStrength) const
 {
 	int iModifier = GC.getInfo(getTerrainType()).getDefenseModifier();
 	FeatureTypes eFeature = getFeatureType();
@@ -2651,9 +2652,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
 }
 
 
-int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom,
-	bool bAssumeRevealed, // advc.001i
-	bool bIgnoresRoute) const // advc.001t
+// advc.001i <!-- custom: hoisted from multiline signature between `bAssumeRevealed` and `bIgnoresRoute` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvPlot::movementCost(CvUnit const& kUnit, CvPlot const& kFrom, bool bAssumeRevealed, bool bIgnoresRoute) const // advc.001t
 {
 	// <advc.162>
 	if(kUnit.isInvasionMove(kFrom, *this))
@@ -2831,8 +2831,7 @@ void CvPlot::invalidateBorderDangerCache()
 }
 
 
-PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange,
-	bool bOwnExclusiveRadius) const // advc.035
+PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange, bool bOwnExclusiveRadius) const // advc.035
 {
 	PROFILE_FUNC();
 	/*  advc.001: When a city is captured, the tiles in its culture range (but I
@@ -2948,8 +2947,7 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
 }
 
 
-void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2,
-	PlayerTypes eOwner, TeamTypes eTeam)
+void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
 {
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
@@ -2962,9 +2960,7 @@ void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2,
 }
 
 
-int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
-	PlayerTypes eOwner, TeamTypes eTeam,
-	ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
 	int iCount = 0;
 	FOR_EACH_UNIT_IN(pUnit, *this)
@@ -2985,9 +2981,7 @@ int CvPlot::plotCount(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
 }
 
 
-CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A,
-	PlayerTypes eOwner, TeamTypes eTeam,
-	ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
+CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, PlayerTypes eOwner, TeamTypes eTeam, ConstPlotUnitFunc funcB, int iData1B, int iData2B) const
 {
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
@@ -3226,8 +3220,7 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 }
 
 // advc.ctr:
-bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace,
-	int iRange) const
+bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace, int iRange) const
 {
 	//PROFILE_FUNC(); // (rarely called so far)
 	for (SquareIter it(*this, iRange, true); it.hasNext(); ++it)
@@ -3264,8 +3257,7 @@ bool CvPlot::isVisibleEnemyUnit(CvUnit const* pUnit, CvUnit const* pPotentialEne
 }
 
 
-bool CvPlot::canHaveFeature(FeatureTypes eFeature,
-	bool bIgnoreCurrentFeature) const // advc.055
+bool CvPlot::canHaveFeature(FeatureTypes eFeature, bool bIgnoreCurrentFeature) const // advc.055
 {
 	if (eFeature == NO_FEATURE)
 		return true;
@@ -3314,8 +3306,7 @@ bool CvPlot::canHaveFeature(FeatureTypes eFeature,
 }
 
 // advc: rewritten
-bool CvPlot::isValidRoute(CvUnit const* pUnit,
-	/* <advc.001i> */ bool bAssumeRevealed) const
+bool CvPlot::isValidRoute(CvUnit const* pUnit, /* <advc.001i> */ bool bAssumeRevealed) const
 {
 	//if (!isRoute()) return false;
 	CvTeam const& kTeam = GET_TEAM(pUnit->getOwner());
@@ -3639,8 +3630,7 @@ void CvPlot::initArea()
 }
 
 
-CvArea* CvPlot::waterArea(
-	bool bNoImpassable) const // BETTER_BTS_AI_MOD, General AI, 01/02/09, jdog5000
+CvArea* CvPlot::waterArea(bool bNoImpassable) const // BETTER_BTS_AI_MOD, General AI, 01/02/09, jdog5000
 {
 	if (isWater())
 		return area();
@@ -4096,6 +4086,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 	CvCity* pOldCity = getPlotCity();
 	if (pOldCity != NULL)  // advc: Removed some assertions and NULL/NO_... checks in this block
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		/*  advc.101: Include pre-revolt owner in messages (sometimes not easy
 			to tell once the city has flipped, and in replays). */
 		wchar const* szOldOwnerDescr = GET_PLAYER(pOldCity->getOwner()).
@@ -4106,12 +4101,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 		gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, *this,
 				"AS2D_CULTUREFLIP", MESSAGE_TYPE_MAJOR_EVENT, 
 				ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-				GC.getColorType("RED"));
+				eColorRed);
 		gDLL->UI().addMessage(eNewValue, false, -1, szBuffer, *this,
 				"AS2D_CULTUREFLIP",
 				MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
 				ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
-				GC.getColorType("GREEN"));
+				eColorGreen);
 		// <advc.101> Tell other civs about it (akin to code in CvCity::doRevolt)
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -4124,9 +4119,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
 			ColorTypes eColor = NO_COLOR;
 			InterfaceMessageTypes eMsgType = MESSAGE_TYPE_MAJOR_EVENT;
 			if (GET_TEAM(eNewValue).isVassal(kObs.getTeam()))
-				eColor = GC.getColorType("GREEN");
+				eColor = eColorGreen;
 			else if (GET_TEAM(pOldCity->getTeam()).isVassal(kObs.getTeam()))
-				eColor = GC.getColorType("RED");
+				eColor = eColorRed;
 			else eMsgType = MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY; // advc.106b
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, *this,
 					0, eMsgType, ARTFILEMGR.getInterfaceArtPath("WORLDBUILDER_CITY_EDIT"),
@@ -4663,8 +4658,7 @@ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
 }
 
 
-BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam,
-	bool bCheckConnected) const // K-Mod
+BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected) const // K-Mod
 {
 	FAssert(eTeam != NO_TEAM);
 	FAssertMsg(GET_TEAM(eTeam).isAlive(), "advc.064d: OK if eTeam has just died"); // K-Mod
@@ -4736,8 +4730,7 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
 }
 
 
-void CvPlot::setImprovementType(ImprovementTypes eNewValue,
-	bool bUpdateInFoW) // advc.055
+void CvPlot::setImprovementType(ImprovementTypes eNewValue, bool bUpdateInFoW) // advc.055
 {
 	ImprovementTypes const eOldImprovement = getImprovementType();
 	if (getImprovementType() == eNewValue)
@@ -4755,6 +4748,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue,
 			getArea().changeNumImprovements(eOldImprovement, -1);*/
 		if (isOwned())
 			GET_PLAYER(getOwner()).changeImprovementCount(eOldImprovement, -1);
+	}
+
+	// <!-- custom: Diagnostic-only log for repeated Work Boat replacement. BBAI logs showed Work Boats successfully improving the same seafood multiple times, then cities later counting the target as unimproved again; log when an owned water bonus loses a connecting sea improvement so we can distinguish pillage/destruction/ownership churn from production overqueue. No behavior change. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+	if (gWorkerSeaLogLevel >= 2 && isWater() && isOwned() && eOldImprovement != NO_IMPROVEMENT)
+	{
+		CvPlayer const& kOwner = GET_PLAYER(getOwner());
+		BonusTypes const eBonus = getNonObsoleteBonusType(kOwner.getTeam());
+		if (eBonus != NO_BONUS && kOwner.doesImprovementConnectBonus(eOldImprovement, eBonus) &&
+			(eNewValue == NO_IMPROVEMENT || !kOwner.doesImprovementConnectBonus(eNewValue, eBonus)))
+		{
+			CvCity const* pWorkingCity = getWorkingCity();
+			CvWString const szWorkingCity = (pWorkingCity == NULL ? CvWString(L"-") : pWorkingCity->getName());
+			logBBAI("    WORKER_SEA_IMPROVEMENT_LOST turn=%d owner=%d %S plot=(%d,%d) area=%d bonus=%S oldImprovement=%S newImprovement=%S workingCity=%S workingCityId=%d visibleEnemy=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getX(), getY(), getArea().getID(), GC.getInfo(eBonus).getDescription(), GC.getInfo(eOldImprovement).getDescription(), (eNewValue == NO_IMPROVEMENT ? L"-" : GC.getInfo(eNewValue).getDescription()), szWorkingCity.GetCString(), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), isVisibleEnemyUnit(getOwner()));
+		}
 	}
 
 	updatePlotGroupBonus(false, /* advc.064d: */ false);
@@ -5178,8 +5186,7 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const
 }
 
 
-int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature,
-	bool bIgnoreHills) const // advc.300
+int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature, bool bIgnoreHills) const // advc.300
 {
 	// advc.016: Cut from calculateYield
 	int iYieldRate = GC.getMap().getPlotExtraYield(*this, eYield);
@@ -5248,11 +5255,226 @@ int CvPlot::calculateTotalBestNatureYield(TeamTypes eTeam) const
 			calculateBestNatureYield(YIELD_COMMERCE, eTeam);
 }
 
+
+BuildTypes CvPlot::SAS_getBonusSpecificBuild(BonusTypes eBonus) const
+{
+	if (eBonus == NO_BONUS)
+		return NO_BUILD;
+	int const iNumBonuses = GC.getNumBonusInfos();
+	FAssertBounds(0, iNumBonuses, eBonus);
+	if (eBonus < 0 || eBonus >= iNumBonuses)
+		return NO_BUILD;
+
+	// <!-- custom: Resource improvements are unique per (bonus, land/water) in current XML except that Oil intentionally has Well on land and Offshore Platform on water. Cache both domains together; if future XML adds a same-domain alternative, prefer food, then total yield, then later XML order. Fort-like improvements connect resources generically rather than being their intended yield improvement, so exclude them. (GPT-5.5) -->
+	static std::vector<BuildTypes> aBuildsByDomain[2];
+	static bool bInitialized = false;
+	if (!bInitialized)
+	{
+		aBuildsByDomain[0].assign(iNumBonuses, NO_BUILD);
+		aBuildsByDomain[1].assign(iNumBonuses, NO_BUILD);
+		for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); ++iBuild)
+		{
+			BuildTypes const eBuild = static_cast<BuildTypes>(iBuild);
+			ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+			if (eImprovement == NO_IMPROVEMENT)
+				continue;
+			CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+			if (kImprovement.isActsAsCity())
+				continue;
+			std::vector<BuildTypes>& aDomainBuilds = aBuildsByDomain[kImprovement.isWater() ? 1 : 0];
+			for (int iBonus = 0; iBonus < iNumBonuses; ++iBonus)
+			{
+				BonusTypes const eLoopBonus = static_cast<BonusTypes>(iBonus);
+				if (!kImprovement.isImprovementBonusTrade(eLoopBonus))
+					continue;
+				BuildTypes const eCurrentBuild = aDomainBuilds[eLoopBonus];
+				bool bReplace = (eCurrentBuild == NO_BUILD);
+				if (!bReplace)
+				{
+					ImprovementTypes const eCurrentImprovement = GC.getInfo(eCurrentBuild).getImprovement();
+					CvImprovementInfo const& kCurrentImprovement = GC.getInfo(eCurrentImprovement);
+					int const iCandidateFood = kImprovement.getYieldChange(YIELD_FOOD) + kImprovement.getImprovementBonusYield(eLoopBonus, YIELD_FOOD);
+					int const iCurrentFood = kCurrentImprovement.getYieldChange(YIELD_FOOD) + kCurrentImprovement.getImprovementBonusYield(eLoopBonus, YIELD_FOOD);
+					int iCandidateTotal = 0;
+					int iCurrentTotal = 0;
+					FOR_EACH_ENUM(Yield)
+					{
+						iCandidateTotal += kImprovement.getYieldChange(eLoopYield) + kImprovement.getImprovementBonusYield(eLoopBonus, eLoopYield);
+						iCurrentTotal += kCurrentImprovement.getYieldChange(eLoopYield) + kCurrentImprovement.getImprovementBonusYield(eLoopBonus, eLoopYield);
+					}
+					bReplace = (iCandidateFood > iCurrentFood || (iCandidateFood == iCurrentFood && iCandidateTotal >= iCurrentTotal));
+				}
+				if (bReplace)
+					aDomainBuilds[eLoopBonus] = eBuild;
+			}
+		}
+		bInitialized = true;
+	}
+	return aBuildsByDomain[isWater() ? 1 : 0][eBonus];
+}
+
+
+ImprovementTypes CvPlot::SAS_getBonusSpecificImprovement(BonusTypes eBonus) const
+{
+	BuildTypes const eBuild = SAS_getBonusSpecificBuild(eBonus);
+	return (eBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eBuild).getImprovement());
+}
+
+
+int CvPlot::SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const
+{
+	BuildTypes const eBuild = SAS_getBonusSpecificBuild(eBonus);
+	if (eBuild == NO_BUILD)
+		return 0;
+	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+	CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+	int iFoodChange = kImprovement.getYieldChange(YIELD_FOOD) + kImprovement.getImprovementBonusYield(eBonus, YIELD_FOOD);
+	if (isRiverSide())
+		iFoodChange += kImprovement.getRiverSideYieldChange(YIELD_FOOD);
+	if (isHills())
+		iFoodChange += kImprovement.getHillsYieldChange(YIELD_FOOD);
+	FeatureTypes const eFeature = getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getInfo(eBuild).isFeatureRemove(eFeature))
+	{
+		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+		CvTerrainInfo const& kTerrain = GC.getInfo(getTerrainType());
+		iFoodChange -= kFeature.getYieldChange(YIELD_FOOD);
+		if (isRiver())
+			iFoodChange += kTerrain.getRiverYieldChange(YIELD_FOOD) - kFeature.getRiverYieldChange(YIELD_FOOD);
+		if (isHills())
+			iFoodChange += kTerrain.getHillsYieldChange(YIELD_FOOD) - kFeature.getHillsYieldChange(YIELD_FOOD);
+	}
+	return iFoodChange;
+}
+
+
+// <!-- custom: A candidate city can work a water tile in its BFC without bordering that water area, but improving its resource requires Work Boat access. Assume the bonus-specific improvement when the candidate or another owned city borders the same connected water area, or when a connecting improvement already exists (e.g. retained after culture expansion); a rival city bordering the area does not give us access. (GPT-5.5) -->
+bool CvPlot::SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const
+{
+	if (!isWater())
+		return true;
+	if (eVisibleBonus == NO_BONUS)
+		return false;
+	if (kCandidateCityPlot.isAdjacentToArea(getArea()) || getArea().getCitiesPerPlayer(ePlayer, true) > 0)
+		return true;
+	ImprovementTypes const eCurrentImprovement = getImprovementType();
+	return (eCurrentImprovement != NO_IMPROVEMENT && GC.getInfo(eCurrentImprovement).isImprovementBonusTrade(eVisibleBonus));
+}
+
+
+// <!-- custom: Measure net food pressure as the food consumed by one citizen minus this plot's potential food. Potential food includes natural terrain/feature food, visible bonus food, food from its bonus-specific improvement, and caller-approved Harbor-class food for water plots. Surplus food returns a negative score and offsets poor plots across the BFC; crediting bonus food first lets callers use stricter thresholds for sites that remain net food-poor without hardcoding terrain names. (GPT-5.5) -->
+int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const
+{
+	int const iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+	int iPotentialFood = calculateNatureYield(YIELD_FOOD, NO_TEAM);
+	int iPotentialFoodWithoutHill = calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true);
+	if (!isImpassable())
+	{
+		if (eVisibleBonus != NO_BONUS)
+		{
+			int const iBonusNaturalFood = GC.getInfo(eVisibleBonus).getYieldChange(YIELD_FOOD);
+			int const iBonusImprovementFood = (isWater() && !bCanAssumeWaterBonusImprovement ? 0 : SAS_getBonusImprovementFoodChange(eVisibleBonus));
+			iPotentialFood += iBonusNaturalFood + iBonusImprovementFood;
+			iPotentialFoodWithoutHill += iBonusNaturalFood + iBonusImprovementFood;
+		}
+		if (isWater())
+			iPotentialFood += iSeaPlotFoodChange;
+	}
+	int const iScore = iFoodPerPopulation - iPotentialFood;
+	// <!-- custom: Grass Hill currently stands out without naming Grass: its underlying terrain can feed one citizen, and becoming a hill trades one food for strong production. Keep any hill whose non-hill food potential is self-feeding from making an otherwise productive environment look food-poor. (GPT-5.5) -->
+	if (isHills() && iPotentialFoodWithoutHill >= iFoodPerPopulation)
+		return std::min(0, iScore);
+	return iScore;
+}
+
+
+// <!-- custom: Classify permanently weak BFC slots from XML properties and yields instead of terrain names. Impassable plots always count; visible bonuses on usable plots do not, because their specialized value is handled elsewhere. For other plots, compare 4 * food + 2 * production + commerce using natural yield and long-term XML-valid improvement potential. Stop once an improvement reaches the minimum because only the below-threshold classification and exact failing score are needed. (GPT-5.5 + ChatGPT-5.5 review) -->
+bool CvPlot::SAS_isVeryBadBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const
+{
+	FAssert(ePlayer != NO_PLAYER);
+	FAssert(iMinPotentialYieldScore >= 0);
+	iBestPotentialYieldScore = 0;
+	if (ePlayer == NO_PLAYER)
+		return false;
+	if (isImpassable())
+		return true;
+	if (eVisibleBonus != NO_BONUS)
+		return false;
+
+	TeamTypes const eTeam = TEAMID(ePlayer);
+	int const aiYieldWeight[NUM_YIELD_TYPES] = {4, 2, 1};
+	FOR_EACH_ENUM(Yield)
+	{
+		int iYield = calculateNatureYield(eLoopYield, NO_TEAM);
+		if (isWater() && eLoopYield == YIELD_FOOD)
+			iYield += iSeaPlotFoodChange;
+		iBestPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
+	}
+	if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
+		return false;
+
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eImprovement = kBuild.getImprovement();
+		if (eImprovement == NO_IMPROVEMENT ||
+			!canHaveImprovement(eImprovement, eTeam, true, eLoopBuild, false))
+		{
+			continue;
+		}
+		bool const bRemoveFeature = (isFeature() && kBuild.isFeatureRemove(getFeatureType()));
+		int iPotentialYieldScore = 0;
+		FOR_EACH_ENUM(Yield)
+		{
+			int iYield = calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature) +
+					calculateImprovementYieldChange(eImprovement, eLoopYield, ePlayer);
+			if (isWater() && eLoopYield == YIELD_FOOD)
+				iYield += iSeaPlotFoodChange;
+			iPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
+		}
+		iBestPotentialYieldScore = std::max(iBestPotentialYieldScore, iPotentialYieldScore);
+		if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
+			return false;
+	}
+	return true;
+}
+
+
+// <!-- custom: Classify whether a non-home BFC slot is good enough for the first-city minimum-tile sanity check. This is deliberately weaker than "good": usable land with a visible bonus counts, no-bonus land must not be persistently very bad, and water only counts when a visible bonus can reasonably be improved or is already improved. Ordinary coast/ocean stays excluded so the first city still needs enough useful BFC slots. (ChatGPT-5.5) -->
+bool CvPlot::SAS_isGoodEnoughFirstCityBFCPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot, bool bVeryBadBFCPlot) const
+{
+	FAssert(ePlayer != NO_PLAYER);
+	if (ePlayer == NO_PLAYER || isImpassable())
+		return false;
+	if (isWater())
+		return (eVisibleBonus != NO_BONUS && SAS_canAssumeWaterBonusImprovement(eVisibleBonus, ePlayer, kCandidateCityPlot));
+	if (eVisibleBonus != NO_BONUS)
+		return true;
+	return !bVeryBadBFCPlot;
+}
+
+
+int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
+{
+	// <!-- custom: Assertions diagnose invalid player/building data in assert builds; the matching sentinel guards remain active in Release and avoid invalid lookups by contributing no assumed food. (GPT-5.5 + ChatGPT-5.5 review) -->
+	FAssert(ePlayer != NO_PLAYER);
+	if (ePlayer == NO_PLAYER)
+		return 0;
+	static BuildingClassTypes const eWaterFoodBuildingClass = static_cast<BuildingClassTypes>(GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME")));
+	FAssert(eWaterFoodBuildingClass != NO_BUILDINGCLASS);
+	if (eWaterFoodBuildingClass == NO_BUILDINGCLASS)
+		return 0;
+	BuildingTypes const eWaterFoodBuilding = GET_PLAYER(ePlayer).getCivilization().getBuilding(eWaterFoodBuildingClass);
+	FAssert(eWaterFoodBuilding != NO_BUILDING);
+	if (eWaterFoodBuilding == NO_BUILDING)
+		return 0;
+	return GC.getInfo(eWaterFoodBuilding).getSeaPlotYieldChange(YIELD_FOOD);
+}
+
+
 /*	advc: Params bBestRoute (BBAI) and bOptimal (Vanilla Civ 4) removed b/c
 	they've been obsoleted by K-Mod. Had been used by CvCityAI. */
-int CvPlot::calculateImprovementYieldChange(
-	ImprovementTypes eImprovement, YieldTypes eYield,
-	PlayerTypes ePlayer) const
+int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const
 {
 	PROFILE_FUNC();
 
@@ -5277,7 +5499,7 @@ int CvPlot::calculateImprovementYieldChange(
 		if (eRoute != NO_ROUTE)
 			iYield += kImpr.getRouteYieldChanges(eRoute, eYield);
 	}
-	
+
 	if (eYieldPlayer == NO_PLAYER)
 	{
 		FOR_EACH_ENUM(Tech)
@@ -5436,8 +5658,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
 }
 
 // advc.031: Cut from calculateYield
-int CvPlot::calculateCityPlotYieldChange(YieldTypes eYield, int iYield,
-	int iCityPopulation) const
+int CvPlot::calculateCityPlotYieldChange(YieldTypes eYield, int iYield, int iCityPopulation) const
 {
 	int const iOldYield = iYield;
 	CvYieldInfo const& kYield = GC.getInfo(eYield);
@@ -5556,8 +5777,7 @@ int CvPlot::calculateFriendlyCulturePercent(TeamTypes eTeam) const
 }
 
 
-void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,
-	bool bUpdatePlotGroups)
+void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bUpdatePlotGroups)
 {
 	PROFILE_FUNC();
 
@@ -5588,13 +5808,14 @@ void CvPlot::changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate)
 }
 
 
+// <!-- custom: found-value pipeline uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
 int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) const
 {
 	FAssertBounds(0, MAX_PLAYERS, eIndex);
 
 	if (m_aiFoundValue.get(eIndex) == -1)
 	{
-		short iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
+		int iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
 		if (iValue == -1)
 		{
 			// advc: Otherwise bStartingLoc=true probably isn't correct
@@ -5645,14 +5866,13 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex) /* advc: */ const
 }
 
 
-void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
+void CvPlot::setFoundValue(PlayerTypes eIndex, int iNewValue)
 {
 	m_aiFoundValue.set(eIndex, iNewValue);
 }
 
 // advc: Cut from CvPlayer::canFound (for advc.027)
-bool CvPlot::canFound(bool bTestVisible,
-	TeamTypes eTeam) const // advc.181
+bool CvPlot::canFound(bool bTestVisible, TeamTypes eTeam) const // advc.181
 {
 	if (!canEverFound()) // advc.129d: Moved into another new function
 		return false;
@@ -5660,7 +5880,7 @@ bool CvPlot::canFound(bool bTestVisible,
 		but doesn't hurt to make sure. */
 	if (eTeam != NO_TEAM && !isRevealed(eTeam))
 		return false; // </advc.181>
-	
+
 	if (isFeature() && GC.getInfo(getFeatureType()).isNoCity())
 		return false; // (advc.opt: Moved down)
 
@@ -5733,8 +5953,7 @@ CvPlotGroup* CvPlot::getOwnerPlotGroup() const
 }
 
 
-void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue,
-	bool bVerifyProduction) // advc.064d
+void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue, bool bVerifyProduction) // advc.064d
 {
 	CvPlotGroup* pOldPlotGroup = getPlotGroup(ePlayer);
 	if (pOldPlotGroup == pNewValue)
@@ -5784,8 +6003,7 @@ void CvPlot::updatePlotGroup(/* advc.064d: */ bool bVerifyProduction)
 }
 
 
-void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
-	bool bVerifyProduction) // advc.064d
+void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate, bool bVerifyProduction) // advc.064d
 {
 	if (!GC.getGame().isFinalInitialized())
 		return;
@@ -5857,9 +6075,7 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
 }
 
 
-void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange,
-	InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups,
-	CvUnit const* pUnit) // advc.071
+void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups, CvUnit const* pUnit) // advc.071
 {
 	if(iChange == 0)
 		return;
@@ -6175,8 +6391,7 @@ bool CvPlot::isRevealed(TeamTypes eTeam, bool bDebug) const
 }
 
 
-void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,
-	TeamTypes eFromTeam, bool bUpdatePlotGroup)
+void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, TeamTypes eFromTeam, bool bUpdatePlotGroup)
 {
 	FAssertBounds(0, MAX_TEAMS, eTeam);
 
@@ -6262,8 +6477,7 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,
 }
 
 
-bool CvPlot::isAdjacentRevealed(TeamTypes eTeam,
-	bool bSkipOcean) const // advc.205c
+bool CvPlot::isAdjacentRevealed(TeamTypes eTeam, bool bSkipOcean) const // advc.205c
 {
 	FOR_EACH_ADJ_PLOT(*this)
 	{
@@ -6339,8 +6553,7 @@ void CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 }
 
 // Returns true if build finished...
-bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
-	/*TeamTypes eTeam*/ /* advc.251: */ PlayerTypes ePlayer)
+bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTeam*/ /* advc.251: */ PlayerTypes ePlayer)
 {
 	CvWString szBuffer;
 
@@ -6363,7 +6576,30 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
 
 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
-		setImprovementType(kBuild.getImprovement());
+	{
+		ImprovementTypes const eOldImprovement = getImprovementType();
+		ImprovementTypes const eNewImprovement = kBuild.getImprovement();
+
+		// <!-- custom: Log completed worker builds that replace one improvement with another.
+		// This helps find real farm/cottage/workshop oscillation cases before changing worker logic. Credit: ChatGPT 5.5.  (GPT-5.5 review) -->
+		// <!-- custom: this fires 339 times in a ~421 turn sample at normal gamespeed large pangea, so fine to keep to level 2 and useful info deemed important enough for now. -->
+		if (gWorkerLogLevel >= 2 && eOldImprovement != NO_IMPROVEMENT && eOldImprovement != eNewImprovement)
+		{
+			logBBAI("    WORKER-IMPROVEMENT overwrite: turn=%d elapsed=%d player=%S plot=%d,%d old=%S new=%S build=%S owner=%d bonus=%S route=%S",
+					GC.getGame().getGameTurn(),
+					GC.getGame().getElapsedGameTurns(),
+					GET_PLAYER(ePlayer).getCivilizationDescription(0),
+					getX(), getY(),
+					GC.getInfo(eOldImprovement).getDescription(),
+					GC.getInfo(eNewImprovement).getDescription(),
+					kBuild.getDescription(),
+					getOwner(),
+					getBonusType(eTeam) == NO_BONUS ? L"-" : GC.getInfo(getBonusType(eTeam)).getDescription(),
+					getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(getRouteType()).getDescription());
+		}
+
+		setImprovementType(eNewImprovement);
+	}
 
 	if (kBuild.getRoute() != NO_ROUTE)
 		setRouteType(kBuild.getRoute());
@@ -6764,8 +7000,7 @@ bool CvPlot::setCenterUnit(CvUnit* pNewValue)
 }
 
 
-void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex,
-	int iChange, bool bUpdatePlotGroups)
+void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex, int iChange, bool bUpdatePlotGroups)
 {
 	if(iChange == 0)
 		return;
@@ -7230,37 +7465,29 @@ void CvPlot::read(FDataStreamBase* pStream)
 {
 	//reset(); // advc: Constructor handles that
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	pStream->Read(&m_iX);
 	pStream->Read(&m_iY);
+
 	// <advc.opt>
-	if (uiFlag >= 12)
-		pStream->Read(&m_iPlotNum);
-	else updatePlotNum();
+	pStream->Read(&m_iPlotNum);
 	// </advc.opt>
+
 	pStream->Read(&m_iArea);
 
 	pStream->Read(&m_iFeatureVariety);
 	pStream->Read(&m_iOwnershipDuration);
 	pStream->Read(&m_iImprovementDuration);
-	// <advc.912f>
-	if (uiFlag < 9)
-	{
-		short iUpgradeProgress;
-		pStream->Read(&iUpgradeProgress);
-		m_iUpgradeProgress = iUpgradeProgress;
-		m_iUpgradeProgress *= 100;
-	} // </advc.912f>
-	else pStream->Read(&m_iUpgradeProgress);
+
+	pStream->Read(&m_iUpgradeProgress);
 	pStream->Read(&m_iForceUnownedTimer);
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp; pStream->Read(&sTmp);
-		m_iCityRadiusCount = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_iCityRadiusCount);
+	pStream->Read(&m_iCityRadiusCount);
+
 	int iRiver;
 	pStream->Read(&iRiver);
 	if (iRiver < MIN_SHORT || iRiver > MAX_SHORT)
@@ -7269,48 +7496,33 @@ void CvPlot::read(FDataStreamBase* pStream)
 	// </advc.opt>
 	pStream->Read(&m_iMinOriginalStartDist);
 	pStream->Read(&m_iReconCount);
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp; pStream->Read(&sTmp);
-		m_iRiverCrossingCount = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_iRiverCrossingCount); // </advc.opt>
+	pStream->Read(&m_iRiverCrossingCount); // </advc.opt>
+
 	// <advc.tsl>
-	if(uiFlag >= 3)
-	{
-		if (uiFlag < 5)
-		{
-			short sTmp;
-			pStream->Read(&sTmp);
-			m_iLatitude = safeIntCast<char>(sTmp);
-		}
-		else pStream->Read(&m_iLatitude);
-	}
-	else m_iLatitude = calculateLatitude(); // </advc.tsl>
+	pStream->Read(&m_iLatitude);
+	// </advc.tsl>
 
 	bool bVal;
 	pStream->Read(&bVal);
 	m_bStartingPlot = bVal;
-	if(uiFlag < 4) // advc.opt: m_bHills removed
-		pStream->Read(&bVal);
+
 	pStream->Read(&bVal);
 	m_bNOfRiver = bVal;
 	pStream->Read(&bVal);
 	m_bWOfRiver = bVal;
 	pStream->Read(&bVal);
 	m_bIrrigated = bVal;
+
 	// <advc.opt>
-	if (uiFlag >= 7)
-	{
-		pStream->Read(&bVal);
-		m_bImpassable = bVal;
-	}
-	if (uiFlag >= 8) // else CvMap::read will handle it
-	{
-		pStream->Read(&bVal);
-		m_bAnyIsthmus = bVal;
-	} // </advc.opt>
+	pStream->Read(&bVal);
+	m_bImpassable = bVal;
+
+	pStream->Read(&bVal);
+	m_bAnyIsthmus = bVal;
+	// </advc.opt>
+
 	pStream->Read(&bVal);
 	m_bPotentialCityWork = bVal;
 	// m_bShowCitySymbols not saved
@@ -7319,51 +7531,31 @@ void CvPlot::read(FDataStreamBase* pStream)
 	// m_bLayoutStateWorked not saved
 
 	pStream->Read(&m_eOwner);
+
 	// <advc.opt>
-	if (uiFlag >= 6)
-		pStream->Read(&m_eTeam);
-	else updateTeam(); // </advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_ePlotType = safeIntCast<char>(sTmp);
-		pStream->Read(&sTmp);
-		m_eTerrainType = safeIntCast<char>(sTmp);
-		pStream->Read(&sTmp);
-		m_eFeatureType = safeIntCast<char>(sTmp);
-	}
-	else
-	{ // </advc.opt>
-		pStream->Read(&m_ePlotType);
-		pStream->Read(&m_eTerrainType);
-		pStream->Read(&m_eFeatureType);
-	}  // <advc.opt>
-	if (uiFlag < 7)
-		updateImpassable(); // </advc.opt>
+	pStream->Read(&m_eTeam);
+	// </advc.opt>
+
+	// <!-- custom: the base advciv comment note initial tag seems to be missing, i didn't remove it, not adding it either just in case, and is  hehe-->
+	// </advc.opt>
+	pStream->Read(&m_ePlotType);
+	pStream->Read(&m_eTerrainType);
+	pStream->Read(&m_eFeatureType);
+
 	pStream->Read(&m_eBonusType);
 	FAssertInfoEnum((BonusTypes)m_eBonusType); // advc
+
 	// <advc.opt>
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_eImprovementType = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_eImprovementType);
-	if (uiFlag < 5)
-	{
-		short sTmp;
-		pStream->Read(&sTmp);
-		m_eRouteType = safeIntCast<char>(sTmp);
-	}
-	else pStream->Read(&m_eRouteType); // </advc.opt>
+	pStream->Read(&m_eImprovementType);
+
+	pStream->Read(&m_eRouteType); // </advc.opt>
+
 	pStream->Read(&m_eRiverNSDirection);
 	pStream->Read(&m_eRiverWEDirection);
+
 	// <advc.035>
-	if(uiFlag >= 1)
-		pStream->Read(&m_eSecondOwner);
-	else m_eSecondOwner = m_eOwner;
+	pStream->Read(&m_eSecondOwner);
+
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		m_eSecondOwner = m_eOwner; // </advc.035>
 	pStream->Read((int*)&m_plotCity.eOwner);
@@ -7377,118 +7569,48 @@ void CvPlot::read(FDataStreamBase* pStream)
 	m_workingCity.validateOwner();
 	m_workingCityOverride.validateOwner(); // </advc.opt>
 
-	if (uiFlag >= 13)
-		m_aiYield.read(pStream);
-	else if (uiFlag < 5)
-		m_aiYield.readArray<short>(pStream);
-	else m_aiYield.readArray<char>(pStream);
+	m_aiYield.read(pStream);
+
 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
 	/*	K-Mod. I've changed the purpose of invalidateBorderDangerCache.
 		It is no longer appropriate for this. */
 	/*m_iActivePlayerNoBorderDangerCache = false;
 	invalidateBorderDangerCache();*/
 	// BETTER_BTS_AI_MOD: END
-	if (uiFlag >= 13)
-	{
-		m_aiCulture.read(pStream);
-		m_aiFoundValue.read(pStream);
-		m_aiPlayerCityRadiusCount.read(pStream);
-		m_aiPlotGroup.read(pStream);
-		m_aiVisibilityCount.read(pStream);
-		m_aiStolenVisibilityCount.read(pStream);
-		m_aiBlockadedCount.read(pStream);
-		m_aiRevealedOwner.read(pStream);
-		m_abRiverCrossing.read(pStream);
-		m_abRevealed.read(pStream);
-		m_aeRevealedImprovementType.read(pStream);
-		m_aeRevealedRouteType.read(pStream);
-	}
-	else
-	{
-		m_aiCulture.readLazyArray<char,int>(pStream);
-		m_aiFoundValue.readLazyArray<char,short>(pStream);
-		if (uiFlag < 10)
-			m_aiPlayerCityRadiusCount.readLazyArray<char,char>(pStream);
-		else m_aiPlayerCityRadiusCount.readPair<short,short,char>(pStream);
-		m_aiPlotGroup.readLazyArray<char,int>(pStream);
-		m_aiVisibilityCount.readLazyArray<char,short>(pStream);
-		if (uiFlag < 10)
-		{
-			m_aiStolenVisibilityCount.readLazyArray<char,short>(pStream);
-			m_aiBlockadedCount.readLazyArray<char,short>(pStream);
-		}
-		else
-		{
-			m_aiStolenVisibilityCount.readPair<short,short,short>(pStream);
-			m_aiBlockadedCount.readPair<short,short,short>(pStream);
-		}
-		m_aiRevealedOwner.readLazyArray<char,char>(pStream);
-		m_abRiverCrossing.readLazyArray<char,bool>(pStream);
-		m_abRevealed.readLazyArray<char,bool>(pStream);
-		if (uiFlag < 5)
-			m_aeRevealedImprovementType.readLazyArray<char,short>(pStream);
-		else if (uiFlag < 10)
-			m_aeRevealedImprovementType.readLazyArray<char,char>(pStream);
-		else m_aeRevealedImprovementType.readPair<short,short,short>(pStream);
-		if (uiFlag == 10)
-		{	// List-based map didn't work out well here
-			ListEnumMap<TeamTypes,RouteTypes> aeRevealedRouteType;
-			aeRevealedRouteType.readPair<short,short,short>(pStream);
-			if (aeRevealedRouteType.isAnyNonDefault())
-			{
-				FOR_EACH_ENUM(Team)
-					m_aeRevealedRouteType.set(eLoopTeam, aeRevealedRouteType.get(eLoopTeam));
-			}
-		}
-		else
-		{
-			if (uiFlag < 5)
-				m_aeRevealedRouteType.readLazyArray<char,short>(pStream);
-			else m_aeRevealedRouteType.readLazyArray<char,char>(pStream);
-		}
-	}
+
+	m_aiCulture.read(pStream);
+	m_aiFoundValue.read(pStream);
+	m_aiPlayerCityRadiusCount.read(pStream);
+	m_aiPlotGroup.read(pStream);
+	m_aiVisibilityCount.read(pStream);
+	m_aiStolenVisibilityCount.read(pStream);
+	m_aiBlockadedCount.read(pStream);
+	m_aiRevealedOwner.read(pStream);
+	m_abRiverCrossing.read(pStream);
+	m_abRevealed.read(pStream);
+	m_aeRevealedImprovementType.read(pStream);
+	m_aeRevealedRouteType.read(pStream);
+
 	m_szScriptData = pStream->ReadString();
-	if (uiFlag >= 13)
-		m_aiBuildProgress.read(pStream);
-	else m_aiBuildProgress.readLazyArray<int,short>(pStream);
+
+	m_aiBuildProgress.read(pStream);
 	// <advc.011>
-	if (uiFlag < 5)
-	{
-		int iTmp; pStream->Read(&iTmp);
-		m_iTurnsBuildsInterrupted = safeIntCast<short>(iTmp);
-	}
-	else pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+
+	pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+
 	// <advc.005c>
 	CvWString szTmp;
 	pStream->ReadString(szTmp);
 	if (!szTmp.empty())
 		setRuinsName(szTmp); // </advc.005c>
+
 	// <advc.opt>
-	if (uiFlag >= 2)
-		pStream->Read(&m_iTotalCulture);
-	else if (m_aiCulture.isAnyNonDefault()) // just to save time
-	{
-		/*  CvPlayer objects aren't loaded yet. Players that have never been alive
-			should have 0 culture, so we don't really need to check isEverAlive. */
-		FOR_EACH_ENUM(Player)
-			m_iTotalCulture += m_aiCulture.get(eLoopPlayer);
-	} // </advc.opt>
-	if (uiFlag >= 13)
-	{
-		m_aaiCultureRangeCities.read(pStream);
-		m_aaiInvisibleVisibilityCount.read(pStream);
-	}
-	else if (uiFlag >= 10)
-	{
-		m_aaiCultureRangeCities.readTuple<short,short,char>(pStream);
-		m_aaiInvisibleVisibilityCount.readTuple<short,short,short>(pStream);
-	}
-	else
-	{
-		m_aaiCultureRangeCities.readLazyArray<char,int,char>(pStream);
-		m_aaiInvisibleVisibilityCount.readLazyArray<char,int,short>(pStream);
-		
-	}
+	pStream->Read(&m_iTotalCulture);
+	// </advc.opt>
+
+	m_aaiCultureRangeCities.read(pStream);
+	m_aaiInvisibleVisibilityCount.read(pStream);
+
 	m_units.Read(pStream);
 }
 
@@ -7496,20 +7618,11 @@ void CvPlot::read(FDataStreamBase* pStream)
 void CvPlot::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.035
-	//uiFlag = 2; // advc.opt
-	//uiFlag = 3; // advc.tsl
-	//uiFlag = 4; // advc.opt: m_bHills removed
-	//uiFlag = 5; // advc.opt, advc.011, advc.enum: some int or short members turned into short or char
-	//uiFlag = 6; // advc.opt: m_eTeam
-	//uiFlag = 7; // advc.opt: m_bImpassable
-	//uiFlag = 8; // advc.opt: m_bAnyIsthmus
-	//uiFlag = 9; // advc.912f
-	//uiFlag = 10; // advc.enum (sparse maps 1)
-	//uiFlag = 11; // advc.enum (sparse maps 2)
-	//uiFlag = 12; // advc.opt (m_iPlotNum)
 	uiFlag = 13; // advc.enum: new enum map save behavior
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Plot pt1(%d,%d)", getX(), getY()).GetCString());
 	pStream->Write(m_iX);
@@ -7666,8 +7779,19 @@ void CvPlot::getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked)
 			if (isBeingWorked() && !isCity())
 			{
 				if (isWater())
-					eType = (ImprovementTypes)GC.getDefineINT("WATER_IMPROVEMENT");
-				else eType = (ImprovementTypes)GC.getDefineINT("LAND_IMPROVEMENT");
+				{
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+					static const ImprovementTypes eWATER_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("WATER_IMPROVEMENT");
+
+					eType = eWATER_IMPROVEMENT;
+				}
+				else
+				{
+					// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+					static const ImprovementTypes eLAND_IMPROVEMENT = (ImprovementTypes)GC.getDefineINT("LAND_IMPROVEMENT");
+
+					eType = eLAND_IMPROVEMENT;
+				}
 			}
 		}
 	}
@@ -8029,9 +8153,8 @@ void CvPlot::applyEvent(EventTypes eEvent)
 }
 
 
-bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
-	bool bCheckAirUnitCap, // advc.001b
-	BonusTypes eAssumeAvailable) const // advc.001u
+// advc.001b <!-- custom: hoisted from multiline signature between `bCheckAirUnitCap` and `eAssumeAvailable` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bCheckAirUnitCap, BonusTypes eAssumeAvailable) const // advc.001u
 {
 	CvCity const* pCity = getPlotCity();
 	bool const bCity = (pCity != NULL);
@@ -8253,8 +8376,7 @@ int CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) const
 }
 
 // advc.081: Cut from CvPlayerAI::AI_countNumAreaHostileUnits
-int CvPlot::countHostileUnits(PlayerTypes ePlayer, bool bPlayer, bool bTeam,
-	bool bNeutral, bool bHostile) const
+int CvPlot::countHostileUnits(PlayerTypes ePlayer, bool bPlayer, bool bTeam, bool bNeutral, bool bHostile) const
 {
 	TeamTypes eTeam = TEAMID(ePlayer);
 	if(!isVisible(eTeam))
@@ -8321,6 +8443,9 @@ float CvPlot::getAqueductSourceWeight() const
 {
 	PROFILE_FUNC(); // (advc: Fine - EXE seems to call this only a few times per turn)
 	// <advc.002p> Imperfect workaround for a missing same-area check in the EXE
+	// <!-- custom: code/performance optimization: hoist -->
+	static BuildingClassTypes const eAqueduct = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AQUEDUCT", true);
+
 	for (CityPlotIter itPlot(*this, false); itPlot.hasNext(); ++itPlot)
 	{	/*	Sources adjacent to a city are OK (and need to be skipped here
 			because an adjacent Peak could belong to a different area
@@ -8329,8 +8454,6 @@ float CvPlot::getAqueductSourceWeight() const
 			continue;
 		if (itPlot->isCity() && !itPlot->isArea(getArea()))
 		{
-			static BuildingClassTypes const eAqueduct = (BuildingClassTypes)
-					GC.getInfoTypeForString("BUILDINGCLASS_AQUEDUCT", true);
 			if (eAqueduct != NO_BUILDINGCLASS &&
 				itPlot->getPlotCity()->getNumBuilding(eAqueduct) > 0)
 			{
@@ -8419,8 +8542,7 @@ void CvPlot::killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain)
 
 
 // BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
-bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
-	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
+bool CvPlot::hasDefender(bool bTestCanAttack, PlayerTypes eOwner, PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy) const
 {
 	/*  advc: BBAI had repeated parts of getBestDefender here. To avoid that, I've moved
 		bTestAttack into getBestDefender and gave that function a "bTestAny" param. */

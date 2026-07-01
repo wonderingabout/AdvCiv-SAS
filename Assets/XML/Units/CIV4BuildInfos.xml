@@ -4,13 +4,14 @@
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
 <!-- Build Infos -->
-
+<!-- custom: Added new Build Help/Civilopedia text keys (GPT-5.2-Codex). Generated with the help of ChatGPT-5.2 Thinking. -->
 <Civ4BuildInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<BuildInfos>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_ROAD (useful for VS Code upper tree view while scrolling) -->
 			<Type>BUILD_ROAD</Type>
 			<Description>TXT_KEY_BUILD_ROAD</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_ROAD_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_ROAD_PEDIA</Civilopedia>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<iTime>200</iTime>
 			<iCost>0</iCost>
@@ -26,11 +27,13 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildRoad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_RAILROAD -->
 			<Type>BUILD_RAILROAD</Type>
 			<Description>TXT_KEY_BUILD_RAILROAD</Description>
-			<Help/>
-			<PrereqTech>TECH_RAILROAD</PrereqTech>
+			<Help>TXT_KEY_BUILD_RAILROAD_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_RAILROAD_PEDIA</Civilopedia>
+			<!-- custom: TECH_RAILROAD is an inefficient or inaccuratetech and is now removed from our tech tree, put at TECH_STEAM_POWER instead so railroads can be relevant sooner in the game too favouring endgame being sooner -->
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<iTime>300</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
@@ -45,10 +48,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildRailroad.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FARM -->
 			<Type>BUILD_FARM</Type>
 			<Description>TXT_KEY_BUILD_FARM</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FARM_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FARM_PEDIA</Civilopedia>
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -56,17 +60,18 @@
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -87,10 +92,11 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFarm.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FISHING_BOATS -->
 			<Type>BUILD_FISHING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_FISHING_BOATS</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FISHING_BOATS_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FISHING_BOATS_PEDIA</Civilopedia>
 			<PrereqTech>TECH_FISHING</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -106,11 +112,12 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFishingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WHALING_BOATS -->
 			<Type>BUILD_WHALING_BOATS</Type>
 			<Description>TXT_KEY_BUILD_WHALING_BOATS</Description>
-			<Help/>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
+			<Help>TXT_KEY_BUILD_WHALING_BOATS_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WHALING_BOATS_PEDIA</Civilopedia>
+			<PrereqTech>TECH_SEAFARING</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
 			<bKill>1</bKill>
@@ -125,10 +132,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWhalingBoats.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_MINE -->
 			<Type>BUILD_MINE</Type>
 			<Description>TXT_KEY_BUILD_MINE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_MINE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_MINE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -136,17 +144,18 @@
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -167,28 +176,31 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildMine.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WORKSHOP -->
 			<Type>BUILD_WORKSHOP</Type>
 			<Description>TXT_KEY_BUILD_WORKSHOP</Description>
-			<Help/>
-			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<Help>TXT_KEY_BUILD_WORKSHOP_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WORKSHOP_PEDIA</Civilopedia>
+			<!-- custom: nerf the workshop a bit as it was a bit too op, was TECH_METAL_CASTING -->
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
 			<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -209,12 +221,14 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWorkshop.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_LUMBERMILL -->
 			<Type>BUILD_LUMBERMILL</Type>
 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_LUMBERMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_LUMBERMILL_PEDIA</Civilopedia>
+			<!-- custom: historically more accurate in our reworked tech tree at least qutie accurate and functional in terms of gameplay, guilds are way too early in our reworked tech tree for lumbermill, machinery is a bit late but fine, plus buffes tech_machinery too, was TECH_GUILDS (now removed) -->
 			<!-- K-Mod: was REPLACEABLE_PARTS -->
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<!-- advc.902: was 800 -->
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -230,10 +244,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildLumberMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WINDMILL -->
 			<Type>BUILD_WINDMILL</Type>
 			<Description>TXT_KEY_BUILD_WINDMILL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WINDMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WINDMILL_PEDIA</Civilopedia>
 			<PrereqTech>TECH_MACHINERY</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -241,17 +256,18 @@
 			<ImprovementType>IMPROVEMENT_WINDMILL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -273,28 +289,31 @@
 			<Button>,Art/Interface/Buttons/Builds/BuildWindMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,8</Button>
 		</BuildInfo>
 		<!-- advc.902: Reduced build time from 800 to 400. -->
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WATERMILL -->
 			<Type>BUILD_WATERMILL</Type>
 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
-			<Help/>
-			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<Help>TXT_KEY_BUILD_WATERMILL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WATERMILL_PEDIA</Civilopedia>
+			<!-- custom: seems historically more accurate or meshes or fits better with our reworked tech tree sooner, was TECH_MACHINERY -->
+			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
 			<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -315,10 +334,11 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWaterMill.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_PLANTATION -->
 			<Type>BUILD_PLANTATION</Type>
 			<Description>TXT_KEY_BUILD_PLANTATION</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_PLANTATION_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_PLANTATION_PEDIA</Civilopedia>
 			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<iTime>500</iTime>
 			<iCost>0</iCost>
@@ -326,17 +346,18 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -357,28 +378,31 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildPlantation.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_QUARRY -->
 			<Type>BUILD_QUARRY</Type>
 			<Description>TXT_KEY_BUILD_QUARRY</Description>
-			<Help/>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<Help>TXT_KEY_BUILD_QUARRY_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_QUARRY_PEDIA</Civilopedia>
+			<!-- custom: build_quarry moved earlier at same time as mining i mean build mine, if i remember corretly from my research about techs if i may say i wanted/assessed quarry and mining to be at same historical time or tech tree, after rechecking hehe or not heheis indeed as such in tech tree i had made originally so fine to keep this way as well for this reason too for the build improvement tech prereq, was TECH_MASONRY -->
+			<PrereqTech>TECH_MINING</PrereqTech>
 			<iTime>600</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
 			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -399,10 +423,11 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildQuarry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_PASTURE -->
 			<Type>BUILD_PASTURE</Type>
 			<Description>TXT_KEY_BUILD_PASTURE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_PASTURE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_PASTURE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -410,17 +435,18 @@
 			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -441,10 +467,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildPasture.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,8,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_CAMP -->
 			<Type>BUILD_CAMP</Type>
 			<Description>TXT_KEY_BUILD_CAMP</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_CAMP_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_CAMP_PEDIA</Civilopedia>
 			<PrereqTech>TECH_HUNTING</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -469,10 +496,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildCamp.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,1,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_WELL -->
 			<Type>BUILD_WELL</Type>
 			<Description>TXT_KEY_BUILD_WELL</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_WELL_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_WELL_PEDIA</Civilopedia>
 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			<iTime>1000</iTime>
 			<iCost>0</iCost>
@@ -480,17 +508,18 @@
 			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -511,11 +540,13 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildWell.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_OFFSHORE_PLATFORM -->
 			<Type>BUILD_OFFSHORE_PLATFORM</Type>
 			<Description>TXT_KEY_BUILD_OFFSHORE_PLATFORM</Description>
-			<Help/>
-			<PrereqTech>TECH_PLASTICS</PrereqTech>
+			<Help>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
+			<!-- custom: was the now removed TECH_PLASTICS -->
+			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
 			<bKill>1</bKill>
@@ -530,52 +561,11 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildOffshorePlatform.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,9</Button>
 		</BuildInfo>
-		<BuildInfo>
-			<Type>BUILD_WINERY</Type>
-			<Description>TXT_KEY_BUILD_WINERY</Description>
-			<Help/>
-			<PrereqTech>TECH_MONARCHY</PrereqTech>
-			<iTime>500</iTime>
-			<iCost>0</iCost>
-			<bKill>0</bKill>
-			<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
-			<RouteType>NONE</RouteType>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<FeatureStructs>
-				<FeatureStruct>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-					<iTime>400</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<FeatureStruct>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-					<iTime>300</iTime>
-					<iProduction>30</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-				<!-- kekm.9 -->
-				<FeatureStruct>
-					<FeatureType>FEATURE_FALLOUT</FeatureType>
-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
-					<iTime>600</iTime>
-					<iProduction>0</iProduction>
-					<bRemove>1</bRemove>
-				</FeatureStruct>
-			</FeatureStructs>
-			<HotKey>KB_W</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>1</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>1</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildWinery.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,8</Button>
-		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_COTTAGE -->
 			<Type>BUILD_COTTAGE</Type>
 			<Description>TXT_KEY_BUILD_COTTAGE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_COTTAGE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_COTTAGE_PEDIA</Civilopedia>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<iTime>400</iTime>
 			<iCost>0</iCost>
@@ -583,17 +573,18 @@
 			<ImprovementType>IMPROVEMENT_COTTAGE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -614,11 +605,13 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildCottage.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,7</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FORT -->
 			<Type>BUILD_FORT</Type>
 			<Description>TXT_KEY_BUILD_FORT</Description>
-			<Help/>
-			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<Help>TXT_KEY_BUILD_FORT_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FORT_PEDIA</Civilopedia>
+			<!-- custom: move fort building a bit later in tech, hopefully a bit less or less soon nonsensical or unfit fort building, not reworking this/the code parts that seem(ed at least at that time in advciv issues threat in the civfanatics forum (issue) i mean i had created at that time), delaying it a bit hopefully helps and or is also more consistent with fortifications era (didnt check, maybe tech_engineering is an accurate enough time for this), was TECH_MATHEMATICS -->
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<iTime>1000</iTime>
 			<iCost>0</iCost>
 			<bKill>0</bKill>
@@ -642,10 +635,11 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildFort.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,9</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_REMOVE_JUNGLE -->
 			<Type>BUILD_REMOVE_JUNGLE</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_JUNGLE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_REMOVE_JUNGLE_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -653,12 +647,14 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
+			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though, check if accurate), was TECH_IRON_WORKING -->
+			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>400</iTime>
-					<iProduction>0</iProduction>
+					<iProduction>20</iProduction>
 					<bRemove>1</bRemove>
 				</FeatureStruct>
 			</FeatureStructs>
@@ -667,12 +663,14 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
+			<!-- custom: import from the Middle-earth mod's PROJECT_ANGRIST thanks a lot! -->
+			<Button>Art/AdvCiv_SAS/Builds/Remove_Jungle/Angrist.dds</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_REMOVE_FOREST -->
 			<Type>BUILD_REMOVE_FOREST</Type>
 			<Description>TXT_KEY_BUILD_REMOVE_FOREST</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_REMOVE_FOREST_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -680,10 +678,11 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
+			<!-- custom: similar reasoning as remove_forest, moved to earlier in tech tree too, was TECH_BRONZE_WORKING -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+					<PrereqTech>TECH_MASONRY</PrereqTech>
 					<iTime>300</iTime>
 					<iProduction>30</iProduction>
 					<bRemove>1</bRemove>
@@ -694,12 +693,15 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<Button>,Art/Interface/Buttons/Builds/BuildChopDown.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,8</Button>
+			<!-- custom: import from the Middle-earth mod's PROJECT_DURINS_AXE thanks a lot! -->
+			<Button>Art/AdvCiv_SAS/Builds/Remove_Forest/DurinsAxe.dds</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<!-- custom: changed to TECH_FISSION according to https://forums.civfanatics.com/threads/can-you-scrub-fallout-in-real-life-like-in-civ.558302/ anwyays etc, see also code comment at TXT_KEY_TECH_ECOLOGY_PEDIA for details or and other alternative compelementary info or related details or context -->
+		<BuildInfo> <!-- custom: BUILD_SCRUB_FALLOUT -->
 			<Type>BUILD_SCRUB_FALLOUT</Type>
 			<Description>TXT_KEY_BUILD_SCRUB_FALLOUT</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_SCRUB_FALLOUT_PEDIA</Civilopedia>
 			<PrereqTech>NONE</PrereqTech>
 			<iTime>0</iTime>
 			<iCost>0</iCost>
@@ -707,10 +709,11 @@
 			<ImprovementType>NONE</ImprovementType>
 			<RouteType>NONE</RouteType>
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
+			<!-- custom: was TECH_ECOLOGY -->
 			<FeatureStructs>
 				<FeatureStruct>
 					<FeatureType>FEATURE_FALLOUT</FeatureType>
-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
+					<PrereqTech>TECH_FISSION</PrereqTech>
 					<iTime>600</iTime>
 					<iProduction>0</iProduction>
 					<bRemove>1</bRemove>
@@ -723,10 +726,11 @@
 			<iHotKeyPriority>1</iHotKeyPriority>
 			<Button>,Art/Interface/Buttons/Builds/BuildScrubFallout.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,8</Button>
 		</BuildInfo>
-		<BuildInfo>
+		<BuildInfo> <!-- custom: BUILD_FOREST_PRESERVE -->
 			<Type>BUILD_FOREST_PRESERVE</Type>
 			<Description>TXT_KEY_BUILD_FOREST_PRESERVE</Description>
-			<Help/>
+			<Help>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILD_FOREST_PRESERVE_PEDIA</Civilopedia>
 			<!-- advc.901: was SciMethod -->
 			<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			<iTime>800</iTime>

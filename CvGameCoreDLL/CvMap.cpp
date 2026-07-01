@@ -84,8 +84,7 @@ void CvMap::uninit()
 }
 
 // Initializes data members that are serialized.
-void CvMap::reset(CvMapInitData const* pInitInfo,
-	bool bResetPlotExtraData) // advc.enum (only needed for legacy saves)
+void CvMap::reset(CvMapInitData const* pInitInfo, bool bResetPlotExtraData) // advc.enum (only needed for legacy saves)
 {
 	uninit();
 
@@ -274,12 +273,18 @@ void CvMap::setupGraphical() // graphical only setup
 			getPlotByIndex(i).setupGraphical();
 		}
 	}
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file -->
+	// <!-- custom: note: not using const as it causes a compile error: "CvMap.cpp(287): error C2662: 'CvGame::setUpdateTimer' : cannot convert 'this' pointer from 'const CvGame' to 'CvGame &'" -->
+	CvGame& kGame = GC.getGame();
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iREPLAY_TEXTURE_ERA = GC.getDefineINT("REPLAY_TEXTURE_ERA");
+
 	// <advc.106n> For games starting in a later era
 	if (getReplayTexture() == NULL &&
-		GC.getGame().getHighestEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
+		kGame.getHighestEra() >= iREPLAY_TEXTURE_ERA)
 	{
 		// The EXE isn't quite ready here to provide the texture
-		GC.getGame().setUpdateTimer(CvGame::UPDATE_STORE_REPLAY_TEXTURE, 5);
+		kGame.setUpdateTimer(CvGame::UPDATE_STORE_REPLAY_TEXTURE, 5);
 	} // </advc.106n>
 }
 
@@ -557,8 +562,7 @@ void CvMap::verifyUnitValidPlot()
 }
 
 
-void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
-	bool bVerifyProduction) // advc.064d
+void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2, bool bVerifyProduction) // advc.064d
 {
 	FAssert(pPlotGroup1 != NULL);
 	FAssert(pPlotGroup2 != NULL);
@@ -590,11 +594,9 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
 }
 
 
-CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
-	int iMinCivUnitDistance, // advc.300: Renamed from iMinUnitDistance
-	int iTimeout,
-	/* <advc.304> */ int* piValidCount, // Number of valid tiles
-	RandPlotWeightMap const* pWeights)
+// advc.300: Renamed from iMinUnitDistance <!-- custom: hoisted from multiline signature between `iMinCivUnitDistance` and `iTimeout` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// Number of valid tiles <!-- custom: hoisted from multiline signature between `piValidCount` and `pWeights` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance, int iTimeout, /* <advc.304> */ int* piValidCount, RandPlotWeightMap const* pWeights)
 {
 	LOCAL_REF(int, iValid, piValidCount, 0);
 	/*  Look exhaustively for a valid plot by default. Rationale:
@@ -642,8 +644,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
 }
 
 // advc: Body cut from syncRandPlot
-bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
-	CvArea const* pArea, int iMinCivUnitDistance) const
+bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags, CvArea const* pArea, int iMinCivUnitDistance) const
 {
 	if (pArea != NULL && !kPlot.isArea(*pArea))
 		return false;
@@ -680,10 +681,8 @@ bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
 }
 
 
-CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam,
-		bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith,
-		DirectionTypes eDirection, CvCity const* pSkipCity, // advc: const city
-		TeamTypes eObserver) const // advc.004r
+// advc: const city <!-- custom: hoisted from multiline signature between `pSkipCity` and `eObserver` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, bool bSameArea, bool bCoastalOnly, TeamTypes eTeamAtWarWith, DirectionTypes eDirection, CvCity const* pSkipCity, TeamTypes eObserver) const // advc.004r
 {
 	PROFILE_FUNC();
 
@@ -729,8 +728,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam,
 }
 
 
-CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner,
-	bool bReadyToSelect, bool bWorkers) const
+CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect, bool bWorkers) const
 {
 	int iBestValue = MAX_INT;
 	CvSelectionGroup* pBestSelectionGroup = NULL;
@@ -1005,8 +1003,7 @@ CvWString CvMap::getNonDefaultCustomMapOptionDesc(int iOption) const
 	(that may or may not be present in only one particular map script).
 	Translations will have to be handled by the caller (by generating szOptionsValue
 	through gDLL->getText). */
-bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
-	bool bIgnoreCase) const
+bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains, bool bIgnoreCase) const
 {
 	CvWString wsOptionsValue(szOptionsValue);
 	if (bIgnoreCase)
@@ -1032,8 +1029,7 @@ bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
 
 /*	For convenience, especially when working with translated strings
 	(which use wide characters). */
-bool CvMap::isCustomMapOption(CvWString szOptionsValue, bool bCheckContains,
-	bool bIgnoreCase) const
+bool CvMap::isCustomMapOption(CvWString szOptionsValue, bool bCheckContains, bool bIgnoreCase) const
 {
 	CvString szNarrow(szOptionsValue);
 	return isCustomMapOption(szNarrow.c_str());
@@ -1226,18 +1222,22 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
 // read object from a stream. used during load
 void CvMap::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	CvMapInitData defaultMapData;
-	reset(&defaultMapData, /* advc.enum: */ uiFlag >= 7);
+	// <!-- custom: note: uiflag check replaced with simple boolean -->
+	reset(&defaultMapData, /* advc.enum: */ true);
 
 	pStream->Read(&m_iGridWidth);
 	pStream->Read(&m_iGridHeight);
+
 	// <advc.opt>
-	if (uiFlag >= 3)
-		pStream->Read((int*)&m_ePlots);
-	else updateNumPlots(); // </advc.opt>
+	pStream->Read((int*)&m_ePlots);
+	// </advc.opt>
+
 	pStream->Read(&m_iLandPlots);
 	pStream->Read(&m_iOwnedPlots);
 	pStream->Read(&m_iTopLatitude);
@@ -1251,29 +1251,20 @@ void CvMap::read(FDataStreamBase* pStream)
 	// </advc.opt>
 	pStream->Read(&m_bWrapX);
 	pStream->Read(&m_bWrapY);
-	if (uiFlag >= 4)
-	{
-		m_aiNumBonus.read(pStream);
-		m_aiNumBonusOnLand.read(pStream);
-	}
-	else
-	{
-		m_aiNumBonus.readArray<int>(pStream);
-		m_aiNumBonusOnLand.readArray<int>(pStream);
-	}
+
+	m_aiNumBonus.read(pStream);
+	m_aiNumBonusOnLand.read(pStream);
+
 	// <advc.108c>
-	if (uiFlag >= 6)
-		m_aebBalancedBonuses.read(pStream); // </advc.108c>
+	m_aebBalancedBonuses.read(pStream); // </advc.108c>
 	// <advc.enum>
-	if (uiFlag >= 7)
-	{
-		m_aeiPlotExtraYield.read(pStream);
-		m_aiPlotExtraCost.read(pStream);
-	} // </advc.enum>
+	m_aeiPlotExtraYield.read(pStream);
+	m_aiPlotExtraCost.read(pStream);
+	// </advc.enum>
 	// <advc.304>
-	if (uiFlag >= 5)
-		GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
+	GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
 	// </advc.304>
+
 	if (numPlots() > 0)
 	{
 		m_pMapPlots = new CvPlot[numPlots()];
@@ -1282,12 +1273,6 @@ void CvMap::read(FDataStreamBase* pStream)
 		// <advc.003s>
 		for (int i = 0; i < numPlots(); i++)
 			m_pMapPlots[i].initAdjList(); // </advc.003s>
-		// <advc.opt>
-		if (uiFlag < 2)
-		{
-			for (int i = 0; i < numPlots(); i++)
-				m_pMapPlots[i].updateAnyIsthmus();
-		} // </advc.opt>
 	}
 
 	ReadStreamableFFreeListTrashArray(m_areas, pStream);
@@ -1302,33 +1287,29 @@ void CvMap::read(FDataStreamBase* pStream)
 		(The problem was that goody huts weren't always highlighted by the
 		Resource layer after loading a game.) */
 	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+
 	// <advc.106n>
-	if (uiFlag > 0)
+	size_t iPixels;
+	pStream->Read(&iPixels);
+	m_replayTexture.reserve(iPixels);
+	for (size_t i = 0; i < iPixels; i++)
 	{
-		size_t iPixels;
-		pStream->Read(&iPixels);
-		m_replayTexture.reserve(iPixels);
-		for (size_t i = 0; i < iPixels; i++)
-		{
-			byte ucPixel;
-			pStream->Read(&ucPixel);
-			m_replayTexture.push_back(ucPixel);
-		}
-	} // </advc.106n>
+		byte ucPixel;
+		pStream->Read(&ucPixel);
+		m_replayTexture.push_back(ucPixel);
+	}
+	// </advc.106n>
 }
 
 
 void CvMap::write(FDataStreamBase* pStream)
 {
 	REPRO_TEST_BEGIN_WRITE("Map");
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.106n
-	//uiFlag = 2; // advc.opt: CvPlot::m_bAnyIsthmus
-	//uiFlag = 3; // advc.opt: m_ePlots
-	//uiFlag = 4; // advc.enum: new enum map save behavior
-	//uiFlag = 5; // advc.304: Barbarian weight map
-	//uiFlag = 6; // advc.108c
 	uiFlag = 7; // advc.enum: Extra plot yields, costs moved from CvGame
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iGridWidth);

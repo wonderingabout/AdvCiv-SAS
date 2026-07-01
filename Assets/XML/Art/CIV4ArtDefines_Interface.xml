@@ -2,7 +2,11 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Ed Piper (Firaxis Games) -->
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
-<!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- Interface art path information -->
 <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
 	<InterfaceArtInfos>
@@ -779,9 +783,10 @@
 			<Type>MAINMENU_SLIDESHOW_LOAD_CLASSICAL</Type>
 			<Path>Art/Interface/Screens/Loading/LoadingScreenBGslideshowClassical.dds</Path>
 		</InterfaceArtInfo>
+		<!-- custom: using same load screen than our main menu wallpaper because why not and tedious to do another one for short load time and also more consistent -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_LOAD_CLASSICAL</Type>
-			<Path>Art/Interface/Screens/Loading/LoadingScreenBGClassical.dds</Path>
+			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/RingMainMenu.dds</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SLIDESHOW_LOAD_BTS</Type>
@@ -827,9 +832,10 @@
 			<Type>MAINMENU_SCENE</Type>
 			<Path>Art/Interface/Main Menu/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
+		<!-- custom: replaced with the middle-earth mod's nif thanks, to have a static image (RingMainMenu.dds) instead of the animation (see also the corresponding .dds) -->
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_CLASSICAL</Type>
-			<Path>Art/Interface/Classical Main Menu/CIV4MainMenuBG.nif</Path>
+			<Path>Art/AdvCiv_SAS/Main_Menu/wallpaper/CIV4MainMenuBG.nif</Path>
 		</InterfaceArtInfo>
 		<InterfaceArtInfo>
 			<Type>MAINMENU_SCENE_NO_SHADER</Type>
@@ -1614,7 +1620,7 @@
 
 <!-- BUG - Sevopedia - end -->
 
-<!-- BUG - specialists  - start  -->
+<!-- BUG - specialists  - start -->
 
 		<InterfaceArtInfo>
 			<Type>OVERLAY_CHEVRON5</Type>
@@ -1629,7 +1635,7 @@
 			<Path>Art/Interface/screens/medallion_Chevron20.dds</Path>
 		</InterfaceArtInfo>	
 
-<!-- BUG - specialists  - end  -->		
+<!-- BUG - specialists  - end -->
 
 <!-- BUG - Raw Yields - start -->
 
@@ -1670,9 +1676,9 @@
 			<Path>Art/Interface/RawYields/button_highlight.dds</Path>
 		</InterfaceArtInfo>
 
-<!-- BUG - Raw Yields - end -->			
+<!-- BUG - Raw Yields - end -->
 
-<!-- BUG - Wonders Tab - start -->			
+<!-- BUG - Wonders Tab - start -->
 		<InterfaceArtInfo>
 			<Type>BUG_WORLDWONDER_OFF</Type>
 			<Path>Art/BUG/World_Off.dds</Path>
@@ -1697,14 +1703,14 @@
 			<Type>BUG_PROJECT_ON</Type>
 			<Path>Art/BUG/Projects_On.dds</Path>
 		</InterfaceArtInfo>
-<!-- BUG - Wonders Tab - end -->			
+<!-- BUG - Wonders Tab - end -->
 
-<!-- BUG - Main Interface - BUG Options Screen - Start -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - Start -->
 		<InterfaceArtInfo>
 			<Type>BUG_OPTIONS_SCREEN_BUTTON</Type>
 			<Path>Art/BUG/options.dds</Path>
 		</InterfaceArtInfo>
-<!-- BUG - Main Interface - BUG Options Screen - end -->			
+<!-- BUG - Main Interface - BUG_Options_Screen - end -->
 
 		<InterfaceArtInfo>
 			<Type>QUESTION_MARK</Type>
@@ -1715,5 +1721,218 @@
 			<Path>Art/BUG/Null.dds</Path>
 		</InterfaceArtInfo>
 
+		<!-- custom: some civ4 buttons -->
+		<InterfaceArtInfo>
+			<Type>SAS_CITIES_LANDSCAPE</Type>
+			<Path>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_POWER</Type>
+			<Path>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</Path>
+		</InterfaceArtInfo>
+
+		<!-- custom: new Draft button as part of the city screen rework, ai-generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
+		<InterfaceArtInfo>
+			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
+			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
+		</InterfaceArtInfo>
+
+		<!-- custom: emoji icons as dds; Long_Comments_XML.txt #150 -->
+		<!-- 🕊️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_DOVE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Dove/1f54a_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 📣 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_MEGAPHONE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Megaphone/1f4e3_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ❤️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_RED_HEART</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Red_Heart/2764_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 💔 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_BROKEN_HEART</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Broken_Heart/1f494_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 💀 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_SKULL</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Skull/1f480_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔥 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_FIRE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Fire/1f525_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🧠 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_BRAIN</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Brain/1f9e0_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🏆 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_TROPHY</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Trophy/1f3c6_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🌿 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_HERB</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⚙️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_GEAR</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Gear/2699_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⚔️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_CROSSED_SWORDS</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Crossed_Swords/2694_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 💰 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_MONEY_BAG</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Money_Bag/1f4b0_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⛔ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_NO_ENTRY</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/No_Entry/26d4_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🪓 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_AXE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Axe/1fa93_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 📉 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_CHART_DECREASING</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Chart_Decreasing/1f4c9_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔧 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_WRENCH</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Wrench/1f527_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏳ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_HOURGLASS_NOT_DONE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Hourglass_Not_Done/23f3_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🥈 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_2ND_PLACE_MEDAL</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/2nd_Place_Medal/1f948_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🥉 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_3RD_PLACE_MEDAL</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/3rd_Place_Medal/1f949_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🦁 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_LION_FACE</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Lion_Face/1f981_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ▶️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_PLAY_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏏️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_EJECT_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏮️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_LAST_TRACK_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Last_Track_Button/23ee_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏭️ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_NEXT_TRACK_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Next_Track_Button/23ed_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🎶 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_MUSICAL_NOTES</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 📺 emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_TELEVISION</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏫ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_FAST_UP_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Fast_Up_Button/23eb_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⏬ emoji from emojiterra -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔒 emoji from emojiterra (Microsoft Fluent Emoji - Flat); its unlocked counterpart is much more distinguishable from locked than the base ones, especially at smaller sizes, and its color is plain and fairly neutral so reads fairly easily -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_LOCKED_2</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🔓 emoji from emojiterra (Microsoft Fluent Emoji - Flat) -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_UNLOCKED_2</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🎯 emoji from emojiterra (OpenMoji 17.0); chose this variant because it is visually less distracting, and because it somewhat seems to fit better into Civ4 Artstyle. -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_DIRECT_HIT_3</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Direct_Hit/1f3af_3_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🧭 emoji from emojiterra (Google Noto Emoji 17.0); Black and White variant visually -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_COMPASS_2</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Compass/1f9ed_2_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- 🧭 emoji from emojiterra (OpenMoji 17.0); chose this variant because it seems visually less distracting as well, and because it somewhat seems to fit better into Civ4 Artstyle. -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_COMPASS_3</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Compass/1f9ed_3_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⭐ emoji from emojiterra (Twitter / X Twemoji 14.0); using this variant because it has better contrast especially on small width tables -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_WHITE_MEDIUM_STAR_2</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/White_Medium_Star/2b50_2_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- ⬅️ emoji from emojiterra (Mozilla FxEmojis 1.7.9); using this variant because it has better contrast especially on small width tables -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_LEFT_ARROW_2</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/Left_Arrow/2b05_2_64px.dds</Path>
+		</InterfaceArtInfo>
+		<!-- custom: extracted from GameFont.tga with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf. We found the higher quality icons (21x20) in ri mod, and used them instead because base civ4 only had GameFont_75.tga (16x16) icons (see also KI#117). We added them as dds here because we couldn't insert them in sevopedia leader attitude buttons easily. Also reduced to 20x20 else the dds does not display ingame. -->
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/furious_20x20.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_ANNOYED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/annoyed_20x20.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_CAUTIOUS</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/cautious_20x20.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_PLEASED</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/pleased_20x20.dds</Path>
+		</InterfaceArtInfo>
+		<InterfaceArtInfo>
+			<Type>SAS_EMOJI_ATTITUDE_FRIENDLY</Type>
+			<Path>Art/AdvCiv_SAS/Emojis/_Civ4_Attitudes/friendly_20x20.dds</Path>
+		</InterfaceArtInfo>
 	</InterfaceArtInfos>
 </Civ4ArtDefines>

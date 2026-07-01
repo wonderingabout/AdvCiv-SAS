@@ -5,8 +5,15 @@
 ## Copyright (c) 2007-2009 The BUG Mod.
 ##
 ## Author: Ruff_Hi
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import MonkeyTools as mt
 import BugUtil
 import UnitUtil
@@ -75,29 +82,19 @@ class BupPanel:
 			# Important to have it at first place within the for loop
 			# so that it sits behind the unit icon button
 			szStringPromoFrame = szBupCell + "PromoFrame"
-			screen.addDDSGFC(szStringPromoFrame, sPromoFrame,
-					iX, iY, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
+			screen.addDDSGFC(szStringPromoFrame, sPromoFrame, iX, iY, iFrameSize, iFrameSize, WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
 			screen.hide(szStringPromoFrame)
 
-
 			# unit icon
-			screen.addCheckBoxGFC(szBupCell, sTexture, sHiLiteTexture,
-					iX, iY, iFrameSize, iFrameSize,
-					WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1,
-					ButtonStyles.BUTTON_STYLE_LABEL)
+			screen.addCheckBoxGFC(szBupCell, sTexture, sHiLiteTexture, iX, iY, iFrameSize, iFrameSize, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, ButtonStyles.BUTTON_STYLE_LABEL)
 			screen.hide(szBupCell)
 
 			# health bar
 			szStringHealth = szBupCell + "Health"
-			screen.addStackedBarGFC(szStringHealth,
-					iX, iY + (23 * iFrameSize) / 32, iFrameSize, (11 * iFrameSize) / 32,
-					InfoBarTypes.NUM_INFOBAR_TYPES,
-					WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
+			screen.addStackedBarGFC(szStringHealth, iX, iY + (23 * iFrameSize) / 32, iFrameSize, (11 * iFrameSize) / 32, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, iIndex, -1 )
 			screen.hide(szStringHealth)
 
 			self.BupCell_Displayed.append(False)
-
 
 #VOID addDDSGFC(STRING szName, STRING szTexture, INT iX, INT iY, INT iWidth, INT iHeight, WidgetType eWidgetType, INT iData1, INT iData2)
 #VOID addDDSGFCAt(STRING szName, STRING szAttachTo, STRING szTexture, INT iX, INT iY, INT iWidth, INT iHeight, WidgetType eWidgetType, INT iData1, INT iData2, BOOL bOption)
@@ -105,7 +102,6 @@ class BupPanel:
 #VOID addCheckBoxGFCAt(STRING szName, STRING szTexture, STRING szHiliteTexture, INT iX, INT iY, INT iWidth, INT iHeight, WidgetType eWidgetType, INT iData1, INT iData2, ButtonStyle eStyle)
 #VOID attachCheckBoxGFC(STRING szAttachTo, STRING szName, STRING szTexture, STRING szHiliteTexture, INT iWidth, INT iHeight, WidgetType eWidgetType, INT iData1, INT iData2, ButtonStyle eStyle)
 #VOID addStackedBarGFC(STRING szName, INT iX, INT iY, INT iWidth, INT iHeight, INT iNumBars, WidgetType eWidgetType, INT iData1, INT iData2)
-
 
 		# the little white arrows
 		screen.setButtonGFC(sBupStringBase + "Minus", u"", "",
@@ -150,8 +146,7 @@ class BupPanel:
 		self.screen.hide(sBupStringBase + "Plus")
 
 		# kill off the prior units and delete all of the unit plot list if the plot has changed
-		if (self._hasPlotChanged()
-		or CyInterface().isCityScreenUp() != self.CityUp_Prior):
+		if (self._hasPlotChanged() or CyInterface().isCityScreenUp() != self.CityUp_Prior):
 #			BugUtil.debug("BupPanel plot has changed or CityScreenUp status has changed - %s %s", CyInterface().isCityScreenUp(), self.CityUp_Prior)
 			self.BupUnits_Prior = []
 			self.PlotListOffset_Prior = 0
@@ -192,9 +187,6 @@ class BupPanel:
 		BugUtil.debug("BupPanel plotlistcolumn, current(%i), prior(%i)", CyInterface().getPlotListColumn(), self.PlotListColumn_Prior)
 		BugUtil.debug("BupPanel first(%i), last(%i)", iFirstPlot, iLastPlot)
 
-
-
-
 # put in an override if the number of units exceeds the screen maximum
 # or if the city screen is up (max = units per row)
 # also need some code to control those pesky little arrows
@@ -204,8 +196,7 @@ class BupPanel:
 			BugUtil.debug("BupPanel index(%i), iUnit(%i), iUnit_Prior(%i)", iIndex, iUnit, iUnit_Prior)
 
 			# check if the unit we have is within the display bounds
-			if (iIndex < iFirstPlot
-			or iIndex > iLastPlot):
+			if (iIndex < iFirstPlot or iIndex > iLastPlot):
 				iIndex += 1
 				continue
 
@@ -229,9 +220,7 @@ class BupPanel:
 
 			# prior unit doesn't exist - just need to draw the new unit
 			# this is handled below in the '_update*' functions
-			if (len(self.BupUnits_Prior) != 0
-			and iUnit_Prior >= 0
-			and iUnit_Prior < len(self.BupUnits_Prior)):
+			if (len(self.BupUnits_Prior) != 0 and iUnit_Prior >= 0 and iUnit_Prior < len(self.BupUnits_Prior)):
 #			or  iUnit_Prior < len(self.BupUnits_Prior))):
 				BupUnit_Prior = self.BupUnits_Prior[iUnit_Prior]
 			else:
@@ -255,7 +244,6 @@ class BupPanel:
 			self._updateHealthBar(BupUnit, BupUnit_Prior, szBupCell)
 
 			iIndex += 1
-
 
 		# phew, finally finished all the units
 		# do we have to show the arrows?
@@ -281,7 +269,6 @@ class BupPanel:
 		self.PlotListOffset_Prior = CyInterface().getPlotListOffset()
 		self.PlotListColumn_Prior = CyInterface().getPlotListColumn()
 
-
 ############## plot ##############
 
 	def addPlot(self, X, Y):
@@ -295,7 +282,6 @@ class BupPanel:
 	def _hasPlotChanged(self):
 #		BugUtil.debug("BupPanel _hasPlotChanged %i %i %i %i %s", self.PlotX, self.PlotY, self.PlotX_Prior, self.PlotY_Prior, not (self.PlotX == self.PlotX_Prior and self.PlotY == self.PlotY_Prior))
 		return not (self.PlotX == self.PlotX_Prior and self.PlotY == self.PlotY_Prior)
-
 
 ############## hide ##############
 
@@ -319,7 +305,6 @@ class BupPanel:
 
 			self.BupCell_Displayed[iIndex] = False
 
-
 ############## add and clear units ##############
 
 	def addUnit(self, pUnit):
@@ -328,8 +313,6 @@ class BupPanel:
 	def clearUnits(self):
 		self.BupUnits = []
 		self.BupUnits_Prior = []
-
-
 
 ############## unit icon ##############
 
@@ -346,8 +329,7 @@ class BupPanel:
 #		BugUtil.debug("BupPanel _updateUnitIcon %s %s", BupUnit.isSelected, BupUnit_Prior.isSelected)
 
 		# if we get to here, then we have a unit in BupUnit and BupUnit_Prior
-		if (BupUnit.UnitType	!= BupUnit_Prior.UnitType
-		or BupUnit.Owner		!= BupUnit_Prior.Owner):
+		if (BupUnit.UnitType != BupUnit_Prior.UnitType or BupUnit.Owner != BupUnit_Prior.Owner):
 			self._drawUnitIcon(BupUnit, iIndex, szCell)
 
 		if self.BupCell_Displayed[iIndex]:
@@ -362,7 +344,6 @@ class BupPanel:
 #		self.screen.setState(szCell, BupUnit.isSelected)
 
 		self.BupCell_Displayed[iIndex] = True
-
 
 ############## dot (or star for GG) ##############
 
@@ -380,8 +361,7 @@ class BupPanel:
 		yOffset = -7
 		# handles the display of the colored buttons in the upper left corner of each unit icon.
 		# Units lead by a GG will get a star instead of a dot - and the location and size of star differs
-		if (PleOpt.isShowGreatGeneralIndicator()
-		and BupUnit.isLeadByGreatGeneral):
+		if (PleOpt.isShowGreatGeneralIndicator() and BupUnit.isLeadByGreatGeneral):
 			xSize = BTNSZ(16) # advc.092
 			ySize = xSize
 			xOffset -= 3
@@ -396,10 +376,7 @@ class BupPanel:
 		yOffset /= 34 # </advc.092>
 
 		# display the colored spot icon
-		self.screen.addDDSGFC(szCell + "Dot", getArt(BupUnit.DotStatus),
-				x + xOffset, y + yOffset, xSize, ySize,
-				WidgetTypes.WIDGET_GENERAL, iCount, -1 )
-
+		self.screen.addDDSGFC(szCell + "Dot", getArt(BupUnit.DotStatus), x + xOffset, y + yOffset, xSize, ySize, WidgetTypes.WIDGET_GENERAL, iCount, -1 )
 
 ############## promotion available ##############
 
@@ -418,7 +395,6 @@ class BupPanel:
 				self.screen.show(szCell + "PromoFrame")
 			else:
 				self.screen.hide(szCell + "PromoFrame")
-
 
 ############## upgrade ##############
 
@@ -444,7 +420,6 @@ class BupPanel:
 		else:
 			self.screen.hide(szCell + "Upgrade")
 
-
 ############## mission ##############
 
 	def _updateMission(self, BupUnit, BupUnit_Prior, szCell, iCount, x, y):
@@ -467,7 +442,6 @@ class BupPanel:
 			else:
 				self.screen.hide(szCell + "Mission")
 
-
 ############## health bar ##############
 
 	def _updateHealthBar(self, BupUnit, BupUnit_Prior, szCell):
@@ -476,13 +450,11 @@ class BupPanel:
 			return
 
 		# if we get to here, then we have a unit in BupUnit and BupUnit_Prior
-		if (BupUnit.currHitPoints != BupUnit_Prior.currHitPoints
-		or not BupUnit_Prior.isShowHealth):
+		if (BupUnit.currHitPoints != BupUnit_Prior.currHitPoints or not BupUnit_Prior.isShowHealth):
 			self._drawHealthBar(BupUnit, szCell)
 
 	def _drawHealthBar(self, BupUnit, szCell):
-		if (PleOpt.isShowHealthBar()
-		and BupUnit.isShowHealth):
+		if (PleOpt.isShowHealthBar() and BupUnit.isShowHealth):
 			if BupUnit.currHitPoints < (BupUnit.maxHitPoints * 2) / 3:
 				sColor = "COLOR_RED"
 			elif BupUnit.currHitPoints < BupUnit.maxHitPoints / 3:
@@ -494,14 +466,8 @@ class BupPanel:
 
 			szStringHealth = szCell + "Health"
 			self.screen.setBarPercentage(szStringHealth, InfoBarTypes.INFOBAR_STORED, float(BupUnit.currHitPoints) / float(BupUnit.maxHitPoints))
-			self.screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(sColor))
+			self.screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail(sColor))
 			self.screen.show(szStringHealth)
-
-
-
-
-
-
 
 	def _getMaxCols(self):
 		return self.Cols
@@ -532,11 +498,8 @@ class BupPanel:
 #		return ( nRow * self.getMaxCol() ) + ( nCol % self.getMaxCol() )
 
 ############## functions for visual objects (show and hide) ######################
-		
+
 	# PLE Grouping Mode Switcher 
-
-
-
 
 class BupUnit:
 	def __init__(self, pUnit):
@@ -553,7 +516,7 @@ class BupUnit:
 		self.isHurt = pUnit.isHurt()
 		self.isPromotionReady = pUnit.isPromotionReady()
 
-		iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
+		iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
 		self.isLeadByGreatGeneral = iLeaderPromo != -1 and pUnit.isHasPromotion(iLeaderPromo)
 
 		self.DotStatus = self._getDotStatus()
@@ -574,8 +537,6 @@ class BupUnit:
 		else:
 			self.isShowHealth = pUnit.canFight()
 
-
-
 #		self.isCanUpgrade = PleOpt.isShowUpgradeIndicator() or mt.checkAnyUpgrade(pUnit)
 
 	def _getDotStatus(self):
@@ -590,13 +551,11 @@ class BupUnit:
 			sDotStatus = "OVERLAY_NOMOVE"
 
 		# Wounded units will get a darker colored button.
-		if (PleOpt.isShowWoundedIndicator()
-		and self.isHurt):
+		if (PleOpt.isShowWoundedIndicator() and self.isHurt):
 			sDotStatus += "_INJURED"
 
 		# Units lead by a GG will get a star instead of a dot.
-		if (PleOpt.isShowGreatGeneralIndicator()
-		and self.isLeadByGreatGeneral):
+		if (PleOpt.isShowGreatGeneralIndicator() and self.isLeadByGreatGeneral):
 			sDotStatus += "_GG"
 
 		return sDotStatus
@@ -656,8 +615,6 @@ class BupUnit:
 
 		return ""
 
-
-
 #		self.bSelected = pUnit.IsSelected()
 #		self.eUnit = pUnit.getUnitType()
 #		self.sDotState, self.iDotxSize, self.iDotySize, self.iDotxOffset, self.iDotyOffset = _getDOTInfo(pUnit)
@@ -670,16 +627,6 @@ class BupUnit:
 #		self.iMovesLeft = pUnit.movesLeft()
 #		self.iMoves = pUnit.getMoves()
 
-
-
-
-
-
-
-
 def getArt(sArt):
 	return ArtFileMgr.getInterfaceArtInfo(sArt).getPath()
-
-
-
 

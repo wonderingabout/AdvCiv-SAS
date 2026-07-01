@@ -57,9 +57,7 @@ public:
 	void firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2);
 	void combatResult(CvUnit* pWinner, CvUnit* pLoser);
 	// advc:
-	void combatLogHit(CombatDetails const& kAttackerDetails,
-			CombatDetails const& kDefenderDetails,
-			int iDamage, bool bAttackerTakesHit);
+	void combatLogHit(CombatDetails const& kAttackerDetails, CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit);
 	void improvementBuilt(int iImprovementType, int iX, int iY);
 	void improvementDestroyed(int iImprovementType, int iPlayer, int iX, int iY);
 	void routeBuilt(int iRouteType, int iX, int iY);
@@ -91,6 +89,8 @@ public:
 	void unitBuilt(CvCity *pCity, CvUnit *pUnit);
 	void unitKilled(CvUnit *pUnit, PlayerTypes eAttacker);
 	void unitLost(CvUnit *pUnit);
+	// <!-- custom: expose actual unit-capture creation for the Military Advisor Battles tab; combatResult fires too early to know whether workers/civilians were captured or destroyed. (GPT-5.5) -->
+	void unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit);
 	void unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion);
 	DllExport void unitSelected(CvUnit *pUnit);
 	void unitRename(CvUnit* pUnit);

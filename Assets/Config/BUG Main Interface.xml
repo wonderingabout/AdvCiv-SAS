@@ -2,9 +2,9 @@
 <!--
 	BUG Main Interface
 	by EmperorFool, Impaler[WrG], NeverMind, SimCutie
-	
+
 	Collects all of the various main interface mods.
-	
+
 	Copyright (c) 2008 The BUG Mod.
 -->
 <mod id="MainInterface" 
@@ -13,16 +13,16 @@
 	 version="3.0" 
 	 date="07/11/2008"
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="MainInterface" file="BUG Main Interface.ini">
 		<section id="Main">
-		
+
 			<!-- Options Screen Shortcut Reminder -->
 			<!-- advc (note): Now unused -->
 			<option id="OptionsKey" key="Options Shortcut Reminder" 
 					type="boolean" default="False" 
 					get="isShowOptionsKeyReminder" set="setShowOptionsKeyReminder" dirtyBit="GameData"/>
-			
+
 			<!-- Options Screen Button -->
 			<!-- advc.004: Dirty-bit ("GameData") removed b/c this requires a
 				 restart anyway. -->
@@ -33,7 +33,7 @@
 			<!-- advc.106i -->
 			<option id="ModNameInReplays" key="Mod Name In Replays" 
 					type="boolean" default="True" />
-					
+
 			<!-- advc.106b -->
 			<option id="AutoOpenEventLog" key="Auto Open Event Log" 
 					type="boolean" default="False" 
@@ -43,7 +43,7 @@
 					values="0, 1, 2, 3, 4, 5, 10"
 					get="getMessageLimit">
 			</list>
-			
+
 			<!-- advc.002n: New option. This part of the main interface gets
 				 constantly updated; no dirty-bit needed. -->
 			<option id="EndTurnMessage" key="End Turn Message" 
@@ -64,7 +64,7 @@
 			<option id="GoldRateBrokeColor" key="Gold Rate Broke Color"
 					type="color" default="COLOR_WARNING_TEXT"
 					get="getGoldRateBrokeColor" dirtyBit="GameData"/>
-			
+
 			<!-- Great Person Progress Bar by Impaler[WrG], EmperorFool
 				 advc.092: Default was False in K-Mod, True in BUG. -->
 			<option id="GPBar" key="GP Progress Bar" 
@@ -78,20 +78,20 @@
 				<choice id="One" get="isGPBarTypesOne"/>
 				<choice id="Maximum" get="isGPBarTypesMax"/>
 			</list>
-			
+
 			<!-- Great General Progress Bar by NeverMind
 				 advc.092: Default was False in K-Mod, True in BUG. -->
 			<option id="Combat_Counter" key="Combat Counter" 
 					type="boolean" default="True" 
 					get="isShowGGProgressBar" dirtyBit="GameData"/>
-			
+
 			<!-- Min/Max Commerce Buttons by codewarrior -->
 			<option id="MinMax_Commerce" key="MinMax Commerce" 
 					type="boolean" default="False" 
 					get="isShowMinMaxCommerceButtons" dirtyBit="PercentButtons, GameData">
 				<change module="CvCustomizableDomesticAdvisor" function="forcePositionCalc"/>
 			</option>
-			
+
 			<!-- advc.120c -->
 			<option id="Hide_EspSlider" key="Hide EspSlider" 
 					type="boolean" default="False" 
@@ -104,7 +104,7 @@
 					type="boolean" default="False" 
 					get="isShowTotalCultureRate" dirtyBit="GameData">
 			</option>
-			
+
 			<!-- City Cycle Arrows by SimCutie -->
 			<option id="CityArrows" key="City Cycle Arrows" 
 					type="boolean" default="True" 
@@ -114,7 +114,7 @@
 			<option id="ProgressBarsTickMarks" key="Tick Marks" 
 					type="boolean" default="True" 
 					get="isShowBarTickMarks" dirtyBit="GameData"/>
-			
+
 			<!-- advc.078: New option -->
 			<option id="OnceProgress" key="Once Progress" 
 					type="boolean" default="False" 
@@ -267,7 +267,7 @@
 			<!--option id="AutoExplore" key="Auto Explore"
 					get="isShowAutoExplore"
 					type="boolean" default="True" dirtyBit="SelectionButtons"/-->
-			
+
 			<!-- advc.004z -->
 			<option id="ScoresInGlobeView" key="Scores in Globe View" 
 					type="boolean" default="True" 
@@ -352,7 +352,7 @@
 			</option>
 		</section>
 	</options>
-	
+
 	<widget name="WIDGET_GP_PROGRESS_BAR" module="GPUtil" function="getHoverText"/>
 	<widget name="WIDGET_BUG_OPTION_SCREEN" xml="TXT_KEY_BUG_OPTIONS_SCREEN_HOVER"/>
 </mod>

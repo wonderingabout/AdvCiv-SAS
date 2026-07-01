@@ -269,8 +269,7 @@ CitySiteEvaluator* StartingPositionIteration::createSiteEvaluator(bool bNormaliz
 }
 
 
-StartingPositionIteration::PotentialSites::PotentialSites(
-	CitySiteEvaluator const& kEval, bool bRestrictedAreas) :
+StartingPositionIteration::PotentialSites::PotentialSites(CitySiteEvaluator const& kEval, bool bRestrictedAreas) :
 	m_kEval(kEval)
 {
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
@@ -294,15 +293,13 @@ StartingPositionIteration::PotentialSites::PotentialSites(
 		CvPlot const& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
 		if (bRestrictedAreas && validAreas.count(kPlot.area()) <= 0)
 			continue;
-		short iFoundValue = std::max<short>(0, m_kEval.evaluate(kPlot));
+		int iFoundValue = std::max(0, m_kEval.evaluate(kPlot));
 		if (iFoundValue >= rMinFoundVal)
 		{
 			// Randomize a little - mainly so that settling in place isn't a no-brainer
-			iFoundValue = safeIntCast<short>(
-					(iFoundValue + iFoundValue *
+			iFoundValue = (iFoundValue + iFoundValue *
 					((iFoundValue / rMinFoundVal - 1) * fixp(0.05) *
-					(scaled::rand(mapRand(), NULL) - fixp(0.5)))).
-					round());
+					(scaled::rand(mapRand(), NULL) - fixp(0.5)))).round();
 			m_foundValuesPerSite.insert(make_pair(eLoopPlotNum, iFoundValue));
 		}
 	}
@@ -313,7 +310,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
 	// "Clearing the neighborhood"
 
 	EagerEnumMap<PlotNumTypes,scaled> arVicinityPenaltiesPerPlot;
-	for (map<PlotNumTypes,short>::const_iterator itSite = m_foundValuesPerSite.begin();
+	for (map<PlotNumTypes,int>::const_iterator itSite = m_foundValuesPerSite.begin();
 		itSite != m_foundValuesPerSite.end(); ++itSite)
 	{
 		CvPlot const& p = kMap.getPlotByIndex(itSite->first);
@@ -325,9 +322,9 @@ StartingPositionIteration::PotentialSites::PotentialSites(
 			(Tbd. - Perhaps better: take Voronoi cells with few sites left off limits.) */
 		if (fewestPotentialSites() < 2 && numSites() < iPlayers * 15u)
 			break;
-		map<PlotNumTypes,short>::iterator minPos;
+		map<PlotNumTypes,int>::iterator minPos;
 		scaled rMinVal = scaled::MAX;
-		for (map<PlotNumTypes,short>::iterator it = m_foundValuesPerSite.begin();
+		for (map<PlotNumTypes,int>::iterator it = m_foundValuesPerSite.begin();
 			it != m_foundValuesPerSite.end(); ++it)
 		{
 			scaled rVal = it->second * std::max(fixp(0.3),
@@ -339,7 +336,7 @@ StartingPositionIteration::PotentialSites::PotentialSites(
 			}
 		}
 		CvPlot const& kMinPlot = kMap.getPlotByIndex(minPos->first);
-		short iMinFoundVal = minPos->second;
+		int iMinFoundVal = minPos->second;
 		m_foundValuesPerSite.erase(minPos);
 		recordSite(kMinPlot, iMinFoundVal, false, arVicinityPenaltiesPerPlot);
 	}
@@ -357,11 +354,11 @@ StartingPositionIteration::PotentialSites::~PotentialSites()
 
 scaled StartingPositionIteration::PotentialSites::computeMinFoundValue()
 {
-	vector<short> aiFoundValuesPerCurrSite; // vector for stats::median
-	short iWorstCurrFoundVal = MAX_SHORT;
+vector<int> aiFoundValuesPerCurrSite; // vector for stats::median
+int iWorstCurrFoundVal = MAX_INT;
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
 	{
-		short iFoundVal = m_kEval.evaluate(*it->getStartingPlot());
+		int iFoundVal = m_kEval.evaluate(*it->getStartingPlot());
 		aiFoundValuesPerCurrSite.push_back(iFoundVal);
 		m_foundValuesPerCurrSite.set(it->getID(), iFoundVal);
 		iWorstCurrFoundVal = std::min(iWorstCurrFoundVal, iFoundVal);
@@ -373,16 +370,14 @@ scaled StartingPositionIteration::PotentialSites::computeMinFoundValue()
 
 /*	(Could get the found value from m_foundValuesPerSite, but the callers
 	happen to have it at hand.) */
-void StartingPositionIteration::PotentialSites::recordSite(
-	CvPlot const& kPlot, short iFoundValue, bool bAdd,
-	EagerEnumMap<PlotNumTypes,scaled>& kVicinityPenaltiesPerPlot)
+void StartingPositionIteration::PotentialSites::recordSite(CvPlot const& kPlot, int iFoundValue, bool bAdd, EagerEnumMap<PlotNumTypes, scaled>& kVicinityPenaltiesPerPlot)
 {
 	// Update vicinity penalties
 	int const iSign = (bAdd ? 1 : -1);
 	for (PlotCircleIter it(kPlot, 8, false); it.hasNext(); ++it)
 	{
 		PlotNumTypes const eLoopPlot = it->plotNum();
-		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.find(eLoopPlot);
+		map<PlotNumTypes,int>::const_iterator pos = m_foundValuesPerSite.find(eLoopPlot);
 		if (pos != m_foundValuesPerSite.end() && pos->second < iFoundValue)
 		{
 			kVicinityPenaltiesPerPlot.add(eLoopPlot, iSign *
@@ -413,8 +408,7 @@ void StartingPositionIteration::PotentialSites::recordSite(
 }
 
 
-void StartingPositionIteration::PotentialSites::closestPlayers(
-	CvPlot const& kPlot, vector<PlayerTypes>& kResult) const
+void StartingPositionIteration::PotentialSites::closestPlayers(CvPlot const& kPlot, vector<PlayerTypes>& kResult) const
 {
 	FAssert(kResult.empty());
 	vector<pair<int,PlayerTypes> > aiePlayersByDistance;
@@ -463,7 +457,7 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
 	CvMap const& kMap = GC.getMap();
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
 	{
-		map<PlotNumTypes,short>::iterator pos = m_foundValuesPerSite.find(
+		map<PlotNumTypes,int>::iterator pos = m_foundValuesPerSite.find(
 				it->getStartingPlot()->plotNum());
 		if (pos != m_foundValuesPerSite.end())
 		{
@@ -480,7 +474,7 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
 		}
 	}
 	m_remoteSitesByAreaSize.clear();
-	for (map<PlotNumTypes,short>::const_iterator it = m_foundValuesPerSite.begin();
+	for (map<PlotNumTypes,int>::const_iterator it = m_foundValuesPerSite.begin();
 		it != m_foundValuesPerSite.end(); ++it)
 	{
 		PlotNumTypes ePlotNum = it->first;
@@ -502,12 +496,11 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
 }
 
 
-void StartingPositionIteration::PotentialSites::getPlots(
-	vector<CvPlot const*>& r) const
+void StartingPositionIteration::PotentialSites::getPlots(vector<CvPlot const*>& r) const
 {
 	FAssert(r.empty());
 	CvMap const& kMap = GC.getMap();
-	for (map<PlotNumTypes,short>::const_iterator it = m_foundValuesPerSite.begin();
+	for (map<PlotNumTypes,int>::const_iterator it = m_foundValuesPerSite.begin();
 		it != m_foundValuesPerSite.end(); ++it)
 	{
 		r.push_back(&kMap.getPlotByIndex(it->first));
@@ -529,8 +522,7 @@ StartingPositionIteration::VoronoiCell* StartingPositionIteration::
 }
 
 
-PlotNumTypes StartingPositionIteration::PotentialSites::getRemoteSite(
-	int iIndex) const
+PlotNumTypes StartingPositionIteration::PotentialSites::getRemoteSite(int iIndex) const
 {
 	if (iIndex >= (int)m_remoteSitesByAreaSize.size())
 		return NO_PLOT_NUM;
@@ -538,18 +530,17 @@ PlotNumTypes StartingPositionIteration::PotentialSites::getRemoteSite(
 }
 
 
-void StartingPositionIteration::PotentialSites::getCurrFoundValues(
-	EagerEnumMap<PlayerTypes,short>& kFoundValuesPerPlayer) const
+void StartingPositionIteration::PotentialSites::getCurrFoundValues(EagerEnumMap<PlayerTypes, int>& kFoundValuesPerPlayer) const
 {
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
 	{
-		map<PlotNumTypes,short>::const_iterator pos = m_foundValuesPerSite.
+		map<PlotNumTypes,int>::const_iterator pos = m_foundValuesPerSite.
 				find(it->getStartingPlot()->plotNum());
 		if (pos != m_foundValuesPerSite.end())
 			kFoundValuesPerPlayer.set(it->getID(), pos->second);
 		else
 		{
-			short iCurrFoundVal = m_foundValuesPerCurrSite.get(it->getID());
+			int iCurrFoundVal = m_foundValuesPerCurrSite.get(it->getID());
 			if (iCurrFoundVal > 0)
 				kFoundValuesPerPlayer.set(it->getID(), iCurrFoundVal);
 		}
@@ -557,8 +548,7 @@ void StartingPositionIteration::PotentialSites::getCurrFoundValues(
 }
 
 
-StartingPositionIteration::DistanceTable::DistanceTable(
-	vector<CvPlot const*>& kSources, vector<CvPlot const*>& kDestinations)
+StartingPositionIteration::DistanceTable::DistanceTable(vector<CvPlot const*>& kSources, vector<CvPlot const*>& kDestinations)
 {
 	scaled rStartEraFactor = 1;
 	if (GC.getNumEraInfos() > 1)
@@ -655,8 +645,7 @@ StartingPositionIteration::DistanceTable::DistanceTable(
 /*	Even with the inline keyword (and CvMap.h included in the header),
 	the compiler doesn't want to inline this. Haven't tried force-inline;
 	the amount time spent on this function isn't that great anyway. */
-short StartingPositionIteration::DistanceTable::d(
-	CvPlot const& kSource, CvPlot const& kDestination) const
+short StartingPositionIteration::DistanceTable::d(CvPlot const& kSource, CvPlot const& kDestination) const
 {
 	FAssertMsg(!kSource.isWater(), "kSource should be a (potential) city site");
 	SourceID eSource = m_sourceIDs[kSource.plotNum()];
@@ -667,8 +656,7 @@ short StartingPositionIteration::DistanceTable::d(
 }
 
 
-void StartingPositionIteration::DistanceTable::setDistance(
-	CvPlot const& kSource, CvPlot const& kDestination, short iDistance)
+void StartingPositionIteration::DistanceTable::setDistance(CvPlot const& kSource, CvPlot const& kDestination, short iDistance)
 {
 	SourceID eSource = m_sourceIDs[kSource.plotNum()];
 	DestinationID eDestination = m_destinationIDs[kDestination.plotNum()];
@@ -736,8 +724,7 @@ void StartingPositionIteration::DistanceTable::computeDistances(CvPlot const& kS
 
 /*	If the scale of the distances is changed, the value returned by
 	getAvgCityDist needs to be adjusted. */
-short StartingPositionIteration::DistanceTable::stepDist(
-	CvPlot const& kFrom, CvPlot const& kTo, bool bSourceCoastal) const
+short StartingPositionIteration::DistanceTable::stepDist(CvPlot const& kFrom, CvPlot const& kTo, bool bSourceCoastal) const
 {
 	static const TerrainTypes eShallowTerrain = GC.getWATER_TERRAIN(true);
 	if (kTo.isImpassable() || GC.getMap().isSeparatedByIsthmus(kFrom, kTo))
@@ -843,19 +830,17 @@ std::string StartingPositionIteration::Step::debugStr() const
 }
 
 
-void StartingPositionIteration::evaluateCurrPosition(
-	SolutionAttributes& kResult, bool bLog) const
+// <!-- custom: found values use int (not short) throughout SPI to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+void StartingPositionIteration::evaluateCurrPosition(SolutionAttributes& kResult, bool bLog) const
 {
-	EagerEnumMap<PlayerTypes,short> foundValues;
+EagerEnumMap<PlayerTypes,int> foundValues;
 	m_pPotentialSites->getCurrFoundValues(foundValues);
 	computeStartValues(foundValues, kResult, bLog);
 	kResult.m_rStartPosVal = startingPositionValue(kResult);
 }
 
 
-StartingPositionIteration::SpaceEvaluator::SpaceEvaluator(
-	DistanceTable const& kDists,
-	EagerEnumMap<PlotNumTypes,scaled> const& kYieldValues, bool bLog)
+StartingPositionIteration::SpaceEvaluator::SpaceEvaluator(DistanceTable const& kDists, EagerEnumMap<PlotNumTypes, scaled> const& kYieldValues, bool bLog)
 :	m_kDists(kDists), m_kYieldValues(kYieldValues), m_bLog(bLog)
 {
 	CvMap const& kMap = GC.getMap();
@@ -1038,9 +1023,7 @@ StartingPositionIteration::SpaceEvaluator::cacheDelayFactors(word iMaxDist)
 }
 
 // The results are on the scale of AIFoundValue
-void StartingPositionIteration::computeStartValues(
-	EagerEnumMap<PlayerTypes,short> const& kFoundValues,
-	SolutionAttributes& kResult, bool bLog) const
+void StartingPositionIteration::computeStartValues(EagerEnumMap<PlayerTypes, int> const& kFoundValues, SolutionAttributes& kResult, bool bLog) const
 {
 	#ifdef SPI_LOG
 		std::ostringstream out;
@@ -1116,7 +1099,7 @@ void StartingPositionIteration::computeStartValues(
 		arFoundValues.push_back(kFoundValues.get(itPlayer->getID()));
 		arSpaceValues.push_back(spaceValues.get(itPlayer->getID()));
 	}
-	
+
 	scaled const rMedianFoundValue = stats::median(arFoundValues);
 	scaled const rMedianSpaceValue = stats::median(arSpaceValues);
 
@@ -1341,8 +1324,7 @@ void StartingPositionIteration::computeStartValues(
 	"Rivals" refers to any pair of different civ players here, even if they're
 	on the same team. (Sites will probably get swapped around later, so same-team
 	relationships aren't reliable at this point.) */
-scaled StartingPositionIteration::computeRivalDistFactors(
-	EagerEnumMap<PlayerTypes,scaled>& kResult, bool bSameArea) const
+scaled StartingPositionIteration::computeRivalDistFactors(EagerEnumMap<PlayerTypes, scaled>& kResult, bool bSameArea) const
 {
 	vector<scaled> arRivalDistFactors;
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -1395,12 +1377,8 @@ scaled StartingPositionIteration::weightedDistance(vector<short>& kDistances)
 }
 
 
-scaled StartingPositionIteration::outlierValue(
-	EagerEnumMap<PlayerTypes,scaled> const& kStartValues,
-	PlayerTypes eIndex,
-	scaled& rPercentage, scaled rNegativeOutlierExtraWeight,
-	scaled const* pMedian, // To save time if caller happens to have it
-	bool* pbNegativeOutlier) const // Out-param
+// To save time if caller happens to have it <!-- custom: hoisted from multiline signature between `pMedian` and `pbNegativeOutlier` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+scaled StartingPositionIteration::outlierValue(EagerEnumMap<PlayerTypes, scaled> const& kStartValues, PlayerTypes eIndex, scaled& rPercentage, scaled rNegativeOutlierExtraWeight, scaled const* pMedian, bool* pbNegativeOutlier) const // Out-param
 {
 	if (pbNegativeOutlier != NULL)
 		*pbNegativeOutlier = false;
@@ -1438,8 +1416,7 @@ scaled StartingPositionIteration::outlierValue(
 }
 
 
-scaled StartingPositionIteration::startingPositionValue(
-	SolutionAttributes& kResult) const
+scaled StartingPositionIteration::startingPositionValue(SolutionAttributes& kResult) const
 {
 	scaled rWorstOutlierVal;
 	kResult.m_eWorstOutlier = NO_PLAYER;
@@ -1506,10 +1483,8 @@ scaled StartingPositionIteration::startingPositionValue(
 }
 
 
-void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer,
-	// (Low first val means high priority)
-	vector<pair<short,PlotNumTypes> >& kAltSitesByPriority,
-	bool bIncludeRemote, PlotNumTypes eTakenSite) const
+// (Low first val means high priority) <!-- custom: hoisted from multiline signature between `eCurrSitePlayer` and `pair` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer, vector<pair<short, PlotNumTypes> >& kAltSitesByPriority, bool bIncludeRemote, PlotNumTypes eTakenSite) const
 {
 	VoronoiCell const* pCell = m_pPotentialSites->getCell(eCurrSitePlayer);
 	if (pCell == NULL)
@@ -1671,8 +1646,7 @@ void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer,
 }
 
 
-bool StartingPositionIteration::considerStep(Step& kStep,
-	SolutionAttributes& kCurrSolutionAttribs) const
+bool StartingPositionIteration::considerStep(Step& kStep, SolutionAttributes& kCurrSolutionAttribs) const
 {
 	FAssertMsg(kCurrSolutionAttribs.m_eWorstOutlier != NO_PLAYER, "Should've terminated already");
 	kStep.take();
@@ -1730,9 +1704,7 @@ bool StartingPositionIteration::considerStep(Step& kStep,
 }
 
 
-void StartingPositionIteration::logStep(Step const& kStep,
-	SolutionAttributes const& kOldSolution,
-	SolutionAttributes& kNewSolution, bool bStepTaken) const
+void StartingPositionIteration::logStep(Step const& kStep, SolutionAttributes const& kOldSolution, SolutionAttributes& kNewSolution, bool bStepTaken) const
 {
 #ifdef SPI_LOG
 	std::ostringstream out;
@@ -2139,8 +2111,7 @@ CvPlot* StartingPositionIteration::getTeamSite(TeamTypes eTeam, int iMember) con
 }
 
 
-NormalizationTarget::NormalizationTarget(CitySiteEvaluator& kEval,
-	StartingPositionIteration::SolutionAttributes const& kSolution)
+NormalizationTarget::NormalizationTarget(CitySiteEvaluator& kEval, StartingPositionIteration::SolutionAttributes const& kSolution)
 {
 	m_pEval = &kEval;
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
@@ -2164,13 +2135,12 @@ NormalizationTarget::~NormalizationTarget()
 }
 
 
-bool NormalizationTarget::isReached(CvPlot const& kStartSite,
-	bool bNearlyReached, bool bClearlyExceeded) const
+bool NormalizationTarget::isReached(CvPlot const& kStartSite, bool bNearlyReached, bool bClearlyExceeded) const
 {
 	CvMap const& kMap = GC.getMap();
 
 	scaled rCurrStartVal = -1;
-	short iCurrFoundVal = -1;
+int iCurrFoundVal = -1;
 	vector<scaled> arCurrFoundValues;
 	vector<scaled> arCurrStartValues;
 	for (map<PlotNumTypes,StartValBreakdown>::const_iterator it =
@@ -2178,7 +2148,7 @@ bool NormalizationTarget::isReached(CvPlot const& kStartSite,
 	{
 		PlotNumTypes const eLoopPlot = it->first;
 		CvPlot const& kLoopPlot = kMap.getPlotByIndex(eLoopPlot);
-		short iFoundVal = m_pEval->evaluate(kLoopPlot);
+		int iFoundVal = m_pEval->evaluate(kLoopPlot);
 		arCurrFoundValues.push_back(iFoundVal);
 		StartValBreakdown svb = it->second;
 		scaled rStartVal = svb.rTotal;
@@ -2201,7 +2171,7 @@ bool NormalizationTarget::isReached(CvPlot const& kStartSite,
 	scaled const rMedianCurrFoundVal = stats::median(arCurrFoundValues);
 	scaled const rMedianCurrStartVal = stats::median(arCurrStartValues);
 	scaled const rMaxCurrStartVal = stats::max(arCurrStartValues);
-	
+
 	scaled rIncreaseNeeded =
 			// Don't increase kStartSite's found value far beyond the median found value
 			std::min(fixp(1.1) * rMedianCurrFoundVal - iCurrFoundVal,
@@ -2264,8 +2234,7 @@ scaled NormalizationTarget::getVolatilityValue(CvPlot const& kStartSite) const
 }
 
 
-NormalizationTarget::StartValBreakdown const* NormalizationTarget::getBreakdown(
-	CvPlot const& kSite) const
+NormalizationTarget::StartValBreakdown const* NormalizationTarget::getBreakdown(CvPlot const& kSite) const
 {
 	PlotNumTypes const ePlot = kSite.plotNum();
 	map<PlotNumTypes,StartValBreakdown>::const_iterator pos = m_startValData.find(ePlot);

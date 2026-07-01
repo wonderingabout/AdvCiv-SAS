@@ -153,10 +153,7 @@ protected:
 
 public:
 	// Externally visible statics ...
-	static E getLength()
-	{
-		return enum_traits<E>::length();
-	}
+	static E getLength() { return enum_traits<E>::length(); }
 	typedef E EnumType;
 	typedef V ValueType;
 	static V const defaultValue;
@@ -169,57 +166,29 @@ public:
 		static const enum variable is initialized through another static variable;
 		doesn't reliably get initialized that way. See also a comment about
 		enum_traits<E>::len being of type int instead of E.*/
-	static E endKey()
-	{
-		/*	Marking the end of the key sequence with a value greater than
-			any valid key is arithmetically more helpful than using a
-			"NO_..." enumerator (-1). */
-		return static_cast<E>(enum_traits<E>::len);
-	}
+	/* Marking the end of the key sequence with a value greater than any valid key is arithmetically more helpful than using a "NO_..." enumerator (-1). */
+	static E endKey() { return static_cast<E>(enum_traits<E>::len); }
 protected:
-	static CompactE ceEndKey()
-	{
-		return compactKey(endKey());
-	}
+	static CompactE ceEndKey() { return compactKey(endKey()); }
 
 public:
 	/*	At a minimum, derived classes need to define a reset function,
 		a get function and a lookup function template.
 		Derived classes with bARITHMETIC=false can implement setUnsafe
 		(or setCompact) instead of lookup.*/
-	V get(E eKey) const
-	{	// Derived classes can assert that eKey is within its bounds here
-		return derived().getUnsafe(eKey);
-	}
-	void set(E eKey, V vValue)
-	{
-		derived().changeValue<OP_ASSIGN>(eKey, vValue);
-	}
-	void add(E eKey, V vAddend)
-	{
-		derived().changeValue<OP_ADD>(eKey, vAddend);
-	}
-	void multiply(E eKey, V vMultiplier)
-	{
-		derived().changeValue<OP_MULT>(eKey, vMultiplier);
-	}
-	void divide(E eKey, V vDivisor)
-	{
-		derived().changeValue<OP_DIV>(eKey, vDivisor);
-	}
-	void toggle(E eKey)
-	{
-		derived().changeValue<OP_TOGGLE>(eKey, false);
-	}
+	// Derived classes can assert that eKey is within its bounds here
+	V get(E eKey) const { return derived().getUnsafe(eKey); }
+	void set(E eKey, V vValue) { derived().changeValue<OP_ASSIGN>(eKey, vValue); }
+	void add(E eKey, V vAddend) { derived().changeValue<OP_ADD>(eKey, vAddend); }
+	void multiply(E eKey, V vMultiplier) { derived().changeValue<OP_MULT>(eKey, vMultiplier); }
+	void divide(E eKey, V vDivisor) { derived().changeValue<OP_DIV>(eKey, vDivisor); }
+	void toggle(E eKey) { derived().changeValue<OP_TOGGLE>(eKey, false); }
 	void reset()
 	{
 		FOR_EACH_KEY(eKey)
 			derived().resetVal(eKey);
 	}
-	void resetVal(E eKey)
-	{
-		derived().resetValUnsafe(eKey);
-	}
+	void resetVal(E eKey) { derived().resetValUnsafe(eKey); }
 	void setAll(V vValue)
 	{
 		FOR_EACH_KEY(eKey)
@@ -235,14 +204,8 @@ public:
 		}
 		return iCount;
 	}
-	bool isAnyNonDefault() const
-	{
-		return (derived().numNonDefault() > 0);
-	}
-	V operator[](E eKey) const
-	{
-		return derived().getUnsafe(eKey);
-	}
+	bool isAnyNonDefault() const { return (derived().numNonDefault() > 0); }
+	V operator[](E eKey) const { return derived().getUnsafe(eKey); }
 
 	// For FOR_EACH_NON_DEFAULT_... macros
 	template<typename ValueType>
@@ -256,11 +219,8 @@ public:
 		return derived()._nextNonDefaultPair<ValueType>(iIter, kPair);
 	}
 	// End of sequence signaled by returning endKey()
-	E nextNonDefaultKey(int& iIter) const
-	{
-		// Indirection only to be consistent with nextNonDefaultPair
-		return derived()._nextNonDefaultKey(iIter);
-	}
+	// Indirection only to be consistent with nextNonDefaultPair
+	E nextNonDefaultKey(int& iIter) const { return derived()._nextNonDefaultKey(iIter); }
 
 	void insert(int iKey, V vValue)
 	{
@@ -278,15 +238,8 @@ public:
 		failed static assertion in writeVal when all write functions are
 		in fact unused. Turn the data stream into a template param
 		when there would be none otherwise. */
-	template<class DataStream>
-	void write(DataStream* pStream) const
-	{
-		derived().writeArray<CompactV>(pStream);
-	}
-	void read(FDataStreamBase* pStream, int iSubtrahend = 0)
-	{
-		derived().readArray<CompactV>(pStream, iSubtrahend);
-	}
+	template<class DataStream> void write(DataStream* pStream) const { derived().writeArray<CompactV>(pStream); }
+	void read(FDataStreamBase* pStream, int iSubtrahend = 0) { derived().readArray<CompactV>(pStream, iSubtrahend); }
 	template<typename SizeType, typename ValueType>
 	void writeLazyArray(FDataStreamBase* pStream) const
 	{
@@ -298,8 +251,7 @@ public:
 		derived().writeArray<ValueType>(pStream);
 	}
 	template<typename SizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		int iSubtrahend = 0) // (Could also get this from sz)
+	void readLazyArray(FDataStreamBase* pStream, int iSubtrahend = 0) // (Could also get this from sz)
 	{
 		SizeType sz;
 		pStream->Read(&sz);
@@ -307,15 +259,8 @@ public:
 			return;
 		derived().readArray<ValueType>(pStream, iSubtrahend);
 	}
-	template<class DataStream>
-	void writeLazyIntArray(DataStream* pStream) const
-	{
-		derived().writeLazyArray<int,int>(pStream);
-	}
-	void readLazyIntArray(FDataStreamBase* pStream)
-	{
-		derived().readLazyArray<int,int>(pStream);
-	}
+	template<class DataStream> void writeLazyIntArray(DataStream* pStream) const { derived().writeLazyArray<int,int>(pStream); }
+	void readLazyIntArray(FDataStreamBase* pStream) { derived().readLazyArray<int,int>(pStream); }
 	template<typename ValueType>
 	void writeArray(FDataStreamBase* pStream) const
 	{
@@ -344,27 +289,11 @@ public:
 	}
 
 protected:
-	V getUnsafe(E eKey) const
-	{
-		return uncompactValue<V,CompactV>(derived().getCompact(compactKey(eKey)), eKey);
-	}
-	CompactV getCompact(CompactE ceKey) const
-	{
-		return derived().getCompact(ceKey);
-	}
-	void setUnsafe(E eKey, V vValue)
-	{
-		derived().changeValueUnsafe<OP_ASSIGN>(eKey, vValue);
-	}
-	void resetValUnsafe(E eKey)
-	{
-		derived().setUnsafe(eKey, vDEFAULT);
-	}
-	template<Operation eOP>
-	void changeValue(E eKey, V vOperand)
-	{
-		derived().changeValueUnsafe<eOP>(eKey, vOperand);
-	}
+	V getUnsafe(E eKey) const { return uncompactValue<V,CompactV>(derived().getCompact(compactKey(eKey)), eKey); }
+	CompactV getCompact(CompactE ceKey) const { return derived().getCompact(ceKey); }
+	void setUnsafe(E eKey, V vValue) { derived().changeValueUnsafe<OP_ASSIGN>(eKey, vValue); }
+	void resetValUnsafe(E eKey) { derived().setUnsafe(eKey, vDEFAULT); }
+	template<Operation eOP> void changeValue(E eKey, V vOperand) { derived().changeValueUnsafe<eOP>(eKey, vOperand); }
 	template<class T>
 	static T& getDummy()
 	{
@@ -388,27 +317,14 @@ protected:
 		not to allocate memory based on isNeutralToDefaultVal or other criteria.
 		In that case cvDummy() should be returned, which means that any write
 		operation of the caller will have no effect. */
+	template<Operation eOP> CompactV& lookup(E eKey, CompactV cvOperand) { return derived().lookupUnsafe<eOP>(eKey, cvOperand); }
+	template<Operation eOP> CompactV& lookupUnsafe(E eKey, CompactV cvOperand) { return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand); }
 	template<Operation eOP>
-	CompactV& lookup(E eKey, CompactV cvOperand)
-	{
-		return derived().lookupUnsafe<eOP>(eKey, cvOperand);
-	}
-	template<Operation eOP>
-	CompactV& lookupUnsafe(E eKey, CompactV cvOperand)
-	{
-		return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand);
-	}
-	template<Operation eOP>
-	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue)
-	{	// (Derived classes have to override one of the lookup function templates)
-		return derived().lookupCompact<eOP>(ceKey, cvValue);
-	}
+	// (Derived classes have to override one of the lookup function templates)
+	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue) { return derived().lookupCompact<eOP>(ceKey, cvValue); }
 
-	template<Operation eOP>
-	void changeValueUnsafe(E eKey, V vOperand)
-	{
-		BOOST_STATIC_ASSERT(false); // eOP not supported
-	}
+	// eOP not supported
+	template<Operation eOP> void changeValueUnsafe(E eKey, V vOperand) { BOOST_STATIC_ASSERT(false); }
 	template<>
 	void changeValueUnsafe<OP_ASSIGN>(E eKey, V vValue)
 	{
@@ -480,57 +396,20 @@ protected:
 		applyOp<eOP>(val, cvOperand);
 		derived().processValueChange(cvOldVal, val);
 	}
-	template<Operation eOP>
-	void applyOp(CompactV&, CompactV) { BOOST_STATIC_ASSERT(false); }
-	template<>
-	void applyOp<OP_ADD>(CompactV& cvValue, CompactV cvAddend)
-	{
-		// Cast b/c CompactV might be an enum type, or e.g. short getting promoted to int.
-		cvValue = static_cast<CompactV>(cvValue + cvAddend);
-	}
-	template<>
-	void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier)
-	{
-		cvValue = static_cast<CompactV>(cvValue * cvMultiplier);
-	}
-	template<>
-	void applyOp<OP_DIV>(CompactV& cvValue, CompactV cvDivisor)
-	{
-		cvValue = static_cast<CompactV>(cvValue / cvDivisor);
-	}
-	template<>
-	void applyOp<OP_TOGGLE>(CompactV& cvValue, CompactV cvDummy)
-	{
-		cvValue = !cvValue;
-	}
+	template<Operation eOP> void applyOp(CompactV&, CompactV) { BOOST_STATIC_ASSERT(false); }
+	// Cast b/c CompactV might be an enum type, or e.g. short getting promoted to int.
+	template<> void applyOp<OP_ADD>(CompactV& cvValue, CompactV cvAddend) { cvValue = static_cast<CompactV>(cvValue + cvAddend); }
+	template<> void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier) { cvValue = static_cast<CompactV>(cvValue * cvMultiplier); }
+	template<> void applyOp<OP_DIV>(CompactV& cvValue, CompactV cvDivisor) { cvValue = static_cast<CompactV>(cvValue / cvDivisor); }
+	template<> void applyOp<OP_TOGGLE>(CompactV& cvValue, CompactV cvDummy) { cvValue = !cvValue; }
 	/*	Will applying eOP to the default value and the given operand
 		result in the default value? To help derived classes avoid unnecessary
 		memory allocation when implementing lookup. */
-	template<Operation eOP>
-	bool isNeutralToDefaultVal(CompactV)
-	{
-		return false;
-	}
-	template<>
-	bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand)
-	{
-		return (cvOperand == cvDEFAULT);
-	}
-	template<>
-	bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand)
-	{
-		return (cvOperand == 0);
-	}
-	template<>
-	bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand)
-	{
-		return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1));
-	}
-	template<>
-	bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand)
-	{
-		return isNeutralToDefaultVal<OP_MULT>(cvOperand);
-	}
+	template<Operation eOP> bool isNeutralToDefaultVal(CompactV) { return false; }
+	template<> bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand) { return (cvOperand == cvDEFAULT); }
+	template<> bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand) { return (cvOperand == 0); }
+	template<> bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand) { return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1)); }
+	template<> bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand) { return isNeutralToDefaultVal<OP_MULT>(cvOperand); }
 
 	template<typename ValueType>
 	bool _nextNonDefaultPair(int& iIter, std::pair<E,ValueType>& kPair) const
@@ -560,14 +439,9 @@ protected:
 	}
 
 	// (Can't overload these two under the name "compact" b/c E and V can coincide)
-	static CompactE compactKey(E eKey)
-	{
-		return compactEnum(eKey);
-	}
-	static CompactV compactValue(V vValue)
-	{	// Specialize for bool
-		return _compact<CompactV,V>(vValue);
-	}
+	static CompactE compactKey(E eKey) { return compactEnum(eKey); }
+	// Specialize for bool
+	static CompactV compactValue(V vValue) { return _compact<CompactV,V>(vValue); }
 	template<class ToType, class FromType>
 	static ToType _compact(FromType fValue)
 	{
@@ -578,55 +452,24 @@ protected:
 	#endif
 	}
 	template<>
-	static BitBlock _compact<BitBlock,bool>(bool bValue)
-	{	// Bit block of all ones or all zeros
-		return (bValue ? integer_limits<BitBlock>::max : 0);
-	}
+	// Bit block of all ones or all zeros
+	static BitBlock _compact<BitBlock,bool>(bool bValue) { return (bValue ? integer_limits<BitBlock>::max : 0); }
 	// (Can't overload these two b/c CompactE and CompactV can coincide)
-	static E uncompactKey(CompactE ceKey)
-	{
-		return static_cast<E>(ceKey);
-	}
-	static V uncompactValue(CompactV cvVal)
-	{	// The one-argument version can't work for bBIT_BLOCKS
-		return _uncompactValue<V,CompactV>(cvVal);
-	}
-	template<class ToType, class FromType>
-	static ToType _uncompactValue(FromType fValue)
-	{
-		return (ToType)fValue;
-	}
+	static E uncompactKey(CompactE ceKey) { return static_cast<E>(ceKey); }
+	// The one-argument version can't work for bBIT_BLOCKS
+	static V uncompactValue(CompactV cvVal) { return _uncompactValue<V,CompactV>(cvVal); }
+	template<class ToType, class FromType> static ToType _uncompactValue(FromType fValue) { return (ToType)fValue; }
 	template<>
 	static bool _uncompactValue<bool,BitBlock>(BitBlock uiBlock)
 	{
 		BOOST_STATIC_ASSERT(false);
 		return false;
 	}
-	template<class ToType, class FromType>
-	static ToType uncompactValue(FromType fValue, E eKey)
-	{
-		return uncompactValue(fValue);
-	}
-	template<>
-	static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey)
-	{
-		return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock));
-	}
-	template<class ToType, class FromType>
-	static void assignVal(ToType& to, FromType fValue, E eKey)
-	{
-		to = compactValue(fValue);
-	}
-	template<>
-	static void assignVal<BitBlock,bool>(BitBlock& block, bool bValue, E eKey)
-	{
-		BitUtil::SetBit(block, eKey % BITSIZE(BitBlock), bValue);
-	}
-	template<typename ToType, typename FromType>
-	static ToType safeCast(FromType fVal)
-	{
-		return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal);
-	}
+	template<class ToType, class FromType> static ToType uncompactValue(FromType fValue, E eKey) { return uncompactValue(fValue); }
+	template<> static bool uncompactValue<bool,BitBlock>(BitBlock block, E eKey) { return BitUtil::GetBit(block, eKey % BITSIZE(BitBlock)); }
+	template<class ToType, class FromType> static void assignVal(ToType& to, FromType fValue, E eKey) { to = compactValue(fValue); }
+	template<> static void assignVal<BitBlock,bool>(BitBlock& block, bool bValue, E eKey) { BitUtil::SetBit(block, eKey % BITSIZE(BitBlock), bValue); }
+	template<typename ToType, typename FromType> static ToType safeCast(FromType fVal) { return int_cast<ToType,FromType,true,false,/*allow ptr*/true>::safe(fVal); }
 	/*	Derived classes should use these wrappers for writing values. To ensure
 		that no compact values that encode pointers get stored in savegames.
 		Will unfortunately have to turn all write functions into templates -
@@ -792,10 +635,7 @@ public:
 			m_aValues[eKey] = cvValue;
 		}
 	}
-	int numNonDefault() const
-	{
-		return m_iNonDefault;
-	}
+	int numNonDefault() const { return m_iNonDefault; }
 	template<class DataStream>
 	void write(DataStream pStream) const
 	{
@@ -908,10 +748,7 @@ protected:
 				iFreePos, m_aValues, m_iSize);
 		m_iSize++;
 	}
-	short capacity() const
-	{
-		return m_iSize + (bEND_MARKER ? 1 : 0);
-	}
+	short capacity() const { return m_iSize + (bEND_MARKER ? 1 : 0); }
 	void allocate()
 	{
 		FAssertBounds(0, getLength() + 1, m_iSize);
@@ -928,10 +765,7 @@ protected:
 		}
 	}
 
-	CompactV getCompact(CompactE ceKey) const
-	{
-		return _getCompact<!bEND_MARKER>(ceKey);
-	}
+	CompactV getCompact(CompactE ceKey) const { return _getCompact<!bEND_MARKER>(ceKey); }
 	template<bool bCHECK_SIZE>
 	CompactV _getCompact(CompactE) const;
 	template<>
@@ -986,8 +820,7 @@ protected:
 	}
 	/*	The T=V version exists only for the sake of bit arrays (bBIT_BLOCKS)
 		-- which this class doesn't use. We always use CompactV=bool when V=bool. */
-	template<class T>
-	void processValueChange(T, T) { BOOST_STATIC_ASSERT(false); }
+	template<class T> void processValueChange(T, T) { BOOST_STATIC_ASSERT(false); }
 	template<>
 	void processValueChange<CompactV>(CompactV cvOld, CompactV cvNew)
 	{
@@ -1110,10 +943,7 @@ public:
 		std::memcpy(m_aKeys, kOther.m_aKeys, m_iSize * sizeof(kOther.m_aKeys[0]));
 	}
 
-	void set(E eKey, bool bValue = !vDEFAULT)
-	{
-		setUnsafe(eKey, bValue);
-	}
+	void set(E eKey, bool bValue = !vDEFAULT) { setUnsafe(eKey, bValue); }
 private: // Hide public base function
 	void toggle(E eKey) {}
 public:
@@ -1123,10 +953,7 @@ public:
 		uninit();
 		allocate();
 	}
-	int numNonDefault() const
-	{
-		return m_iSize;
-	}
+	int numNonDefault() const { return m_iSize; }
 
 	template<class DataStream>
 	void write(DataStream* pStream) const
@@ -1279,14 +1106,8 @@ protected:
 		CompactV* m_aValues;
 		byte m_aBytes[iSTATIC_BYTES];
 	};
-	CompactV* values()
-	{
-		return (bSTATIC_MEMORY ? reinterpret_cast<CompactV*>(m_aBytes) : m_aValues);
-	}
-	CompactV const* values() const
-	{
-		return (bSTATIC_MEMORY ? reinterpret_cast<CompactV const*>(m_aBytes) : m_aValues);
-	}
+	CompactV* values() { return (bSTATIC_MEMORY ? reinterpret_cast<CompactV*>(m_aBytes) : m_aValues); }
+	CompactV const* values() const { return (bSTATIC_MEMORY ? reinterpret_cast<CompactV const*>(m_aBytes) : m_aValues); }
 	static int const iSTATIC_ARRAY_SIZE = (!bBIT_BLOCKS ? enum_traits<E>::len :
 			(enum_traits<E>::len + BITSIZE(BitBlock) - 1) / BITSIZE(BitBlock)); // round up
 	static int arraySize()
@@ -1341,11 +1162,7 @@ public:
 		_memcpy<bSTATIC_MEMORY>(values(), kOther.values());
 	}
 
-	V get(E eKey) const
-	{
-		FAssertEnumBounds(eKey);
-		return ArrayEnumMapBase::get(eKey);
-	}
+	V get(E eKey) const { FAssertEnumBounds(eKey); return ArrayEnumMapBase::get(eKey); }
 	void reset()
 	{
 		if (!bLAZY_ALLOC)
@@ -1388,16 +1205,10 @@ public:
 		}
 		return false;
 	}
-	V& operator[](E eKey)
-	{	/*	Can only implement this when V and CompactV coincide
-			(unless we want to return CompactV - but I want that type to be used
-			only internally). */
-		return subscript<is_same_type<V,CompactV>::value>(eKey);
-	}
-	V operator[](E eKey) const
-	{	// (I don't think we can unhide this through a using declaration)
-		return ArrayEnumMapBase::operator[](eKey);
-	}
+	/* Can only implement this when V and CompactV coincide (unless we want to return CompactV - but I want that type to be used only internally). */
+	V& operator[](E eKey) { return subscript<is_same_type<V,CompactV>::value>(eKey); }
+	// (I don't think we can unhide this through a using declaration)
+	V operator[](E eKey) const { return ArrayEnumMapBase::operator[](eKey); }
 
 	template<class DataStream>
 	void write(DataStream pStream) const
@@ -1453,12 +1264,7 @@ protected:
 		}
 		return ceKey;
 	}
-	template<Operation eOP>
-	CompactV& lookup(E eKey, CompactV cvOperand)
-	{
-		FAssertEnumBounds(eKey);
-		return ArrayEnumMapBase::lookup<eOP>(eKey, cvOperand);
-	}
+	template<Operation eOP> CompactV& lookup(E eKey, CompactV cvOperand) { FAssertEnumBounds(eKey); return ArrayEnumMapBase::lookup<eOP>(eKey, cvOperand); }
 	CompactV getCompact(CompactE ceKey) const
 	{
 		if (isAllocated())
@@ -1476,10 +1282,7 @@ protected:
 		}
 		return values()[keyToIndex(ceKey)];
 	}
-	bool isAllocated() const
-	{
-		return (!bLAZY_ALLOC || values() != NULL);
-	}
+	bool isAllocated() const { return (!bLAZY_ALLOC || values() != NULL); }
 	void init(V vValue = vDEFAULT)
 	{
 		allocate();
@@ -1493,17 +1296,10 @@ protected:
 		FAssertMsg(arraySize() > 0, "Enum length not yet loaded from XML?");
 		m_aValues = new CompactV[arraySize()];
 	}
-	void fill(V vValue = vDEFAULT)
-	{
-		_fill<bSTATIC_MEMORY>(compactValue(vValue));
-	}
+	void fill(V vValue = vDEFAULT) { _fill<bSTATIC_MEMORY>(compactValue(vValue)); }
 	template<bool bSTATIC>
 	void _fill(CompactV);
-	template<>
-	void _fill<false>(CompactV cvValue)
-	{
-		std::fill_n(values(), arraySize(), cvValue);
-	}
+	template<> void _fill<false>(CompactV cvValue) { std::fill_n(values(), arraySize(), cvValue); }
 	template<>
 	void _fill<true>(CompactV cvValue)
 	{	// This loop should get optimized away
@@ -1512,11 +1308,7 @@ protected:
 	}
 	template<bool bSTATIC>
 	static void _memcpy(CompactV*, CompactV const*);
-	template<>
-	static void _memcpy<false>(CompactV* pDest, CompactV const* pSource)
-	{
-		std::memcpy(pDest, pSource, arraySize() * sizeof(CompactV));
-	}
+	template<> static void _memcpy<false>(CompactV* pDest, CompactV const* pSource) { std::memcpy(pDest, pSource, arraySize() * sizeof(CompactV)); }
 	template<>
 	static void _memcpy<true>(CompactV* pDest, CompactV const* pSource)
 	{	// This loop should get optimized away
@@ -1531,11 +1323,7 @@ protected:
 		BOOST_STATIC_ASSERT(false);
 		return vDummy();
 	}
-	template<>
-	V& subscript<true>(E eKey) // When V and CompactV coincide
-	{
-		return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0);
-	}
+	template<> V& subscript<true>(E eKey) { return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0); } // When V and CompactV coincide
 };
 #undef ArrayEnumMapBase
 
@@ -1607,19 +1395,11 @@ public:
 		reinterpret_cast<EncodeT*>(values())[0] = ui;
 	}
 
-	EncodeT encode() const
-	{
-		return reinterpret_cast<EncodeT const*>(values())[0];
-	}
+	EncodeT encode() const { return reinterpret_cast<EncodeT const*>(values())[0]; }
 
-	compact_t& operator[](E eKey)
-	{
-		return lookupUnsafe<OP_UNKNOWN>(eKey, 0);
-	}
-	V operator[](E eKey) const
-	{	// (I don't think we can unhide this through a using declaration)
-		return IntegerEncodableMapBase::operator[](eKey);
-	}
+	compact_t& operator[](E eKey) { return lookupUnsafe<OP_UNKNOWN>(eKey, 0); }
+	// (I don't think we can unhide this through a using declaration)
+	V operator[](E eKey) const { return IntegerEncodableMapBase::operator[](eKey); }
 };
 
 #define YieldChangeMapBase \
@@ -1698,34 +1478,13 @@ public:
 	using SubSeqEnumMapBase::multiply;
 	using SubSeqEnumMapBase::divide;
 	using SubSeqEnumMapBase::toggle;
-	V get(SuperE eKey) const
-	{
-		return get(subKey(eKey));
-	}
-	void set(SuperE eKey, V vValue)
-	{
-		set(subKey(eKey), vValue);
-	}
-	void resetVal(SuperE eKey)
-	{
-		resetVal(subKey(eKey));
-	}
-	void add(SuperE eKey, V vAddend)
-	{
-		add(subKey(eKey), vAddend);
-	}
-	void multiply(SuperE eKey, V vMultiplier)
-	{
-		multiply(subKey(eKey), vMultiplier);
-	}
-	void divide(SuperE eKey, V vDivisor)
-	{
-		divide(subKey(eKey), vDivisor);
-	}
-	void toggle(SuperE eKey)
-	{
-		toggle(subKey(eKey));
-	}
+	V get(SuperE eKey) const { return get(subKey(eKey)); }
+	void set(SuperE eKey, V vValue) { set(subKey(eKey), vValue); }
+	void resetVal(SuperE eKey) { resetVal(subKey(eKey)); }
+	void add(SuperE eKey, V vAddend) { add(subKey(eKey), vAddend); }
+	void multiply(SuperE eKey, V vMultiplier) { multiply(subKey(eKey), vMultiplier); }
+	void divide(SuperE eKey, V vDivisor) { divide(subKey(eKey), vDivisor); }
+	void toggle(SuperE eKey) { toggle(subKey(eKey)); }
 };
 
 template<class V, class CV = void*, int iDEFAULT = (int)enum_traits<V>::none>
@@ -1832,18 +1591,9 @@ public:
 	}
 
 	// (These will hide the two-argument versions)
-	void add(EOuter eOuterKey, EInner eInnerKey, VInner vAddend)
-	{
-		lookup(eOuterKey).add(eInnerKey, vAddend);
-	}
-	void multiply(EOuter eOuterKey, EInner eInnerKey, VInner vMultiplier)
-	{
-		lookup(eOuterKey).multiply(eInnerKey, vMultiplier);
-	}
-	void divide(EOuter eOuterKey, EInner eInnerKey, VInner vDivisor)
-	{
-		lookup(eOuterKey).divide(eInnerKey, vDivisor);
-	}
+	void add(EOuter eOuterKey, EInner eInnerKey, VInner vAddend) { lookup(eOuterKey).add(eInnerKey, vAddend); }
+	void multiply(EOuter eOuterKey, EInner eInnerKey, VInner vMultiplier) { lookup(eOuterKey).multiply(eInnerKey, vMultiplier); }
+	void divide(EOuter eOuterKey, EInner eInnerKey, VInner vDivisor) { lookup(eOuterKey).divide(eInnerKey, vDivisor); }
 	void toggle(EOuter eOuterKey, EInner eInnerKey)
 	{
 		InnerEnumMap* pInnerMap = get(eOuterKey);
@@ -1869,10 +1619,7 @@ public:
 			delete pInnerMap;
 		m_outer.resetVal(eOuterKey);
 	}
-	void resetVal(EOuter eOuterKey, EInner eInnerKey)
-	{
-		set(eOuterKey, eInnerKey, InnerEnumMap::defaultValue);
-	}
+	void resetVal(EOuter eOuterKey, EInner eInnerKey) { set(eOuterKey, eInnerKey, InnerEnumMap::defaultValue); }
 	void setAll(VInner vInnerValue)
 	{
 		FOR_EACH_OUTER_KEY(eOuterKey)
@@ -1940,8 +1687,7 @@ public:
 				pInnerMap->write(pStream);
 		}
 	}
-	void read(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void read(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -1976,8 +1722,7 @@ public:
 		}
 	}
 	template<typename OuterSizeType, typename InnerSizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void readLazyArray(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -2015,8 +1760,7 @@ public:
 		}
 	}
 	template<typename ValueType>
-	void readArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
+	void readArray(FDataStreamBase* pStream, uint uiOuterSubtrahend = 0, uint uiInnerSubtrahend = 0)
 	{
 	#ifdef ENUM_MAP_EXTRA_ASSERTS
 		FAssert(!isAnyNonDefault());
@@ -2058,14 +1802,8 @@ public:
 	}
 
 protected:
-	InnerEnumMap* getUnsafe(EOuter eOuterKey) const
-	{
-		return m_outer.get(eOuterKey);
-	}
-	void setUnsafe(EOuter eOuterKey, InnerEnumMap* pInnerMap)
-	{
-		m_outer.set(eOuterKey, pInnerMap);
-	}
+	InnerEnumMap* getUnsafe(EOuter eOuterKey) const { return m_outer.get(eOuterKey); }
+	void setUnsafe(EOuter eOuterKey, InnerEnumMap* pInnerMap) { m_outer.set(eOuterKey, pInnerMap); }
 	InnerEnumMap& lookup(EOuter eOuterKey)
 	{
 		InnerEnumMap* pInnerMap = get(eOuterKey);
@@ -2082,10 +1820,7 @@ protected:
 		BOOST_STATIC_ASSERT((is_same_type<ValueType,InnerMap*>::value));
 		return m_outer.nextNonDefaultPair(iIter, kPair);
 	}
-	EOuter _nextNonDefaultKey(int& iIter) const
-	{
-		return m_outer.nextNonDefaultKey(iIter);
-	}
+	EOuter _nextNonDefaultKey(int& iIter) const { return m_outer.nextNonDefaultKey(iIter); }
 };
 
 template<typename EOuter, typename EInner, class V,
@@ -2134,10 +1869,7 @@ public:
 	using OuterEnumMap::isAnyNonDefault;
 	using OuterEnumMap::insert;
 
-    VInner get(EOuter eOuterKey, EInner eInnerKey) const
-    {
-		return lookup(eOuterKey).get(eInnerKey);
-    }
+    VInner get(EOuter eOuterKey, EInner eInnerKey) const { return lookup(eOuterKey).get(eInnerKey); }
 	void set(EOuter eOuterKey, EInner eInnerKey, VInner vValue)
 	{
 		InnerEncodableMap innerMap(get(eOuterKey));
@@ -2162,10 +1894,7 @@ public:
 		innerMap.divide(eInnerKey, vDivisor);
 		set(eOuterKey, innerMap.encode());
 	}
-	void resetVal(EOuter eOuterKey, EInner eInnerKey)
-	{
-		set(eOuterKey, eInnerKey, InnerEncodableMap::defaultValue);
-	}
+	void resetVal(EOuter eOuterKey, EInner eInnerKey) { set(eOuterKey, eInnerKey, InnerEncodableMap::defaultValue); }
 	void setAll(VInner vValue)
 	{
 		FOR_EACH_OUTER_KEY(eOuterKey)
@@ -2177,10 +1906,7 @@ public:
 		innerMap.setAll(vValue);
 		set(eOuterKey, innerMap.encode());
 	}
-	bool isAnyNonDefault(EOuter eOuterKey) const
-	{
-		return lookup(eOuterKey).isAnyNonDefault();
-	}
+	bool isAnyNonDefault(EOuter eOuterKey) const { return lookup(eOuterKey).isAnyNonDefault(); }
 	int numNonDefault() const
 	{
 		int iSum = 0;
@@ -2188,10 +1914,7 @@ public:
 			iSum += numNonDefault(eOuterKey);
 		return iSum;
 	}
-	int numNonDefault(EOuter eOuterKey) const
-	{
-		return lookup(eOuterKey).numNonDefault();
-	}
+	int numNonDefault(EOuter eOuterKey) const { return lookup(eOuterKey).numNonDefault(); }
 	void insert(int iOuterKey, int iInnerKey, VInner vValue)
 	{
 		EOuter eOuterKey = static_cast<EOuter>(iOuterKey);
@@ -2226,8 +1949,7 @@ public:
 			lookup(eOuterKey).writeLazyArray<SizeType,ValueType>(pStream);
 	}
 	template<typename OuterSizeType, typename InnerSizeType, typename ValueType>
-	void readLazyArray(FDataStreamBase* pStream,
-		uint uiOuterSubtrahend, uint uiInnerSubtrahend)
+	void readLazyArray(FDataStreamBase* pStream, uint uiOuterSubtrahend, uint uiInnerSubtrahend)
 	{
 		for (EOuter eOuterKey = enum_traits<EOuter>::first;
 			eOuterKey < getLength() - (int)uiOuterSubtrahend; ++eOuterKey)
@@ -2258,10 +1980,7 @@ public:
 	}
 
 protected:
-	InnerEncodableMap lookup(EOuter eOuterKey) const
-	{
-		return InnerEncodableMap(get(eOuterKey));
-	}
+	InnerEncodableMap lookup(EOuter eOuterKey) const { return InnerEncodableMap(get(eOuterKey)); }
 	template<typename ValueType>
 	bool _nextNonDefaultPair(int& iIter, std::pair<EOuter,ValueType>& kPair) const
 	{

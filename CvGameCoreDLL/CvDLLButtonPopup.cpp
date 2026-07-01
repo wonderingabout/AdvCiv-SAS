@@ -376,7 +376,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			CvMessageControl::getInstance().sendUpdateCivics(aeNewCivics);
 		}
 		else if (pPopupReturn->getButtonClicked() == 2)
-			GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+			// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping gameplay behavior unchanged. (GPT-5.3-Codex) -->
+			GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
 	case BUTTONPOPUP_CHANGERELIGION:
@@ -1401,7 +1402,11 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
 		FAssert(false);
 		return false;
 	}
-	if (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0)
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
+
+	if (bPlayerAlwaysRazesCities)
 	{
 		kPlayer.raze(*pNewCity);
 		return false;
@@ -2662,8 +2667,10 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
 		CvPlot* pPlot = GC.getMap().plot(pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY);
 		if (NULL != pPlot)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 			gDLL->getEngineIFace()->addColoredPlot(pPlot->getX(), pPlot->getY(),
-					GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+					GC.getInfo(eColorWarningText).getColor(),
 					PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 			m_kUI.lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
 		}

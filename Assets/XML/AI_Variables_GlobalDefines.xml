@@ -1,321 +1,162 @@
 <?xml version="1.0"?>
-
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
+<!-- custom: comments moved to as of now to (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Long_Comments\ for concision and as they were too lengthy. Values not updated there, see this XML file here for updated values -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
-	<!-- [advc.104x] This file used to be called BBAI_AI_Variables_
-		 GlobalDefines.xml; now also contains UWAI parameters.
-
-		 UWAI breaks down the computation of AI war utility into a sum of
-		 28 "aspects", most of which are either in favor of war (added to the
-		 total war utility) or against war (subtracted). There are a few mixed
-		 aspects that could either increase or decrease war utility.
-		 Each aspect corresponds to one particular motivation for or against war.
-		 Through this file, a weight is assigned to each aspect. This weight is
-		 interpreted as a percentage by which the aspect utility is multiplied.
-		 The default (recommended) weights are all 100. This doesn't imply though
-		 that all aspects contribute equally by default; the weights are only a
-		 final adjustment to the (hardcoded) formulas.
-		 A weight of e.g. 50 halves the default impact of an aspect, 200
-		 doubles it. 0 means that the aspect is entirely disregarded. A
-		 negative weight (not recommended) turns a pro-war aspect into an
-		 anti-war aspect or vice versa.
-		 In the descriptions below, "we" refers to the AI civ that is
-		 considering war. -->
 	<Define>
-		<!-- The cities we expect to conquer as economic assets. -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_ASSETS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The economic value of accepted capitulations. 
-			 (Not: Getting closer to a Conquest victory; that's handled under
-			  MILITARY_VICTORY.) -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_VASSALS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- By eliminating a civ early in the game, some of the unsettled land
-			 near it can be settled and exploited. Lebensraum if you will (and
-			 in Civ, it actually works).  -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_SPACE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Just the value of expected reparations really. Sponsored war is
-			 covered by HIRED_HAND. -->
 		<DefineName>UWAI_WEIGHT_GREED_FOR_CASH</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The satisfaction of seeing our (worst) enemies devastated. -->
 		<DefineName>UWAI_WEIGHT_LOATHING</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>70</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The prospect of a speedy military victory incites us to wage war.
-			 This covers Domination, Conquest and Diplomatic victory; Diplo
-			 victory also factors into ILL_WILL. -->
 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>105</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Protect our partners because we want to continue trading with
-			 them, and don't want to become isolated. Assistance for more
-			 principled reasons is covered by FIDELITY, the "mutual struggle"
-			 diplo bonus by SUCKING_UP. -->
 		<DefineName>UWAI_WEIGHT_PRESERVATION_OF_PARTNERS</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
-  <!-- The next four - Reconquista, Rebuke, Fidelity and Hired Hand - are about
-	   upholding a reputation. Since Civ 4 doesn't have a reputation system,
-	   this is mostly (irrational) role-playing. -->
 	<Define>
-		<!-- By reconquering previously owned cities, we show that it's not
-			 worthwhile to conquer our cities; we'll get them back. -->
 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>130</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- We show we can take by force what was denied to us when we
-			 demanded tribute. I.e. increased war utility if we remember how
-			 they "refused to give us tribute". A rebuked demand can also lead
-			 to an immediate change in war planning, but that's handled by
-			 WarAndPeaceAI::Team::respondToRebuke, not in XML. -->
 		<DefineName>UWAI_WEIGHT_REBUKE</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- By declaring war on a civ that recently attacked one of our
-			 partners, we demonstrate that it's worthwhile to be our partner,
-			 and dangerous to attack our partners. -->
 		<DefineName>UWAI_WEIGHT_FIDELITY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>110</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
-			 to prove that we're a reliable hireling.) -->
 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- By conquering cities, we reduce culture pressure on our cities. -->
 		<DefineName>UWAI_WEIGHT_BORDER_DISPUTES</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>90</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Fight a joint war for the "mutual struggle" diplo bonus. -->
 		<DefineName>UWAI_WEIGHT_SUCKING_UP</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- To weaken a civ that we perceive as a long-term military threat. -->
 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Stop civs that we don't like from winning the game, or even civs
-			 that we're Pleased with if we're in contention ourselves. Likely
-			 winners can be civs close to a victory condition, but also civs
-			 that have gotten ahead in score or that we expect to get ahead
-			 through an ongoing war. -->
 		<DefineName>UWAI_WEIGHT_KING_MAKING</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>105</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Our military build-up, lost units and ravages of war. Adjusted
-			 based on our opportunities for peaceful development (i.e. it's an
-			 opportunity cost). Also takes into account whether we'll have
-			 further use of units surviving the war and whether lost units
-			 will have to be replaced. -->
 		<DefineName>UWAI_WEIGHT_EFFORT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The risk of losing cities or vassals in the war, or even having to
-			 capitulate or being eliminated. -->
 		<DefineName>UWAI_WEIGHT_RISK</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>105</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- The negative diplomatic consequences of war: angering the civ
-			 we're fighting against and third parties. -->
 		<DefineName>UWAI_WEIGHT_ILL_WILL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Don't want to plan war against civs that we like. This is only
-			 role-playing; ILL_WILL handles the rational reasons for not
-			 attacking partners. -->
 		<DefineName>UWAI_WEIGHT_AFFECTION</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Distractions from fighting multiple wars are already covered by
-			 the military analysis, but not quite reliably, so this is an
-			 extra cost to discourage wars on multiple fronts. -->
 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>300</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Anger from war weariness and bonds of faith. -->
 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- War leaves fewer units stationed in cities, which can lead to
-			 revolts in cities conquered in some previous war. Due to the
-			 "Immortal Culture" changes, this consideration is sometimes
-			 significant. -->
 		<DefineName>UWAI_WEIGHT_REVOLTS</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Applies only when we're paid to start a war and the sponsor isn't
-			 apparently in need of assistance (or not even at war). Why hire
-			 us then? Will have to pay extra to allay our suspicions. -->
 		<DefineName>UWAI_WEIGHT_ULTERIOR_MOTIVES</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Discourages early war against humans; not fair when the AI has a
-			 head start. -->
 		<DefineName>UWAI_WEIGHT_FAIR_PLAY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- War as its own purpose. Before this aspect was added, there was too
-			 little war before the Medieval era on spacious maps.
-			 Especially affects AI leaders with aggressive/ suicidal
-			 personalities. -->
 		<DefineName>UWAI_WEIGHT_BELLICOSITY</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>120</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Is the tactical situation favorable, i.e. do we/ do they have
-			 exposed damaged units, cities that are about to fall, or
-			 reinforcements coming up. When in doubt, entangled units lead to
-			 increased war utility. If still preparing war: Do we have suffi-
-			 cient units to start the war; is there still enough time to build
-			 them? -->
 		<DefineName>UWAI_WEIGHT_TACTICAL_SITUATION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>140</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Pacifism for humanitarian reasons (roleplaying). This is different
-			 from Affection, which only applies if we don't dislike them too
-			 much and, in particular, not when already at war.
-			 Love of Peace subtracts our iLoveOfPeace (Civ4LeaderHeadInfos.xml)
-			 from our war utility. When already at war, only half of that is
-			 subtracted. iLoveOfPeace is unused in AdvCiv, so this aspect
-			 exists only for mod-mods. -->
 		<DefineName>UWAI_WEIGHT_LOVE_OF_PEACE</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
-	<!-- We're wary of waging war when a dangerous third party appears likely
-		 to intervene against us. -->
 		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
+		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<Define>
-	<!-- To keep the game entertaining for human players, we're more inclined
-		 to start a war if none has been fought among civs known to us for a
-		 long time. Conversely, we're more inclined to make peace if many wars
-		 have been ongoing for a long time. -->
 		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
-	</Define>
-
-	<Define>
-		<!-- Recommended: 100 (BtS behavior)
-			 If this percentage is less than 100, all AI personality values
-			 from Civ4LeaderHeadInfos.xml are moved toward their median. Formula:
-			 ((UWAI_PERSONALITY_PERCENT * x +
-			 (100 - UWAI_PERSONALITY_PERCENT) * m) / 100
-			 where x is a personality value of a given leader and m the median
-			 over all leader personalities defined in XML (except the Barbarian
-			 leader). E.g. UWAI_PERSONALITY_PERCENT=50 moves the values halfway
-			 to the  median, making the AI personalities half as pronounced.
-			 0 eliminates the personalities (apart from traits). Favorite civic
-			 and religion are normally unaffected, but, in the special case of
-			 UWAI_PERSONALITY_PERCENT=0, all leaders are set to having no
-			 favorites. (They'll still "care for their brothers and sisters of
-			 the faith" though.) UWAI_PERSONALITY_PERCENT>100 makes the
-			 personalities more pronounced (not tested). Negative values invert
-			 the personalities (not tested and not recommended). -->
-		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
-		<iDefineIntVal>100</iDefineIntVal>
-	</Define>
-	<!-- [/advc.104x] -->
-	<!-- [advc.104] Misc. UWAI parameters -->
-	<Define>
-		<!-- Added to the utility threshold for starting a war while already in
-			 a war. Recommended: 10 (or sth. between 0 and 25). -->
-		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
     <Define>
-		<!-- When computing per-civ power values (which play an important role
-			 in decisions on war and peace), the power value of each individual
-			 unit is raised to the power of (i.e. exponentiated by)
-			 POWER_CORRECTION. For example, if POWER_CORRECTION is 200%, per-unit
-			 power values are squared. POWER_CORRECTION = 100% is the BtS behavior;
-			 power values then typically equal unit strength, e.g. two Warriors
-			 are as good as one Spearman. When squaring, one Spearman is as
-			 good as four Warriors. (That seems too much.) Recommended:
-			 166%; one Spearman then corresponds to 3.15 Warriors. -->
-		<!-- advc.159: A fraction (3/4) of this value is also used for some
-			 tactical decisions outside the UWAI component. -->
         <DefineName>POWER_CORRECTION</DefineName>
-		<iDefineIntVal>166</iDefineIntVal>
+		<iDefineIntVal>160</iDefineIntVal>
     </Define>
-	<!-- [/advc.104] -->
-
-	<!-- -->
-	<!-- Better BTS AI / K-Mod variables to allow easy AI tweaking -->
-	<!-- by jdog5000 / karadoc -->
-	<!-- -->
-	<Define> <!-- redefine -->
-		<!-- War success value of capturing a city.  BBAI: 25, BtS 10
-			 advc.130r: Reduce a little. Caveat: Should be careful about
-			 changing this value, it's used as a baseline in many places. -->
+	<Define>
 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
 		<iDefineIntVal>22</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy.  
-		Equal power would be 100.  BBAI default: 250 -->
 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
-		<iDefineIntVal>250</iDefineIntVal>
+		<iDefineIntVal>160</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide.  BTS default: 120, BBAI: 125, now: 123 -->
 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
-		<iDefineIntVal>123</iDefineIntVal>
+		<iDefineIntVal>122</iDefineIntVal>
 	</Define>
-	<!-- advc.003j: Obsoleted by K-Mod code (CvUnitAI::AI_bombardCity) -->
-	<!-- Minimum attack odds of best attacker for AI to skip bombarding a city
-		 and just attack.  BBAI default: 12 -->
-	<!--Define>
-		<DefineName>BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
-	</Define-->
 	<Define>
-		<!-- Base ratio of stack strengths for AI considering skipping bombard and just attacking enemy city.
-		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
-		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
-		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
-		<iDefineIntVal>250</iDefineIntVal>
+		<iDefineIntVal>240</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
-		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
-		<iDefineIntVal>137</iDefineIntVal>
+		<iDefineIntVal>135</iDefineIntVal>
 	</Define>
 	<Define>
-		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
-		<iDefineIntVal>600</iDefineIntVal>
+		<iDefineIntVal>550</iDefineIntVal>
 	</Define>
 </Civ4Defines>

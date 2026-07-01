@@ -4,9 +4,9 @@
 ## Copyright Firaxis Games 2005
 #
 #  Created by Lee Reeves, AKA Taelis on civfanatics.com
-
+#
 ## REQUIRES Civilization 4 - Beyond the Sword - PATCH 3.02
-
+#
 ## Ported to BtS and modified for BUG by EmperorFool
 #
 #    - Added BtS columns (e.g. corporations and espionage) and "Liberate Colony" button.
@@ -44,27 +44,28 @@
 #        sportybrian - "for the suggestion of highlighting with different colors for the 0, and very positive levels."
 #
 #     Fixaxis, of course, for making CivIV and stealing months of my life. ;)
-
+#
 ## Legal Stuff
 #
-#  THIS MATERIAL IS NOT MADE, GUARANTEED OR SUPPORTED BY THE PUBLISHER OF THE SOFTWARE OR ITS AFFILIATES.
-#  THIS MATERIAL IS RELEASED AS-IS. IN NO EVENT WILL THE AUTHOR BE LIABLE FOR SPECIAL, INCIDENTAL OR 
-#  CONSEQUENTIAL DAMAGES RESULTING FROM POSSESSION, USE OR MALFUNCTION OF THE SOFTWARE, INCLUDING 
-#  DAMAGES TO PROPERTY, LOSS OF GOODWILL, COMPUTER FAILURE OR MALFUNCTION AND, TO THE EXTENT PERMITTED 
-#  BY LAW, DAMAGES FOR PERSONAL INJURIES, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH 
-#  DAMAGES. THE AUTHOR’S LIABILITY SHALL NOT EXCEED THE ACTUAL PRICE PAID FOR USE OF THE MATERIAL. SOME 
-#  STATES/COUNTRIES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS AND/OR THE EXCLUSION 
-#  OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATIONS AND/OR EXCLUSION OR 
-#  LIMITATION OF LIABILITY MAY NOT APPLY TO YOU. THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND 
-#  YOU MAY HAVE OTHER RIGHTS THAT VARY FROM JURISDICTION TO JURISDICTION.
-
+#  THIS MATERIAL IS NOT MADE, GUARANTEED OR SUPPORTED BY THE PUBLISHER OF THE SOFTWARE OR ITS AFFILIATES. THIS MATERIAL IS RELEASED AS-IS. IN NO EVENT WILL THE AUTHOR BE LIABLE FOR SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES RESULTING FROM POSSESSION, USE OR MALFUNCTION OF THE SOFTWARE, INCLUDING DAMAGES TO PROPERTY, LOSS OF GOODWILL, COMPUTER FAILURE OR MALFUNCTION AND, TO THE EXTENT PERMITTED BY LAW, DAMAGES FOR PERSONAL INJURIES, EVEN IF THE AUTHOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE AUTHOR'S LIABILITY SHALL NOT EXCEED THE ACTUAL PRICE PAID FOR USE OF THE MATERIAL. SOME STATES/COUNTRIES DO NOT ALLOW LIMITATIONS ON HOW LONG AN IMPLIED WARRANTY LASTS AND/OR THE EXCLUSION OR LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THE ABOVE LIMITATIONS AND/OR EXCLUSION OR LIMITATION OF LIABILITY MAY NOT APPLY TO YOU. THIS WARRANTY GIVES YOU SPECIFIC LEGAL RIGHTS, AND YOU MAY HAVE OTHER RIGHTS THAT VARY FROM JURISDICTION TO JURISDICTION.
+#
 ###############################################################################################################
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this BUG screen. Edits here are limited to repo-wide
+# consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups) and small hoists/caches. (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 
 import PyHelpers
 import CvUtil
 import CvScreenEnums
+from SASFontUtils import *
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base text tag (instead of BODY) in upscaled customizable-domestic UI text where feasible. (GPT-5.3-Codex) -->
 import CvEventInterface
 import Popup as PyPopup
 
@@ -99,13 +100,9 @@ gc = CyGlobalContext()
 
 #	IMPORTANT INFORMATION
 #	
-#	All widget names MUST be unique when creating screens.  If you create
-#	a widget named 'Hello', and then try to create another named 'Hello', it
-#	will modify the first hello.
+#	All widget names MUST be unique when creating screens.  If you create a widget named 'Hello', and then try to create another named 'Hello', it will modify the first hello.
 #
-#	Also, when attaching widgets, 'Background' is a reserve word meant for
-#	the background widget.  Do NOT use 'Background' to name any widget, but
-#	when attaching to the background, please use the 'Background' keyword.
+#	Also, when attaching widgets, 'Background' is a reserve word meant for the background widget.  Do NOT use 'Background' to name any widget, but when attaching to the background, please use the 'Background' keyword.
 
 # globals
 gc = CyGlobalContext()
@@ -130,17 +127,15 @@ def getEditHelpText(eWidgetType, iData1, iData2, bOption):
 	else:
 		return BugUtil.getPlainText("TXT_KEY_CDA_START_EDITING")
 
-
 # Class CvDomesticAdvisor
 
 class CvCustomizableDomesticAdvisor:
-	"""Special Domestic Advisor Screen"""
-
+	# Special Domestic Advisor Screen
+	#
 	def __init__(self):
-		"""
-		Basic init function.
-		Called when cIV is first booted up and everytime you switch into cIV
-		"""
+		# Basic init function.
+		# Called when cIV is first booted up and everytime you switch into cIV
+		#
 
 		self.isFlavorful = True
 
@@ -155,8 +150,7 @@ class CvCustomizableDomesticAdvisor:
 		# An event context for renaming pages
 		self.renameEventContext = None
 
-		# All size information moved to self.createPositions because they are now
-		# all based on the screen resolution and the screen isn't available yet.
+		# All size information moved to self.createPositions because they are now all based on the screen resolution and the screen isn't available yet.
 
 		# Names of Widgets
 		self.SCREEN_NAME = "DomesticAdvisor"
@@ -175,7 +169,7 @@ class CvCustomizableDomesticAdvisor:
 
 		self.CUSTOMIZE_PAGE = "DomCustomize"
 		self.COLUMNS_LIST_PAGE = "DomColumnsList"
-		
+
 		self.PREV_PAGE_NAME = "DomPagePrevButton"
 		self.NEXT_PAGE_NAME = "DomPageNextButton"
 		self.START_CUSTOMIZING_NAME = "DomStartCustomizing"
@@ -193,12 +187,12 @@ class CvCustomizableDomesticAdvisor:
 		self.DELCOLUMN_NAME = "DomDelCol"
 		self.COLUMNUP_NAME = "DomColUp"
 		self.COLUMNDN_NAME = "DomColDn"
-		
+
 		self.TOGGLE_SPECS_NAME = "ToggleSpecsCB"
 
 		self.customizing = False
 		self.currentPageNum = 0
-		
+
 		global g_advisor
 		g_advisor = self
 
@@ -210,17 +204,17 @@ class CvCustomizableDomesticAdvisor:
 
 		# advc.004: Cut from the list initializer below (sat between "GOLD" and "GREATPOEPLE").
 		# These columns leak info about rival cities.
-		'''
-				("GRANK_BASE_COMMERCE",		42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_COMMERCE,		"u\"B\" + self.commerceIcon + u\"g\""),
-				("GRANK_BASE_FOOD",			42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_FOOD,			"u\"B\" + self.foodIcon + u\"g\""),
-				("GRANK_BASE_PRODUCTION",	42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_PRODUCTION,		"u\"B\" + self.hammerIcon + u\"g\""),
-				("GRANK_COMMERCE",			38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_COMMERCE,			"self.commerceIcon + u\"g\""),
-				("GRANK_FOOD",				38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_FOOD,				"self.foodIcon + u\"g\""),
-				("GRANK_PRODUCTION",		38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_PRODUCTION,			"self.hammerIcon + u\"g\""),
-				("GRANK_CULTURE",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_CULTURE,	"self.cultureIcon + u\"g\""),
-				("GRANK_GOLD",				38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_GOLD,		"self.goldIcon + u\"g\""),
-				("GRANK_RESEARCH",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_RESEARCH,	"self.researchIcon + u\"g\""),
-		'''
+				#
+				# ("GRANK_BASE_COMMERCE",		42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_COMMERCE,		"u\"B\" + self.commerceIcon + u\"g\""),
+				# ("GRANK_BASE_FOOD",			42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_FOOD,			"u\"B\" + self.foodIcon + u\"g\""),
+				# ("GRANK_BASE_PRODUCTION",	42,		"int",	None,					None,					0,									self.findGlobalBaseYieldRateRank, YieldTypes.YIELD_PRODUCTION,		"u\"B\" + self.hammerIcon + u\"g\""),
+				# ("GRANK_COMMERCE",			38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_COMMERCE,			"self.commerceIcon + u\"g\""),
+				# ("GRANK_FOOD",				38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_FOOD,				"self.foodIcon + u\"g\""),
+				# ("GRANK_PRODUCTION",		38,		"int",	None,					None,					0,									self.findGlobalYieldRateRank, YieldTypes.YIELD_PRODUCTION,			"self.hammerIcon + u\"g\""),
+				# ("GRANK_CULTURE",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_CULTURE,	"self.cultureIcon + u\"g\""),
+				# ("GRANK_GOLD",				38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_GOLD,		"self.goldIcon + u\"g\""),
+				# ("GRANK_RESEARCH",			38,		"int",	None,					None,					0,									self.findGlobalCommerceRateRank, CommerceTypes.COMMERCE_RESEARCH,	"self.researchIcon + u\"g\""),
+				#
 		self.COLUMNS_LIST = [
 				# Name                      Width    Type   CyCityFunction0			CyCityFunction1			Arg									selfFunction							Arg							Title
 
@@ -323,9 +317,7 @@ class CvCustomizableDomesticAdvisor:
 			}
 
 		# Values for whom coloring comparison is reversed; i.e. higher numbers are worse
-		self.COMPARISON_REVERSED = [
-			"HURRY_POP_ANGER",
-			]
+		self.COMPARISON_REVERSED = ["HURRY_POP_ANGER",]
 
 		# Dictionary of the coloring dictionaries!
 		self.COLOR_DICT_DICT = {
@@ -333,7 +325,6 @@ class CvCustomizableDomesticAdvisor:
 			"NEUTRAL": self.NEUTRAL_VALUES_DICT,
 			"GREAT": self.GREAT_VALUES_DICT,			
 			}
-
 
 		# This creates the set of ALL coloring keys.
 		# Do NOT touch.
@@ -378,14 +369,14 @@ class CvCustomizableDomesticAdvisor:
 			self.SPECIALIST_PLUS_NAME	: self.HandleSpecialistPlus,
 			self.SPECIALIST_MINUS_NAME	: self.HandleSpecialistMinus,
 			self.EXIT_NAME				: self.DomesticExit,
-			
+
 			self.ADDCOLUMN_NAME			: self.AddCol,
 			self.DELCOLUMN_NAME			: self.DelCol,
 			self.COLUMNUP_NAME			: self.MoveColUp,
 			self.COLUMNDN_NAME			: self.MoveColDn,
 			self.COLUMN_SHRINK_NAME		: self.shrinkCol,
 			self.COLUMN_WIDEN_NAME		: self.widenCol,
-			
+
 			self.START_CUSTOMIZING_NAME	: self.ModifyPage,
 			self.SAVE_NAME				: self.save,
 			self.ADD_PAGE_NAME			: self.addPage,
@@ -394,7 +385,7 @@ class CvCustomizableDomesticAdvisor:
 			self.NEXT_PAGE_NAME			: self.nextPage,
 			self.PAGE_UP_NAME			: self.upPage,
 			self.PAGE_DOWN_NAME			: self.downPage,
-			
+
 			self.TOGGLE_SPECS_NAME		: self.toggleShowSpecialistControls,
 
 			self.RELOAD_PAGES_NAME		: self.reloadPages,
@@ -403,16 +394,20 @@ class CvCustomizableDomesticAdvisor:
 			}
 
 	def createDictionaries(self):
-		"""
-		Creates Dictionaries we couldn't on init.
-		"""
+		# Creates Dictionaries we couldn't on init.
+		#
 
 		if(self.runtimeInitDone):
 			return
-		
-		self.HURRY_TYPE_POP = gc.getInfoTypeForString("HURRY_POPULATION")
-		self.HURRY_TYPE_GOLD = gc.getInfoTypeForString("HURRY_GOLD")
-		
+
+		self.HURRY_TYPE_POP = getInfoTypeOrFail("HURRY_POPULATION")
+		self.HURRY_TYPE_GOLD = getInfoTypeOrFail("HURRY_GOLD")
+		# <!-- custom: cache process IDs used per-city in getColumnProduction. (Claude code Opus 4.7) -->
+		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
+		self.PROCESS_RESEARCH = getInfoTypeOrFail("PROCESS_RESEARCH")
+		self.PROCESS_CULTURE = getInfoTypeOrFail("PROCESS_CULTURE")
+		self.YIELD_PRODUCTION = getInfoTypeOrFail("YIELD_PRODUCTION")
+
 		self.angryIcon = u"%c" % CyGame().getSymbolID(FontSymbols.ANGRY_POP_CHAR)
 		self.commerceIcon = u"%c" %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
 		self.cultureIcon = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
@@ -436,12 +431,12 @@ class CvCustomizableDomesticAdvisor:
 		self.sickIcon = u"%c" % CyGame().getSymbolID(FontSymbols.UNHEALTHY_CHAR)
 		self.tradeIcon = u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)
 		self.unhappyIcon = u"%c" % CyGame().getSymbolID(FontSymbols.UNHAPPY_CHAR)
-		
+
 		self.yieldIcons = {}
 		for eYieldType in range(YieldTypes.NUM_YIELD_TYPES):
 			info = gc.getYieldInfo(eYieldType)
 			self.yieldIcons[eYieldType] = u"%c" % info.getChar()
-		
+
 		self.commerceIcons = {}
 		for eCommerceType in range(CommerceTypes.NUM_COMMERCE_TYPES):
 			info = gc.getCommerceInfo(eCommerceType)
@@ -462,15 +457,15 @@ class CvCustomizableDomesticAdvisor:
 		self.objectIsNotPresent = "-"
 		self.objectCanBeBuild = "o"
 		self.objectUnderConstruction = self.hammerIcon
-		
+
 		# add the colors dependant on the statuses
-		self.objectHave = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_GREEN")) #"x"
-		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_RED")) #"-"
-		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_BLUE")) #"o"
-		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_WHITE")) #"x"
-		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_YELLOW")) #"-"
-		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_YELLOW")) #"o"		
-		
+		self.objectHave = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_GREEN")) #"x"
+		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_RED")) #"-"
+		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_BLUE")) #"o"
+		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_WHITE")) #"x"
+		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_YELLOW")) #"-"
+		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_YELLOW")) #"o"		
+
 		# Corporation Yield and Commerce values by Bonus
 		# Maps are { bonus -> { yield/commerce -> { corporation -> value } } }
 		self.corpMaintPercent = gc.getWorldInfo(gc.getMap().getWorldSize()).getCorporationMaintenancePercent()
@@ -490,7 +485,7 @@ class CvCustomizableDomesticAdvisor:
 								self.bonusCorpYields[eBonus][eYield] = {}
 							if (not self.bonusCorpYields[eBonus][eYield].has_key(eCorp)):
 								self.bonusCorpYields[eBonus][eYield][eCorp] = iYieldValue
-						
+
 					for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
 						iCommerceValue = info.getCommerceProduced(eCommerce)
 						if (iCommerceValue != 0):
@@ -528,7 +523,7 @@ class CvCustomizableDomesticAdvisor:
 					icon += u"%c" %(gc.getReligionInfo(info.getReligionType()).getHolyCityChar())
 				else:
 					icon += u"%c" %(gc.getReligionInfo(info.getReligionType()).getChar())
-			
+
 			if info.getFoodKept() > 0 or info.getSeaPlotYieldChange(YieldTypes.YIELD_FOOD) > 0:
 				icon += self.foodIcon
 
@@ -589,14 +584,14 @@ class CvCustomizableDomesticAdvisor:
 
 			if info.getGreatPeopleRateChange() > 0 or info.getGreatPeopleRateModifier() > 0:
 				icon += self.figureheadIcon
-			
+
 			if info.getMovie():
 				icon += self.starIcon
 
 			self.COLUMNS_LIST.append((key, 50 + 15 * len(icon), "text", None, None, 0, self.calculateValue, None, u"u\"" + desc + u"\""))
 			self.BUILDING_ICONS_DICT[key] = icon
 #			extraBldgColumns.append(("BLDG_" + key, 22, "bldg", None, None, 0, self.calculateBuilding, i, "u\"%s\"" % desc))
-		
+
 		# Duplicate building columns
 #		self.COLUMNS_LIST += extraBldgColumns
 
@@ -656,8 +651,8 @@ class CvCustomizableDomesticAdvisor:
 		for i, column in enumerate(self.COLUMNS_LIST):
 			self.COLUMNS_INDEX[column[0]] = i
 			self.HEADER_DICT[column[0]] = eval(column[8], globals(), locals())
-					
-		if self.SPECIALIST_ICON_DICT == None:
+
+		if self.SPECIALIST_ICON_DICT is None:
 			# Specialist Icon Information (Must be here, because C++ functions aren't
 			# available upon startup of CIV)
 			self.SPECIALIST_ICON_DICT = {
@@ -670,7 +665,7 @@ class CvCustomizableDomesticAdvisor:
 				6 : self.espionageIcon, # Engineer
 				}
 
-		if self.AUTOMATION_ICON_DICT == None:
+		if self.AUTOMATION_ICON_DICT is None:
 			# Automation Information (Must be here, because C++ functions aren't
 			# available upon startup of CIV)
 			self.AUTOMATION_ICON_DICT = {
@@ -682,29 +677,29 @@ class CvCustomizableDomesticAdvisor:
 				5 : self.redfoodIcon, # Emphasize Avoid Growth
 				}
 
-		if self.COLOR_DICT == None:
+		if self.COLOR_DICT is None:
 			# Colors to highlight with for each type of number (Must be here,
 			#  because C++ functions aren't available upon startup of CIV)
 			self.COLOR_DICT = {
-				"PROBLEM": gc.getInfoTypeForString("COLOR_RED"),
-				"NEUTRAL": gc.getInfoTypeForString("COLOR_YELLOW"),
-				"GREAT": gc.getInfoTypeForString("COLOR_GREEN"),
+				"PROBLEM": getInfoTypeOrFail("COLOR_RED"),
+				"NEUTRAL": getInfoTypeOrFail("COLOR_YELLOW"),
+				"GREAT": getInfoTypeOrFail("COLOR_GREEN"),
 				}
 
 # BUG - Production Grouping - start
-		if self.PROD_COLOR_DICT == None:
+		if self.PROD_COLOR_DICT is None:
 			# Colors to use for color-coding of production items.
 			# ["DEFAULT"] is used if color-coding is off.
 			self.PROD_COLOR_DICT = {
-				"DEFAULT": gc.getInfoTypeForString("COLOR_WHITE"),
-				"NOTHING": gc.getInfoTypeForString("COLOR_RED"),
-				"BUILDING": gc.getInfoTypeForString("COLOR_WHITE"),
-				"WONDER": gc.getInfoTypeForString("COLOR_CYAN"), 
-				"WEALTH": gc.getInfoTypeForString("COLOR_YELLOW"),
-				"RESEARCH": gc.getInfoTypeForString("COLOR_GREEN"),
-				"CULTURE": gc.getInfoTypeForString("COLOR_MAGENTA"), 
-				"PROJECT": gc.getInfoTypeForString("COLOR_CYAN"),
-				"UNIT": gc.getInfoTypeForString("COLOR_YIELD_FOOD"),
+				"DEFAULT": getInfoTypeOrFail("COLOR_WHITE"),
+				"NOTHING": getInfoTypeOrFail("COLOR_RED"),
+				"BUILDING": getInfoTypeOrFail("COLOR_WHITE"),
+				"WONDER": getInfoTypeOrFail("COLOR_CYAN"),
+				"WEALTH": getInfoTypeOrFail("COLOR_YELLOW"),
+				"RESEARCH": getInfoTypeOrFail("COLOR_GREEN"),
+				"CULTURE": getInfoTypeOrFail("COLOR_MAGENTA"),
+				"PROJECT": getInfoTypeOrFail("COLOR_CYAN"),
+				"UNIT": getInfoTypeOrFail("COLOR_YIELD_FOOD"),
 				}
 # BUG - Production Grouping - end
 
@@ -713,8 +708,8 @@ class CvCustomizableDomesticAdvisor:
 		self.runtimeInitDone = True
 
 	def createPositions (self, screen):
-		""" Calculates the basic positions to draw on. """
-
+		# Calculates the basic positions to draw on.
+		#
 		# Borders from BUG Options
 		nBorderTop = [0, 23, 52, 105][AdvisorOpt.getSpaceTop()]
 		nBorderBottom = 177
@@ -780,15 +775,16 @@ class CvCustomizableDomesticAdvisor:
 		# Location of Specialist Toggle Button
 		self.X_SPECIAL = self.nTableX
 		self.Y_SPECIAL = self.Y_TEXT - 10
-		
+
 		# Width of page dropdown
 		self.PAGES_DD_W = 300
 
 		# Location of Culture Threshold Info
-		self.nCultureLevelX = self.nPanelX + self.nPanelWidth - 354 # was 670 when nPanelWidth was 1024
+		# <!-- custom: widen the bottom-right culture legend block for upscaled text by moving it left and increasing label/value separation. (GPT-5.3-Codex) -->
+		self.nCultureLevelX = self.nPanelX + self.nPanelWidth - 430 # was 670 when nPanelWidth was 1024
 		self.nCultureLevelY = self.nPanelY + self.nPanelLength - 120 # was 450 when nPanelLength was 562
 		self.nCultureLevelDistance = 15
-		self.nCultureLevelTextOffset = 110
+		self.nCultureLevelTextOffset = 190
 
 		# Location of next GP Threshold Info
 		self.nGPLevelX = self.nPanelX + self.nPanelWidth - 154 # was 870 when nPanelWidth was 1024
@@ -819,11 +815,13 @@ class CvCustomizableDomesticAdvisor:
 		g_bMustCreatePositions = False
 
 	def getScreen(self):
-		""" Return the screen we draw with. """
+		# Return the screen we draw with.
+		#
 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.DOMESTIC_ADVISOR)
 
 	def getCurrentCity (self):
-		""" Get the current selected city."""
+		# Get the current selected city.
+		#
 		screen = self.getScreen()
 		iPlayer = PyPlayer(CyGame().getActivePlayer())
 		cityList = iPlayer.getCityList()
@@ -836,21 +834,22 @@ class CvCustomizableDomesticAdvisor:
 		return None
 
 	def getNumSpecialistInfos (self):
-		""" Get the number of specialist types (that WE deal with)."""
+		# Get the number of specialist types (that WE deal with).
+		#
 		try:
 			return len (self.SPECIALIST_ICON_DICT)
 		except TypeError:
 			return 0
 
 	def getNumEmphasizeInfos (self):
-		""" Get the number of emphasis types (that WE deal with)."""
+		# Get the number of emphasis types (that WE deal with).
+		#
 		return len (self.AUTOMATION_ICON_DICT)
 
 	def interfaceScreen(self):
-		"""
-		Screen construction function.
-		This is the function that's called whenever F1 is pressed.
-		"""
+		# Screen construction function.
+		# This is the function that's called whenever F1 is pressed.
+		#
 
 		# Initialize all the stuff we couldn't in the init function
 		self.createDictionaries()
@@ -865,13 +864,13 @@ class CvCustomizableDomesticAdvisor:
 
 		screen.setDimensions (self.nScreenX, self.nScreenY, self.nScreenWidth, self.nScreenLength)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-	
+
 		# Draw the basic screen
 		self.drawBasicScreen()
 
 		# Draw the table and the rest based on the mode
 		self.drawScreen (self.currentPage)
-		
+
 # BUG - Colony Split - start
 
 		player = gc.getActivePlayer()
@@ -885,7 +884,7 @@ class CvCustomizableDomesticAdvisor:
 					self.bCanLiberate = true
 					break
 				(loopCity, iter) = player.nextCity(iter, false)
-		
+
 		if (self.bCanLiberate):
 			screen.setImageButton( self.SPLIT_NAME, "", self.X_SPLIT, self.Y_SPLIT, 28, 28, WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FREE_COLONY).getActionInfoIndex(), -1 )
 			screen.setStyle( self.SPLIT_NAME, "Button_HUDAdvisorVictory_Style" )
@@ -893,9 +892,8 @@ class CvCustomizableDomesticAdvisor:
 # BUG - Colony Split - end
 
 	def drawBasicScreen (self):
-		"""
-		Draws the Basic parts common to all Domestic Advisor Screens.
-		"""
+		# Draws the Basic parts common to all Domestic Advisor Screens.
+		#
 		screen = self.getScreen()
 
 		# Here we set the background widget and exit button, and we show the screen
@@ -904,9 +902,9 @@ class CvCustomizableDomesticAdvisor:
 
 		# Text Buttons
 		screen.setText(self.EXIT_NAME, "Background",
-				u"<font=4>" + # advc.193
+				sasFontTagTitle + # advc.193
 				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
-				+ u"</font>", # advc.193
+				+ SAS_FONT_TAG_CLOSE, # advc.193
 				CvUtil.FONT_RIGHT_JUSTIFY,
 				self.X_EXIT, self.Y_EXIT, self.Z_TEXT,
 				FontTypes.TITLE_FONT,
@@ -923,7 +921,7 @@ class CvCustomizableDomesticAdvisor:
 		x += self.nControlSize + 2
 		screen.setImageButton( self.RENAME_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BTN_EVENT_LOG").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_RENAME_PAGE, -1, -1 )
 		x += self.nControlSize + 2
-		info = gc.getSpecialistInfo(gc.getInfoTypeForString("SPECIALIST_CITIZEN"))
+		info = gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_CITIZEN"))
 		screen.addCheckBoxGFC(self.TOGGLE_SPECS_NAME, info.getTexture(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_TOGGLE_SPECIALISTS, -1, -1, ButtonStyles.BUTTON_STYLE_IMAGE )
 		x += self.nControlSize + 2
 		screen.setImageButton( self.ADD_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_ADD_PAGE, -1, -1 )
@@ -952,9 +950,9 @@ class CvCustomizableDomesticAdvisor:
 			# Only show non-zero levels
 			if (nValue != 0):
 				# Set text
-				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", "<font=2>" + pCultureLevel.getText() + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + str(i), "Background", sasFontTagLabel + pCultureLevel.getText() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.nCultureLevelX, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Set value
-				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", "<font=2>" + str(nValue) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+				screen.setText (self.CULTURE_TEXT_NAME + self.NUMBER_TEXT + str(i), "Background", sasFontTagLabel + str(nValue) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nCultureLevelX + self.nCultureLevelTextOffset, self.nCultureLevelY + (self.nCultureLevelDistance * iCount), self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 				# Increment counter
 				iCount += 1
 
@@ -963,10 +961,10 @@ class CvCustomizableDomesticAdvisor:
 
 		# GP Level Text
 		screen.setText (self.GP_TEXT_NAME, "Background", self.figureheadIcon, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", "<font=2>" + str (iPlayer.player.greatPeopleThreshold(false)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setText (self.GP_TEXT_NAME + self.NUMBER_TEXT, "Background", sasFontTagLabel + str (iPlayer.player.greatPeopleThreshold(false)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.nGPLevelX, self.nGPLevelY + self.nGPLevelDistance, self.Z_TEXT, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		# Header...
-		#szText = "<font=4>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + "</font>"
+		#szText = sasFontTagTitle + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
 		#screen.setLabel( "DomesticTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, 472, 40, STANDARD_Z, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Draw the specialist (but don't SHOW them)
@@ -977,14 +975,15 @@ class CvCustomizableDomesticAdvisor:
 
 	# Draw the specialist and their increase and decrease buttons
 	def drawSpecialists (self):
-		""" The function to draw but not show all the specialists."""
+		# The function to draw but not show all the specialists.
+		#
 		screen = self.getScreen()
 
 		# Citizen Buttons
 		for i in range( self.getNumSpecialistInfos() ):
-		
+
 			if (gc.getSpecialistInfo(i).isVisible()):
-			
+
 				szName = self.SPECIALIST_IMAGE_NAME + str(i)
 				screen.setImageButton( szName, gc.getSpecialistInfo(i).getTexture(), self.nFirstSpecialistX + (self.nSpecialistDistance * i), self.nSpecialistY, self.nSpecialistWidth, self.nSpecialistLength, WidgetTypes.WIDGET_CITIZEN, i, -1 )
 				screen.hide( szName )
@@ -1011,7 +1010,8 @@ class CvCustomizableDomesticAdvisor:
 				screen.hide (szName)
 
 	def showSpecialists (self):
-		""" Function which shows the specialists."""
+		# Function which shows the specialists.
+		#
 		screen = self.getScreen()
 
 		# First, hide the specialists! :D
@@ -1020,7 +1020,7 @@ class CvCustomizableDomesticAdvisor:
 		# Get the current city
 		city = self.getCurrentCity()
 		if (city):
-			
+
 			# Get values which we will need for each calculation
 			nPopulation = city.getPopulation()
 			nFreeSpecial = city.totalFreeSpecialists()
@@ -1048,9 +1048,10 @@ class CvCustomizableDomesticAdvisor:
 					# Show the Minus
 					szName = self.SPECIALIST_MINUS_NAME + str(i)
 					screen.show( szName )
-							
+
 	def hideSpecialists (self):
-		""" Function to hide all the specialists and the accompanying data."""
+		# Function to hide all the specialists and the accompanying data.
+		#
 		screen = self.getScreen()
 
 		# Hide Everything related to specialists
@@ -1096,7 +1097,7 @@ class CvCustomizableDomesticAdvisor:
 
 	def drawCustomizationControls(self):
 		screen = self.getScreen()
-		
+
 		x = self.nTableX + self.nHalfTableWidth - self.nControlSize
 		screen.setImageButton( self.COLUMNDN_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_DOWNARROW").getPath(), x, self.nCustomizeControlY, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_MOVE_COLUMN_DOWN, -1, -1 )
 		x -= self.nControlSize + 2
@@ -1109,7 +1110,7 @@ class CvCustomizableDomesticAdvisor:
 		screen.setImageButton( self.COLUMN_WIDEN_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RIGHT").getPath(), x, self.nCustomizeControlY, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_EXPAND_COLUMN, -1, -1 )
 		x -= self.nControlSize + 2
 		screen.setImageButton( self.COLUMN_SHRINK_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_LEFT").getPath(), x, self.nCustomizeControlY, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_SHRINK_COLUMN, -1, -1 )
-		
+
 		self.hideCustomizationControls()
 
 	def showCustomizationControls(self):
@@ -1126,7 +1127,7 @@ class CvCustomizableDomesticAdvisor:
 		screen.show(self.COLUMNDN_NAME)
 		screen.show(self.COLUMN_SHRINK_NAME)
 		screen.show(self.COLUMN_WIDEN_NAME)
-		
+
 		if self.isFlavorful:
 
 			screen.show(self.RENAME_PAGE_NAME)
@@ -1138,7 +1139,7 @@ class CvCustomizableDomesticAdvisor:
 			screen.show(self.SAVE_NAME)
 			screen.show(self.RELOAD_PAGES_NAME)
 			screen.show(self.TOGGLE_SPECS_NAME)
-			
+
 			page = self.PAGES[self.currentPageNum]
 			screen.setState(self.TOGGLE_SPECS_NAME, page["showSpecControls"])
 
@@ -1170,12 +1171,14 @@ class CvCustomizableDomesticAdvisor:
 			screen.hide(self.TOGGLE_SPECS_NAME)
 
 	def hide (self, screen, page):
-		""" Hide function which hides a specific screen."""
+		# Hide function which hides a specific screen.
+		#
 		screen.hide (page)
 		self.hideSpecialists()
-	
+
 	def drawScreen (self, page):
-		""" Draw the screen based on which mode we get."""
+		# Draw the screen based on which mode we get.
+		#
 		screen = self.getScreen()
 
 		# Change the visible page?
@@ -1266,7 +1269,7 @@ class CvCustomizableDomesticAdvisor:
 		szReturn = u""
 
 		# Turns til Growth
- 		nFood = city.foodDifference (True)
+		nFood = city.foodDifference (True)
 
 		# If this is a food production (i.e., worker or settler)
 		# advc.189: 0 food also means no growth
@@ -1303,7 +1306,8 @@ class CvCustomizableDomesticAdvisor:
 		return unicode(city.getMaintenance())
 
 	def calculateTrade (self, city, szKey, arg):
-		"""arg: None to sum all, 'D' to count domestic, 'F' to count foreign."""
+		# arg: None to sum all, 'D' to count domestic, 'F' to count foreign.
+		#
 		nTotalTradeProfit = 0
 
 		# For each trade route possible
@@ -1317,7 +1321,7 @@ class CvCustomizableDomesticAdvisor:
 				if (not arg or ((arg == "F" and bForeign) or (arg == "D" and not bForeign))):
 					for j in range( YieldTypes.NUM_YIELD_TYPES ):
 						iTradeProfit = city.calculateTradeYield(j, city.calculateTradeProfit(pTradeCity))
-	
+
 						# If the TradeProfit is greater than 0, add it to the total
 						if ( iTradeProfit > 0 ):
 							nTotalTradeProfit += iTradeProfit
@@ -1325,7 +1329,8 @@ class CvCustomizableDomesticAdvisor:
 		return unicode(nTotalTradeProfit)
 
 	def countTradeRoutes (self, city, szKey, arg):
-		"""arg: None to count all, 'D' to count domestic, 'F' to count foreign."""
+		# arg: None to count all, 'D' to count domestic, 'F' to count foreign.
+		#
 		nRoutes = 0
 
 		# For each trade route possible
@@ -1342,18 +1347,20 @@ class CvCustomizableDomesticAdvisor:
 		return unicode(nRoutes)
 
 	def countSpecialists (self, city, szKey, arg):
-		"""arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists"""
+		# arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists
+		#
 		szSpecialistType = "SPECIALIST_" + arg
-		nCount = city.getSpecialistCount(gc.getInfoTypeForString(szSpecialistType))
+		nCount = city.getSpecialistCount(getInfoTypeOrFail(szSpecialistType))
 		if nCount > 0:
 			return unicode(nCount)
 		else:
 			return u"-"
 
 	def countFreeSpecialists (self, city, szKey, arg):
-		"""arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists"""
+		# arg: specialist type string (excluding "SPECIALIST_") e.g. use "ARTIST" to count artist specialists
+		#
 		szSpecialistType = "SPECIALIST_" + arg
-		nCount = city.getFreeSpecialistCount(gc.getInfoTypeForString(szSpecialistType))
+		nCount = city.getFreeSpecialistCount(getInfoTypeOrFail(szSpecialistType))
 		if nCount > 0:
 			return unicode(nCount)
 		else:
@@ -1401,13 +1408,13 @@ class CvCustomizableDomesticAdvisor:
 						szColorKey = "BUILDING"
 				elif city.isProductionProcess():
 					iType = city.getProductionProcess()
-					if iType == gc.getInfoTypeForString("PROCESS_WEALTH"):
+					if iType == self.PROCESS_WEALTH:
 						szColorKey = "WEALTH"
 						szIcon = self.goldIcon
-					elif iType == gc.getInfoTypeForString("PROCESS_RESEARCH"):
+					elif iType == self.PROCESS_RESEARCH:
 						szColorKey = "RESEARCH"
 						szIcon = self.researchIcon
-					elif iType == gc.getInfoTypeForString("PROCESS_CULTURE"):
+					elif iType == self.PROCESS_CULTURE:
 						szColorKey = "CULTURE"
 						szIcon = self.cultureIcon
 				elif city.isProductionProject():
@@ -1423,17 +1430,17 @@ class CvCustomizableDomesticAdvisor:
 					pInfo = gc.getUnitInfo(iUnit)
 					iType = pInfo.getDomainType()
 					if pInfo.getUnitCombatType() != UnitCombatTypes.NO_UNITCOMBAT:
- 						szIcon = self.militaryIcon
-# 						if iType == DomainTypes.DOMAIN_SEA:
-# 							szIcon = self.seaIcon
-# 						elif iType == DomainTypes.DOMAIN_LAND:
-# 							szIcon = self.landIcon
-# 						elif iType == DomainTypes.DOMAIN_AIR:
-# 							szIcon = self.airIcon
-# 						elif iType == DomainTypes.DOMAIN_IMMOBILE:
-# 							szIcon = self.airIcon
+						szIcon = self.militaryIcon
+	#						if iType == DomainTypes.DOMAIN_SEA:
+	#							szIcon = self.seaIcon
+	#						elif iType == DomainTypes.DOMAIN_LAND:
+	#							szIcon = self.landIcon
+	#						elif iType == DomainTypes.DOMAIN_AIR:
+	#							szIcon = self.airIcon
+	#						elif iType == DomainTypes.DOMAIN_IMMOBILE:
+	#							szIcon = self.airIcon
 					else:
- 						szIcon = self.footIcon
+						szIcon = self.footIcon
 				if bProdIcons:
 					szReturn = szIcon + szReturn
 				if bProdColors:
@@ -1465,35 +1472,35 @@ class CvCustomizableDomesticAdvisor:
 		return szReturn
 
 	def calculateWhipPopulation (self, city, szKey, arg):
-		
+
 		if (city.canHurry(self.HURRY_TYPE_POP, False)):
 			return unicode(city.hurryPopulation(self.HURRY_TYPE_POP))
 		else:
 			return self.objectNotPossible
 
 	def calculateWhipOverflowProduction (self, city, szKey, arg):
-		
+
 		return self.calculateWhipOverflow(city, szKey, arg)[0]
 
 	def calculateWhipOverflowGold (self, city, szKey, arg):
-		
+
 		return self.calculateWhipOverflow(city, szKey, arg)[1]
 
 	def calculateWhipOverflow (self, city, szKey, arg):
-		
+
 		if (city.canHurry(self.HURRY_TYPE_POP, False)):
 			iOverflow = city.hurryProduction(self.HURRY_TYPE_POP) - city.productionLeft()
 			if CityScreenOpt.isWhipAssistOverflowCountCurrentProduction():
 				iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
 			iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
 			iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
-			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(gc.getInfoTypeForString("YIELD_PRODUCTION"), city.getProductionModifier())
+			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
 			return unicode(iOverflow), unicode(iOverflowGold)
 		else:
 			return self.objectNotPossible, self.objectNotPossible
 
 	def calculateWhipAnger (self, city, szKey, arg):
-		
+
 		iAnger = city.getHurryAngerTimer()
 		if (iAnger > 0 or city.canHurry(self.HURRY_TYPE_POP, False)):
 			return iAnger
@@ -1501,14 +1508,14 @@ class CvCustomizableDomesticAdvisor:
 			return self.objectNotPossible
 
 	def calculateHurryGoldCost (self, city, szKey, arg):
-		
+
 		if (city.canHurry(self.HURRY_TYPE_GOLD, False)):
 			return unicode(city.hurryGold(self.HURRY_TYPE_GOLD))
 		else:
 			return self.objectNotPossible
 
 	def calculateConscriptAnger (self, city, szKey, arg):
-		
+
 		iAnger = city.getConscriptAngerTimer()
 		if (iAnger > 0 or city.canConscript()):
 			return iAnger
@@ -1516,12 +1523,12 @@ class CvCustomizableDomesticAdvisor:
 			return self.objectNotPossible
 
 	def calculatePotentialConscriptUnit (self, city, szKey, arg):
-		
+
 		szReturn = unicode(gc.getUnitInfo(city.getConscriptUnit()).getDescription() )
 		return szReturn
 
 	def calculateConscriptUnit (self, city, szKey, arg):
-		
+
 		if(city.canConscript()):
 			szReturn = unicode(gc.getUnitInfo(city.getConscriptUnit()).getDescription() )
 		else:
@@ -1570,7 +1577,7 @@ class CvCustomizableDomesticAdvisor:
 
 	def calculateSpecialists (self, city, szKey, arg):
 
-		szReturn = u"<font=1>"
+		szReturn = sasFontTagTiny
 
 		# For each specialist type
 		for i in range( self.getNumSpecialistInfos() ):
@@ -1582,13 +1589,13 @@ class CvCustomizableDomesticAdvisor:
 			elif (nCount == 1):
 				szReturn += self.SPECIALIST_ICON_DICT[i] + " "
 
-		szReturn += u"</font>"
+		szReturn += SAS_FONT_TAG_CLOSE
 
 		return szReturn
 
 	def calculateAutomation (self, city, szKey, arg):
 
-		szReturn = u"<font=1>"
+		szReturn = sasFontTagTiny
 
 		nNumEmphasize = self.getNumEmphasizeInfos()
 		if city.isCitizensAutomated():
@@ -1600,7 +1607,7 @@ class CvCustomizableDomesticAdvisor:
 			if (city.AI_isEmphasize (nNum)):
 				szReturn += self.AUTOMATION_ICON_DICT[nNum]
 
-		szReturn += u"</font>"
+		szReturn += SAS_FONT_TAG_CLOSE
 
 		return szReturn
 
@@ -1715,7 +1722,7 @@ class CvCustomizableDomesticAdvisor:
 
 				if city.getProductionName() == self.HEADER_DICT[szKey]: # In production
 					szReturn = "(" + szReturn + ")"
-										
+
 			elif city.getNumBuilding(self.BUILDING_DICT[szKey]) > 0: # Obsolete buildings
 				if self.BUILDING_ICONS_DICT[szKey].find(self.cultureIcon):
 					szReturn = self.stripStr(szReturn, self.cultureIcon)
@@ -1733,13 +1740,13 @@ class CvCustomizableDomesticAdvisor:
 		return szReturn
 
 	def calculateBuildingClass (self, city, szKey, arg):
-		
+
 		# Turn building class into building
 		bldg = gc.getCivilizationInfo(city.getCivilizationType()).getCivilizationBuildings(arg)
 		return self.calculateBuilding(city, szKey, bldg)
 
 	def calculateBuilding (self, city, szKey, arg):
-		
+
 		# Turn building class into building
 		if city.getNumBuilding(arg) > 0:
 			if city.getNumActiveBuilding(arg) > 0:
@@ -1756,7 +1763,7 @@ class CvCustomizableDomesticAdvisor:
 			return self.objectNotPossible
 
 	def calculateHasBonus (self, city, szKey, arg):
-		
+
 		# Determine whether or not city has the given bonus
 		if (city.hasBonus(arg)):
 			return self.objectHave
@@ -1764,11 +1771,11 @@ class CvCustomizableDomesticAdvisor:
 			return self.objectNotPossible
 
 	def calculateBonus (self, city, szKey, arg):
-		
+
 		# Determine the effects of the given bonus (health, happiness, commerce)
 		if (not city.hasBonus(arg)):
 			return self.objectNotPossible
-		
+
 		szEffects = u""
 		iEffect = city.getBonusHappiness(arg)
 		if (iEffect == 1):
@@ -1777,7 +1784,7 @@ class CvCustomizableDomesticAdvisor:
 			szEffects += u"%d%s " % (iEffect, self.happyIcon)
 		elif (iEffect < 0):
 			szEffects += u"%d%s " % (-iEffect, self.unhappyIcon)
-		
+
 		iEffect = city.getBonusHealth(arg)
 		if (iEffect == 1):
 			szEffects += u"%s " % (self.healthIcon)
@@ -1785,14 +1792,14 @@ class CvCustomizableDomesticAdvisor:
 			szEffects += u"%d%s " % (iEffect, self.healthIcon)
 		elif (iEffect < 0):
 			szEffects += u"%d%s " % (-iEffect, self.sickIcon)
-		
+
 		for eYieldType in range(YieldTypes.NUM_YIELD_TYPES):
 			iEffect = city.getBonusYieldRateModifier(eYieldType, arg)
 			if (iEffect > 0):
 				szEffects += u"%s " % self.yieldIcons[eYieldType]
 #			elif (iEffect > 1 or iEffect < 0):
 #				szEffects += u"%d%s " % (iEffect, self.yieldIcons[eYieldType])
-		
+
 		iNumBonuses = city.getNumBonuses(arg)
 		if (self.bonusCorpYields.has_key(arg)):
 			yields = self.bonusCorpYields[arg]
@@ -1807,7 +1814,7 @@ class CvCustomizableDomesticAdvisor:
 						szEffects += u"%s " % self.yieldIcons[eYield]
 					elif (iEffect > 1 or iEffect < 0):
 						szEffects += u"%d%s " % (iEffect, self.yieldIcons[eYield])
-		
+
 		if (self.bonusCorpCommerces.has_key(arg)):
 			commerces = self.bonusCorpCommerces[arg]
 			for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
@@ -1821,7 +1828,7 @@ class CvCustomizableDomesticAdvisor:
 						szEffects += u"%s " % self.commerceIcons[eCommerce]
 					elif (iEffect > 1 or iEffect < 0):
 						szEffects += u"%d%s " % (iEffect, self.commerceIcons[eCommerce])
-		
+
 #		for eYieldType in range(YieldTypes.NUM_YIELD_TYPES):
 #			if (city.getCorporationYield(eYieldType) > 0):
 #				iEffect = 0
@@ -1851,19 +1858,20 @@ class CvCustomizableDomesticAdvisor:
 #					szEffects += u"%s " % self.commerceIcons[eCommerceType]
 #				elif (iEffect > 1 or iEffect < 0):
 #					szEffects += u"%d%s " % (iEffect, self.commerceIcons[eCommerceType])
-		
+
 		iEffect = city.getBonusPower(arg, False) + city.getBonusPower(arg, True)
 		if (iEffect == 1):
 			szEffects += u"%s " % (self.powerIcon)
 		elif (iEffect > 1):
 			szEffects += u"%d%s " % (iEffect, self.powerIcon)
-		
+
 		if (szEffects == u""):
 			return self.objectHave
 		return szEffects.strip()
 
 	def calculateFreeExperience (self, city, szKey, arg):
-		"""arg: Domain identifier; "L" for Land, "S" for Sea, "A" for Air, "I" for Immobile"""
+		# arg: Domain identifier; "L" for Land, "S" for Sea, "A" for Air, "I" for Immobile
+		#
 		# Thanks to MatzeHH for original version of this
 		player = gc.getActivePlayer()
 		# Generic modifiers first
@@ -1918,9 +1926,8 @@ class CvCustomizableDomesticAdvisor:
 		y = city.getCommerceRate(arg)
 		return len([i for i in L if i > y]) + 1
 
-
 	def canAdviseToConstruct(self, city, i):
-		
+
 		info = gc.getBuildingInfo(i)
 		if not city.canConstruct(i, True, False, False):
 			return False
@@ -2024,13 +2031,13 @@ class CvCustomizableDomesticAdvisor:
 								if value > bestData:
 									bestOrder = bldg
 									bestData = value
-						
+
 						if city.findBaseYieldRateRank(YieldTypes.YIELD_PRODUCTION) < 12:
 							value = city.getBaseYieldRate(YieldTypes.YIELD_PRODUCTION) * 2 * info.getYieldModifier(YieldTypes.YIELD_PRODUCTION) / float(info.getProductionCost())
 							if value > bestData:
 								bestOrder = bldg
 								bestData = value
-						
+
 						if city.findBaseYieldRateRank(YieldTypes.YIELD_COMMERCE) < player.getNumCities() / 2:
 							value = city.getBaseYieldRate(YieldTypes.YIELD_COMMERCE) * info.getCommerceModifier(CommerceTypes.COMMERCE_RESEARCH) / float(info.getProductionCost())
 							if value > bestData:
@@ -2095,21 +2102,21 @@ class CvCustomizableDomesticAdvisor:
 		return szReturn
 
 	def ColorCityValues (self, nValue, szKey):
-		"""Colors city values which we might want to alert the user to."""
-
+		# Colors city values which we might want to alert the user to.
+		#
 		# If the key is one we want to possibly color
 		if (szKey in self.COLOR_SET):
 			# If we don't have a plain integer
 			if (re.search ("[-+]", nValue)):
 				# Color it red and return it
-				return localText.changeTextColor (nValue, gc.getInfoTypeForString("COLOR_RED"))
+				return localText.changeTextColor (nValue, getInfoTypeOrFail("COLOR_RED"))
 			# For each type of comparison
 			for szCompareType, clDict in self.COLOR_DICT_DICT.iteritems():
 				# Get the color we will use.
 				color = self.COLOR_DICT[szCompareType]
 
 				# If the dictionary has the key...
-				if (clDict != None and clDict.has_key(szKey)):
+				if (clDict is not None and clDict.has_key(szKey)):
 					if (szKey in self.COMPARISON_REVERSED):
 						# ...and the comparison is appropriate...
 						if ((szCompareType == "PROBLEM" and int(nValue) >= clDict[szKey] or szCompareType == "NEUTRAL" and int(nValue) == clDict[szKey] or szCompareType == "GREAT" and int(nValue) <= clDict[szKey])):
@@ -2124,12 +2131,12 @@ class CvCustomizableDomesticAdvisor:
 		return nValue
 
 	def drawContents (self, page):
-		""" Function to draw the contents of the cityList passed in. """
-
+		# Function to draw the contents of the cityList passed in.
+		#
 		screen = self.getScreen()
 		iPlayer = PyPlayer(CyGame().getActivePlayer())
 		cityList = iPlayer.getCityList()
-		
+
 		# Hide building icons
 		for i in range(gc.getNumBuildingInfos()):
 			szName = "BLDG_BTN_%d" % i
@@ -2158,7 +2165,7 @@ class CvCustomizableDomesticAdvisor:
 				screen.appendTableRow (self.CUSTOMIZE_PAGE)
 				screen.setTableInt(self.CUSTOMIZE_PAGE, 0, i, unicode(i+1), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				screen.setTableText(self.CUSTOMIZE_PAGE, 1, i, unicode(column[0]), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-				
+
 				# Catch exceptions generated by missing columns
 				try:
 					screen.setTableText(self.CUSTOMIZE_PAGE, 2, i, self.HEADER_DICT[column[0]], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
@@ -2260,19 +2267,19 @@ class CvCustomizableDomesticAdvisor:
 			iTotalColW = 0
 			for value, key in columns:
 				iTotalColW += self.columnWidth[key]
-			# Filling up nTableWidth entirely makes the columns too wide
-			# for some reason(?).
+			# Filling up nTableWidth entirely makes the columns too wide for some reason(?).
 			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW,
-					# I don't think we should shrink columns when player
-					# configures too many
+					# I don't think we should shrink columns when player configures too many
 					1))
+			# <!-- custom: minimally upscale main customizable-domestic table text (rows + non-building headers):
+			# keep base AdvCiv width logic and just bump the two legacy font steps by +1 for readability. (GPT-5.3-Codex) -->
 			if fHScaleFactor > 1.36:
-				iCellFontSize = 3
+				iCellFontSize = 4
 			else:
-				iCellFontSize = 2
+				iCellFontSize = 3
 			# (The three uses of these tags in the code below aren't tagged w/ comments)
 			szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
-			szFontTagClose = u"</font>"
+			szFontTagClose = SAS_FONT_TAG_CLOSE
 			# </advc.193>
 
 			# Loop through the columns first. This is unintuitive, but faster.
@@ -2297,9 +2304,7 @@ class CvCustomizableDomesticAdvisor:
 						screen.setTableColumnHeader (page, value + 1, "", iColW)
 						szName = "BLDG_BTN_%d" % building
 						x = iBuildingButtonX + (iColW - self.BUILDING_BUTTON_X_SIZE) / 2
-						screen.setImageButton (szName, buildingInfo.getButton(), 
-											   x, iBuildingButtonY, self.BUILDING_BUTTON_X_SIZE, self.BUILDING_BUTTON_Y_SIZE, 
-											   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, building, -1)
+						screen.setImageButton (szName, buildingInfo.getButton(), x, iBuildingButtonY, self.BUILDING_BUTTON_X_SIZE, self.BUILDING_BUTTON_Y_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, building, -1)
 					else:
 						screen.setTableColumnHeader (page, value + 1, szFontTagOpen + self.HEADER_DICT[key] + szFontTagClose, iColW )
 
@@ -2322,7 +2327,7 @@ class CvCustomizableDomesticAdvisor:
 						funcTableWrite = screen.setTableText
 						justify = CvUtil.FONT_CENTER_JUSTIFY
 					else:
-						return;
+						return
 
 					colorFunc = self.ColorCityValues
 					# <advc.186b> Attach examine text to the city name column (if present) - rather than to the zoom button.
@@ -2339,7 +2344,7 @@ class CvCustomizableDomesticAdvisor:
 							szValue = szFontTagOpen + colorFunc(unicode(calcFunc(cityList[i].city)), key) + szFontTagClose
 							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
 							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
-						
+
 					elif(columnDef[4]):
 						calcFunc = columnDef[4]
 						# Loop through the cities
@@ -2350,7 +2355,7 @@ class CvCustomizableDomesticAdvisor:
 
 					else:
 						calcFunc = columnDef[6]
-						
+
 						# Loop through the cities
 						for i in cityRange:
 							szValue = szFontTagOpen + colorFunc(unicode(calcFunc(cityList[i].city, key, columnDef[7])), key) + szFontTagClose
@@ -2389,14 +2394,14 @@ class CvCustomizableDomesticAdvisor:
 			self.updateAppropriateCitySelection (page, len( iPlayer.getCityList() ) )
 
 	def HandleSpecialistPlus (self, inputClass):
-		""" Handles when any Specialist Plus is pushed."""
-
+		# Handles when any Specialist Plus is pushed.
+		#
 		#CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, True)
 		return 0
 
 	def HandleSpecialistMinus (self, inputClass):
-		""" Handles when any Specialist Minus is pushed."""
-
+		# Handles when any Specialist Minus is pushed.
+		#
 		CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, True)
 		return 0
 
@@ -2404,8 +2409,8 @@ class CvCustomizableDomesticAdvisor:
 		return 0
 
 	def handleInput (self, inputClass):
-		""" Handles the input for this screen..."""
-
+		# Handles the input for this screen...
+		#
 		code = inputClass.getNotifyCode()
 
 		if ( code == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED ):
@@ -2419,14 +2424,14 @@ class CvCustomizableDomesticAdvisor:
 				self.switchPage(self.PAGES[inputClass.getData()]["name"])
 				self.drawScreen(self.currentPage)
 				return 1
-				
+
 			elif(szWidget == self.currentPage):
 				screen = self.getScreen()
 				if (inputClass.getMouseX() == 0):
 					screen.hideScreen()
-					
-					CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true);
-					
+
+					CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true)
+
 					popupInfo = CyPopupInfo()
 					popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
 					popupInfo.setText(u"showDomesticAdvisor")
@@ -2435,13 +2440,13 @@ class CvCustomizableDomesticAdvisor:
 					city = self.getCurrentCity()
 					if (city):
 						CyInterface().lookAtCityOffset(city.getID())
-					
+
 					if self.PAGES[self.currentPageNum]["showSpecControls"]:
 						self.showSpecialists()
-					
+
 					# And pass it back to the screen
 					self.updateAppropriateCitySelection( self.currentPage, len( PyPlayer(CyGame().getActivePlayer()).getCityList() ) )
-					
+
 					return 1
 
 			else:
@@ -2450,7 +2455,8 @@ class CvCustomizableDomesticAdvisor:
 
 		# Is the input from a mapped button?
 		elif (code == NotifyCode.NOTIFY_CLICKED and self.DomesticScreenInputMap.has_key(inputClass.getFunctionName())):
-			'Calls function mapped in CvSpecDomesticAdvisor'
+			# Calls function mapped in CvSpecDomesticAdvisor
+			#
 			# only get from the map if it has the key
 
 			# get bound function from map and call it (return whatever it returns.)
@@ -2461,9 +2467,9 @@ class CvCustomizableDomesticAdvisor:
 			if ( inputClass.getFunctionName() == "ZoomCity" ):
 				screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 				screen.hideScreen()
-				
-				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true);
-				
+
+				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), true)
+
 				popupInfo = CyPopupInfo()
 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON_SCREEN)
 				popupInfo.setText(u"showDomesticAdvisor")
@@ -2479,29 +2485,31 @@ class CvCustomizableDomesticAdvisor:
 
 		# If none of the above, we didn't use the input."
 		return 0
-	
+
 	def isFoodProduction (self, szProducing):
-		""" We determine it's a food production, if it's a worker or settler."""
+		# We determine it's a food production, if it's a worker or settler.
+		#
 		return re.search ("Worker|Settler", szProducing)
 
 	def updateScreen(self):
-		""" Updates the screen."""
-
+		# Updates the screen.
+		#
 		self.drawContents()
 
 		return
 
 	def update(self, fDelta):
-		""" Update the Advisor."""
-		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT) == True):
+		# Update the Advisor.
+		#
+		if (CyInterface().isDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT)):
 			CyInterface().setDirty(InterfaceDirtyBits.Domestic_Advisor_DIRTY_BIT, False)
-			
+
 			self.drawContents(self.currentPage)
 
 		return
-			
+
 	def switchPage(self, page):
-		
+
 		for i, p in enumerate(self.PAGES):
 			if(p["name"] == page):
 				self.currentPage = self.getPageID(p["name"])
@@ -2521,7 +2529,7 @@ class CvCustomizableDomesticAdvisor:
 			if(p["name"] == page):
 				id = "CDA_PAGE_%d" % i
 				return id
-			
+
 	def updateAppropriateCitySelection(self, page, nCities):
 		screen = self.getScreen()
 		screen.updateAppropriateCitySelection( page, nCities, 1 )
@@ -2530,12 +2538,12 @@ class CvCustomizableDomesticAdvisor:
 		for i in range(nCities):
 			if screen.isRowSelected(page, i):
 				self.listSelectedCities.append(screen.getTableText(page, 1, i))
-	
+
 	def save(self, inputClass):
 		name = BugPath.findIniFile("CustomDomAdv.txt", "CustomDomAdv")
 		if (name):
 			file = open(name, 'w')
-	
+
 			if(file != 0):
 				pickle.dump({ "version" : self.PICKLED_VERSION, "pages" : self.PAGES }, file)
 				file.close()
@@ -2563,7 +2571,7 @@ class CvCustomizableDomesticAdvisor:
 	def getSortedColumnSelection(self, screen):
 
 		list = []
-		
+
 		for i in range(len(self.PAGES[self.currentPageNum]["columns"])):
 			if screen.isRowSelected(self.CUSTOMIZE_PAGE, i):
 				list.append(int(screen.getTableText(self.CUSTOMIZE_PAGE, 0, i)) - 1)
@@ -2672,7 +2680,7 @@ class CvCustomizableDomesticAdvisor:
 		screen = self.getScreen()
 		# Unselect before selecting, so that the selected rows are forced onscreen.
 		for i in range(len(self.PAGES[self.currentPageNum]["columns"])):
-			if not screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) in self.customizingSelection:
+			if screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) not in self.customizingSelection:
 				screen.selectRow(self.CUSTOMIZE_PAGE, i, False)
 		for i in range(len(self.PAGES[self.currentPageNum]["columns"])):
 			if screen.getTableText(self.CUSTOMIZE_PAGE, 1, i) in self.customizingSelection:
@@ -2715,36 +2723,33 @@ class CvCustomizableDomesticAdvisor:
 		self.customizingRestoreSelection()
 
 		return 1
-	
+
 	def toggleShowSpecialistControls(self, inputClass):
-		"""
-		Toggle the page's 'show specialists' field.
-		Also toggles the 'show culture/GP legend' fields (one button).
-		"""
+		# Toggle the page's 'show specialists' field.
+		# Also toggles the 'show culture/GP legend' fields (one button).
+		#
 		page = self.PAGES[self.currentPageNum]
 		page["showSpecControls"] = not page["showSpecControls"]
 		page["showCultureLegend"] = not page["showCultureLegend"]
 		page["showGPLegend"] = not page["showGPLegend"]
 #		screen.setState(self.TOGGLE_SPECS_NAME, page["showSpecControls"])
-		
+
 		return 1
-	
+
 	def toggleShowCultureLegend(self, inputClass):
-		"""
-		Toggle the page's 'show culture legend' field.
-		"""
+		# Toggle the page's 'show culture legend' field.
+		#
 		page = self.PAGES[self.currentPageNum]
 		page["showCultureLegend"] = not page["showCultureLegend"]
-		
+
 		return 1
-	
+
 	def toggleShowGPLegend(self, inputClass):
-		"""
-		Toggle the page's 'show GP legend' field.
-		"""
+		# Toggle the page's 'show GP legend' field.
+		#
 		page = self.PAGES[self.currentPageNum]
 		page["showGPLegend"] = not page["showGPLegend"]
-		
+
 		return 1
 
 	def addPage(self, inputClass):
@@ -2752,17 +2757,7 @@ class CvCustomizableDomesticAdvisor:
 		screen = self.getScreen()
 		self.customizingClearSelection()
 		name = "New Page %d" % (len(self.PAGES) + 1)
-		self.PAGES.append(
-			{
-				"name" : name,
-				"showSpecControls" : False,
-				"showCultureLegend" : False,
-				"showGPLegend" : False,
-				"columns" : [
-					("NAME", 95, "text")
-				]
-			}
-			)
+		self.PAGES.append({"name" : name, "showSpecControls" : False, "showCultureLegend" : False, "showGPLegend" : False, "columns" : [("NAME", 95, "text")]})
 		self.switchPage(name)
 		self.drawScreen(self.currentPage)
 
@@ -2780,7 +2775,7 @@ class CvCustomizableDomesticAdvisor:
 		return 1
 
 	def upPage(self, inputClass):
-		
+
 		if (self.currentPageNum < 1):
 			# Cannot move first page up
 			return 1
@@ -2797,7 +2792,7 @@ class CvCustomizableDomesticAdvisor:
 		return 1
 
 	def downPage(self, inputClass):
-		
+
 		if (self.currentPageNum + 1 >= len(self.PAGES)):
 			# Cannot move last page down
 			return 1
@@ -2814,7 +2809,7 @@ class CvCustomizableDomesticAdvisor:
 		return 1
 
 	def previousPage(self, inputClass):
-		
+
 		if (self.currentPageNum < 1):
 			# Already on first page
 			return 1
@@ -2826,7 +2821,7 @@ class CvCustomizableDomesticAdvisor:
 		return 1
 
 	def nextPage(self, inputClass):
-		
+
 		if (self.currentPageNum + 1 >= len(self.PAGES)):
 			# Already on last page
 			return 1
@@ -2837,9 +2832,8 @@ class CvCustomizableDomesticAdvisor:
 
 		return 1
 
-
 	def reloadPages(self, inputClass):
-		
+
 		self.currentPageNum = 0
 		self.loadPages()
 		self.switchPage(self.getPageID(self.PAGES[0]["name"]))
@@ -2879,7 +2873,7 @@ class CvCustomizableDomesticAdvisor:
 				version = dict["version"]
 				self.PAGES = dict["pages"]
 				file.close()
-	
+
 				if version == 0:
 					for p in self.PAGES:
 						newColumns = []
@@ -2904,13 +2898,13 @@ class CvCustomizableDomesticAdvisor:
 									break
 							newColumns.append(c)
 						p["columns"] = newColumns
-	
+
 					# Updated from version 0 to version 1 format. Fall through to update version 1 format in the future
 					version = 1						
-	
+
 				if(version != self.PICKLED_VERSION):
 					self.PAGES = None
-	
+
 			except IOError:
 				self.PAGES = None
 			except IndexError:
@@ -3157,7 +3151,6 @@ class CvCustomizableDomesticAdvisor:
 			if not p.has_key("columns"):
 				p["columns"] = [("NAME", 95, "text")]
 
-
 	def renamePage(self, inputClass):
 
 		eventManager = CvEventInterface.getEventManager()
@@ -3210,7 +3203,7 @@ class CvCustomizableDomesticAdvisor:
 		self.customizingRestoreSelection()
 
 		return 0
-	
+
 	def stripStr(self, s, out):
 		while s.find(out) != -1:
 			s = s[0:s.find(out)] + s[s.find(out) + 1:]

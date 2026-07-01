@@ -361,8 +361,7 @@ std::wstring CvHotkeyInfo::getHotKeyDescription() const
 	return szTemptext;
 }
 
-void CvHotkeyInfo::setHotKeyDescription(const wchar* szHotKeyDescKey,
-	const wchar* szHotKeyAltDescKey, const wchar* szHotKeyString)
+void CvHotkeyInfo::setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey, const wchar* szHotKeyString)
 {
 	m_szHotKeyDescriptionKey = szHotKeyDescKey;
 	m_szHotKeyAltDescriptionKey = szHotKeyAltDescKey;

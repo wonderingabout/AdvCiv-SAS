@@ -72,31 +72,39 @@ void CvGame::updateColoredPlots()
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
-			// Plot improvement replacement circles for debugging
-			FOR_EACH_ENUM(PlotNum)
-			{
-				CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
-				CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
-				ImprovementTypes eImprovement = kPlot.getImprovementType();
-				if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
-				{
-					CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
-					//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
-					BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
-					if (eBestBuild != NO_BUILD)
-					{
-						if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
-							eImprovement != GC.getInfo(eBestBuild).getImprovement())
-						{
-							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-									GC.getInfo(GC.getColorType("RED")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
-						}
-					}
-				}
-			}
+			// <!-- custom: even in debugging (if i understood it correctly), these are confusing and needlessly taking computing power too, we use CvUnitAI::AI_bestCityBuild now anyway instead to choose our best plots to build on and all for AI workers, so try to gradually remove old code influence, while increasing performance if we can do so as well or functionality -->
+			// // Plot improvement replacement circles for debugging
+			// FOR_EACH_ENUM(PlotNum)
+			// {
+			// 	CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+			// 	CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+			// 	ImprovementTypes eImprovement = kPlot.getImprovementType();
+			// 	if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
+			// 	{
+			// 		CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
+			// 		//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
+			// 		BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
+			// 		if (eBestBuild != NO_BUILD)
+			// 		{
+			// 			if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
+			// 				eImprovement != GC.getInfo(eBestBuild).getImprovement())
+			// 			{
+			// 				kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+			// 						GC.getInfo(GC.getColorType("RED")).getColor(),
+			// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		}
 	} // BETTER_BTS_AI_MOD: END
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
 
 	// City circles when in Advanced Start
 	if (kUI.isInAdvancedStart())
@@ -120,18 +128,18 @@ void CvGame::updateColoredPlots()
 				if (bStartingPlot)
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+							GC.getInfo(eColorWarningText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 				else if (GET_PLAYER(getActivePlayer()).AI_isPlotCitySite(kPlot))
 				{
 					kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 				if (kPlot.isRevealed(getActiveTeam()))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+					NiColorA color(GC.getInfo(eColorWhite).getColor());
 					color.a = 0.4f;
 					kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(),
 							color, AREA_BORDER_LAYER_CITY_RADIUS);
@@ -145,7 +153,7 @@ void CvGame::updateColoredPlots()
 	{
 		if (kUI.isCityScreenUp())
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("WHITE")).getColor());
+			NiColorA color(GC.getInfo(eColorWhite).getColor());
 			color.a = 0.7f; // advc: Moved out of the loop below
 			for (WorkingPlotIter it(*pHeadSelectedCity); it.hasNext(); ++it)
 			{
@@ -168,7 +176,7 @@ void CvGame::updateColoredPlots()
 				if (pRallyPlot != NULL)
 				{
 					kEngine.addColoredPlot(pRallyPlot->getX(), pRallyPlot->getY(),
-							GC.getInfo(GC.getColorType("YELLOW")).getColor(),
+							GC.getInfo(eColorYellow).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
 				}
 			}
@@ -190,7 +198,7 @@ void CvGame::updateColoredPlots()
 				{
 					if (kPlot.getWorkingCity() != NULL)
 					{
-						NiColorA color(GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")
+						NiColorA color(GC.getInfo(eColorHighlightText
 								/*(GC.getInfo(GET_PLAYER(pHeadSelectedUnit->getOwner()).getPlayerColor()).getColorTypePrimary())*/
 								).getColor());
 						color.a = 1.0f;
@@ -226,7 +234,7 @@ void CvGame::updateColoredPlots()
 					&kTargetPlot, pHeadSelectedUnit->getTeam(), iMaxAirRange,
 					pHeadSelectedUnit->getFacingDirection(true))*/))
 				{
-					NiColorA color(GC.getInfo(GC.getColorType("YELLOW")).getColor());
+					NiColorA color(GC.getInfo(eColorYellow).getColor());
 					color.a = 0.5f;
 					kEngine.fillAreaBorderPlot(kTargetPlot.getX(), kTargetPlot.getY(),
 							color, AREA_BORDER_LAYER_RANGED);
@@ -234,39 +242,42 @@ void CvGame::updateColoredPlots()
 			}
 		}
 	}
+
 	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
 		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
 	{
-		CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
-		if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
-			kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
-		{
-			if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
-			{
-				CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
-				if (pCity != NULL)
-				{
-					CvPlot* pBestPlot = NULL;
-					if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
-						pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
-					{
-						FAssert(pBestPlot != NULL);
-						kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						CvPlot* pNextBestPlot = NULL;
-						if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
-							pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
-						{
-							FAssert(pNextBestPlot != NULL);
-							kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
-									GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
-						}
-					}
-				}
-			}
-		}
+		// <!-- custom: also disable worker plot to improve recommendations, we save computation this way, reduce the interference of old very inefficient and perhaps needlessly computationally expensive, on top of tiles shown not necessarily being the best as well. We only want to see city sites and such and not have too many needless circles that are confusing as well on top of using needless computing power; located code spot to remove thanks to claude ai after i found first one above in this function -->
+		// CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
+		// if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
+		// 	kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA)
+		// {
+		// 	if (kRecommendUnit.getPlot().getOwner() == kRecommendUnit.getOwner())
+		// 	{
+		// 		CvCityAI* pCity = kRecommendUnit.getPlot().AI_getWorkingCity();
+		// 		if (pCity != NULL)
+		// 		{
+		// 			CvPlot* pBestPlot = NULL;
+		// 			if (kRecommendUnit.AI_bestCityBuild(*pCity, &pBestPlot) &&
+		// 				pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pBestPlot)) > 1)
+		// 			{
+		// 				FAssert(pBestPlot != NULL);
+		// 				kEngine.addColoredPlot(pBestPlot->getX(), pBestPlot->getY(),
+		// 						GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				CvPlot* pNextBestPlot = NULL;
+		// 				if (kRecommendUnit.AI_bestCityBuild(*pCity, &pNextBestPlot, NULL, pBestPlot) &&
+		// 					pCity->AI_getBestBuildValue(pCity->getCityPlotIndex(*pNextBestPlot)) > 1)
+		// 				{
+		// 					FAssert(pNextBestPlot != NULL);
+		// 					kEngine.addColoredPlot(pNextBestPlot->getX(), pNextBestPlot->getY(),
+		// 							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+		// 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
 		/*	K-Mod. I've rearranged the following code a bit, so that it is more efficient, and so that
 			it shows city sites within 7 turns, rather than just the ones in 4 plot range.
 			the original code has been deleted, because it was quite bulky. */
@@ -289,7 +300,7 @@ void CvGame::updateColoredPlots()
 					if (sitePath.getPathTurns() + i > iMaxPathTurns + 1)
 						continue; // </advc.004>
 					kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
-							GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+							GC.getInfo(eColorHighlightText).getColor(),
 							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 				}
 			}
@@ -306,6 +317,7 @@ void CvGame::updateColoredPlots()
 			// just a smaller range.
 			sitePath.setGroup(*pHeadSelectedUnit->getGroup(), NO_MOVEMENT_FLAGS,
 					iRange, GC.getMOVE_DENOMINATOR());
+
 			for (SquareIter it(*pHeadSelectedUnit, iRange); it.hasNext(); ++it)
 			{
 				CvPlot const& kLoopPlot = *it;
@@ -315,7 +327,7 @@ void CvGame::updateColoredPlots()
 					if (sitePath.generatePath(kLoopPlot))
 					{
 						kEngine.addColoredPlot(kLoopPlot.getX(), kLoopPlot.getY(),
-								GC.getInfo(GC.getColorType("HIGHLIGHT_TEXT")).getColor(),
+								GC.getInfo(eColorHighlightText).getColor(),
 								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 					}
 				}
@@ -358,12 +370,17 @@ void CvGame::updateBlockadedPlots()
 	CvDLLEngineIFaceBase& kEngine = *gDLL->getEngineIFace(); // advc
 	kEngine.clearAreaBorderPlots(AREA_BORDER_LAYER_BLOCKADED);
 	CvMap const& kMap = GC.getMap();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorBlack = (ColorTypes)GC.getColorType("BLACK");
+
 	for (int i = 0; i < kMap.numPlots(); ++i)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(i);
 		if (kPlot.getBlockadedCount(getActiveTeam()) > 0 && kPlot.isRevealed(getActiveTeam()))
 		{
-			NiColorA color(GC.getInfo(GC.getColorType("BLACK")).getColor());
+			NiColorA color(GC.getInfo(eColorBlack).getColor());
 			color.a = 0.35f;
 			kEngine.fillAreaBorderPlot(kPlot.getX(), kPlot.getY(), color, AREA_BORDER_LAYER_BLOCKADED);
 		}
@@ -378,6 +395,11 @@ void CvGame::updateBlockadedPlots()
 
 void CvGame::updateSelectionList()
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	CvDLLInterfaceIFaceBase& kUI = gDLL->UI();
 	CvUnit* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
 	// <advc.004k> (Needed for dealing with all units becoming unselected)
@@ -413,6 +435,11 @@ void CvGame::updateSelectionList()
 
 void CvGame::updateTestEndTurn()
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
 		return;
 	// <advc.003g>
@@ -467,8 +494,7 @@ void CvGame::updateTestEndTurn()
 }
 
 // advc: Merge of two BtS functions that had largely the same body
-CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot,
-	std::vector<CvUnit*>* pPlotUnits, int iIndex) const
+CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex) const
 {
 	PROFILE_FUNC();
 
@@ -561,9 +587,8 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
 }
 
 // advc.154: Extracted the const part out of cycleSelectionGroups
-CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
-	bool& bWrap, CvUnit*& pCycleUnit, // out-params
-	std::set<int>* pCycledGroups) const
+// out-params <!-- custom: hoisted from multiline signature between `pCycleUnit` and `pCycledGroups` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers, bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups) const
 {
 	bWrap = false;
 	pCycleUnit = gDLL->UI().getHeadSelectedUnit();
@@ -854,8 +879,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl
 }
 
 
-void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	int iFlags, bool bAlt, bool bShift) const
+void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift) const
 {
 	int aiPyData[] = { iData2, iData3, iData4 };
 	if (GC.getPythonCaller()->cannotSelectionListNetOverride((GameMessageTypes)
@@ -994,8 +1018,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 }
 
 
-void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4,
-	bool bOption, bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4, bool bOption, bool bAlt, bool bShift, bool bCtrl) const
 {
 	for (CLLNode<IDInfo> const* pSelectedCityNode = gDLL->UI().headSelectedCitiesNode();
 		pSelectedCityNode != NULL;
@@ -1056,6 +1079,11 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool bUseCache) const
 {
 	PROFILE_FUNC();
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return false;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 
 	bool const bShift = GC.shiftKey();
 
@@ -1079,6 +1107,10 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 		return false;
 	}
 	CvSelectionGroup* pSelectedInterfaceList = gDLL->UI().getSelectionList();
+	// <!-- custom: guard missing selection list so action handling never calls CvSelectionGroup::plot on a null group; crash had null this in CvSelectionGroup::plot. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectedInterfaceList == NULL)
+		return false;
+	// <!-- custom: end guard for selection list null in action handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		CvPlot* pMissionPlot = NULL;
@@ -1123,12 +1155,21 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
 
 void CvGame::setupActionCache() const
 {
-	gDLL->UI().getSelectionList()->setupActionCache();
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: guard missing selection list so setupActionCache does not touch a null group; avoids CvSelectionGroup::plot null deref chain. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList != NULL)
+		pSelectionList->setupActionCache();
+	// <!-- custom: end guard for selection list null in setupActionCache. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 }
 
 
 void CvGame::handleAction(int iAction)
 {
+	// <!-- custom: guard against being called after returning to main menu from a loaded game, when game state
+	// is already torn down; GET_PLAYER(getActivePlayer()) would access freed objects and crash. (Claude code Opus 4.6) -->
+	if (!isFinalInitialized())
+		return;
+	// <!-- custom: End - guard against being called after returning to main menu from a loaded game, when game state
 	bool const bAlt = GC.altKey();
 	bool const bShift = GC.shiftKey();
 
@@ -1137,8 +1178,10 @@ void CvGame::handleAction(int iAction)
 	CvActionInfo const& kAction = GC.getActionInfo(iAction);
 	if (kAction.getControlType() != NO_CONTROL)
 		doControl((ControlTypes)kAction.getControlType());
-	if (gDLL->UI().canDoInterfaceMode((InterfaceModeTypes)kAction.getInterfaceModeType(),
-		gDLL->UI().getSelectionList()))
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: avoid calling canDoInterfaceMode with a null selection group to prevent CvSelectionGroup::plot null deref. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList != NULL && gDLL->UI().canDoInterfaceMode(
+		(InterfaceModeTypes)kAction.getInterfaceModeType(), pSelectionList))
 	{
 		CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
 		if (pHeadSelectedUnit != NULL)
@@ -1159,6 +1202,7 @@ void CvGame::handleAction(int iAction)
 		gDLL->UI().setInterfaceMode((InterfaceModeTypes)
 				kAction.getInterfaceModeType());
 	}
+	// <!-- custom: end guard for selection list null in interface-mode handling. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 	if (kAction.getMissionType() != NO_MISSION)
 	{
 		selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, kAction.getMissionType(),
@@ -1267,13 +1311,14 @@ bool CvGame::canDoControl(ControlTypes eControl) const
 	case CONTROL_DOMESTIC_SCREEN:
 	case CONTROL_VICTORY_SCREEN:
 	case CONTROL_CIVILOPEDIA:
-	case CONTROL_RELIGION_SCREEN:
-	case CONTROL_CORPORATION_SCREEN:
+	// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 	case CONTROL_FOREIGN_SCREEN:
-	case CONTROL_FINANCIAL_SCREEN:
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
 	case CONTROL_MILITARY_SCREEN:
 	case CONTROL_TECH_CHOOSER:
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
 	case CONTROL_DIPLOMACY:
 	case CONTROL_HALL_OF_FAME:
 	case CONTROL_INFO:
@@ -1634,26 +1679,20 @@ void CvGame::doControl(ControlTypes eControl)
 		GC.getPythonCaller()->callScreenFunction("pediaShow");
 		break;
 
-	case CONTROL_RELIGION_SCREEN:
-		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGERELIGION); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("ReligionScreen");
-		break;
-
-	case CONTROL_CORPORATION_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("CorporationScreen");
-		break;
-
+	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
 	case CONTROL_CIVICS_SCREEN:
 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
-		GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+		// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping control id for compatibility. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
 	case CONTROL_FOREIGN_SCREEN:
 		GC.getPythonCaller()->showForeignAdvisorScreen();
 		break;
 
-	case CONTROL_FINANCIAL_SCREEN:
-		GC.getPythonCaller()->showPythonScreen("FinanceAdvisor");
+	case CONTROL_FOREIGN_DIPLOMACY_SCREEN:
+		// <!-- custom: F3 control opens the Foreign Diplomacy advisor shell. (GPT-5.3-Codex) -->
+		GC.getPythonCaller()->showPythonScreen("ForeignDiplomacyAdvisor");
 		break;
 
 	case CONTROL_MILITARY_SCREEN:
@@ -1662,6 +1701,11 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_TECH_CHOOSER:
 		GC.getPythonCaller()->showPythonScreen("TechChooser");
+		break;
+
+	// <!-- custom: F7 World Advisor. (GPT-5.5) -->
+	case CONTROL_WORLD_ADVISOR_SCREEN:
+		GC.getPythonCaller()->showPythonScreen("WorldAdvisorScreen");
 		break;
 
 	case CONTROL_TURN_LOG:
@@ -1835,9 +1879,12 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 	kUnit.m_strName = "UNITS";
 	kUnit.m_strButtonHelpTag = "TXT_KEY_GLOBELAYER_UNITS";
 	kUnit.m_strButtonStyle = "Button_HUDGlobeUnit_Style";
-	kUnit.m_iNumOptions =
-			(GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
-			NUM_UNIT_OPTION_TYPES);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iNumOptionsCalculated = ((GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0 ? 0 : // advc.004z
+			NUM_UNIT_OPTION_TYPES));
+
+	kUnit.m_iNumOptions = iNumOptionsCalculated;
 	kUnit.m_bGlobeViewRequired = false;
 	aLayers.push_back(kUnit);
 
@@ -1877,8 +1924,7 @@ void CvGame::getGlobeLayers(std::vector<CvGlobeLayerData>& aLayers) const
 }
 
 
-void CvGame::startFlyoutMenu(CvPlot const* pPlot,
-	std::vector<CvFlyoutMenuData>& aFlyoutItems) const
+void CvGame::startFlyoutMenu(CvPlot const* pPlot, std::vector<CvFlyoutMenuData>& aFlyoutItems) const
 {
 	aFlyoutItems.clear();
 
@@ -2178,10 +2224,11 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 {
 	if (pPlot == NULL)
 		return NO_COLOR;
-	ColorTypes const eDefaultColor = GC.getColorType("GREEN");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eDefaultColor = GC.getColorType("GREEN");
 	if (gDLL->GetWorldBuilderMode())
 		return eDefaultColor;
-	ColorTypes const eNegativeColor = GC.getColorType("DARK_GREY");
+	static const ColorTypes eNegativeColor = GC.getColorType("DARK_GREY");
 
 	switch (gDLL->UI().getInterfaceMode())
 	{
@@ -2200,7 +2247,12 @@ ColorTypes CvGame::getPlotHighlightColor(CvPlot* pPlot) const
 	case INTERFACEMODE_SAVE_PLOT_NIFS:
 		return eNegativeColor;
 	}
-	bool bCanDoMode = gDLL->UI().getSelectionList()->
+	CvSelectionGroup* pSelectionList = gDLL->UI().getSelectionList();
+	// <!-- custom: return safe highlight color if no selection list to avoid null selection group access during plot highlight. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	if (pSelectionList == NULL)
+		return eNegativeColor;
+	// <!-- custom: end guard for selection list null in plot highlight color. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+	bool bCanDoMode = pSelectionList->
 			canDoInterfaceModeAt(gDLL->UI().getInterfaceMode(), pPlot);
 	// <advc.653>
 	if (updateNukeAreaOfEffect(bCanDoMode ? pPlot : NULL))
@@ -2224,7 +2276,11 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
 	{
 		return false;
 	}
-	NiColorA const& kColor = GC.getInfo(GC.getColorType("YELLOW")).getColor();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorYellow = (ColorTypes)GC.getColorType("YELLOW");
+	NiColorA const& kColor = GC.getInfo(eColorYellow).getColor();
+
 	for (SquareIter itPlot(*pCenter, pNuke->nukeRange()); itPlot.hasNext(); ++itPlot)
 	{
 		gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
@@ -2239,14 +2295,15 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
 	if (!kSelectedUnit.isSeaPatrolling())
 		return;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
 		itPlot.hasNext(); ++itPlot)
 	{
 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
 		{
-			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
-					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
-					getColor(), AREA_BORDER_LAYER_PATROLLED);
+			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), GC.getInfo(eColorCityBlue).getColor(), AREA_BORDER_LAYER_PATROLLED);
 		}
 	}
 }
@@ -2464,7 +2521,10 @@ int CvGame::getSoundtrackSpace() const
 
 bool CvGame::isSoundtrackOverride(CvString& strSoundtrack) const
 {
-	if (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0)
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bVICTORY_SOUNDTRACK_AVAILABLE = (GC.getDefineINT("VICTORY_SOUNDTRACK_AVAILABLE") != 0);
+
+	if (bVICTORY_SOUNDTRACK_AVAILABLE)
 	{
 		if (getGameState() == GAMESTATE_EXTENDED || getGameState() == GAMESTATE_OVER)
 		{
@@ -2707,8 +2767,7 @@ void CvGame::setCityBarWidth(bool bWide)
 }
 
 
-void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2728,8 +2787,7 @@ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity != NULL && pCity->plot() == pPlot)
 	{
@@ -2742,8 +2800,7 @@ void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity == NULL || pPlot == NULL)
 	{
@@ -2772,8 +2829,7 @@ void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
 }
 
 
-void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::handleCityPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pPlot == NULL)
 		return;
@@ -2885,6 +2941,8 @@ void CvGame::onCityScreenChange()
 		map excerpt on the city screen better. */
 	if (m_bCityScreenUp)
 	{
+		static float const fSASCityScreenCameraNorthBias = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT") / 100.0f;
+		static float const fSASCityScreenCameraNorthBiasHUDBonus = GC.getDefineINT("SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT") / 100.0f;
 		CvPlot const* pCityPlot = gDLL->UI().getSelectionPlot();
 		if (pCityPlot != NULL)
 		{
@@ -2894,9 +2952,10 @@ void CvGame::onCityScreenChange()
 			{
 				NiPoint3 nOneNorth = pOneNorth->getPoint();
 				NiPoint3 nCity = pCityPlot->getPoint();
-				float const fDisplWeight = 0.23f +
+				// <!-- custom: keep city-screen camera north shift tunable via SAS defines so city UI can reclaim bottom room (e.g. multi-row city panels) without showing tiles beyond BFC. (GPT-5.3-Codex) -->
+				float const fDisplWeight = fSASCityScreenCameraNorthBias +
 						(BUGOption::isEnabled("MainInterface__EnlargeHUD", true) ?
-						0.03f : 0);
+						fSASCityScreenCameraNorthBiasHUDBonus : 0);
 				NiPoint3 nLookAt(nCity.x,
 						nCity.y + fDisplWeight * (nOneNorth.y - nCity.y), nCity.z);
 				gDLL->UI().lookAt(nLookAt, CAMERALOOKAT_CITY_ZOOM_IN);

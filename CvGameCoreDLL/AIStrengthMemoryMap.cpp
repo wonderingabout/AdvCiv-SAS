@@ -23,47 +23,26 @@ void AIStrengthMemoryMap::reset()
 }
 
 
-void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint uiFlag, TeamTypes eTeam)
+// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
+// <!-- custom: note: here uiflag is not defined but passed as a parameter it seems, so handling it slightly differently, as advised by chatgpt 5, check if accurate -->
+void AIStrengthMemoryMap::read(FDataStreamBase* pStream, uint /* <!-- custom: disable this and remove subsequent checks/usage of this parameter in the function i mean, as advised by chatgpt 5, check if accurate --> uiFlag */, TeamTypes eTeam)
 {
 	m_eTeam = eTeam;
-	if (uiFlag >= 4)
+
+	size_t iSize;
+	pStream->Read(&iSize);
+	if (iSize > 0)
 	{
-		size_t iSize;
-		pStream->Read(&iSize);
-		if (iSize > 0)
+		/*FAssert(GC.getMap().numPlots() == (int)iSize);
+		m_aiMap.resize(iSize, 0);
+		pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
+		for (size_t i = 0; i < iSize; i++)
 		{
-			/*FAssert(GC.getMap().numPlots() == (int)iSize);
-			m_aiMap.resize(iSize, 0);
-			pStream->Read(m_aiMap.size(), &m_aiMap[0]);*/
-			for (size_t i = 0; i < iSize; i++)
-			{
-				PlotNumTypes ePlot;
-				pStream->Read((int*)&ePlot);
-				int iStrength;
-				pStream->Read(&iStrength);
-				m_map[ePlot] = iStrength;
-			}
-		}
-	}
-	else 
-	{
-		/*std::vector<int> aiDummy;
-		std::vector<int>& aiMap = (CvTeam::getTeam(m_eTeam).isAlive() ?
-				m_aiMap : aiDummy);
-		aiMap.resize(GC.getMap().numPlots(), 0);
-		if (uiFlag >= 1)
-			pStream->Read(aiMap.size(), &aiMap[0]);*/
-		std::vector<int> aiTmp;
-		aiTmp.resize(GC.getMap().numPlots(), 0);
-		if (uiFlag >= 1) // (Guaranteed b/c we can't load BtS saves)
-			pStream->Read(aiTmp.size(), &aiTmp[0]);
-		for (size_t i = 0; i < aiTmp.size(); i++)
-		{
-			if (aiTmp[i] != 0)
-			{
-				FAssert(aiTmp[i] > 0);
-				m_map[(PlotNumTypes)i] = aiTmp[i];
-			}
+			PlotNumTypes ePlot;
+			pStream->Read((int*)&ePlot);
+			int iStrength;
+			pStream->Read(&iStrength);
+			m_map[ePlot] = iStrength;
 		}
 	}
 }

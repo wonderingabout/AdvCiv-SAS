@@ -1,0 +1,2879 @@
+<?xml version="1.0"?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- custom: Long_Comments_XML.txt #131, #195 -->
+<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: only randomize when the selected main menu soundtrack script matches this trigger script ID. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_TRIGGER_SCRIPT</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU</DefineTextVal>
+	</Define>
+	<!-- custom: opening menu script shuffle pool entries (ScriptID values from Audio2DScripts.xml); set unused slots to NONE. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_1</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_01</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_2</DefineName>
+		<DefineTextVal>AS2D_OPENING_MENU_02</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_3</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_4</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_5</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_6</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_7</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_8</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_SCRIPT_9</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>
+		<iDefineIntVal>137531</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_LAUNCH_GUARD_TEST_STRING</DefineName>
+		<DefineTextVal>AdvCiv-SAS defines test string</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TINY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_BODY</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc); Long_Comments_XML.txt #106. Keep in [1..4]. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+	<Define>
+		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: show raw map coordinates in ordinary plot hover help (e.g., 63,46) so screenshots can be compared directly with BBAI.log / DLL diagnostics. 1=enabled, 0=disabled. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_PLOT_HELP_COORDINATES_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. Note: as of now increased from 100 to 120 at font 2 so it is more readable. (Claude code Opus 4.6) -->
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
+		<iDefineIntVal>140</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
+		<iDefineIntVal>160</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accommodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>230</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Sevopedia Game Speed chart first-column width by SAS_UI_FONT_LABEL (1..4). Lower values free more room for the speed-value columns when text is upscaled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_1</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_2</DefineName>
+		<iDefineIntVal>180</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_3</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_FONT_4</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: disable first-column width reduction for Sevopedia Game Speed chart when screen width is >= this threshold; <=0 keeps reduced width always enabled. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_NO_REDUCE_MIN_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: non-reduced first-column width used at/above the threshold above; this restores a roomier label column on high resolutions. (GPT-5.4) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_FIELD_COL_WIDTH_NO_REDUCE</DefineName>
+		<iDefineIntVal>260</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: scoreboard fast-scroll step. The normal + / - buttons move one row; the fast + / - buttons move this many rows per click, with offset clamped to the first/last valid slice. (Claude code Opus 4.7 + ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FAST</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: scoreboard background default style; this sets the default background at each save load / new game: 0 = HUD_HELP (vanilla scoreboard panel, the shipped default), 1 = SOLID (most opaque, darkest), 2 = MAIN (plain panel), 3 = MAIN_BLACK50 (dark translucent), 4 = MAIN_BLACK25 (light translucent), 5 = EMPTY (no visible background, text drawn over the map). These indices mirror the aScoreBgStyleLevels list in CvMainInterface.py; keep both in sync if styles are added or reordered. Keep at 0 to preserve the vanilla look. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_BG_DEFAULT_STYLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: scoreboard lock-hover default state. 0 = expanded columns appear only while hovering the scoreboard; 1 = start each new game / loaded save with lock-hover enabled so expanded columns stay visible until manually toggled off. This only sets the initial state; the in-game lock button still toggles it normally. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_LOCK_HOVER_DEFAULT_ENABLED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: scoreboard scroll autocenter default state. 0 = keep the current scroll slice across redraws; 1 = start each new game / loaded save with autocenter enabled so overflowing scoreboards stay centered on the active player until manually toggled off. Manual scroll buttons also turn autocenter off. This only sets the initial state; the in-game autocenter button still toggles it normally. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SCOREBOARD_SCROLL_AUTOCENTER_ACTIVE_PLAYER_DEFAULT_ENABLED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: commerce sliders second (Min/Max) + + and - - pair step size (e.g., setting it to 50 makes it require 2 clicks to go from 0% to 100% (0->50->100) and vice versa for - -). Keep in [1,100]. Base AdvCiv value: 100. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_COMMERCE_SLIDERS_FAST_INCREMENT_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels). <= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
+		<iDefineIntVal>2560</iDefineIntVal>
+	</Define>
+	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
+		<iDefineIntVal>206</iDefineIntVal>
+	</Define>
+	# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
+		<iDefineIntVal>52</iDefineIntVal>
+	</Define>
+	<!-- custom: Foreign Advisor Glance tab: number of rival columns shown per page. Page size 16 fits worldsize Huge and displays fine at 1080p, and suits worldsize SAS48 with 3 pages at 1080p. See KI#134. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
+	<!-- custom: Foreign Advisor Espionage tab: switch the target-player list to compact single-line rows when met rivals are above this value. A value of 17 keeps the normal two-line layout for standard 18-player games, but compacts 18+ known rivals for SAS24/SAS48-style games. Set to 0 to always use compact rows. (GPT-5.5-Thinking + GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD</DefineName>
+		<iDefineIntVal>17</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Zero-based position of the Military Advisor tab shown whenever the advisor is newly opened: 0 is the first tab (as of now Summary), then add 1 for each following tab (as of now Map is one tab after Summary, so Map = 1). Map is the most useful default for quickly locating and reviewing current units; tab switching during the open advisor remains unchanged. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: enable icons (images) for unit-combat and unit rows in Military Advisor). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: base inline icon size (px) for Military Advisor (F5) unit list rows. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE</DefineName>
+		<iDefineIntVal>24</iDefineIntVal>
+	</Define>
+	<!-- custom: if current game resolution height is >= this value, Military Advisor uses the high-res inline icon size below. <=0 disables the high-res switch. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT</DefineName>
+		<iDefineIntVal>1440</iDefineIntVal>
+	</Define>
+	<!-- custom: high-res inline icon size (px) used by Military Advisor when resolution height reaches the threshold above. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
+	<!-- custom: max saved battle-history rows per player for Military Advisor Battles tab. 0 disables recording; -1 keeps all future entries. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- custom: show compact hill-or-peak/terrain/feature context columns in the Military Advisor Battles tab. Battle history always stores this snapshot so changing the define after a Civ4 restart can display already-recorded rows. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #200 -->
+	<Define>
+		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: some players may prefer that all leaders keep a single fixed leaderhead art across the whole game. When enabled, leaders with EraArtDefineTags entries in CIV4LeaderHeadInfos.xml show different art for their current era; when disabled the parser is skipped at XML load and every leader always shows the base ArtDefineTag. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: show/hide score-related legend links (Info Screen Score Tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: enable selected advisors to inspect the current active player's alive vassals outside debug mode; see SASUtils.py for behavior details. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia Leader attitude button style; 1 = show emojis on all attitude buttons (selected/unselected sizes differ in Python), 0 = text labels with uppercase selected fallback (FU/AN/CA/PL/FR). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: master toggle for Sevopedia Leader AI personality feature; 0 disables both cache computation and panel/legend display, 1 enables them. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #132 -->
+	<!-- custom: Set to 1 to load the committed pre-dumped module (SevoPediaLeaderCachePredumped.py).
+	Set to 0 to compute the cache at runtime instead. The old manual runtime regeneration path is no longer normally needed: CI/local checks now verify that the committed predump still matches Leader XML and shared Python AIP display logic, and the Refresh AIP predump cache GitHub workflow can run aip_predump_values.py write mode and open a bot PR when the generated file actually changes. Local modders can still run the script's write mode directly outside Civ4. Manual fallback remains: set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Runtime cache logging only: 0 = don't dump to log, 1 = dump a PythonDbg.log block for the old manual predump refresh path. Normally leave disabled; the GitHub refresh bot or local aip_predump_values.py write mode can refresh the predump outside Civ4 without this log dump. (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: use this to show instead of abbreviated or custom named labels the key or suffixes instead (shrinked if too long), for example "MaxWarRand", instead of "T.W. Likely"; Long_Comments_XML.txt #193 -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: enable/disable to show emojis (like ⚔️, 🏆, 💰) in the AI personality panel; Long_Comments_XML.txt #194 -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Sevopedia trait combinations: 0 = show only existing pairs, 1 = include zero-count pairs. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_PAIRS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Sevopedia trait left table: 0 = only existing pairs, 1 = include zero-count pairs. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_PAIRS_LEFT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: change its value if you don't want to see AI information in the special abilities panel -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_UNIT_SHOW_AI_INFORMATION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_BONUS_SHOW_AI_INFORMATION</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: show red X overlay on obsolete items in the Obsoletes panel (set to 0 to disable). Note new thinner RedX button generated by ChatGPT 5.2 thanks a lot! -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_TECH_SHOW_OBSOLETES_RED_X</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable the optional Sevopedia search clickable special-character ()_/*+-=[]'#&~;,:!?.@\|<> keyboard and a KEYS header link. Does not disable direct keyboard typing support. Disabled by default because punctuation is rarely useful in Civ4 item-name searches and the header link adds visual noise. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_SEARCH_CLICKABLE_SPECIAL_CHARS_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_CIVS_GROUP_BY_ARTSTYLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MAIN_LEADERS_GROUP_BY_CIV</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex). Update: increase to support upscaled text in a simple way (not much to display so we can be aggressive; the longest AMB_FINAL_FRONTIER row now barely fits so this is in fact conservative) (was 800) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: For modders: set where GOODY and AIFreeTechs/FreeTechs rows resume in the Sevopedia handicap chart; default appends them at the end (excluding those rows). Based on Middle-earth Platypedia CvHandicapInfo approach. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
+		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
+	</Define>
+	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading (GPT-5.2-Codex). Update: make larger to accommodate font size 4 (was 65). Update 2: larger to accomodate the 2 new Handicaps at font size 4 (as of now Rookie and Deity+ (was 80)) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<!-- custom: enable (1) / disable (0) to add an icon column for the left-side field labels in the handicap chart table. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set the game speed chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex). -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set the world size chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT</DefineName>
+		<iDefineIntVal>85</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+	<!-- custom: show the Timeline panel "Log" button; click to write the visible (spoiler-filtered) timeline lines to PythonDbg.log. -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: show the Military Advisor Battles tab "Log" button; click to write the current battle history rows to PythonDbg.log. (Claude code Opus 4.7) -->
+	<Define>
+		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: dev playground: show "STYLE: <name> (i/n)" + PREV/NEXT buttons in the Sevopedia expanded text overlay header to live-cycle through every PanelStyles enum value. Lets us pick a style for other tabs/screens (e.g. battles tab, score tab) and visualize it ingame instead of editing-recompiling-screenshotting one style at a time. The selection persists for the whole Civ4 session and applies across all pedia categories that show an expanded text panel (history/background, unit strategy, leader bio, etc.). 0 = off (default; restores PANEL_STYLE_MAIN and hides the cycle UI). -->
+	<Define>
+		<DefineName>SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: widen the Info Screen Score Tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD</DefineName>
+		<iDefineIntVal>36</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: extra city-screen build-bar height tweak (pixels, VSPACE-scaled). Positive = taller (helps clipped bottom-row icons), negative = shorter. 0 keeps base behavior. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<!-- custom: extra city-screen center blue-ribbon lift only (on top of base city-screen lift). Positive lifts more, negative lowers. 0 keeps base behavior. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT</DefineName>
+		<iDefineIntVal>27</iDefineIntVal>
+	</Define>
+	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: city-screen bonus rendering mode: 0 = old AdvCiv-SAS text glyphs, 1 = base AdvCiv-style framed image buttons, 2 = new AdvCiv-SAS frameless DDS icons (addDDS removes distracting button-frame edges). Text glyphs are kept for legacy/debug mode and forced overflow fallback, but testing showed they stay much smaller than image buttons even when font is increased, so use mode 1 or 2 for large bonus icons. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta). With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
+	<Define>
+		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT</DefineName>
+		<iDefineIntVal>-3</iDefineIntVal>
+	</Define>
+	<!-- custom: extra north-bias percent applied when BUG "Enlarge HUD" is enabled. (GPT-5.3-Codex); Base AdvCiv value: 3. -->
+	<Define>
+		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_HUD_BONUS_PERCENT</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: add buttons city screen in the production queue and other places, with the help of claude opus 4.5 -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: show unit info button in the map view unit panel -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: width adjustment (resolution-scaled (HLEN/VLEN) pixels) for the left-side default help text area used in the map view (unit hover info, plot/unit-list selection details). Positive (e.g., 100) widens the box rightward into the map; negative (e.g., -50) narrows it. (Claude code Opus 4.7). Note: Extreme values (e.g., -1000, 2000) can produce the opposite effect so use moderate values to produce the intended effect. (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_DEFAULTHELPAREA_WIDTH_ADJUSTMENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: shift the map-view unit bar horizontally (resolution-scaled pixels). Positive = right, negative = left. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: shift the map-view unit bar vertically (resolution-scaled pixels). Positive = down, negative = up. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: hard-pixel width tweak for the unit bar (not resolution-scaled). Negative shrinks rows = fewer buttons per row, useful when an expanded scoreboard or an X/Y offset pushes the bar into other UI / off-screen. Granularity is one button width: e.g. -100 vs -110 may behave the same, then -120 drops one column. (Claude code Opus 4.7). (Base AdvCiv value: 0) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_WIDTH_PIXEL_ADJUSTMENT</DefineName>
+		<iDefineIntVal>-120</iDefineIntVal>
+	</Define>
+	<!-- custom: map-view commerce block anchor side: 1 = anchor to InterfaceTopRight, 0 = anchor to InterfaceTopLeft. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the map-view commerce block anchor. (GPT-5.3-Codex); currently commerce slider row's left commerce icons are a bit too close to the tech chooser, but this is so when upscaled 4 to 5 digit commerce rate (e.g., 1024/Turn) may fit without overflowing to the right, also Technlogy Advisor is as of now the only overflowing to the right into scoreboard, so prefer always having room for high commerce rate numbers in all other views outside Technology Advisor rather -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
+		<iDefineIntVal>178</iDefineIntVal>
+	</Define>
+	<!-- custom: vertical offset for the same map-view commerce block anchor; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: horizontal offset for the same commerce block while city screen is open; lets map view and city screen use separate positions. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET</DefineName>
+		<iDefineIntVal>14</iDefineIntVal>
+	</Define>
+	<!-- custom: vertical offset for the same commerce block while city screen is open; negative moves up, positive moves down. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #212 -->
+	<Define>
+		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Parallel_Lines,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
+	</Define>
+	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accommodate for no water that causes too wide city spacing if not corrected for it) -->
+	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+	<Define>
+		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
+		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_Simple_Flat_Grass,Team_Battleground</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,SAS_Large_Facing_Islands,Tilted_Axis</DefineTextVal>
+	</Define>
+	<!-- custom: Map scripts listed here are intentionally not classified by the SAS map-script heaviness override defines above. This define is not read by the DLL and has as of now no gameplay effect; it exists for the GitHub map-script coverage check so every known map script is listed exactly once and intentionally unclassified scripts are not confused with forgotten scripts. This helps make sure we covered/reviewed all mapscripts files once. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED</DefineName>
+		<DefineTextVal>Big_and_Small,Hub,Medium_and_Small,RandomScriptMap,Shuffle,not_too_Big_or_Small</DefineTextVal>
+	</Define>
+
+
+
+
+	<!-- custom: starting area thresholds based on starting-plot landmasses; higher means stricter. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
+		<iDefineIntVal>66</iDefineIntVal>
+	</Define>
+	<!-- custom: Water.py mapscript has too many peak plots by default; this knob sets the kept peak percentage vs original (e.g., 25 = 25% of original peaks). The remainder stays under the script's normal non-peak logic (land/hills/water). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_WATER_MAP_PEAK_PERCENT_OF_BASE</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: Earth2 staged starts by player count: below AFRICA_MIN_PLAYERS populate only Europe and Asia (base-like), from AFRICA_MIN_PLAYERS also populate Africa, and from FULL_WORLD_MIN_PLAYERS populate the whole world (notably America + Australia too). (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_EARTH2_STARTS_POPULATE_AFRICA_MIN_PLAYERS</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EARTH2_STARTS_POPULATE_FULL_WORLD_MIN_PLAYERS</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
+	<!-- custom: Planet Generator map script world-size scaling percent. 40 means use 40% of selected WorldInfo grid size before script-specific spacing safety checks. Keep in [1,100]. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_PLANET_GENERATOR_GRID_PERCENT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<!-- custom: increase a bit as compared to planet generator, due to the abundance of water, snow/tundra, and desert, else players are a bit too crowded -->
+	<Define>
+		<DefineName>SAS_PEIRCE_GRID_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #211 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #207 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+		<iDefineIntVal>-100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: add home plot health valorization of fresh water, as it seems to be missing; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better -->
+	<Define>
+		<DefineName>SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: bonus home tiles/plots (note: home plot/tile is the tile where we will settle on if we choose this site -->
+	<!-- custom: if equal or higher than this value, we start to penalize. E.g. if value is 1 and the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) gives 1 or more food, we penalize settling on it -->
+	<!-- custom: food -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_FOOD_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: lower (e.g. -700 is lower than -600) means settling on a bonus that gives food when improved is more penalized at least in theory; note: multiplied by GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD), so if the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) (e.g. farm) gives 2 more food, and value is 600, then site would lose 2 * 600 = 1200 value which is big and a strong discouragement from settling on this tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_FOOD</DefineName>
+		<iDefineIntVal>-600</iDefineIntVal>
+	</Define>
+	<!-- custom: production -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION</DefineName>
+		<iDefineIntVal>-350</iDefineIntVal>
+	</Define>
+	<!-- custom: if very low food tile, it may be better to settle on it, so penalty is not as high. The higher (e.g. 200 is higher than 150) this is, the more we value settling on this tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: but if the bonus yields a lot of production (i.e. hammer), then devalue settling on it. E.g. if value is 75 and for example a bonus specific improvement gives 4 hammer, then we will devalue settling on this tile by 4 * 150 = 600 which is a strong discouragement, as it is better not to settle on this tile and collect the yields even if in low food tile. The lower this is the more we penalize settling on this tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+	<!-- custom: commerce -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_MIN_IMPROVE_WORTH</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE</DefineName>
+		<iDefineIntVal>-300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
+		<iDefineIntVal>-50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #204 -->
+	<!-- custom: don't settle here, unless locally extremely good otherwise, made it even lower as some AIs still didn't listen -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
+		<iDefineIntVal>-150</iDefineIntVal>
+	</Define>
+	<!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it -->
+	<!-- custom: then if not floodplains -->
+	<!-- custom: still good as is low-food, although not as good as settling on hill plains ideally -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_DESERT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: locally optimal if we can, but don't devalue otherwise nice tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too still quite good, absolutely avoid settling on this unless really the best locally otherwise -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or very good locally -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
+		<iDefineIntVal>-50</iDefineIntVal>
+	</Define>
+	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain; one minus than fresh water, would be as good otherwise; now trying a higher value as some cities still did't listen before it, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
+		<iDefineIntVal>250</iDefineIntVal>
+	</Define>
+	<!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: still good, especially in low food environments where every food yield counts, and maybe there is grass near us to not settle on or similar -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
+	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_SNOW</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: same as desert, low food tile, try hard to settle on it rather unless extremely good otherwise to do else -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST</DefineName>
+		<iDefineIntVal>-400</iDefineIntVal>
+	</Define>
+
+	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food resource value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-resource starts, without changing later strategic/resource city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield resource-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>140</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>95</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: flat coastal found-value bonus applied in CitySiteEvaluator on naval-heavy maps. This nudge toward coastal access, work boat scouting/contact, trade, and galleys, Moai or other key water buildings, etc.. Set to 0 to disable. (ChatGPT-5.5) -->
+	<!-- custom: Empirically Cuzco needed 1800 (1700 was not enough to make it stop prefer the central 4 sugar river grass site, instead of pig + banana + 2 sugar river coast), so prefer a fairly high value to mitigate these. See KI#146. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_FIRST_CITY_COASTAL_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>1800</iDefineIntVal>
+	</Define>
+	<!-- custom: Empirically 200 lead japan AI to settle on tundra for coast instead of a stronger grass/floodplains site so do not make this extra valuation too high for other cities. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: Flat city-site extra value for each distinct bonus in a candidate BFC that the AI does not already own from its own empire. Local tile yields are already valued normally; this only nudges empire resource diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab. Trade imports do not count as owned here because they are not permanent. Applied once per bonus type and only after the first city. Set to 0 to disable. See KI#147. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>250</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site -->
+	<!-- custom: Long_Comments_XML.txt #159 -->
+	<!-- custom: high food and great cottage candidate, very strong -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well. I assume (hope) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_OASIS</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<!-- custom: then if not flood plains nor oasis -->
+	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT</DefineName>
+		<iDefineIntVal>-25</iDefineIntVal>
+	</Define>
+	<!-- custom: low food and cannot be improve, strongly avoid -->
+	<!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in the loop that handles this, so handled there rather directly, so left as 0 here instead as of now -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS</DefineName>
+		<iDefineIntVal>-20</iDefineIntVal>
+	</Define>
+	<!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA</DefineName>
+		<iDefineIntVal>-30</iDefineIntVal>
+	</Define>
+	<!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA</DefineName>
+		<iDefineIntVal>-25</iDefineIntVal>
+	</Define>
+	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) -->
+	<!-- custom: same as tundra hill, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe or some other improvements maybe too although i didn't check, but it would be costly in food, so not a great choice to have in our city radius (great to settle on though otherwise but is not handled here, as we are in the non-home-plot code) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
+		<iDefineIntVal>-35</iDefineIntVal>
+	</Define>
+	<!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid -->
+	<!-- custom: same as flatland desert for this very bad tile -->
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now -->
+	<!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such -->
+
+
+
+	<!-- custom: value iAIObjective bonuses especially more to settle on first, could be critical for our life and death (ideally check if obsolete too). Not having copper or iron may make us die, so really value it more; Long_Comments_XML.txt #158 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_EXTRA_VALUE_NOT_HOME_BONUS_IAIOBJECTIVE_MULTIPLIER</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Discourage non-coastal sites whose summed non-home BFC potential-food score exceeds this threshold. Each plot contributes food required per citizen minus natural food, visible bonus food, food from its bonus-specific improvement, and eligible Harbor-class food; productive Grass Hills remain neutral while peaks and ice remain +2. This replaces terrain-name counting so XML yield changes and bonuses are reflected automatically; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_SCORE</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_COASTAL_LOW_FOOD</DefineName>
+		<iDefineIntVal>-75</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Minimum number of good-enough non-home BFC slots required before accepting the first-city site. "Good enough" is intentionally weaker than truly good: it includes usable land that is not very bad and reachable/already-improved visible water bonuses, but not ordinary coast/ocean. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_ENOUGH_FIRST_CITY_BFC_TILES</DefineName>
+		<iDefineIntVal>13</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #161 -->
+	<!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too) -->
+	<!-- - SAS inline distance shaping (simple & bounded) - -->
+	<!-- Derive from city radius so mods changing radius stay sane. -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_ADD</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_DIVIDE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- ≤ MIN_OK-1 = "too close" -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_MIN_OK_ADD</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- MAX_OK+1 = "too far" -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_MAX_OK_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- % per tile inside MIN_OK -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_STEP</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- % per tile beyond MAX_OK -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_FAR_STEP</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- max close penalty -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_CAP</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- allow hard kill -->
+	<Define>
+		<DefineName>SAS_EVALUATE_DISTANCE_FAR_CAP</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: 2)	- SAS: super-simple culture pressure gate (no cheat, cheap) -
+	Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed; Long_Comments_XML.txt #184 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_SOFT</DefineName>
+		<iDefineIntVal>35</iDefineIntVal>
+	</Define>
+	<!-- >=70: too pressed → reject site outright -->
+	<Define>
+		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_HARD</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #185 -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_START</DefineName>
+		<iDefineIntVal>-300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_START</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: example of calculation at start phase: -->
+	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325; so value lost 35% value as intended, added to clarify calculation to chatgpt 5 or proof it to myself hehe -->
+	<Define>
+		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER</DefineName>
+		<iDefineIntVal>-400</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_LATER</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #196 -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC. This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information. Set to 0 to disable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: First-city roaming treats a capital candidate as bad when its revealed non-home BFC reaches this food-environment score. Each plot contributes food required per citizen minus natural food, visible bonus food, and food from its bonus-specific improvement; an ocean-coastal candidate also assumes its civilization's configured Harbor-class sea food. Productive Grass Hills are neutral, food-surplus plots offset poor plots, and each citizen-unworkable peak/ice adds one extra point beyond its normal +2 food deficit because it is also a dead BFC slot; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<!-- custom: Corporation-founding buildings can be extremely valuable as one-shot Great Person actions, but feeding the full building value into recurring Great Person point weights can make ordinary citizens overproduce that Great Person type for many turns. This keeps the full settled-specialist baseline, then preserves this percent of only the corporation-founder excess above that baseline when calculating Great Person weights. 100 restores old behavior; 50 halves only the excess; 0 caps corporation-founder building value at the settled-specialist baseline. Actual Great Person action choice is unchanged. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI logs showed that one city's high Join City culture value could raise the corresponding Great Person weight throughout an empire that was not pursuing cultural victory, including wartime empires assigning many Artists. Outside any cultural-victory stage, preserve this percent of the culture component only when calculating recurring Great Person weights. 100 restores old behavior; 50 halves that culture component; 0 ignores it. Other Join City value, actual Great Person actions, and cultural-victory strategies retain full value. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_JOIN_CITY_CULTURE_NON_VICTORY_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: i reduced it from GPT-5.5's value of 16 because i think we should always attack if we can, should be stronger and less costly than waiting. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: i reduced it from GPT-5.5's value of 30 (same reasoning) -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
+		<iDefineIntVal>99</iDefineIntVal>
+	</Define>
+	<!-- custom: Culture process beyond first-ring expansion is a local emergency tool only at or above this culture-pressure factor; otherwise an AI must be actively pursuing culture and the city must rank among the required projected Legendary candidates. Neutral pressure is 100; 150 preserves clearly contested/captured-city recovery while preventing low-pressure non-candidates from converting useful production. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI logs showed a smaller remaining Artist issue after Great Person weight damping: a few clean, fully controlled, non-cultural-victory cities could still assign several Artists because direct Artist culture commerce remained attractive. When local emergency culture conditions are absent, preserve this percent of the Artist specialist's direct culture commerce inside AI_jobChangeValue only. 100 restores old behavior; 50 halves that direct culture value; 0 ignores it. Cultural-victory cities, first-ring expansion, revolt/disorder cases, and cities with unowned, foreign-owned, or culture-contested BFC plots retain full value. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_DIRECT_ARTIST_CULTURE_CLEAN_NON_VICTORY_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Once another victory route reaches at least this AI victory-strategy stage, postpone Culture 2 investment until all required culture cities have credible high-culture countdowns. Stage 3 by default prevents an unready cultural hedge from diverting production, specialists, and commerce from an advanced Space, Conquest, Domination, or Diplomatic pursuit; use 4 for a stricter trigger or 0 to disable this gate. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Downgrade to preparation rather than continue expensive Culture 2/3 investment when a complete max-affordable-slider projection for all required culture cities needs more than this percentage of the estimated remaining game turns. The 125% default allows output growth while rejecting paths already too far behind the deadline. Before a complete projection exists, apply this only in the late culture race so Culture 2 can still develop its final candidate. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- custom: Only this many leading cultural contenders continue Culture 2/3 investment. Before projected late-race countdowns are available, rank by actual culture in each player's N-1th-best foundation city so Culture 2 can still shape the final required candidate; later, also enforce projected countdown rank for the weakest required city. Lower-ranked AIs return to preparation and spend production, specialists, and commerce on stronger routes instead. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_MAX_RACE_RANK</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Culture 2 commitment begins only after N-1 of the required projected candidates have reached this percentage of Legendary culture naturally. This prevents early strategy rolls from creating an entire cultural lead while still letting Culture 2 shape the final candidate; set to 0 to disable this foundation gate. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_STAGE2_MIN_FOUNDATION_CITY_PROGRESS_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: A required candidate at or below this percentage of the slowest candidate's projected countdown receives zero victory-specific culture bonus; scale linearly from zero here to full at equal countdowns. This stops far-ahead cities from consuming culture investment needed by the bottleneck city. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CULTURE_VICTORY_AHEAD_CITY_ZERO_BONUS_COUNTDOWN_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: BBAI log levels were hidden in base AdvCiv's CvGameCoreDLL/BBAILog.h, so enabling BBAI logging (LOG_AI / LOG_FOUND_VALUE), disabling it again, or adjusting its detail required a DLL edit and recompile. AdvCiv-SAS exposes them as XML-tunable SAS defines instead, so a DLL modification and recompile are no longer needed; restart Civ4 to apply changes. (GPT-5.5?); Long_Comments_XML.txt #376. -->
+	<!-- custom: Master BBAI logging switch. 0 disables all BBAI logging regardless of the category levels below; 1 (enabled) uses the category levels below. This lets you keep a prepared logging profile and turn it off/on with one define. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_LOG_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Log levels: 0=None, 1=important decisions only, 2=many decisions, 3=all logging. (GPT-5.5?) -->
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_PLAYER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. Use 0 outside targeted tests because exhaustive pair comparisons are intentionally expensive. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_CULTURE_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_DEAL_CANCEL_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI player score-detail log interval in turns. Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo. Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: If BBAI logging is enabled, write each Civ4 launch/session to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log filenaming behavior. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: if score is equal or higher than this, it means our city has a low food BFC. Used to decide as of now if farms should be more valuable in such cities. -->
+	<!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: When the small-city anti-overimprove shortcut would send a worker to another city, keep it local instead if it is already standing on this same city's owned/workable non-home BFC plot and AI_bestCityBuild selects that plot as the current best local build. This preserves the city-rotation benefit while preventing the pattern where workers road a useful forested plot and then walk away without chopping/improving it. 1=enabled (Recommended), 0=disabled. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum era index where AI workers stop replacing existing no-bonus improvements with lower-food alternatives. BBAI logs showed repeated food-threshold oscillation such as Farm -> Cottage -> Farm and Mine -> Windmill -> Mine. Default 2 = Medieval: before then, cities are often small/capped and early cottages still have time to mature; later, cities are usually larger, health sources and specialist yields are stronger, and rebuilt cottages/growth improvements have less time to pay back, so avoid throwing food away. Set to 0 to apply from Ancient onward, or very high to effectively disable. (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: minimum city population, within the large-city Forest chop path, where AI_bestCityBuild may consider chopping a non-bonus forested BFC plot even when the city has no current health surplus. Effective threshold is max(this define, SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION), because the C++ relax check is inside the large-city branch. Early/small cities still use the old negative scoring formula rather than the large-city relaxed path. Set to 0 to disable the relaxed no-health-surplus large-city path. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<!-- custom: non-bonus Forest chop feature scoring used by CvUnitAI::AI_bestCityBuild. Early/small cities preserve Forest health through the old small-city formula (-100 + 50 * healthDiff by default), so pop 6 / health 0 still remains a low-priority candidate rather than using the relaxed large-city path. Medium/large cities keep Forest chop candidates visible instead of hard-skipping them, because otherwise useful forested BFC tiles can stay unimproved forever even when later health sources and stronger improved yields make chopping reasonable. LARGE_CITY_MIN_POPULATION selects the large-city health-aware path. UNHEALTH_PENALTY_PER_POINT preserves the old larger-city no-health-surplus penalty (health 0 -> -50, health -1 -> -100, etc.). (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE</DefineName>
+		<iDefineIntVal>-100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: non-bonus Jungle clear feature scoring used by CvUnitAI::AI_bestCityBuild. Jungle is normally worth clearing when possible because it reduces health and blocks normal improvements; scoring only decides priority among candidate worker tasks. LARGE_CITY_MIN_POPULATION selects the population/health-pressure formula: PRESSURE_VALUE_PER_POINT * ((population - (threshold - 1)) - healthDiff). With defaults, pop 7 / health 0 gives +75, pop 7 / health +2 gives -75, and pop 10 / health -2 gives +450. Small cities use max(0, SMALL_CITY_UNHEALTH_VALUE_PER_POINT * -healthDiff), so healthy small cities do not get an artificial penalty while unhealthy small cities are pushed to clear Jungle. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION</DefineName>
+		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: value added when scrubbing non-bonus Fallout in CvUnitAI::AI_bestCityBuild. Fallout has severe yield penalties, so keep this much higher than normal tile-improvement values. If Fallout cannot be scrubbed yet, CvUnitAI skips ordinary non-bonus builds on that plot rather than improving through the Fallout. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+	<!-- custom: Bonus worker scoring mostly used by CvUnitAI::AI_bestCityBuild. These values preserve previous AdvCiv-SAS bonus-branch behavior while making the custom hardcoded priorities tunable. FEATURE_STEP_VALUE covers feature-preserving bonus builds on Forest/Jungle and feature removal before the final bonus-specific build. FALLOUT_SCRUB_VALUE is higher because Fallout should be scrubbed before ordinary bonus improvement. SPECIFIC_BUILD_BASE_VALUE is the base priority once the bonus-specific build is available. Yield and AIObjective values then order high-food, strategic/production, commerce, and XML-marked critical bonuses against each other. IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT is for CvUnitAI::AI_improveBonus target selection across the map, so it keeps the larger previous AdvCiv-SAS scale. FARM_FALLBACK applies to high-food bonuses before the bonus-specific build is available; it requires enough total bonus + Farm food, and by default only applies when the real bonus improvement unlocks in Medieval or later eras (2 = ERA_MEDIEVAL), so workers do not spend early turns on temporary farms when the real improvement is close. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE</DefineName>
+		<iDefineIntVal>19000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE</DefineName>
+		<iDefineIntVal>150000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE</DefineName>
+		<iDefineIntVal>20000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD</DefineName>
+		<iDefineIntVal>4000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION</DefineName>
+		<iDefineIntVal>2000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE</DefineName>
+		<iDefineIntVal>10000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>2000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT</DefineName>
+		<iDefineIntVal>20000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE</DefineName>
+		<iDefineIntVal>18000</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Enable old AI worker fort-airbase construction outside BFC-focused worker logic. Set to 0 to disable (default): BFC plots are already mostly protected by AdvCiv-SAS worker build logic, and outside-BFC forts usually spend worker turns for meagre defensive/airbase/canal utility the AI rarely uses well. They can also block future irrigation-chain paths; nearby cities usually serve aircraft better than scattered forts, and the fort canal/isthmus effect is rarely needed. Set to 1 to restore the Base AdvCiv late-game fort-airbase path for experiments. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_FORT_AIRBASE_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: No-bonus worker build branch base values. Branch define names include FEATURE_ or TERRAIN_ plus the XML info suffix and FLAT/HILL context. CvUnitAI parses and caches these once, then applies generic dynamic checks in the picker: low-food pressure rewards the buildable candidate with the best food outcome on the plot, configured food-cost improvements can gain recovered-food value, irrigation paths penalize candidates that do not carry irrigation, and canBuild still filters invalid builds. XML therefore controls candidate lists and base preferences while C++ handles contextual pressure. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Flood Plains with enough food:
+	- BUILD_COTTAGE: ideal high-food commerce tile; food is already good enough, so prioritize long-term commerce rather than extra food/production. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT</DefineName>
+		<DefineTextVal>BUILD_COTTAGE:2000</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flood Plains:
+	- BUILD_FARM: chosen first by current DLL branch order if buildable; rare but useful when the city is short on food.
+	- BUILD_FARM starts lower than Cottage so we do not broadly overfarm Flood Plains; the separate low-food deficit value is what makes it rise when the city is actually short on food.
+	- BUILD_COTTAGE: fallback when Farm cannot be built, or the stronger listed base if this branch is later converted to pure candidate competition; still keeps the high-food commerce tile productive.
+	- The low-food deficit value is added separately by the corresponding SAS define. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_COTTAGE:2000,BUILD_FARM:1700</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+
+	<!-- custom: Optional manual feature branch. NONE by default because current Oasis plots are not a normal no-bonus worker-improvement target; modmods can add values to flat or hill branches if their XML makes Oasis improvable. NONE keeps the normal terrain branch fallback. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>NONE</DefineTextVal>
+	</Define>
+
+	<!-- custom: Grass Hills with enough food:
+	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production.
+	- CvUnitAI adds the old population adjustment: roughly pop 1=1540, pop 2=1590, pop 3+=1640, so early low-pop cities still prefer key 1600-value Cottages before Mines become competitive. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:1590</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Grass Hills:
+	- BUILD_WINDMILL: acceptable lower-yield fallback when food pressure matters; helps the city keep growing or stop stagnating.
+	- BUILD_MINE: fallback when Windmill cannot be built; Grass Hill Mine is still strong production for cheap food. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:1200,BUILD_MINE:1300</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Grass with enough food:
+	- BUILD_COTTAGE: broadly strong default because flat Grass has enough food to grow commerce.
+	- BUILD_FARM: can beat Cottage for mine-heavy/food-support-hungry cities, fast growth, specialists, or concrete irrigation-chain needs; CvUnitAI adds actual plot/player farm food and chain value.
+	- BUILD_WORKSHOP: conservative base value; CvUnitAI adds a generic recovered-food-cost bonus when current rules make a configured food-cost improvement food-neutral or better, so early food-cost Workshops do not need a separate C++ allow gate. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:1550,BUILD_COTTAGE:1600,BUILD_WORKSHOP:1500</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Grass:
+	- BUILD_WORKSHOP: deliberately low base value while food still matters; CvUnitAI can add recovered-food-cost value later, so Workshop does not need to sit first or bypass the ordinary branch competition.
+	- BUILD_FARM: practical food restoration, with extra value from the low-food deficit and food-support logic. Its base starts below the normal Cottage target to avoid overfarming Grass, but it can become good enough when the city actually needs food; later tech/irrigation can also make these farms stronger, and CvUnitAI accounts for actual plot/player farm food separately.
+	- BUILD_COTTAGE: fallback when better food/hammer options are unavailable. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_FARM:1460,BUILD_COTTAGE:1300,BUILD_WORKSHOP:600</DefineTextVal>
+	</Define>
+	<!-- custom: Plains Hills with enough food:
+	- BUILD_MINE: straightforward hammer tile when the city can afford the food cost. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:800</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Plains Hills:
+	- BUILD_WINDMILL: preferred because the tile costs food to work.
+	- BUILD_MINE: fallback when Windmill cannot be built; still useful production if the city has no better option. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:800,BUILD_MINE:700</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Plains with enough food:
+	- BUILD_FARM: supports low-food or hill-heavy cities; ordinary Plains should not be farmed only because Farm is possible, so CvUnitAI adds food-support value separately.
+	- BUILD_COTTAGE: modest economy fallback, generally below stronger Grass/Flood Plains candidates; useful, but not the first place to spend worker turns when higher-potential tiles remain.
+	- BUILD_WORKSHOP: conservative base value; CvUnitAI adds recovered-food-cost value if current rules make it food-neutral or better. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:950,BUILD_COTTAGE:600,BUILD_WORKSHOP:550</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Plains:
+	- BUILD_WORKSHOP: low base value because low-food Plains usually need food first; recovered-food-cost value can make it competitive later without a special C++ gate.
+	- BUILD_FARM: main low-food fix; gains low-food deficit and food-support value, and can become more valuable as farm yields improve later.
+	- BUILD_COTTAGE: deliberately weaker because this terrain often needs food first; still a fallback when Farm is unavailable or the city can afford slower growth. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_FARM:900,BUILD_COTTAGE:500,BUILD_WORKSHOP:250</DefineTextVal>
+	</Define>
+	<!-- custom: Tundra Hills with enough food:
+	- BUILD_WINDMILL: usually preferred because tundra cities are often food-poor and production is already scarce.
+	- BUILD_MINE: fallback when Windmill is unavailable. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:500,BUILD_MINE:350</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Tundra Hills:
+	- BUILD_WINDMILL: very weak fallback; it can slightly soften a poor hill but should not compete with real food-support or better terrain work.
+	- BUILD_MINE: near-last-resort cleanup because a food-poor Tundra Hill Mine makes the city even harder to work. Still not NONE because this is a real terrain branch, unlike optional Oasis overrides. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:250,BUILD_MINE:100</DefineTextVal>
+	</Define>
+
+	<!-- custom: Flat Tundra with enough food:
+	- BUILD_FARM: can support scarce food or hill use, though lower than better terrains because tundra is usually developed later.
+	- BUILD_COTTAGE: uses the AdvCiv-SAS tundra commerce change and can be a reasonable economy tile.
+	- BUILD_WORKSHOP: conservative base value; recovered-food-cost value can make it competitive when it no longer costs food.
+	- BUILD_WATERMILL is intentionally not listed as of now: these tiles are low-production and often surrounded by other economy/scarce tundra tiles, so we currently prefer the simpler Farm/Cottage/Workshop competition unless XML tuning later makes Watermills worth testing. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT</DefineName>
+		<DefineTextVal>BUILD_FARM:650,BUILD_COTTAGE:550,BUILD_WORKSHOP:500</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Tundra:
+	- BUILD_WORKSHOP: low base value because low-food Tundra usually needs food first; recovered-food-cost value can make it competitive later without a special C++ gate.
+	- BUILD_FARM: often the practical food fix in scarce terrain; tundra cities commonly need food more than another slow economy tile.
+	- BUILD_COTTAGE: weak fallback when Farm cannot be built and better options are unavailable, but still useful with the AdvCiv-SAS tundra commerce change if the city has enough food from elsewhere. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_FARM:500,BUILD_WORKSHOP:250,BUILD_COTTAGE:150</DefineTextVal>
+	</Define>
+	<!-- custom: Snow Hills with enough food:
+	- BUILD_MINE: low-value last-ditch action, but can still be the only productive move in poor starts or already-developed cities. Separate from Desert for cleaner tuning if modmods make either terrain more useful. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Snow Hills:
+	- BUILD_WINDMILL: preferred because the tile is otherwise very hard to work.
+	- BUILD_MINE: fallback; still useful when there is truly nothing better, but deliberately kept low because food is usually the bottleneck on these tiles. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:250,BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Snow is almost always a last-ditch no-bonus plot. Current XML usually makes these builds fail canBuild, but keep tiny candidates instead of NONE so the branch works automatically if XML/modmods make any normal improvement valid. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT</DefineName>
+		<DefineTextVal>BUILD_WORKSHOP:80,BUILD_FARM:50,BUILD_COTTAGE:25</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Snow stays valid but deliberately weak; Farm is listed first in value only if a ruleset somehow permits it, while canBuild filters the usual invalid cases. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_FARM:50,BUILD_WORKSHOP:25,BUILD_COTTAGE:10</DefineTextVal>
+	</Define>
+
+	<!-- custom: Desert Hills with enough food:
+	- BUILD_MINE: low-value last-ditch action, but can still be the only productive move in poor starts or already-developed cities. Example: if the worker has Mining but cannot yet chop/mine a forested gem and no better city tile is ready, a Desert Hill Mine can be the least-bad productive build rather than doing nothing. Separate from Snow for cleaner tuning if modmods make either terrain more useful. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL</DefineName>
+		<DefineTextVal>BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Desert Hills:
+	- BUILD_WINDMILL: preferred because the tile is otherwise very hard to work.
+	- BUILD_MINE: fallback; still useful when there is truly nothing better, but deliberately kept low because food is usually the bottleneck on these tiles. Separate from Snow for cleaner tuning if modmods make either terrain more useful. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_WINDMILL:250,BUILD_MINE:200</DefineTextVal>
+	</Define>
+	<!-- custom: Flat Desert is a very weak no-bonus branch but not structurally disabled. Current XML usually leaves bare Desert unimprovable outside special features, but tiny canBuild-gated candidates avoid silently skipping valid modded/edge cases. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT</DefineName>
+		<DefineTextVal>BUILD_WORKSHOP:100,BUILD_FARM:60,BUILD_COTTAGE:40</DefineTextVal>
+	</Define>
+	<!-- custom: Low-food Flat Desert stays very low priority; if any normal build is valid, improve it only after better work is gone. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT_LOW_FOOD</DefineName>
+		<DefineTextVal>BUILD_FARM:60,BUILD_WORKSHOP:30,BUILD_COTTAGE:20</DefineTextVal>
+	</Define>
+
+	<!-- custom: Extra value per missing city food surplus point when a no-bonus worker branch is in its low-food mode. CvUnitAI now applies this improvement-independently to whichever buildable branch candidate gives the best food outcome on the exact plot, so Farm/Windmill/other future food improvements can benefit without hardcoded build names. Exposing it keeps branch base values focused on terrain/build preference while this one define controls how aggressively low-food branches react to worsening city food pressure. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. The heuristic is still computed from Farm/irrigation-chain context, but the generic picker applies its resulting pressure to the buildable candidate with the best food outcome on the exact plot. This keeps the formula coherent for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-food logic overfarms. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Master switch for concrete chain-irrigation rescue farms in CvUnitAI. This covers the outside-BFC connector hunt, reservation of likely irrigation-farm plots from non-farm builds, local adjacent-dry-farm rescue value, selected improvement overwrite for those fixes, and protection of resulting carrier farms. Separate from the broader food-support Farm value so the Nippur/Chaco/Harappan-style irrigation fixes can be tested independently. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Food-support farm value tuning separate from branch selection. Target surplus says when extra adjusted food starts reducing emergency farm value; zero-surplus threshold says when even weak farm food is still useful; value per surplus controls how quickly farm support fades above target surplus. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: iAdjustedFoodDifference thresholds that choose the enough-food worker branch instead of the low-food branch for no-bonus plots. Exposing these keeps branch XML values focused on build preference while these defines tune when the AI treats current city food as good enough. Lower values favor production/commerce branches sooner; higher values keep food-restoring branches active longer. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names whose base XML food yield is negative and should receive a value bonus if tech/civics/plot context later make them food-neutral or food-positive. Default preserves Workshop behavior, but modmods can add other food-cost improvements without changing CvUnitAI. This is not meant for Farm/Plantation-style positive future food gains; Farm food is already handled by food-support heuristics, and generic positive future food would risk double counting. Use NONE to disable this improvement-family adjustment. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_NAMES</DefineName>
+		<DefineTextVal>IMPROVEMENT_WORKSHOP</DefineTextVal>
+	</Define>
+	<!-- custom: Value bonus per food gained beyond a configured improvement's base XML food cost. Example: if Workshop is -1 food in XML and current plot/player rules make it 0 food, add 1 * this value; if a modded food-cost improvement goes from -1 to +2, add 3 * this value. This is a value adjustment added to the XML branch base value, not a forced pick. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* chain starts whose XML ImprovementUpgrade chains should count as growth improvements for worker overwrite penalties. Default preserves the Cottage -> Hamlet -> Village -> Town chain. Modmods can add shorter/longer chains or other growth-style chains without changing CvUnitAI. Use NONE for no growth-chain penalty levels. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty per configured growth-improvement level when farming over a growth-chain improvement to reach dry farms. CvUnitAI infers the level by following XML ImprovementUpgrade chains from SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES, then multiplies by this value. e.g., with default Cottage chain and value 400, cottage is 1 * 400 = 400, hamlet is 2 * 400 = 800, village is 3 * 400 = 1200, and town is 4 * 400 = 1600. Note: value kept not too high, so food is a bit more important than keeping growth improvements especially higher level ones and later in the game where we have more specialist or such yields. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>400</iDefineIntVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty when farming over a Workshop to reach dry farms. Workshops are cheap to rebuild and, unlike growth-chain improvements, do not lose accumulated growth, so this is intentionally far below the generic other-improvement penalty. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: Irrigation-chain connector penalty when farming over a non-growth, non-Workshop improvement to reach dry farms. Keep this high so workers prefer unimproved plots, Workshops, or low-level growth improvements before destroying miscellaneous finished improvements. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>2200</iDefineIntVal>
+	</Define>
+	<!-- custom: Local same-plot penalty per configured growth-improvement level when farming over a growth-chain improvement to irrigate adjacent existing dry farms. This is lower than the broader connector penalty above because the farm itself may solve a city food/irrigation problem. CvUnitAI infers the level from SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES, then multiplies by this value. e.g., with default Cottage chain and value 150, cottage is 1 * 150 = 150, hamlet is 2 * 150 = 300, village is 3 * 150 = 450, and town is 4 * 150 = 600. Note: as of now not kept too high (same reasoning). (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Comma-separated IMPROVEMENT_* names that AI_bestCityBuild treats as fully protected on no-bonus plots. These are never overwritten by the generic worker candidate picker. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALWAYS</DefineName>
+		<DefineTextVal>IMPROVEMENT_WINDMILL</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected like holy improvements, except they may be overwritten when farming this exact plot would irrigate adjacent existing dry farms. This preserves the old behavior for Hamlet/Village/Town/Workshop while making the list tunable and expandable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK</DefineName>
+		<DefineTextVal>IMPROVEMENT_HAMLET,IMPROVEMENT_VILLAGE,IMPROVEMENT_TOWN,IMPROVEMENT_WORKSHOP</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names that are not otherwise holy/protected, but may still be overwritten when farming this exact plot would irrigate adjacent existing dry farms. Default keeps basic Cottage eligible for the irrigation-chain exception without making ordinary Cottages globally protected. Use NONE for no entries. (ChatGPT-5.5 temporary + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_NON_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on low-food no-bonus plots, structural food-support cities, or farms carrying irrigation to adjacent farms. This keeps support farms from being oscillated away. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD</DefineName>
+		<DefineTextVal>IMPROVEMENT_FARM</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on Flood Plains no-bonus plots. This keeps the old anti-oscillation Cottage protection while making the set tunable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_FLOOD_PLAINS</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+	<!-- custom: Comma-separated IMPROVEMENT_* names protected on Grass no-bonus plots, unless the local food-support farm overwrite exception allows a basic Cottage to be replaced. This keeps high-food Grass Cottage anti-oscillation tunable. Use NONE for no entries. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_GRASS</DefineName>
+		<DefineTextVal>IMPROVEMENT_COTTAGE</DefineTextVal>
+	</Define>
+
+
+
+	<Define>
+		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1</DefineName>
+		<DefineTextVal>BONUS_COPPER</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2</DefineName>
+		<DefineTextVal>BONUS_IRON</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: used in various places in the advciv-sas added AI code, adjust as per your XML -->
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_1</DefineName>
+		<DefineTextVal>BONUS_HORSE</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_2</DefineName>
+		<DefineTextVal>BONUS_CAMEL</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_BONUS_NAME_3</DefineName>
+		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_MOUNTED_UNITS_TECH_NAME</DefineName>
+		<DefineTextVal>TECH_MOUNTED_COMBAT</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #198 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_REGULAR_BUILDINGS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: knob common to all wonders, see below for more specific ones alternatively i mean. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #162 -->
+	<!-- custom: if value is 0 (disabled), we won't build great wall after specified era index (e.g. 2, so from era 3 = medieval era, we won't build great wall. We assume this is all a wonder has else said wonder would be op so no need to check other things) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_ANTI_BARBARIAN_BORDER_WONDER_LATE_MAX_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: knob common to all world wonders, see below for more specific ones alternatively i mean. -->
+	<!-- custom: Long_Comments_XML.txt #164 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: this ignores following SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE related rejects: if a world wonder is cheap enough, grab it ASAP; Long_Comments_XML.txt #163 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MEDIEVAL_NORMAL</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_RENAISSANCE_NORMAL</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_INDUSTRIAL_NORMAL</DefineName>
+		<iDefineIntVal>250</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_MODERN_NORMAL</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_FUTURE_NORMAL</DefineName>
+		<iDefineIntVal>350</iDefineIntVal>
+	</Define>
+	<!-- Min base-hammers gate for wonders (used in CvCityAI::AI_buildingValue)
+	Formula: reject if iBaseHammersPerTurn < (MIN_BASE + iCurrentEra * EXTRA_PER_ERA) -->
+
+	<!-- custom: Long_Comments_XML.txt #102 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_BASE_HAMMERS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_MIN_EXTRA_HAMMERS_PER_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #183 -->
+	<!-- custom: Long_Comments_XML.txt #111 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
+	<!-- custom: Long_Comments_XML.txt #182 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: specific the number of rivals we max tolerate before we give up on the idea of building this wonder. Note: if we are already (see below for completion percent to keep building it) building it, then ignore this. E.g. if value is 3, it means if 3 or more rivals know (as of now) TECH_CALENDAR, then we won't build the oracle. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_DONT_BUILD_IF_RIVALS_KNOW_NUM</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_NATIONAL_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if somehow a building is a wonder but not a world wonder nor a national wonder, enable/disable this to specifically enable advciv-sas optimizations for this type of building if it ever exists (i don't think it does, but i don't know too much to tell, so added the knob to be safe and for exhaustiveness i mean) -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_UNKNOWN_WONDERS_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we would favour building maintenance per turn reducer building(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the courthouse class building (or civ-specific variants) in this city -->
+	<!-- // < 6 gpt => not worth it yet -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_REGULAR_BUILDINGS</DefineName>
+		<iDefineIntVal>600</iDefineIntVal>
+	</Define>
+	<!-- custom: if higher than this value, count this city as a city with high maintenance per turn where we may favour building maintenance per turn reducer wonder(s) in this city. E.g. if value is 600 (6 gpt) or higher, consider building the forbidden palace class building (or civ-specific variants) in this city -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_GATE_M100_WONDERS</DefineName>
+		<iDefineIntVal>600</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. as of now in advciv-sas, "stable" class buildings (including civ-specific variants) to give XP to mounted untis such as horse knights, chariots, camel cuirassiers, war elephants, etc.). Adjust as per your xml. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_MOUNTED_UNITS_EXP_BUILDINGCLASS_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_STABLE</DefineTextVal>
+	</Define>
+	<!-- custom: e.g. as of now in advciv-sas is as such; adjust as per your xml. -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_GOVERNMENT_CENTER_PALACE_BUILDINGCLASS_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_PALACE</DefineTextVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #205 -->
+	<Define>
+		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units -->
+	<!-- custom: hopefully enough just with the modifier that trebuchets use as of now -->
+	<Define>
+		<DefineName>SAS_TREBUCHET_LIKE_MIN_CITY_ATK_THRESHOLD</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set this to enable advciv-sas anti excess siege code (via one of the AI_ChooseUnit functions). 1 to enabled (recommended), 0 to disabled (disables it entirely, if you want to selectively disable some features, consider tweaking one or a few of the sub configure options below instead); Long_Comments_XML.txt #167 -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: we need more siege units early if we don't have key strategic bonuses; Long_Comments_XML.txt #181 -->
+	<Define>
+		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us). -->
+	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean -->
+	<Define>
+		<DefineName>SAS_NO_EXCESS_TREBUCHETS_LIKE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: extra min cap on top of the computed max trebuchets-like units allowed if we are restricting trebuchets-like units; Long_Comments_XML.txt #166 -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: this is the general toggle for all sieges units, including trebuchets-like units but not only (catapults, trebuchets, cannons (note: from rennaisance onwards, thresholds are more generous, as cannons are versatile and strong, but we still avoid overbuilding them, just with more generous thresholds), etc.) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: always useful to have some minimal extra threshold, just don't overdo it -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL_MIN_EXTRA_CAP</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #199 -->
+	<Define>
+		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+		<iDefineIntVal>170</iDefineIntVal>
+	</Define>
+	<!-- custom: this is the general toggle, for specific ones, look below. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #210 -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_REJECT_UNIT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #209 -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if no good candidate, attempt to hijack the unitai rather; Long_Comments_XML.txt #187 -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #208 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: safety value, recommended to not change this except increasing it if you have very expensive units you want to build -->
+	<!-- custom: note: i assume first era starts at 0 and code seems to run fine as such, but check to be sure as this is just a guess of mine -->
+	<!-- Era 0→50, 1→100, ... 6→350 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_MAX_HAMMER_PER_ERA</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #215 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set to only allow defense default unitais as fallback (as of now UNITAI_CITY_DEFENSE, UNITAI_CITY_COUNTER, UNITAI_CITY_SPECIAL, UNITAI_RESERVE), check code for updated version if any change since then); untested (if they can be produced, else we allow all land military preferred ones (i.e. both offense and defense ones as of now)) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative; Long_Comments_XML.txt #165 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #214 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: percent of the above threshold if !bWarPlan (i.e. if no war plan more or less guessedly of me), rather than forbidding all, allow some but less, e.g. 50% of that value max -->
+	<Define>
+		<DefineName>SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT</DefineName>
+		<iDefineIntVal>67</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #216 -->
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: enable so the inflate civ specific applies to more UnitAIs; Long_Comments_XML.txt #186 -->
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: ((mult * X) / div) + add. Note: div is max(1, div) so that we don't divide by 0 -->
+	<!-- custom: Long_Comments_XML.txt #170 -->
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_MULT</DefineName>
+		<iDefineIntVal>14</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_DIV</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_INFLATE_CIV_SPECIFIC_UNIT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+	<!-- custom: Absolute AI scrap kill switch. 0 preserves the normal AdvCiv-SAS scrap rules; 1 forbids AI scrapping entirely. This is intentionally separate from SAS_CAN_SCRAP_OPTIMIZE: if we disable optimization, we should not accidentally restore broad scrapping. Scrapping is hammer-inefficient when a produced unit can defend, pressure rivals, or be spent in war; war can remove excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Softer near-absolute AI scrap mode. 0 preserves normal AdvCiv-SAS scrap rules; 1 blocks AI scrapping except for units with ObsoleteTech after the obsolete-era delay below. Cargo-capable units are still kept because an obsolete transport can remain our only practical way to move units. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is before Renaissance. Example: as of now an Axeman obsolete at Civil Service (Classical) is still reasonable to keep in Medieval, but not Renaissance; delay 2 allows scrapping from Renaissance onward. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum era delay for SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE, measured from the unit's ObsoleteTech era when that era is Renaissance or later. Example: as of now a Knight obsolete in Renaissance can remain useful through Renaissance, but not Industrial; delay 1 allows scrapping from Industrial onward. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set to 1 (enable, recommended) to use advciv-sas' smart scrapping control/optimization -->
+	<!-- custom: Long_Comments_XML.txt #171 -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: set to 1 to allow scrapping for units with an ObsoleteTech that we know; 0 ignores ObsoleteTech as a scrap trigger. (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_OBSOLETE_TECH</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: extra unit tolerance beyond unit support costs before disbanding starts; scales by era: mult * (era + 1) + add (GPT-5.2-Codex). Useful as we expect to lose a few during war or such, better to have some extra and not become weaker than our rivals. E.g. with 4 mult and 1 add, extra allowed = ((4 * (0 + 1)) + 1 = 5 at ancient, (4 * 2) + 1 = 9 at classical, (4 * 3) + 1 = 13 at medieval. Note: overshooting may lead to bankruptcy though. -->
+	<Define>
+		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_MULT</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DO_MILITARY_MAX_UNIT_COST_EXTRA_UNITS_ADD</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
+	<Define>
+		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade; Long_Comments_XML.txt #178 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: AI upgrade ROI effective-price multiplier for sea-unit upgrades on land-heavy maps. The real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades, so low-value ship upgrades are less likely to spend limited AI upgrade gold before stronger land upgrades. 100 disables the domain penalty. (ChatGPT-5.2 + GPT-5.5); Empirically a too high value (e.g., 150 or 200 causes naval upgrades to be effectively always ignored, adjust as you see fit). -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- custom: AI upgrade ROI effective-price multiplier for land-unit upgrades on naval-heavy maps. The real gold price is unchanged; this helps prioritize naval upgrades on maps where ships usually have higher strategic leverage. 100 disables the domain penalty. (ChatGPT-5.2 + ChatGPT-5.5 + GPT-5.5); (i'm guessing the same applies for land upgrades) -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+	<!-- AI upgrade cost check: maximum gold per 10% strength gain. Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
+	<!-- custom: Long_Comments_XML.txt #105 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- Extra allowance based on unit XP (experienced units keep valuable promotions, so upgrades for them can justify more gold). -->
+	<!-- custom: Long_Comments_XML.txt #103 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Hard cap for the effective value (base + EXP). Purpose: even a very experienced unit should not justify extreme upgrade spending; Long_Comments_XML.txt #177 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate). Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units). -->
+	<!-- custom: Long_Comments_XML.txt #104 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- Extra allowance based on unit EXP. Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain; Long_Comments_XML.txt #176 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Hard cap for the effective value (prevents absurd spending even with very high EXP); Long_Comments_XML.txt #180 -->
+	<Define>
+		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable AI stack attack order that spends low-power/low-XP units first in AI_getBestGroupAttacker (1 on, 0 off). (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: minimum health percent to break ties by lower health when attack-ordering low-power units (e.g. 60). (GPT-5.2-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health) are valued as such; Long_Comments_XML.txt #179 -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable hard "do not buy dominated or equivalent strategic bonus" rules; Long_Comments_XML.txt #362. (GPT-5.3-Codex) -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_ZERO_DOMINATED_STRATEGIC_BUYS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #206 -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_AI_OBJECTIVE_BONUSES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_PER_POINT_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_BONUS_TRADE_AI_OBJECTIVE_MAX_PERCENT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!--
+	// - 2) Simple substitute multipliers for key strategics (edge rules) -
+	-->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: here is the logic i drafted (updated bit but refer to below code comments per define rather for clarity with updated values there as well) to chatgpt 5 after some back and forth and consideration: -->
+	<!-- custom: Long_Comments_XML.txt #109 -->
+	<!-- Pre-Medieval: boost mounts if you have NO Horse/Camel/Elephants. 100=off, 150=+50%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_MOUNT_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- Pre-Medieval: boost metals if you have NO Iron/Copper. 100=off, 150=+50%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- Medieval: if you LACK mounts but HAVE metals, how much to boost mounts (Knights). 200=+100%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_WITH_METAL_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK mounts and LACK metals, mounts are weaker (Knights blocked). 75=−25%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_MOUNT_NO_METAL_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals but HAVE mounts, how much to boost IRON. 200=+100%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals but HAVE mounts, how much to value COPPER. 75=−25%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_WITH_MOUNT_COPPER_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals AND LACK mounts, IRON baseline. 100=no change. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- Medieval: if you LACK metals AND LACK mounts, COPPER is low. 50=−50%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- Medieval+: Elephants are basically for buildings only. 50=−50% from Medieval onward. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_ELEPHANT_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- Medieval+: Copper loses military relevance. 50=−50% from Medieval onward. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_PLUS_COPPER_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: note: as of now copper exception (alternative bonus to iron) for Holy Roman Empire's new HOLY_ROMAN_HOUFNICE is not handled to simplify and as is bit tedious, may or not do so in the future -->
+	<!-- Renaissance: LACK mounts + HAVE IRON → modest mount boost (Cuirassiers path) -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- Renaissance: LACK mounts + LACK IRON → small mount discount -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- Renaissance: LACK IRON + HAVE mounts → push IRON (Cannons + Cuirassiers path) -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: cannons could use iron, if we don't have mounts and not yet muskets, this is a great option, even if we can, not too bad to have as well for our attacks -->
+	<!-- Renaissance: LACK IRON + LACK mounts → still push IRON (Cannons path) -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- Industrial+: Camel fades (no relevant units). 50=−50%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_PLUS_CAMEL_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- Industrial: Horse still matters (Cavalry). 100=no change. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_IND_HORSE_BASE_PCT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- Modern+: Horse fades (no relevant units). 50=−50%. -->
+	<Define>
+		<DefineName>SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Aim to reduce Master-Vassal(s) locus inefficient overlapping research; Long_Comments_XML.txt #190 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- (1) Master: devalue techs that our vassals already know; Long_Comments_XML.txt #339 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- (2) Vassal: devalue techs that our "cluster" already knows -->
+	<!-- custom: if our master knows the tech, devalue researching it, we can get it from them rather. -->
+	<!-- // Master -->  
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: if any of our sibling vassals know the tech, devalue researching it, we can get it from them rather. -->
+	<!-- // Sibling vassals of the same master -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- SAS techValuePowerDanger: bias research toward key military techs when we're clearly -->
+	<!-- custom: weaker -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
+	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- When in danger, scale the total value of such techs by this percentage. -->
+	<!-- custom: e.g. 130 means tech value is increased by 30% -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
+	<!-- custom: Long_Comments_XML.txt #112 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- When in danger, scale the trade value of such techs by this percentage. -->
+	<!-- e.g. 130 = +30%, 150 = +50%. -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
+		<iDefineIntVal>130</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); Long_Comments_XML.txt #201 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Encourage master/vassal preferential contact as this should be mutually beneficial; Long_Comments_XML.txt #174 -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal. -->
+	<!-- 100 = no change, 150 = +50% chance, 200 = x2, etc. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<!-- When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<!-- When we are a vassal and ePlayer is another vassal of the same master, this multiplies our CONTACT_TRADE_TECH contact chance with them. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
+	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them -->
+	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- They are stronger -> reduce contact a bit (don't be too eager to send them more tech) -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: they are weaker than us, safer to profit from/with them -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT</DefineName>
+		<iDefineIntVal>125</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #217 -->
+	<Define>
+		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #203 -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- 1. Apply Aggressive Discount
+	Reduces value to a percentage defined in XML (e.g., 25% of original).
+	This encourages the AI to sell "common knowledge" rather than hoarding it. -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- 2. Calculate Minimum Gold Floor
+	Formula: (GameTurn * MULT + ADD) / DIV
+	Example (Mult=10, Add=0, Div=20): (GameTurn * 10) / 20  -> GameTurn / 2.
+	This ensures late-game techs aren't sold for 1 gold; the price floor scales with the era. -->
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_MULT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_IF_MANY_KNOWN_DIV</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- 3. Enforce the Floor
+	We take the HIGHER of the discounted value and the minimum floor.
+	Explanation: If the 25% discount drops the price to 10 gold, but the floor is 50 gold, we must charge at least 50 gold. We don't want to sell for practically nothing. -->
+
+
+
+	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it; Long_Comments_XML.txt #189 -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: The higher the value, the more we want to switch to this civic for each of our cities that are happy (no need to change to such a civic if city is happy). -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: how much we value each civic's unlimited specialist based on their yield(s) -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_FOOD_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: if we need hammers urgently, increase hammer value; Long_Comments_XML.txt #13 -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: how much we value each civic's unlimited specialist based on their commerce(s) -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_BEAKERS_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_GOLD_VALUE</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: by how much we multiply culture valuing if we urgently need culture (going for a culture need, bfc, etc.); Long_Comments_XML.txt #188 -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #191 -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_TOTAL_VALUE_LOSS_PCT_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: following our rework to give commerce yields to specialists as of now in civic_representation (beakers, gold, culture), the civic is still very underpicked, almost never, even though it should be quite attractive. Commerce value may be underestimated by AI. Adding this with the help of chatgpt 5 thanks. -->
+	<!-- custom: Long_Comments_XML.txt #168 -->
+	<Define>
+		<DefineName>SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT</DefineName>
+		<iDefineIntVal>45</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to reduce oscillation. -->
+	<!-- custom: Long_Comments_XML.txt #108 -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- Percent of abs(current_value) added as extra lead required. Keeps late-game switches meaningful when values are large. Raise to add stickiness; lower for responsiveness. -->
+	<!-- custom: note: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI civic diagnostics showed many free civic switches, but the expensive problem was paid-anarchy switches and direct reversals, including 2-turn anarchy for tiny value gains such as delta 6-9. When a candidate civic increases the current revolution bundle's anarchy length, require a larger absolute value gain before accepting it. Base + per-turn are added only for the extra anarchy turns this candidate introduces, preserving free/no-extra-anarchy bundle changes. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_MIN_SLACK_WITH_ANARCHY</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_SWITCH_SLACK_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: BBAI civic diagnostics after the paid-anarchy slack fix still showed many direct reversals around the normal civic timer expiry (~21 turns), suggesting the AI could pay anarchy, wait until allowed again, then flip back. Add extra civic cooldown only after paid-anarchy revolutions; 0 disables. Default 5 means a 2-turn-anarchy civic bundle waits about 10 extra turns before reconsidering civics. See KI#159. (GPT-5.5 + ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_DO_CIVICS_EXTRA_TIMER_PER_ANARCHY_TURN</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: currently we have an issue of the top dog AI adopting a religion everyone hates instead of the popular one against other strong rivals (same issue for weak players as well), which is very suboptimal, change this to respect more relative power between players rather, with the help of gemini 3 pro and then claude sonnet 4.5 for review thanks -->
+	<!-- custom: Long_Comments_XML.txt #107 -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- Flat bonus added to numerator. Adds baseline diplomatic value regardless of power bloc strength. -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_MULT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- Multiplier for religion flavor in denominator. Higher = flavor reduces diplomatic weight more. Min: 0 (enforced in code) -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- Flat value added to denominator. Higher = reduces overall diplomatic modifier strength. Min: 1 (enforced in code) -->
+	<!-- Example: Setting to 10 mimics old K-Mod behavior of dividing by (10 + flavor) -->
+	<Define>
+		<DefineName>SAS_AI_RELIGION_VALUE_DIPLOMACY_MODIFIER_DIVIDER_MULT_ADD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) -->
+	<Define>
+		<DefineName>SAS_AI_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: low enough value so that the citizen specialist is ideally never chosen in this function -->
+	<!-- decisively low, far from overflow/underflow -->
+	<Define>
+		<DefineName>SAS_AI_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
+		<iDefineIntVal>-100000</iDefineIntVal>
+	</Define>
+	<!-- custom: Max food per turn lost to unhealthiness where happy surplus can still encourage AI city-governor growth. Higher values allow happy but unhealthy cities to keep prioritizing food/growth; lower values make them switch sooner to specialists or lower-food jobs. E.g., more than 2 food lost to unhealthiness is usually inefficient enough that happiness alone should not force more growth. (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CITY_GOVERNOR_HAPPY_GROWTH_MAX_UNHEALTH_FOOD_LOSS</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1 -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Enable (recommended) to let human cities using automated citizens share the guarded AI fallback that reassigns worked plots to safe, clearly better unworked plots. Manual citizen assignments never call this fallback and remain untouched. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #202 -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ENGINEER_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_MERCHANT_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_PRIEST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SPY_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_ARTIST_SPECIALIST</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: set to 1 to enable the advciv-sas optimization of forcing an artist if no bfc and city's culture per turn is low (0 to disable it) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #337 -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: also give the option for human players to auto force an artist until we have our BFC for their convenience (1 to enable (recommended), 0 to disable). -->
+	<Define>
+		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #338 -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: e.g. 120 means that enemy team has 1.2 times if we were to use our team's power as 1.0 as a base comparison (they are 20% stronger than us) -->
+	<!-- Enemy strength threshold (team power%) to trigger -->
+	<Define>
+		<DefineName>SAS_ENEMY_STRONG_POWER_THRESHOLD</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<!-- custom: if enemy team has less than this power as compared to ours, they are weaker. E.g. if < 80 (i.e. < 0.8 times our team's power), we consider them weaker than us in our as of now advciv-sas added pieces of logic -->
+	<!-- custom: if not at war value may be 0 so it is not always reliable for comparisons as is, check code for detail and if what i say is accurate -->
+	<Define>
+		<DefineName>SAS_ENEMY_WEAK_POWER_THRESHOLD</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104 (GPT-5.2-Codex + Claude code Opus 4.5) -->
+	<Define>
+		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+		<iDefineIntVal>9</iDefineIntVal>
+	</Define>
+	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum percentage of the player's total military in a remote foreign-captured city stack before bypassing the upgrade wait; Boston-style logs showed 30%+ of the military freezing far from core. Set to 0 to disable this percent gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's suggested value of around ~25 or ~30 (same reasoning). -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: Absolute stack-size fallback for larger empires where a large remote captured-city army can be below the percentage threshold; Houston-style logs showed 28-29 units but only about 24-25% of total military. Set to 0 to disable this absolute unit-count gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5's value of 24 (same reasoning). -->
+	<Define>
+		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS</DefineName>
+		<iDefineIntVal>16</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: whichever XML name is for the water food building class (in advciv-sas the harbor buildings give +1 food on water tile, adjust based on your building info xml to prioritize building this if low food and coastal if you want to) -->
+	<Define>
+		<DefineName>SAS_WATER_FOOD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_HARBOR</DefineTextVal>
+	</Define>
+	<!-- custom: similarly, XML name of the water hammer building class, adjust based on your xml names/assets (e.g. if it's no longer the port class in your mod) -->
+	<Define>
+		<DefineName>SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_PORT</DefineTextVal>
+	</Define>
+	<!-- custom: similarly, XML name of the water gold building class, adjust based on your xml names/assets (e.g. if it's no longer the lighthouse class in your mod) -->
+	<Define>
+		<DefineName>SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_LIGHTHOUSE</DefineTextVal>
+	</Define>
+
+
+
+	<!-- custom: water food building (as of now building_harbor) emergency/force production choice for a city if it is low food and coastal. Set to 1 to enable (recommended, fixes AI cities in autoplay stagnant for dozen turns while being coastal and surrounded by tundra, but never building a harbor (or whatever building the water food building is)), 0 to disable it -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: if food per turn in city is <= 1 food per turn and city is coastal, then force harbor as we would stagnate soon anyway -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_FOOD_BUILDING_FOOD_THRESHOLD</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: force the water hammer building class above (Port in AdvCiv-SAS) for non-human coastal cities that are big enough but still have low production or low food surplus. Port can take significant time, but these cities are not likely to contribute much short-term production anyway; if not in immediate danger, making their water tiles produce hammer first should make them much more useful later. Defense emergencies still run earlier in CvCity::doTurn, so Castle/defense can still go before Port when needed. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MIN_POPULATION</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: Production-per-pop is stored per 100: 300 means 3 hammers/pop. Set enable to 0 to disable. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_MAX_PRODUCTION_PER_POP_100</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_WATER_HAMMER_BUILDING_FOOD_SURPLUS_THRESHOLD</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: update: the harbor is more likely to be useful than walls for a coastal city, plus a harbor would help us build our walls or such faster anyway, so risk weaker defenses to make sure we get the very important harbor first rather; Long_Comments_XML.txt #173 -->
+	<!-- classify "mostly water inner ring" cities in CvCity::doTurn. If the 8 inner BFC tiles (excluding the city) have <= this many non-water, non-peak tiles, we treat the city as hammer-poor, low-risk island/peninsula for emergency rules (Walls/Castle, fallback units, and optionally Harbor). Example: 2 means 0, 1, or 2 land tiles. -->
+	<Define>
+		<DefineName>SAS_DO_TURN_MAX_INNER_RING_NON_WATER_NON_PEAK_TILES_WATER_CITY</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: e.g. if city has 4 base hammers (base production before any modifier is applied) and we are at era 1 (era_classical.), then if city has less than 5 * 1 + 2 = 7 base hammers at classical, it will be considered a low hammer city and won't do any emergency defense building (as of now walls, castle) nor emergency unit (too low hammers or possibly isolated (generally these low hammer cities are watery or something) city to be useful, bet on economy rather) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_BASE_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_LOW_BASE_HAMMERS_PER_ERA_THRESHOLD</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city; Long_Comments_XML.txt #172 -->
+	<!-- // Your broader trigger: strong enemy, or we’re at war and they aren’t weak, or city flagged in danger -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: adjust as per your xml if your defense buildings to urgently build are not the walls and the castle -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
+	</Define>
+	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
+	</Define>
+	<!-- custom: don't force castle or whichever building you set too soon similarly -->
+	<Define>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: note 3: higher increments like 3, 4, 5, etc. are not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed -->
+
+
+
+	<!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
+	<Define>
+		<DefineName>SAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: enable (1, recommended) / disable (0) to toggle advciv-sas smart unit promotions optimization (e.g. as of now pick city raider for UNITAI_ATTACK_CITY units first if not in danger or enemy is strong, or don't pick medic or woodsman promotions (inefficient), etc.) -->
+	<Define>
+		<DefineName>SAS_AI_PROMOTION_VALUE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: low value so a promotion does not get picked (assuming no other logic overrides ours as seems to happen sometimes for rare unexpected medic promotions, although generalyl our code seems as of now quite/very effective but check to be sure) -->
+	<Define>
+		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN</DefineName>
+		<iDefineIntVal>-100000</iDefineIntVal>
+	</Define>
+	<!-- custom: high value so a promotion is ideally always picked first (same) -->
+	<Define>
+		<DefineName>SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv (note: new value applies regardless of civs we met to simplify code a bit)) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: city needs to be in this top N number of cities in hammer production to be extra valued as a military instructor candidate (e.g. if city is in top 3 hammer cities, extra value it to be chosen as a military instructor candidate city). -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_CITY_THRESHOLD</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #234 -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
+	<!-- custom: if city has or is building this buildingclass, increase the above value by this number (adjust as per your xml for which building it is) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME</DefineName>
+		<DefineTextVal>BUILDINGCLASS_HEROIC_EPIC</DefineTextVal>
+	</Define>
+	<!-- custom: Long_Comments_XML.txt #235 -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_TOP_N_HAMMER_EXTRA_VALUING_BUILDINGCLASS_FULL_NAME_EXTRA_VALUING</DefineName>
+		<iDefineIntVal>500</iDefineIntVal>
+	</Define>
+	<!-- custom: was 1 in base advciv -->
+	<!-- High iMaxCount means we don't care about existing instructors -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT</DefineName>
+		<iDefineIntVal>999</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: disable to restore old base advciv evacuate logic (recommended to be enabled instead though as disabling this to restore base advciv logic should be weaker than the advciv-sas' always evacuate doomed cities logic but left for player customization) -->
+	<Define>
+		<DefineName>SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+</Civ4Defines>

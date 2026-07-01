@@ -26,7 +26,7 @@ For information regarding GFC Commercial License Agreements go to:
    Also added missing semicolons in lines 886 and 926 of the BtS version of this
    file (an error introduced by the BtS developers), though I'm not sure that
    their absence had caused any problems apart from an error message in ThemeParseLog. */
-   
+
 
 /*
 SF_CtrlTheme_Civ4_Control
@@ -113,7 +113,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -130,7 +130,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -140,7 +140,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -157,7 +157,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -168,7 +168,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -195,7 +195,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -205,7 +205,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -232,7 +232,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -242,7 +242,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -269,7 +269,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -279,7 +279,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -306,7 +306,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -316,7 +316,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -343,7 +343,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -353,7 +353,7 @@ with GFC_Control_Panel
 	{			
 		.StyleId_Border			=	GPropertyId(GFC_Control_EmptyBorder_Style);
 		.Flag_NoInnerFill		=	0;
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -380,7 +380,7 @@ with GFC_Control_Panel
 			.Winoff					=	.Default;
 			.WinoffDisable			=	.Winoff;
 		}
-	
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}

@@ -194,6 +194,10 @@ bool CvXMLLoadUtility::SetGlobalDefines()
 		return false;
 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
 		return false; // </advc.009>
+	// <!-- custom: add our new advciv-sas specific file as well, as also recommended by chatgpt 5 upon checking this code sample as i asked it to, check if accurate -->
+	// Load AdvCiv-SAS overrides / extras
+	if(!ReadGlobalDefines("xml\\GlobalDefines_advciv_sas.xml", cache))
+		return false; // </advc.009>
 
 	// BETTER_BTS_AI_MOD, XML Options, 02/21/10, jdog5000: START
 	ReadGlobalDefines("xml\\BBAI_Game_Options_GlobalDefines.xml", cache);
@@ -524,7 +528,11 @@ bool CvXMLLoadUtility::LoadGlobalText()
 		if (bValid)
 		{
 			const int& iLanguage = GAMETEXT.getCurrentLanguage();
-			const int iMax = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iMAX_NUM_LANGUAGES = GC.getDefineINT("MAX_NUM_LANGUAGES");
+
+			const int iMax = iMAX_NUM_LANGUAGES;
 			int i;
 			for (i = 0; i < iMax; i++)
 			{
@@ -690,6 +698,15 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
 	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
 	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
+	// <!-- custom: moved CIV4VoteInfo load here from LoadPostMenuGlobals
+	// so VoteInfos are parsed at app startup instead of only after leaving the main menu.
+	// Reason: our Sevopedia Votes category would otherwise show an empty list when opened
+	// from the main menu, since gc.getNumVoteInfos() returns 0 pre-game, and Sevopedia
+	// caches that empty list. Placed AFTER CivicInfos because CIV4VoteInfo.xml references
+	// civic types via <ForceCivics>; loading it before civics triggers unknown-civic-type
+	// XML errors at launch. Safe to move: CvVoteInfo is plain XML-backed data with no
+	// per-game state. (Claude code Opus 4.7) -->
+	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 	FOR_EACH_ENUM(VoteSource)
 		GC.getInfo(eLoopVoteSource).readPass3();
 	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
@@ -717,6 +734,24 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paGameOptionInfo, "CIV4GameOptionInfos", "GameInfo", "Civ4GameOptionInfos/GameOptionInfos/GameOptionInfo", false);
 	LoadGlobalClassInfo(GC.m_paMPOptionInfo, "CIV4MPOptionInfos", "GameInfo", "Civ4MPOptionInfos/MPOptionInfos/MPOptionInfo", false);
 	LoadGlobalClassInfo(GC.m_paForceControlInfo, "CIV4ForceControlInfos", "GameInfo", "Civ4ForceControlInfos/ForceControlInfos/ForceControlInfo", false);
+	// <!-- custom: moved CIV4EventInfos + CIV4EventTriggerInfos load here from
+	// LoadOptionalGlobals so event data is parsed at app startup instead of only after
+	// a game begins. Reason: our Sevopedia Event Triggers category would otherwise show
+	// an empty list when opened from the main menu, since gc.getNumEventTriggerInfos()
+	// returns 0 pre-game, and Sevopedia caches that empty list. Same pattern as the
+	// CIV4VoteInfo move earlier in this function. Placed at the END of the info-loading
+	// block because CIV4EventInfos.xml references yields (YIELD_PRODUCTION, ...) and
+	// commerces (COMMERCE_*) via iYield/iCommerce fields — those info types are loaded
+	// just above on lines ending with CIV4YieldInfos / CIV4CommerceInfo, and an earlier
+	// placement produced "Tag: YIELD_PRODUCTION ... was incorrect" XML errors at launch.
+	// Events also reference civs/leaders/religions/etc., all of which are now loaded too.
+	// We also set m->bEventsLoaded so LoadOptionalGlobals skips its own (now-redundant)
+	// load. Note: GAMEOPTION_NO_EVENTS intentionally does NOT gate this load — that
+	// option controls whether events *fire* in-game, not whether their data is available
+	// for display in Sevopedia. (Claude code Opus 4.7) -->
+	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+	m->bEventsLoaded = true;
 
 	// Allow data to be cached
 	CvEraInfo::allInfosRead(); // advc.erai
@@ -800,8 +835,12 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
 	LoadGlobalClassInfo(GC.m_paCommandInfo, "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
 	LoadGlobalClassInfo(GC.m_paAutomateInfo, "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
 
-	UpdateProgressCB("Global Vote");
-	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+	// <!-- custom: CIV4VoteInfo load moved to LoadPreMenuGlobals (placed right
+	// after CIV4CivicInfos since <ForceCivics> references civic types) so the Sevopedia
+	// Votes category populates from the main menu too. See the matching comment there for
+	// the full rationale. (Claude code Opus 4.7) -->
+	//UpdateProgressCB("Global Vote");
+	//LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
 
 	UpdateProgressCB("Global Interface");
 	// advc.003j:
@@ -845,19 +884,23 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
 bool CvXMLLoadUtility::LoadOptionalGlobals()
 {
 	bool bFXmlCreated = false; // Perhaps better not to do this twice
-	if (!m->bEventsLoaded &&
-		(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
-		/*	Don't risk sync issue that might arise from one player having
-			loaded the data through a previously started game */
-		GC.getGame().isNetworkMultiPlayer()))
-	{
-		if (!CreateFXml())
-			return false;
-		LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
-		LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
-		m->bEventsLoaded = true;
-		bFXmlCreated = true;
-	}
+	// <!-- custom: CIV4EventInfos + CIV4EventTriggerInfos load moved to
+	// LoadPreMenuGlobals (right after CIV4VoteInfo) so the Sevopedia Event Triggers
+	// category populates from the main menu too. See the matching comment at the new
+	// load site for the full rationale. (Claude code Opus 4.7) -->
+	//if (!m->bEventsLoaded &&
+	//	(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
+	//	/*	Don't risk sync issue that might arise from one player having
+	//		loaded the data through a previously started game */
+	//	GC.getGame().isNetworkMultiPlayer()))
+	//{
+	//	if (!CreateFXml())
+	//		return false;
+	//	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+	//	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+	//	m->bEventsLoaded = true;
+	//	bFXmlCreated = true;
+	//}
 	// <advc.tsl>
 	if (!m->bTrueStartsDataLoaded && GC.getGame().isOption(GAMEOPTION_TRUE_STARTS))
 	{
@@ -1161,8 +1204,7 @@ void CvXMLLoadUtility::SetGlobalAnimationPathInfo(CvAnimationPathInfo** ppAnimat
 
 
 // Reads game text info from XML and adds it to the translation manager
-void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName,
-	std::string const& sLanguageName) // K-Mod
+void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagName, std::string const& sLanguageName) // K-Mod
 {
 	PROFILE_FUNC();
 	logMsg("SetGameText %s\n", szTagName);
@@ -1195,9 +1237,8 @@ void CvXMLLoadUtility::SetGameText(const char* szTextGroup, const char* szTagNam
 	Takes the szTagName parameter and loads the ppszString with the text values
 	under the tags. This will be the hints displayed during game initialization and load. */
 template <class T>
-void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName,
-	bool bPassTwo, // advc.rh: Renamed from bTwoPass
-	bool bFinalCall) // advc.xmldefault
+// advc.rh: Renamed from bTwoPass <!-- custom: hoisted from multiline signature between `bPassTwo` and `bFinalCall` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bPassTwo, bool bFinalCall) // advc.xmldefault
 {
 	char szLog[256];
 	sprintf(szLog, "SetGlobalClassInfo (%s)", szTagName);
@@ -1343,10 +1384,7 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
 }
 
 template <class T>
-void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
-	const char* szFileRoot, const char* szFileDirectory,
-	const char* szXmlPath, bool bTwoPass,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, bool bTwoPass, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	//GC.addToInfosVectors(aInfos); // advc.enum (no longer needed)
 	#if ENABLE_XML_FILE_CACHE
@@ -1463,9 +1501,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
 }
 
 
-void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos,
-	const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath,
-	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
+void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*))
 {
 	#if ENABLE_XML_FILE_CACHE
 	bool bLoaded = false;
@@ -1738,8 +1774,7 @@ void CvXMLLoadUtility::XMLTagPairIteratorBase::setToParent()
 }
 
 template<typename T>
-CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
+CvXMLLoadUtility::XMLTagPairIterator<T>::XMLTagPairIterator(CvXMLLoadUtility& kUtil, TCHAR const* szRootTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pParser, szRootTagName))
@@ -1807,9 +1842,7 @@ DO_FOR_EACH_STATIC_INFO_TYPE(INSTANTIATE_XML_TAG_PAIR_ITERATOR);
 // </advc.003t>
 // <advc.enum>
 template<class EncodableMap>
-CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(
-	CvXMLLoadUtility& kUtil, TCHAR const* szTagName,
-	TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
+CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::XMLTagPairRateIterator(CvXMLLoadUtility& kUtil, TCHAR const* szTagName, TCHAR const* szKeyTagName, TCHAR const* szRateTagName)
 :	XMLTagPairIteratorBase(kUtil), m_iSiblingIndex(0), m_iSiblings(0), m_aiRates(NULL)
 {
 	/*	The flat structure is used by Civ4EventInfos.xml. I'd like to change that to the
@@ -1912,8 +1945,7 @@ template CvXMLLoadUtility::XMLTagPairRateIterator<CommerceChangeMap>;
 template CvXMLLoadUtility::XMLTagPairRateIterator<CommercePercentMap>;
 // </advc.enum>
 
-void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
-	TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
 {
 	// <advc.xmldefault>
 	if (*ppszList != NULL)
@@ -1984,8 +2016,7 @@ void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
 }
 
 // allocate and initialize a list from a tag pair in the xml for audio scripts
-void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
-	int iInfoBaseLength, int iDefaultListVal)
+void CvXMLLoadUtility::SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName, int iInfoBaseLength, int iDefaultListVal)
 {
 	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szRootTagName))
 	{

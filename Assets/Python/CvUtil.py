@@ -1,6 +1,10 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
 #
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md).
+#
 # for error reporting
 import traceback
 
@@ -10,6 +14,7 @@ import sys
 
 # For Civ game code access
 from CvPythonExtensions import *
+import SASTextScale
 
 # For exception handling
 SHOWEXCEPTIONS = 1
@@ -73,10 +78,9 @@ BUG_FIRST_EVENT = 5050
 g_nextEventID = BUG_FIRST_EVENT
 g_bugEvents = {}
 def getNewEventID(name=None, silent=True):
-	"""
-	Defines a new event and returns its unique ID to be passed to BugEventManager.beginEvent(id).
-	If name is given, it is stored in a map for lookup by ID later for debugging.
-	"""
+	# Defines a new event and returns its unique ID to be passed to BugEventManager.beginEvent(id).
+	# If name is given, it is stored in a map for lookup by ID later for debugging.
+
 	global g_nextEventID
 	id = g_nextEventID
 	g_nextEventID += 1
@@ -97,9 +101,8 @@ def addSilentEvent(id):
 BUG_FIRST_SCREEN = 1000
 g_nextScreenID = BUG_FIRST_SCREEN
 def getNewScreenID():
-	"""
-	Returns the next unique screen ID to be used with CyGInterfaceScreen.
-	"""
+	# Returns the next unique screen ID to be used with CyGInterfaceScreen.
+
 	global g_nextScreenID
 	id = g_nextScreenID
 	g_nextScreenID += 1
@@ -112,19 +115,21 @@ FONT_RIGHT_JUSTIFY=1<<1
 FONT_LEFT_JUSTIFY=1<<0
 
 def convertToUnicode(s):
-	"if the string is non unicode, convert it to unicode by decoding it using 8859-1, latin_1"
+	# if the string is non unicode, convert it to unicode by decoding it using 8859-1, latin_1
+	#
 	if (isinstance(s, str)):
 		return s.decode("latin_1")
 	return s
-	
+
 def convertToStr(s):
-	"if the string is unicode, convert it to str by encoding it using 8859-1, latin_1"
+	# if the string is unicode, convert it to str by encoding it using 8859-1, latin_1
+	#
 	if (isinstance(s, unicode)):
 		return s.encode("latin_1")
 	return s
 
 class RedirectDebug:
-	"""Send Debug Messages to Civ Engine"""
+	# Send Debug Messages to Civ Engine
 	def __init__(self):
 		self.m_PythonMgr = CyPythonMgr()
 	def write(self, stuff):
@@ -133,9 +138,9 @@ class RedirectDebug:
 			self.m_PythonMgr.debugMsgWide(stuff)
 		else:
 			self.m_PythonMgr.debugMsg(stuff)
-		
+
 class RedirectError:
-	"""Send Error Messages to Civ Engine"""
+	# Send Error Messages to Civ Engine
 	def __init__(self):
 		self.m_PythonMgr = CyPythonMgr()
 	def write(self, stuff):
@@ -168,7 +173,7 @@ def pyAssert(cond, msg):
 	if not cond:
 		sys.stderr.write(msg)
 	assert cond, msg # advc.001 (from MNAI)
-	
+
 def getScoreComponent(iRawScore, iInitial, iMax, iFactor, bExponential, bFinal, bVictory):
 
 	if gc.getGame().getEstimateEndTurn() == 0:
@@ -187,7 +192,7 @@ def getScoreComponent(iRawScore, iInitial, iMax, iFactor, bExponential, bFinal, 
 		iScore = (iFactor * (iRawScore + iFree)) / (iFree + iMax)
 	else:
 		iScore = iFactor
-		
+
 	if bVictory:
 		iScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * iScore) / 100
 
@@ -198,7 +203,7 @@ def getScoreComponent(iRawScore, iInitial, iMax, iFactor, bExponential, bFinal, 
 		# </advc.250a>
 
 	return int(iScore)
-	
+
 def getOppositeCardinalDirection(dir):
 	return (dir + 2) % CardinalDirectionTypes.NUM_CARDINALDIRECTION_TYPES
 
@@ -224,7 +229,7 @@ def getInfo(strInfoType, strInfoName):	# returns info for InfoType
 	#set Type to lowercase
 	strInfoType = strInfoType.lower()
 	strInfoName = strInfoName.capitalize()
-	
+
 	#get the appropriate dictionary item
 	infoDict = GlobalInfosMap.get(strInfoType)
 	#get the number of infos
@@ -232,7 +237,7 @@ def getInfo(strInfoType, strInfoName):	# returns info for InfoType
 	#loop through each info
 	for i in range(numInfos):
 		loopInfo = infoDict['GET'](i)
-		
+
 		if loopInfo.getDescription() == strInfoName:
 			#and return the one requested
 			return loopInfo
@@ -249,7 +254,7 @@ def AdjustBuilding(add, all, BuildingIdx, pCity): # adds/removes buildings from 
 
 def getIcon(iconEntry):						# returns Font Icons
 	global FontIconMap
-	
+
 	iconEntry = iconEntry.lower()
 	if (FontIconMap.has_key(iconEntry)):
 		return 	FontIconMap.get(iconEntry)
@@ -257,82 +262,52 @@ def getIcon(iconEntry):						# returns Font Icons
 		return (u"%c" %(191,))
 
 # advc: Helper for combatDetailMessageBuilder
+def addCombatMessageScaled(ePlayer, szText):
+	# <!-- custom: upscale Combat Log entries via SAS label font; combat lines are emitted through CyInterface().addCombatMessage from CvUtil/CvEventManager paths. (GPT-5.3-Codex) -->
+	CyInterface().addCombatMessage(ePlayer, SASTextScale.labelText(szText))
+
 def _addCombatMsg(ePlayer, iModifier, szTextKey):
 	if iModifier != 0:
-		CyInterface().addCombatMessage(ePlayer,
-				localText.getText(szTextKey, (iModifier,)))
+		addCombatMessageScaled(ePlayer, localText.getText(szTextKey, (iModifier,)))
 
 def combatDetailMessageBuilder(cdUnit, ePlayer, iChange):
-	_addCombatMsg(ePlayer, cdUnit.iExtraCombatPercent * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_EXTRA_COMBAT_PERCENT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierTA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierTA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierAA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierAA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iExtraCombatPercent * iChange, "TXT_KEY_COMBAT_MESSAGE_EXTRA_COMBAT_PERCENT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierTA * iChange, "TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierTA * iChange, "TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierAA * iChange, "TXT_KEY_COMBAT_MESSAGE_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIAnimalCombatModifierAA * iChange, "TXT_KEY_COMBAT_MESSAGE_AI_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iBarbarianCombatModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAIBarbarianCombatModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_AI_COMBAT")
 	# <advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierTB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
-	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierAB * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
+	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierTB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
+	_addCombatMsg(ePlayer, cdUnit.iSeaBarbarianModifierAB * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_SEA")
 	# </advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iPlotDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_PLOT_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iFortifyModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FORTIFY")
-	_addCombatMsg(ePlayer, cdUnit.iCityDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iHillsAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_HILLS_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iHillsDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_HILLS")
-	_addCombatMsg(ePlayer, cdUnit.iFeatureAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FEATURE_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iFeatureDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_FEATURE")
-	_addCombatMsg(ePlayer, cdUnit.iTerrainAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_TERRAIN_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iTerrainDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_TERRAIN")
-	_addCombatMsg(ePlayer, cdUnit.iCityAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iDomainDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CITY_DOMAIN_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iPlotDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_PLOT_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iFortifyModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FORTIFY")
+	_addCombatMsg(ePlayer, cdUnit.iCityDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iHillsAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_HILLS_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iHillsDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_HILLS")
+	_addCombatMsg(ePlayer, cdUnit.iFeatureAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FEATURE_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iFeatureDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_FEATURE")
+	_addCombatMsg(ePlayer, cdUnit.iTerrainAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_TERRAIN_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iTerrainDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_TERRAIN")
+	_addCombatMsg(ePlayer, cdUnit.iCityAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iDomainDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_DOMAIN_DEFENSE")
 	#_addCombatMsg(ePlayer, cdUnit.iCityBarbarianDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CITY_BARBARIAN_DEFENSE")
 	# <advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iBarbarianCityAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_BARBARIAN_CITY") # </advc.313>
-	_addCombatMsg(ePlayer, cdUnit.iClassDefenseModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DEFENSE")
-	_addCombatMsg(ePlayer, cdUnit.iClassAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iCombatModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iCombatModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iDomainModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
-	_addCombatMsg(ePlayer, cdUnit.iDomainModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierA * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierT * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
-	_addCombatMsg(ePlayer, cdUnit.iRiverAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_RIVER_ATTACK")
-	_addCombatMsg(ePlayer, cdUnit.iAmphibAttackModifier * iChange,
-			"TXT_KEY_COMBAT_MESSAGE_CLASS_AMPHIB_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iBarbarianCityAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_BARBARIAN_CITY") # </advc.313>
+	_addCombatMsg(ePlayer, cdUnit.iClassDefenseModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DEFENSE")
+	_addCombatMsg(ePlayer, cdUnit.iClassAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iCombatModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iCombatModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iDomainModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
+	_addCombatMsg(ePlayer, cdUnit.iDomainModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_DOMAIN")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierA * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iAnimalCombatModifierT * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_ANIMAL_COMBAT")
+	_addCombatMsg(ePlayer, cdUnit.iRiverAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_RIVER_ATTACK")
+	_addCombatMsg(ePlayer, cdUnit.iAmphibAttackModifier * iChange, "TXT_KEY_COMBAT_MESSAGE_CLASS_AMPHIB_ATTACK")
 
 def combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds):
 	combatMessage = ""
@@ -343,19 +318,19 @@ def combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds):
 	if (cdDefender.eOwner == cdDefender.eVisualOwner):
 		combatMessage += "%s's " %(gc.getPlayer(cdDefender.eOwner).getName(),)
 	combatMessage += "%s (%.2f)" %(cdDefender.sUnitName,cdDefender.iCurrCombatStr/100.0,)
-	CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-	CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+	addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+	addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 	combatMessage = "%s %.1f%%" %(localText.getText("TXT_KEY_COMBAT_MESSAGE_ODDS", ()),iCombatOdds/10.0,)
-	CyInterface().addCombatMessage(cdAttacker.eOwner,combatMessage)
-	CyInterface().addCombatMessage(cdDefender.eOwner,combatMessage)
+	addCombatMessageScaled(cdAttacker.eOwner, combatMessage)
+	addCombatMessageScaled(cdDefender.eOwner, combatMessage)
 	combatDetailMessageBuilder(cdAttacker,cdAttacker.eOwner,-1)
 	combatDetailMessageBuilder(cdDefender,cdAttacker.eOwner,1)
 	combatDetailMessageBuilder(cdAttacker,cdDefender.eOwner,-1)
 	combatDetailMessageBuilder(cdDefender,cdDefender.eOwner,1)
-	
+
 def initDynamicFontIcons():
 	global FontIconMap
-	
+
 	info = ""
 	desc = ""
 	# add Commerce Icons
@@ -377,17 +352,18 @@ def initDynamicFontIcons():
 	for key in OtherFontIcons.keys():
 		#print key
 		FontIconMap[key] = (u"%c" % CyGame().getSymbolID(OtherFontIcons.get(key)))
-	
+
 	#print FontIconMap
-	
+
 def addIconToMap(infoChar, desc):
 	global FontIconMap
 	desc = convertToStr(desc)
-	print "%s - %s" %(infoChar(), desc)
+	print("%s - %s" %(infoChar(), desc))
 	uc = infoChar()
 	if (uc>=0):
 		FontIconMap[desc] = u"%c" %(uc,)
 # advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python). Adding to the IconMap in CvTranslator.py also seems moot.
+# <!-- custom: note: i didn't add anything, but it looks like some chars like FontSymbols.CITIZEN_CHAR are missing here, yet calling them for example from CvVictoryScreen.py works successfully ingame to display said char (for example as of now in the Victories tab, so maybe fine as such (i don't know too much about these, check if accurate). -->
 OtherFontIcons = { 'happy' : FontSymbols.HAPPY_CHAR,
 				'unhappy' : FontSymbols.UNHAPPY_CHAR,
 				'healthy' : FontSymbols.HEALTHY_CHAR,

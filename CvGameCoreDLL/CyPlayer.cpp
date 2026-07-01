@@ -11,8 +11,7 @@
 #include "CvDLLPythonIFaceBase.h"
 
 CyPlayer::CyPlayer() : m_pPlayer(NULL) {}
-CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(
-	pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
+CyPlayer::CyPlayer(CvPlayer* pPlayer) : m_pPlayer(pPlayer == NULL ? NULL : &pPlayer->AI()) // advc.003u
 {}
 //CvPlayer* CyPlayer::getPlayer() { return m_pPlayer; } // advc: unused
 
@@ -537,10 +536,42 @@ int CyPlayer::calculateUnitCost()
 	return m_pPlayer ? m_pPlayer->calculateUnitCost() : -1;
 }
 
+// <!-- custom: Start Military Advisor Summary tab support-cost breakdown exposure. Python previously had to approximate these values and could not show the real unit-cost multiplier path. (GPT-5.5) -->
+python::tuple CyPlayer::calculateUnitCostBreakdown()
+{
+	// <!-- custom: expose CvPlayer::calculateUnitCost's exact intermediate values to Python so the Military Advisor Summary tab can show the real support math instead of approximating hidden K-Mod multipliers in Python. Tuple order: free units, free military, paid units, paid military, unit-cost multiplier, regular unit cost, military cost, extra cost, total pre-inflation. (GPT-5.5) -->
+	if (!m_pPlayer)
+		return python::make_tuple();
+	int iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits,
+			iUnitCost, iMilitaryCost, iExtraCost;
+	int iTotal = m_pPlayer->calculateUnitCost(iFreeUnits, iFreeMilitaryUnits,
+			iPaidUnits, iPaidMilitaryUnits, iUnitCost, iMilitaryCost,
+			iExtraCost);
+	python::tuple kBreakdown = python::make_tuple(iFreeUnits, iFreeMilitaryUnits, iPaidUnits,
+			iPaidMilitaryUnits, m_pPlayer->getUnitCostMultiplier(), iUnitCost,
+			iMilitaryCost, iExtraCost, iTotal);
+	return kBreakdown;
+}
+// <!-- custom: End Military Advisor Summary tab support-cost breakdown exposure. (GPT-5.5) -->
+
 int CyPlayer::calculateUnitSupply()
 {
 	return m_pPlayer ? m_pPlayer->calculateUnitSupply() : -1;
 }
+
+// <!-- custom: Start Military Advisor Summary tab outside-supply breakdown exposure; Python needs the DLL-paid outside-unit count and subtotal to show the actual calculation. (GPT-5.5) -->
+python::tuple CyPlayer::calculateUnitSupplyBreakdown()
+{
+	// <!-- custom: expose CvPlayer::calculateUnitSupply's exact paid-outside count and pre-inflation subtotal to Python; this includes AdvCiv game-speed extra free outside units that were not otherwise exposed to Python. Tuple order: paid outside units, base/pre-inflation supply cost, total pre-inflation supply cost. (GPT-5.5) -->
+	if (!m_pPlayer)
+		return python::make_tuple();
+	int iPaidOutsideUnits, iBaseSupplyCost;
+	int iTotal = m_pPlayer->calculateUnitSupply(iPaidOutsideUnits,
+			iBaseSupplyCost);
+	python::tuple kBreakdown = python::make_tuple(iPaidOutsideUnits, iBaseSupplyCost, iTotal);
+	return kBreakdown;
+}
+// <!-- custom: End Military Advisor Summary tab outside-supply breakdown exposure. (GPT-5.5) -->
 
 int CyPlayer::calculatePreInflatedCosts()
 {
@@ -962,8 +993,7 @@ int CyPlayer::getEspionageMissionCost(int /*EspionageMissionTypes*/ eMission, in
 	return m_pPlayer ? m_pPlayer->getEspionageMissionCost((EspionageMissionTypes) eMission, (PlayerTypes) eTargetPlayer, NULL != pPlot ? pPlot->getPlot() : NULL, iExtraData) : -1;
 }
 // <advc.120d>
-int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer,
-		CyCity* pCity) {
+int CyPlayer::getEspionageGoldQuantity(int eMission, int eTargetPlayer, CyCity* pCity) {
 	if(m_pPlayer == NULL)
 		return -1;
 	return m_pPlayer->getEspionageGoldQuantity((EspionageMissionTypes)eMission,

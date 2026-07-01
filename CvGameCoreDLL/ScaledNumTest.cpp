@@ -57,7 +57,7 @@ void TestScaledNum()
 	FAssert(rTest == 3);
 	// The exact result would be 4.5/1024
 	FAssert(ScaledNum<100>(30,100) * ScaledNum<1024>(15,1024) == ScaledNum<1024>(5,1024));
-	// If multiplication was performed like this, we'd get 4/1024:
+	// If multiplication were performed like this, we'd get 4/1024:
 	FAssert(ScaledNum<1024>(ScaledNum<100>(30,100)) *
 			ScaledNum<1024>(15,1024) == ScaledNum<1024>(4,1024));
 	// Now force a result on the smaller scale:

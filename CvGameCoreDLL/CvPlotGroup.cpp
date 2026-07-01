@@ -277,22 +277,25 @@ void CvPlotGroup::read(FDataStreamBase* pStream)
 {
 	reset();
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	pStream->Read(&m_iID);
 	pStream->Read((int*)&m_eOwner);
-	if (uiFlag >= 1)
-		m_aiNumBonuses.read(pStream);
-	else m_aiNumBonuses.readArray<int>(pStream);
+
+	m_aiNumBonuses.read(pStream);
+
 	m_plots.Read(pStream);
 }
 
 
 void CvPlotGroup::write(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 0;
 	uiFlag = 1; // advc.enum: new enum map save behavior
+
 	pStream->Write(uiFlag);
 	pStream->Write(m_iID);
 	pStream->Write(m_eOwner);

@@ -11,7 +11,7 @@
 			<Type>PROJECT_MANHATTAN_PROJECT</Type>
 			<Description>TXT_KEY_PROJECT_MANHATTAN_PROJECT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_MANHATTAN_PROJECT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_MANHATTAN_PROJECT_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<TechPrereq>TECH_FISSION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -39,24 +39,26 @@
 			<CreateSound/>
 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
 		</ProjectInfo>
+		<!-- custom: button import from RFC DOC mod's internet.dds, as for button in our xml -->
 		<ProjectInfo>
 			<Type>PROJECT_THE_INTERNET</Type>
 			<Description>TXT_KEY_PROJECT_THE_INTERNET</Description>
 			<Civilopedia>TXT_KEY_PROJECT_THE_INTERNET_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_THE_INTERNET_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<TechPrereq>TECH_COMPUTERS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
 			<iMaxTeamInstances>-1</iMaxTeamInstances>
-			<iCost>2000</iCost>
+			<!-- custom: was 2000 -->
+			<iCost>1100</iCost>
 			<iNukeInterception>0</iNukeInterception>
 			<iTechShare>2</iTechShare>
 			<EveryoneSpecialUnit>NONE</EveryoneSpecialUnit>
 			<EveryoneSpecialBuilding>NONE</EveryoneSpecialBuilding>
 			<bSpaceship>0</bSpaceship>
 			<bAllowsNukes>0</bAllowsNukes>
-			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
+			<Button>Art/AdvCiv_SAS/Projects/The_Internet/internet.dds</Button>
 			<PrereqProjects/>
 			<VictoryThresholds/>
 			<VictoryMinThresholds/>
@@ -65,7 +67,7 @@
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_COPPER</BonusType>
-					<iProductonModifier>100</iProductonModifier>
+					<iProductonModifier>25</iProductonModifier>
 				</BonusProductionModifier>
 			</BonusProductionModifiers>
 			<CreateSound/>
@@ -75,9 +77,10 @@
 			<Type>PROJECT_SDI</Type>
 			<Description>TXT_KEY_PROJECT_SDI</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SDI_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SDI_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>NONE</VictoryPrereq>
-			<TechPrereq>TECH_LASER</TechPrereq>
+			<!-- custom: was TECH_TERRAFORMING -->
+			<TechPrereq>TECH_SATELLITES</TechPrereq>
 			<AnyonePrereqProject>PROJECT_MANHATTAN_PROJECT</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -109,7 +112,7 @@
 			<Type>PROJECT_APOLLO_PROGRAM</Type>
 			<Description>TXT_KEY_PROJECT_APOLLO_PROGRAM</Description>
 			<Civilopedia>TXT_KEY_PROJECT_APOLLO_PROGRAM_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_APOLLO_PROGRAM_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_ROCKETRY</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -141,9 +144,10 @@
 			<Type>PROJECT_SS_COCKPIT</Type>
 			<Description>TXT_KEY_PROJECT_SS_COCKPIT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_COCKPIT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_FIBER_OPTICS</TechPrereq>
+			<!-- custom: move PROJECT_SS_COCKPIT to computers, seems to make more sense, plus most importantly we incentivize more computers and can build the spaceship a bit sooner as well, was the now removed TECH_FIBER_OPTICS -->
+			<TechPrereq>TECH_COMPUTERS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -183,9 +187,10 @@
 			<Type>PROJECT_SS_LIFE_SUPPORT</Type>
 			<Description>TXT_KEY_PROJECT_SS_LIFE_SUPPORT</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_LIFE_SUPPORT_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_ECOLOGY</TechPrereq>
+			<!-- custom: was TECH_ECOLOGY -->
+			<TechPrereq>TECH_GENETICS</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -225,13 +230,15 @@
 			<Type>PROJECT_SS_STASIS_CHAMBER</Type>
 			<Description>TXT_KEY_PROJECT_SS_STASIS_CHAMBER</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_STASIS_CHAMBER_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_GENETICS</TechPrereq>
+			<!-- custom: was TECH_GENETICS -->
+			<TechPrereq>TECH_BIOENGINEERING</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
-			<iCost>1200</iCost>
+			<!-- custom: was 1200 -->
+			<iCost>2000</iCost>
 			<iNukeInterception>0</iNukeInterception>
 			<iTechShare>0</iTechShare>
 			<EveryoneSpecialUnit>NONE</EveryoneSpecialUnit>
@@ -262,9 +269,10 @@
 			<Type>PROJECT_SS_DOCKING_BAY</Type>
 			<Description>TXT_KEY_PROJECT_SS_DOCKING_BAY</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_DOCKING_BAY_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_SATELLITES</TechPrereq>
+			<!-- custom: was TECH_SATELLITES -->
+			<TechPrereq>TECH_SPACE_EXPLORATION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>1</iMaxTeamInstances>
@@ -291,12 +299,8 @@
 			<VictoryMinThresholds/>
 			<iVictoryDelayPercent>0</iVictoryDelayPercent>
 			<iSuccessRate>0</iSuccessRate>
-			<BonusProductionModifiers>
-				<BonusProductionModifier>
-					<BonusType>BONUS_ALUMINUM</BonusType>
-					<iProductonModifier>100</iProductonModifier>
-				</BonusProductionModifier>
-			</BonusProductionModifiers>
+			<!-- custom: was BONUS_ALUMINUM 100 -->
+			<BonusProductionModifiers/>
 			<CreateSound/>
 			<MovieDefineTag/>
 		</ProjectInfo>
@@ -304,13 +308,14 @@
 			<Type>PROJECT_SS_ENGINE</Type>
 			<Description>TXT_KEY_PROJECT_SS_ENGINE</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_ENGINE_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_FUSION</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>2</iMaxTeamInstances>
-			<iCost>1600</iCost>
+			<!-- custom: was 1600 -->
+			<iCost>2000</iCost>
 			<iNukeInterception>0</iNukeInterception>
 			<iTechShare>0</iTechShare>
 			<EveryoneSpecialUnit>NONE</EveryoneSpecialUnit>
@@ -346,7 +351,7 @@
 			<Type>PROJECT_SS_CASING</Type>
 			<Description>TXT_KEY_PROJECT_SS_CASING</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_CASING_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
 			<TechPrereq>TECH_COMPOSITES</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
@@ -393,9 +398,10 @@
 			<Type>PROJECT_SS_THRUSTERS</Type>
 			<Description>TXT_KEY_PROJECT_SS_THRUSTERS</Description>
 			<Civilopedia>TXT_KEY_PROJECT_SS_THRUSTERS_PEDIA</Civilopedia>
-			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
-			<TechPrereq>TECH_SUPERCONDUCTORS</TechPrereq>
+			<!-- custom: Long_Comments_XML.txt #365 -->
+			<TechPrereq>TECH_ROCKETRY</TechPrereq>
 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
 			<iMaxTeamInstances>5</iMaxTeamInstances>

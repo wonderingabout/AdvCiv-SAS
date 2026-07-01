@@ -28,7 +28,7 @@
 		<Italian>Profili</Italian>
 		<Spanish>Perfiles</Spanish>
 	</TEXT>
-	
+
 	<!-- New key, replacing "Profile Name" as the heading for the edit box.
 		 FR, IT, SP through deepl.com -->
 	<TEXT>
@@ -39,7 +39,7 @@
 		<Italian>Nome del profilo da creare o cancellare:</Italian>
 		<Spanish>Nombre del perfil a crear o borrar:</Spanish>
 	</TEXT>
-	
+
 	<!-- Based on TXT_KEY_OPTIONS_NEED_TO_RESTART in CIV4GameTextInfos.xml.
 		 Romance-language translations just copied from there. -->
 	<TEXT>
@@ -50,7 +50,7 @@
 		<Italian>Il programma deve essere riavviato prima che i cambiamenti abbiano effetto</Italian>
 		<Spanish>Hay que reiniciar el programa para que los cambios surtan efecto</Spanish>
 	</TEXT>
-	
+
 	<!-- New: Headings -->
 	<TEXT>
 		<Tag>TXT_KEY_OPTIONS_SCREEN_HEADING_GENCONTROL</Tag>
@@ -120,7 +120,7 @@
 		<Italian>Unit&#224;</Italian>
 		<Spanish>Unidades</Spanish>
 	</TEXT>
-	
+
 	<!-- From CIV4GameTextInfos.xml. The translations were too long (repeating
 		 "volume" every time); no changes in English. -->
 	<TEXT> <!-- redefine -->
@@ -173,7 +173,7 @@
 		<Italian>Muto</Italian>
 		<Spanish>Mudo</Spanish>
 	</TEXT>
-	
+
 	<!-- New: Tooltips for the reset and exit buttons.
 		 deepl.com for FR, IT, SP. -->
 	<TEXT>
@@ -752,25 +752,7 @@
 		<Italian>Mostra i raggi d'azione delle citt&#224; selezionando un colono</Italian>
 		<Spanish>Para ver los radios urbanos al seleccionar a un colono</Spanish>
 	</TEXT>
-	<!-- "Extra" instead of "Detailed" -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
-		<English>Extra City Info</English>
-		<French>Infos d&#233;taill&#233;es sur la ville</French>
-		<German>Zusätzliche Stadt-Info</German>
-		<Italian>Informazioni dettagliate sulla citt&#224;</Italian>
-		<Spanish>Informaci&#243;n detallada de la ciudad</Spanish>
-	</TEXT-->
-	<!-- List the extra info. (I've searched the code; this should be
-		 everything.) -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
-		<English>Shows some additional information about cities on the main map, namely, on the production bar, the number of production turns left; on the food bar, the number of turns until growth; and shows icons that highlight the cities with the highest research, gold and production rate.</English>
-		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
-		<German>Zeigt auf der Hauptkarte Zusatzinformationen über Ihre Städte an, nämlich: Auf dem Produktionsbalken die Anzahl der Züge bis zur Fertigstellung, auf dem Nahrungsbalken die Anzahl der Züge bis zum Bevölkerungszuwachs, und hebt durch Symbole die Städte mit der höchsten Forschungsrate, Goldrate und Produktionsrate hervor.</German>
-		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
-		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
-	</TEXT-->
+	<!-- custom: Long_Comments_XML.txt #264 -->
 	<!-- advc.002f: The annoying indicator icons are now handled by BUG. So, next version: -->
 	<TEXT>
 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
@@ -788,5 +770,5 @@
 		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
 		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
 	</TEXT>
-	
+
 </Civ4GameText>

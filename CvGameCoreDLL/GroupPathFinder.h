@@ -17,23 +17,11 @@ private:
 		Corresponds to FAStarNode::m_iData1 in K-Mod. */
 	int m_iMoves; // (short would suffice - but wouldn't help currently b/c of padding)
 public:
-	int getMoves() const
-	{
-		return m_iMoves;
-	}
-	void setMoves(int iMoves)
-	{
-		m_iMoves = iMoves;
-	}
+	int getMoves() const { return m_iMoves; }
+	void setMoves(int iMoves) { m_iMoves = iMoves; }
 	// Aliases; to give path length a more specific name.
-	int getPathTurns() const
-	{
-		return getPathLength();
-	}
-	void setPathTurns(int iPathTurns)
-	{
-		setPathLength(iPathTurns);
-	}
+	int getPathTurns() const { return getPathLength(); }
+	void setPathTurns(int iPathTurns) { setPathLength(iPathTurns); }
 };
 
 class CvSelectionGroup;
@@ -44,26 +32,16 @@ class GroupStepMetric : public StepMetricBase<GroupPathNode>
 public:
 /*	static interface so that GroupStepMetric can share code with the
 	FAStar pathfinder in the EXE */
-	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags);
-	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags);
-	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags, int iMoves, int iPathTurns);
-	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup,
-			MovementFlags eFlags);
-	static int cost(CvPlot const& kFrom, CvPlot const& kTo,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags,
-			int iCurrMoves, bool bAtStart);
-	static int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY)
-	{
-		return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT;
-	}
+	static bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool canStepThrough(CvPlot const& kFrom, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iMoves, int iPathTurns);
+	static bool isValidDest(CvPlot const& kPlot, CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static int cost(CvPlot const& kFrom, CvPlot const& kTo, CvSelectionGroup const& kGroup, MovementFlags eFlags, int iCurrMoves, bool bAtStart);
+	static int heuristicStepCost(int iFromX, int iFromY, int iToX, int iToY) { return stepDistance(iFromX, iFromY, iToX, iToY) * PATH_MOVEMENT_WEIGHT; }
 	/*	The K-Mod code for updating path data is pretty intrusive; needs to
 		have access to the node objects. */
 	template<class Node> // GroupPathNode or FAStarNode
-	static bool updatePathData(Node& kNode, Node const& kParent,
-			CvSelectionGroup const& kGroup, MovementFlags eFlags);
+	static bool updatePathData(Node& kNode, Node const& kParent, CvSelectionGroup const& kGroup, MovementFlags eFlags);
 	static int initialMoves(CvSelectionGroup const& kGroup, MovementFlags eFlags);
 
 // Non-static interface ...
@@ -73,50 +51,16 @@ public:
 	:	StepMetricBase<GroupPathNode>(iMaxPath), m_pGroup(pGroup),
 		m_eFlags(eFlags), m_iHeuristicWeight(iHeuristicWeight)
 	{}
-	CvSelectionGroup const* getGroup() const
-	{
-		return m_pGroup;
-	}
-	MovementFlags getFlags() const
-	{
-		return m_eFlags;
-	}
-	int getHeuristicWeight() const
-	{
-		return m_iHeuristicWeight;
-	}
-	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags);
-	}
-	bool canStepThrough(CvPlot const& kPlot) const
-	{
-		return canStepThrough(kPlot, *m_pGroup, m_eFlags);
-	}
-	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const
-	{
-		return canStepThrough(kPlot, *m_pGroup, m_eFlags,
-				kNode.getMoves(), kNode.getPathTurns());
-	}
-	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const
-	{
-		return isValidDest(kDest, *m_pGroup, m_eFlags);
-	}
-	int cost(CvPlot const& kFrom, CvPlot const& kTo,
-		GroupPathNode const& kParentNode) const
-	{
-		return cost(kFrom, kTo, *m_pGroup, m_eFlags,
-				kParentNode.getMoves(), kParentNode.m_iKnownCost == 0);
-	}
-	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
-				m_iHeuristicWeight;
-	}
-	bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const
-	{
-		return updatePathData(kNode, kParent, *m_pGroup, m_eFlags);
-	}
+	CvSelectionGroup const* getGroup() const { return m_pGroup; }
+	MovementFlags getFlags() const { return m_eFlags; }
+	int getHeuristicWeight() const { return m_iHeuristicWeight; }
+	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const { return isValidStep(kFrom, kTo, *m_pGroup, m_eFlags); }
+	bool canStepThrough(CvPlot const& kPlot) const { return canStepThrough(kPlot, *m_pGroup, m_eFlags); }
+	bool canStepThrough(CvPlot const& kPlot, GroupPathNode const& kNode) const { return canStepThrough(kPlot, *m_pGroup, m_eFlags, kNode.getMoves(), kNode.getPathTurns()); }
+	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const { return isValidDest(kDest, *m_pGroup, m_eFlags); }
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, GroupPathNode const& kParentNode) const { return cost(kFrom, kTo, *m_pGroup, m_eFlags, kParentNode.getMoves(), kParentNode.m_iKnownCost == 0); }
+	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const { return heuristicStepCost(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) * m_iHeuristicWeight; }
+	bool updatePathData(GroupPathNode& kNode, GroupPathNode const& kParent) const { return updatePathData(kNode, kParent, *m_pGroup, m_eFlags); }
 	void initializePathData(GroupPathNode& kNode) const
 	{
 		StepMetricBase<GroupPathNode>::initializePathData(kNode);
@@ -136,10 +80,8 @@ class GroupPathFinder : public KmodPathFinder<GroupStepMetric, GroupPathNode>,
 {
 public:
 	void invalidateGroup(CvSelectionGroup const& kGroup);
-	void setGroup( // was "SetSettings"
-			CvSelectionGroup const& kGroup,
-			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
-			int iMaxPath = -1, int iHeuristicWeight = -1);
+	// was "SetSettings" <!-- custom: hoisted from multiline signature before `kGroup` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void setGroup(CvSelectionGroup const& kGroup, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1, int iHeuristicWeight = -1);
 	bool generatePath(CvPlot const& kTo);
 	#if VERIFY_PATHF == 0 // advc.test
 	// Unhide 2-argument version
@@ -158,11 +100,8 @@ public:
 	}
 	/*	advc (tbd.): Perhaps this function could be removed. Then GroupPathNode
 		would be fully encapasulated. Cf. comment in CvUnitAI::AI_considerPathDOW. */
-	GroupPathNode* getEndNode() const
-	{	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
-		FAssert(m_pEndNode != NULL);
-		return m_pEndNode;
-	}
+	// Note: the returned pointer becomes invalid if the pathfinder is destroyed.
+	GroupPathNode* getEndNode() const { FAssert(m_pEndNode != NULL); return m_pEndNode; }
 	// <advc.test>
 	#if VERIFY_PATHF
 	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo);

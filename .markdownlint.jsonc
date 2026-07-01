@@ -1,0 +1,12 @@
+// AI, UI, or other modifications
+// Created as part of AdvCiv-SAS improvements
+// (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+//
+// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it. -->
+// <!-- custom: use .jsonc instead of .json so we can comment this markdownlint config file. -->
+{
+	"default": true,
+	"MD010": false, // <!-- custom: tabs are valid in fenced code blocks do not remove them, since i didn't easily found a rule specifically for tabs in fenced code blocks and this seems like a global rule, easier to disable the rule entirely even though we would benefit slightly but less from tab checking globally, minus in fenced code blocks. -->
+	"MD013": false, // <!-- custom: similarly some very long lines are valid in our code, generally for commented-out code but maybe not only (didn't check if there are exceptions), so show them as such -->
+	"MD033": false // <!-- custom: similarly or also we use tags like <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size) or at least it doesn't seem functional, so until and if i ever find hopefully such an option, i am fine to keep it as is as this seems functional, so disable the markdownlint rule instead -->
+}

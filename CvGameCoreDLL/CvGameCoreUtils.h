@@ -35,7 +35,7 @@ class FAStar;
  have been too lazy to find a proper place for. */
 
 // advc:
-namespace std11
+namespace sequtil
 {
 // Erik: "Back-ported" from C++11
 template<class ForwardIt, class T>
@@ -72,10 +72,10 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
+HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->
 
 // <advc> Replacing (unused) tables in CvGlobals for single-step rotation
-inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
-	int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
+inline DirectionTypes rotateDirClockw(DirectionTypes eDir, int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
 {
 	/*	Could also try
 		return static_cast<DirectionTypes>((eDir + i45DegRotations) & (NUM_DIRECTION_TYPES - 1));
@@ -85,15 +85,8 @@ inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
 			% NUM_DIRECTION_TYPES);
 }
 
-inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir,
-	int i45DegRotations = 1)
-{
-	return rotateDirClockw(eDir, -i45DegRotations);
-} // </advc>
-inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)		// Exposed to Python
-{
-	return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES);
-}
+inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir, int i45DegRotations = 1) { return rotateDirClockw(eDir, -i45DegRotations); } // </advc>
+inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir) { return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES); } // Exposed to Python
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);					// Exposed to Python
 DllExport inline bool isCardinalDirection(DirectionTypes eDirection)						// Exposed to Python
 {
@@ -114,8 +107,7 @@ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot
 namespace hotkeyDescr
 {
 	CvWString keyStringFromKBCode(TCHAR const* szDescr);
-	CvWString hotKeyFromDescription(TCHAR const* szDescr,
-			bool bShift = false, bool bAlt = false, bool bCtrl = false);
+	CvWString hotKeyFromDescription(TCHAR const* szDescr, bool bShift = false, bool bAlt = false, bool bCtrl = false);
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
@@ -130,17 +122,13 @@ DllExport void setTradeItem(TradeData* pItem, TradeableItems eItemType = TRADE_I
 /*	advc: Unused. Thought about moving these to CvGameTextMgr,
 	but that'll lead to more header inclusions. */
 //void setListHelp(wchar* szBuffer, const wchar* szStart, const wchar* szItem, const wchar* szSeparator, bool bFirst);
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
 /*	<advc> Add variants for items that can go into one list only when a value
 	matches the most recently added item. (This stuff should really be wrapped
 	into a class.) */
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID);
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID);
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
 
 // PlotUnitFunc's...  (advc: Parameters iData1, iData2 renamed)
 bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1 = -1, int iDummy2 = -1);

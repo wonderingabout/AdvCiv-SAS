@@ -1,0 +1,30 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: use absolute paths as unrelated folders are getting incorrectly git ignored. -->
+/CvGameCoreDLL/Project/Assert/
+/CvGameCoreDLL/Project/Assert-fast/
+/CvGameCoreDLL/Project/Debug/
+/CvGameCoreDLL/Project/Debug-fast/
+/CvGameCoreDLL/Project/Debug-Opt/
+/CvGameCoreDLL/Project/Final_Release/
+/CvGameCoreDLL/Project/Final_Release-fast/
+/CvGameCoreDLL/Project/obj/
+/CvGameCoreDLL/Project/Profile/
+/CvGameCoreDLL/Project/Profile-fast/
+/CvGameCoreDLL/Project/Release/
+/CvGameCoreDLL/Project/_Release-fast/
+# <!-- custom: do not ignore /CvGameCoreDLL/Project/temp_files/; keep only a tracked placeholder file inside it so workflow/local status checks can catch stale fast-compile temp files before commit; `.gitattributes` may export-ignore this marker from release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+*.opensdf
+*.sdf
+*.suo
+*.vcxproj.filters
+*.vcxproj.user
+*.opensdf
+__pycache__
+/.agents/
+/.ruff_cache/
+/Logs/
+/Assets/CvGameCoreDLL_d.dll
+/LLM_Helpers/outputs/

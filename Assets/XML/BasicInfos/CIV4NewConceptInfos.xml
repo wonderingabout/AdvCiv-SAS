@@ -6,110 +6,88 @@
 <!-- Basic Infos -->
 <Civ4NewConceptInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
 	<NewConceptInfos>
-		<NewConceptInfo>
-			<Type>CONCEPT_ESPIONAGE</Type>
-			<Description>TXT_KEY_ESPIONAGE_CULTURE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_COLONIES</Type>
-			<Description>TXT_KEY_CONCEPT_COLONIES</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_COLONIES_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_CORPORATIONS</Type>
-			<Description>TXT_KEY_CONCEPT_CORPORATIONS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_CORPORATIONS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SEA_TRADE</Type>
-			<Description>TXT_KEY_CONCEPT_SEA_TRADE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_SEA_TRADE_PEDIA_TR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_FLANK_ATTACK</Type>
-			<Description>TXT_KEY_CONCEPT_FLANK_ATTACK</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_FLANK_ATTACK_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_GREAT_SPY</Type>
-			<Description>TXT_KEY_CONCEPT_GREAT_SPY</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_GREAT_SPY_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_LATE_START</Type>
-			<Description>TXT_KEY_CONCEPT_LATE_START</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_LATE_START_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_EVENTS</Type>
-			<Description>TXT_KEY_CONCEPT_EVENTS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_EVENTS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_AIR_COMBAT</Type>
-			<Description>TXT_KEY_CONCEPT_AIR_COMBAT</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_AIR_COMBAT_PEDIA_SR</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_AIR_PROMOTIONS</Type>
-			<Description>TXT_KEY_CONCEPT_AIR_PROMOTIONS</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_AIR_PROMOTIONS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_BUILDINGS</Type>
-			<Description>TXT_KEY_BTS_BUILDINGS</Description>
-			<Civilopedia>TXT_KEY_BTS_BUILDINGS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_CIVS</Type>
-			<Description>TXT_KEY_BTS_CIVS</Description>
-			<Civilopedia>TXT_KEY_BTS_CIVS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_UNITS</Type>
-			<Description>TXT_KEY_BTS_UNITS</Description>
-			<Civilopedia>TXT_KEY_BTS_UNITS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_LEADERS</Type>
-			<Description>TXT_KEY_BTS_LEADERS</Description>
-			<Civilopedia>TXT_KEY_BTS_LEADERS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_WONDERS</Type>
-			<Description>TXT_KEY_BTS_WONDERS</Description>
-			<Civilopedia>TXT_KEY_BTS_WONDERS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_BTS_TECHS</Type>
-			<Description>TXT_KEY_BTS_TECHS</Description>
-			<Civilopedia>TXT_KEY_BTS_TECHS_PEDIA</Civilopedia>
-		</NewConceptInfo>
+		<!-- custom: Long_Comments_XML.txt #126 -->
 		<NewConceptInfo>
 			<Type>CONCEPT_BTS_RULES_CHANGES</Type>
 			<Description>TXT_KEY_BTS_RULES_CHANGES</Description>
 			<Civilopedia>TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
+		<!-- custom: new base AdvCiv non-exhaustive change listing (from base AdvCiv's manual.pdf or similar format or possibly other docs or sources) -->
 		<NewConceptInfo>
-			<Type>CONCEPT_BTS_FOREST_PRESERVE</Type>
-			<Description>TXT_KEY_BTS_FOREST_PRESERVE</Description>
-			<Civilopedia>TXT_KEY_BTS_FOREST_PRESERVE_PEDIA</Civilopedia>
+			<Type>CONCEPT_BASE_ADVCIV_SOME_CHANGES</Type>
+			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>
+			<Civilopedia>TXT_KEY_BASE_ADVCIV_SOME_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
-			<Type>CONCEPT_APOSTOLIC_PALACE</Type>
-			<Description>TXT_KEY_CONCEPT_APOSTOLIC_PALACE</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA</Civilopedia>
+			<Type>CONCEPT_SAS_SCORE_TAB_COLUMNS</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
-			<Type>CONCEPT_FORT</Type>
-			<Description>TXT_KEY_CONCEPT_FORT</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_FORT_PEDIA</Civilopedia>
+			<Type>CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
-			<Type>CONCEPT_LIBERATION</Type>
-			<Description>TXT_KEY_CONCEPT_LIBERATION</Description>
-			<Civilopedia>TXT_KEY_CONCEPT_LIBERATION_PEDIA</Civilopedia>
+			<Type>CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_CIVILIZATION_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CIVILIZATION_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CIVILIZATION_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_SPEED_CHART_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_WORLD_SIZE_CHART_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_VOTES_LEGEND_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_EVENT_TRIGGERS_LEGEND_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<!-- advc.004y: Shortcut categories restored (originally by
 			 Ekmek) -->
@@ -119,34 +97,9 @@
 			<Civilopedia>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
-			<Type>CONCEPT_SHORTCUTS_UNITS</Type>
-			<Description>TXT_KEY_SHORTCUTS_UNITS</Description>
-			<Civilopedia>TXT_KEY_SHORTCUTS_UNITS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SHORTCUTS_CITYSCREEN</Type>
-			<Description>TXT_KEY_SHORTCUTS_CITYSCREEN</Description>
-			<Civilopedia>TXT_KEY_SHORTCUTS_CITYSCREEN_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SHORTCUTS_MOUSE</Type>
-			<Description>TXT_KEY_SHORTCUTS_MOUSE</Description>
-			<Civilopedia>TXT_KEY_SHORTCUTS_MOUSE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
 			<Type>CONCEPT_SHORTCUTS_BUG</Type>
 			<Description>TXT_KEY_SHORTCUTS_BUG</Description>
 			<Civilopedia>TXT_KEY_SHORTCUTS_BUG_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SHORTCUTS_MAP</Type>
-			<Description>TXT_KEY_SHORTCUTS_MAP</Description>
-			<Civilopedia>TXT_KEY_SHORTCUTS_MAP_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_SHORTCUTS_GAME</Type>
-			<Description>TXT_KEY_SHORTCUTS_GAME</Description>
-			<Civilopedia>TXT_KEY_SHORTCUTS_GAME_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SHORTCUTS_CAMERA</Type>
@@ -154,65 +107,42 @@
 			<Civilopedia>TXT_KEY_SHORTCUTS_CAMERA_PEDIA</Civilopedia>
 		</NewConceptInfo>
 		<NewConceptInfo>
+			<Type>CONCEPT_SHORTCUTS_CHEATS</Type>
+			<Description>TXT_KEY_SHORTCUTS_CHEATS</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_CHEATS_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SHORTCUTS_CITYSCREEN</Type>
+			<Description>TXT_KEY_SHORTCUTS_CITYSCREEN</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_CITYSCREEN_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SHORTCUTS_GAME</Type>
+			<Description>TXT_KEY_SHORTCUTS_GAME</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_GAME_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SHORTCUTS_MAP</Type>
+			<Description>TXT_KEY_SHORTCUTS_MAP</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_MAP_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
+			<Type>CONCEPT_SHORTCUTS_MOUSE</Type>
+			<Description>TXT_KEY_SHORTCUTS_MOUSE</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_MOUSE_PEDIA</Civilopedia>
+		</NewConceptInfo>
+		<NewConceptInfo>
 			<Type>CONCEPT_SHORTCUTS_MP</Type>
 			<Description>TXT_KEY_SHORTCUTS_MP</Description>
 			<Civilopedia>TXT_KEY_SHORTCUTS_MP_PEDIA</Civilopedia>
 		</NewConceptInfo>
-		<!-- advc.004y: Trait categories restored -->
 		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_AGGRESSIVE</Type>
-			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Civilopedia>
+			<Type>CONCEPT_SHORTCUTS_UNITS</Type>
+			<Description>TXT_KEY_SHORTCUTS_UNITS</Description>
+			<Civilopedia>TXT_KEY_SHORTCUTS_UNITS_PEDIA</Civilopedia>
 		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_CHARISMATIC</Type>
-			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
-			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_CREATIVE</Type>
-			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_EXPANSIVE</Type>
-			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_FINANCIAL</Type>
-			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_IMPERIALIST</Type>
-			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
-			<Civilopedia>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_INDUSTRIOUS</Type>
-			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
-			<Civilopedia>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_ORGANIZED</Type>
-			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
-			<Civilopedia>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_PHILOSOPHICAL</Type>
-			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_PROTECTIVE</Type>
-			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
-			<Civilopedia>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Civilopedia>
-		</NewConceptInfo>
-		<NewConceptInfo>
-			<Type>CONCEPT_TRAIT_SPIRITUAL</Type>
-			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
-			<Civilopedia>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Civilopedia>
-		</NewConceptInfo>
+		<!-- custom: Removed all CONCEPT_TRAIT_* entries. Sevopedia Traits category now uses WIDGET_PYTHON 6799
+			 approach (like Builds) which reads trait data directly from CIV4TraitInfos.xml via gc.getTraitInfo().
+			 The old concept-based workaround is no longer needed. (Claude Opus 4.5) -->
 	</NewConceptInfos>
 </Civ4NewConceptInfos>

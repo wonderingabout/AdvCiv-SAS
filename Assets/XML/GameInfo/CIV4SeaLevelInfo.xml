@@ -11,7 +11,8 @@
 			<Description>TXT_KEY_SEALEVEL_LOW</Description>
 			<iSeaLevelChange>-8</iSeaLevelChange>
 			<!-- advc.910 -->
-			<iResearchPercent>117</iResearchPercent>
+			<!-- custom: i don't care about this, please make it reproducible rather, was 117 -->
+			<iResearchPercent>100</iResearchPercent>
 		</SeaLevelInfo>
 		<SeaLevelInfo>
 			<Type>SEALEVEL_MEDIUM</Type>
@@ -25,7 +26,8 @@
 			<Description>TXT_KEY_SEALEVEL_HIGH</Description>
 			<iSeaLevelChange>6</iSeaLevelChange>
 			<!-- advc.910 -->
-			<iResearchPercent>87</iResearchPercent>
+			<!-- custom: i don't care about this, please make it reproducible rather, was 87 -->
+			<iResearchPercent>100</iResearchPercent>
 		</SeaLevelInfo>
 	</SeaLevelInfos>
 </Civ4SeaLevelInfo>

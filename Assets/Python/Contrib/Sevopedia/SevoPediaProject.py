@@ -8,69 +8,89 @@
 #
 # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
 #
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 
 from CvPythonExtensions import *
+from SASMagicNumbers import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import SASTextScale
+
+from _sevopedia_helpers import *
 
 gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
 class SevoPediaProject:
-	
+
 	def __init__(self, main):
 		self.iProject = -1
+		self.bHistoryExpanded = False
 		self.top = main
 
-		self.W_REQUIRES = 200
+		self.W_REQUIRES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
 		self.X_REQUIRES = self.top.R_PEDIA_PAGE - self.W_REQUIRES
 		self.Y_REQUIRES = self.top.Y_PEDIA_PAGE
 		self.H_REQUIRES = 116
+		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
+		self.Y_MOVIE = self.Y_REQUIRES
+		self.H_MOVIE = self.H_REQUIRES
+		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
 
-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
-		self.W_MAIN_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - 10
-		self.H_MAIN_PANE = 116
+		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
+		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
+		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - self.W_MOVIE - 20
+		self.H_PROJECT_PANE = 116
 
 		self.W_ICON = 100
 		self.H_ICON = 100
-		self.X_ICON = self.X_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
-		self.ICON_SIZE = 64
+		self.X_ICON = self.X_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
+		self.Y_ICON = self.Y_PROJECT_PANE + (self.H_PROJECT_PANE - self.H_ICON) / 2
 
 		self.X_STATS_PANE = self.X_ICON + self.W_ICON
 		self.Y_STATS_PANE = 79
 		self.W_STATS_PANE = 200
 		self.H_STATS_PANE = 200
 
-		self.X_SPECIAL = self.X_MAIN_PANE
-		self.Y_SPECIAL = self.Y_MAIN_PANE + self.H_MAIN_PANE + 10
+		self.X_SPECIAL = self.X_PROJECT_PANE
+		self.Y_SPECIAL = self.Y_PROJECT_PANE + self.H_PROJECT_PANE + 10
 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
 		self.H_SPECIAL = 210
 
-		self.X_TEXT = self.X_MAIN_PANE
-		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_MAIN_PANE
-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
+		self.X_HISTORY = self.X_PROJECT_PANE
+		self.Y_HISTORY = self.Y_SPECIAL + self.H_SPECIAL + 10
+		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
+		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
 
-
+		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
+		self.iPROJECT_PRODUCTION_PERCENT = None
 
 	def interfaceScreen(self, iProject):
+		if self.iProject != iProject:
+			self.bHistoryExpanded = False
 		self.iProject = iProject
-		screen = self.top.getScreen()
 
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
-
+		self.placeProjectPane()
 		self.placeStats()
 		self.placeRequires()
+		self.placeMovie()
 		self.placeSpecial()
-		self.placeText()
+		self.placeHistory()
 
+	def placeProjectPane(self):
+		screen = self.top.getScreen()
 
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_PROJECT_PANE, self.Y_PROJECT_PANE, self.W_PROJECT_PANE, self.H_PROJECT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+		# <!-- custom: no need for the blue frame on blue background, use transparent instead -->
+		# screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getProjectInfo(self.iProject).getButton(), self.X_ICON + self.W_ICON/2 - PANE_ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - PANE_ICON_SIZE/2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 	def placeStats(self):
 		screen = self.top.getScreen()
@@ -84,23 +104,25 @@ class SevoPediaProject:
 			szProjectType = localText.getText("TXT_KEY_PEDIA_WORLD_PROJECT", ())
 			if (iMaxInstances > 1):
 				szProjectType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szProjectType.upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (isTeamProject(self.iProject)):
 			iMaxInstances = gc.getProjectInfo(self.iProject).getMaxTeamInstances()
 			szProjectType = localText.getText("TXT_KEY_PEDIA_TEAM_PROJECT", ())
 			if (iMaxInstances > 1):
 				szProjectType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
-			screen.appendListBoxString(panelName, u"<font=4>" + szProjectType.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szProjectType.upper()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 		if (projectInfo.getProductionCost() > 0):
+			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part -->
 			if self.top.iActivePlayer == -1:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", ((projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT"))/100,))
+				if self.iPROJECT_PRODUCTION_PERCENT is None:
+					self.iPROJECT_PRODUCTION_PERCENT = gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")
+				szCost = (projectInfo.getProductionCost() * self.iPROJECT_PRODUCTION_PERCENT) / 100
 			else:
-				szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getProjectProductionNeeded(self.iProject),))
-			screen.appendListBoxString(panelName, u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
-
-
+				szCost = gc.getActivePlayer().getProjectProductionNeeded(self.iProject)
+			szTextHammerYield = u"%c %d" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
+			screen.appendListBoxString(panelName, SASTextScale.titleText(szTextHammerYield), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
 	def placeRequires(self):
 		screen = self.top.getScreen()
@@ -112,7 +134,26 @@ class SevoPediaProject:
 		if (iPrereq >= 0):
 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
 
+	def placeMovie(self):
+		screen = self.top.getScreen()
+		panelName = self.top.getNextWidgetName()
+		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
 
+		# <!-- custom: use attachLabel for padding similar to Requires panel -->
+		screen.attachLabel(panelName, "", "  ")
+
+		iMovieType = SAS_MAGIC_PEDIA_MOVIE_TYPE_PROJECT
+		if self.top.pediaMovies.hasMovie(iMovieType, self.iProject):
+			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iProject)
+			buttonSize = 64
+			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+			# X: Standard centering works correctly.
+			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude code Sonnet 4.5) -->
+			buttonX = (self.W_MOVIE - buttonSize) / 2
+			buttonY = 10
+			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, SAS_MAGIC_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+		else:
+			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
 	def placeSpecial(self):
 		screen = self.top.getScreen()
@@ -120,27 +161,22 @@ class SevoPediaProject:
 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
 		listName = self.top.getNextWidgetName()
 		szSpecialText = CyGameTextMgr().getProjectHelp(self.iProject, True, None)[1:]
-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
+	def setHistoryExpanded(self, bExpanded):
+		self.bHistoryExpanded = bExpanded
 
-
-	def placeText(self):
+	def placeHistory(self):
 		screen = self.top.getScreen()
-		panelName = self.top.getNextWidgetName()
-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
-
-
-
+		szTitle = u""
+		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)
 	def getProjectType(self, iProject):
 		if (isWorldProject(iProject)):
 			return (3)
 		if (isTeamProject(iProject)):
 			return (2)
 		return (1)
-
-
 
 	def getProjectSortedList(self):
 		listOfAllTypes = []
@@ -160,8 +196,6 @@ class SevoPediaProject:
 			for i in range(len(listSorted)):
 				listOfAllTypes.append(listSorted[i])
 		return listOfAllTypes
-
-
 
 	def handleInput (self, inputClass):
 		return 0

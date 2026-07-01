@@ -419,8 +419,7 @@ void UWAICache::deleteTeamPathFinders(TeamPathFinders& kPathFinders)
 }
 
 
-void UWAICache::resetTeamPathFinders(TeamPathFinders& kPathFinders,
-	TeamTypes eWarTarget) const
+void UWAICache::resetTeamPathFinders(TeamPathFinders& kPathFinders, TeamTypes eWarTarget) const
 {
 	int const iSeaLimit = getUWAI().maxSeaDist() * shipSpeed();
 	int const iLandLimit = getUWAI().maxLandDist();
@@ -925,8 +924,7 @@ void UWAICache::setCanBeHiredAgainst(TeamTypes eTeam, bool b)
 }
 
 
-void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam,
-	int iWarUtility, int iUtilityThresh)
+void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam, int iWarUtility, int iUtilityThresh)
 {
 	// (Part of the update happens in UWAI::Team::doWar)
 	scaled rProb = -1;
@@ -1328,9 +1326,7 @@ void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 }
 
 
-void UWAICache::reportWarEnding(TeamTypes eEnemy,
-	CLinkList<TradeData> const* pWeReceive,
-	CLinkList<TradeData> const* pWeGive)
+void UWAICache::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
 	// Forget sponsorship once a war ends
 	m_aiBounty.set(eEnemy, 0);
@@ -1434,8 +1430,7 @@ void UWAICache::reportCityCreated(CvCity& kCity)
 }
 
 
-void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive,
-	PlayerTypes eSponsor, TeamTypes eTarget)
+void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget)
 {
 	if (eTarget == NO_TEAM || eSponsor == NO_PLAYER)
 	{
@@ -1542,8 +1537,7 @@ void UWAICache::updateTypicalUnits()
 }
 
 
-UWAICache::City::City(PlayerTypes eCacheOwner, CvCity& kCity,
-	TeamPathFinders* pPathFinders)
+UWAICache::City::City(PlayerTypes eCacheOwner, CvCity& kCity, TeamPathFinders* pPathFinders)
 {
 	m_pCity = &kCity;
 	m_ePlot = kCity.plotNum();
@@ -1635,8 +1629,7 @@ scaled UWAICache::City::attackPriority() const
 }
 
 
-void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders,
-	PlayerTypes eCacheOwner)
+void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes eCacheOwner)
 {
 	PROFILE_FUNC();
 	CvCity const& kTargetCity = city();

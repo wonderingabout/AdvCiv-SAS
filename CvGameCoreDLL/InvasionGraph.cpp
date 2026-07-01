@@ -24,8 +24,7 @@ namespace
 }
 
 
-InvasionGraph::InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst,
-	PlyrSet const& kWarParties, bool bPeaceScenario)
+InvasionGraph::InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& kWarParties, bool bPeaceScenario)
 :	m_kMA(kMilitaryAnalyst), m_kWarParties(kWarParties),
 	m_kReport(m_kMA.evaluationParams().getReport()),
 	m_bPeaceScenario(bPeaceScenario),
@@ -52,8 +51,7 @@ InvasionGraph::~InvasionGraph()
 }
 
 
-void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide,
-	PlyrSet const& kOurFutureOpponents)
+void InvasionGraph::addFutureWarParties(PlyrSet const& kOurSide, PlyrSet const& kOurFutureOpponents)
 {
 	m_bAllWarPartiesKnown = true;
 	if (kOurSide.empty())
@@ -428,8 +426,7 @@ PlayerTypes InvasionGraph::Node::findBestTarget(TeamTypes eExtra) const
 }
 
 
-bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity,
-	TeamTypes eExtra) const
+bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity, TeamTypes eExtra) const
 {
 	PlayerTypes const eOwner = kCacheCity.city().getOwner();
 	return (isValidTarget(eOwner, eExtra) &&
@@ -438,8 +435,7 @@ bool InvasionGraph::Node::isValidTarget(UWAICache::City const& kCacheCity,
 }
 
 
-bool InvasionGraph::Node::isValidTarget(PlayerTypes eTarget,
-	TeamTypes eExtra) const
+bool InvasionGraph::Node::isValidTarget(PlayerTypes eTarget, TeamTypes eExtra) const
 {
 	return !(eTarget == NO_PLAYER || (!m_abWarOpponent[eTarget] &&
 			(eExtra == NO_TEAM ||
@@ -613,11 +609,8 @@ scaled InvasionGraph::Node::productionPortion() const
 }
 
 
-SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
-	scaled rArmyPortionAttacker, bool bClashOnly,
-	/*	For calculating threat values when breaking cycles. Attacks against
-		lightly defended cities shouldn't result in larger threat values. */
-	bool bUniformGarrisons) const
+// For calculating threat values when breaking cycles. Attacks against lightly defended cities shouldn't result in larger threat values. <!-- custom: hoisted from multiline signature between `bClashOnly` and `bUniformGarrisons` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rArmyPortionAttacker, bool bClashOnly, bool bUniformGarrisons) const
 {
 	PROFILE_FUNC();
 	UWAICache::City const* const pCacheCity = (bClashOnly ? NULL : targetCity());
@@ -1537,7 +1530,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender,
 			if (rDefArmyPow > 0)
 			{
 				kStep.reducePower(kDefender.m_ePlayer, CAVALRY,
-						rLossesDefArmy * rDefArmyPortion * rDefCavPow / rDefArmyPow);
+						rLossesDefArmy * rDefCavPow / rDefArmyPow);
 			}
 		}
 		/*	Attacker may lose nothing b/c city is so strongly defended that no
@@ -2065,8 +2058,7 @@ scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther) con
 }
 
 
-bool InvasionGraph::Node::isSneakAttack(InvasionGraph::Node const& kOther,
-	bool bClash) const
+bool InvasionGraph::Node::isSneakAttack(InvasionGraph::Node const& kOther, bool bClash) const
 {
 	if ((m_ePlayer != m_eAgent && (!bClash || kOther.m_ePlayer != m_eAgent)) ||
 		GET_TEAM(m_ePlayer).isAtWar(TEAMID(kOther.m_ePlayer)))
@@ -2341,8 +2333,7 @@ scaled InvasionGraph::willingness(PlayerTypes eAggressor, PlayerTypes eTarget) c
 }
 
 
-SimulationStep::SimulationStep(PlayerTypes eAttacker,
-	UWAICache::City const* pContestedCity)
+SimulationStep::SimulationStep(PlayerTypes eAttacker, UWAICache::City const* pContestedCity)
 :	m_eAttacker(eAttacker), m_pContestedCity(pContestedCity),
 	m_iDuration(0), m_bSuccess(false)
 {
@@ -2351,8 +2342,7 @@ SimulationStep::SimulationStep(PlayerTypes eAttacker,
 }
 
 
-void SimulationStep::reducePower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch, scaled rSubtrahend)
+void SimulationStep::reducePower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch, scaled rSubtrahend)
 {
 	FAssert(rSubtrahend >= 0);
 	rSubtrahend.increaseTo(0);
@@ -2362,8 +2352,7 @@ void SimulationStep::reducePower(PlayerTypes ePlayer,
 }
 
 
-scaled SimulationStep::getLostPower(PlayerTypes ePlayer,
-	MilitaryBranchTypes eBranch) const
+scaled SimulationStep::getLostPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const
 {
 	if (ePlayer == m_eAttacker)
 		return m_arLostPowerAttacker[eBranch];
@@ -2411,8 +2400,7 @@ scaled SimulationStep::getLostPower(PlayerTypes ePlayer,
 	(in addition to lossesWinner). */
 scaled const InvasionGraph::Node::m_rClashPortion = fixp(0.65);
 
-std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(
-	scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
+std::pair<scaled,scaled> InvasionGraph::Node::clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity, bool bNaval)
 {
 	scaled rLesserPow = std::min(rPowAtt, rPowDef);
 	scaled rGreaterPow = std::max(rPowAtt, rPowDef);

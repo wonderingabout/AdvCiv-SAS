@@ -14,11 +14,7 @@ using std::vector;
 using std::ostringstream;
 #include "CvInfo_City.h"
 
-ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& kMA,
-	std::vector<MilitaryBranch*>& kMilitary, int iTimeHorizon,
-	bool bPeaceScenario, bool bNoUpgrading,
-	bool bPartyAddedRecently, bool bAllPartiesKnown,
-	UWAICache::City const* pTargetCity, scaled rProductionPortion)
+ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& kMA, std::vector<MilitaryBranch*>& kMilitary, int iTimeHorizon, bool bPeaceScenario, bool bNoUpgrading, bool bPartyAddedRecently, bool bAllPartiesKnown, UWAICache::City const* pTargetCity, scaled rProductionPortion)
 :	m_kMA(kMA), m_kReport(kMA.evaluationParams().getReport()),
 	m_eAnalyst(kMA.getAgentPlayer()), m_ePlayer(ePlayer),
 	m_kMilitary(kMilitary), m_iTimeHorizon(iTimeHorizon)
@@ -335,9 +331,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
 }
 
 
-void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction,
-	scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive,
-	bool bNavalArmament)
+void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduction, scaled rAdditionalProduction, Intensity eIntensity, bool bDefensive, bool bNavalArmament)
 {
 	PROFILE_FUNC();
 	CvPlayerAI const& kPlayer = GET_PLAYER(m_ePlayer);
@@ -430,7 +424,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
 		int iRevealedCoast = 0;
 		FOR_EACH_CITY(pCity, kPlayer)
 		{
-			if (pCity->isRevealed(kPlayer.getTeam()))
+			if (pCity->isRevealed(TEAMID(m_eAnalyst)))
 			{
 				iRevealed++;
 				if (pCity->isCoastal())
@@ -442,11 +436,14 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
 			if (iRevealed >= kPlayer.getNumCities() && iRevealedCoast <= 0)
 				rBranchPortions[FLEET] = 0;
 			// Assume little defensive build-up when attacking across the sea
-			else if (!bDefensive)
-				rBranchPortions[HOME_GUARD] = fixp(0.12);
-			scaled rCoastPortion(iRevealedCoast, iRevealed);
-			rBranchPortions[FLEET] = std::min(fixp(0.35),
-					fixp(0.08) + rCoastPortion / fixp(2.8));
+			else
+			{
+				if (!bDefensive)
+					rBranchPortions[HOME_GUARD] = fixp(0.12);
+				scaled rCoastPortion(iRevealedCoast, iRevealed);
+				rBranchPortions[FLEET] = std::min(fixp(0.35),
+						fixp(0.08) + rCoastPortion / fixp(2.8));
+			}
 		}
 		TeamTypes const eAgentTeam = TEAMID(m_kMA.getAgentPlayer());
 		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(eAgentTeam);

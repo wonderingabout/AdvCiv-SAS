@@ -23,12 +23,8 @@ public:
 		// Should check some property of kPlot here
 		return true;
 	}
-	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const
-	{
-		/*	Always returning true means that any two plots adjacent on the map
-			are treated as adjacent in the graph */
-		return true;
-	}
+	/* Always returning true means that any two plots adjacent on the map are treated as adjacent in the graph */
+	bool canVisit(CvPlot const& kFrom, CvPlot const& kPlot) const { return true; }
 	// Return false to abort the traversal. Need to set bFULL_TRAVERSAL=false then.
 	bool visit(CvPlot& kPlot)
 	{
@@ -50,19 +46,10 @@ protected:
 	EagerEnumMap<PlotNumTypes,bool> m_abVisited;
 
 public:
-	bool isVisited(CvPlot const& kPlot) const
-	{
-		return m_abVisited.get(kPlot.plotNum());
-	}
-	void setVisited(CvPlot const& kPlot)
-	{
-		m_abVisited.set(kPlot.plotNum(), true);
-	}
+	bool isVisited(CvPlot const& kPlot) const { return m_abVisited.get(kPlot.plotNum()); }
+	void setVisited(CvPlot const& kPlot) { m_abVisited.set(kPlot.plotNum(), true); }
 	// Needs to be called when using the same instance for multiple searches
-	void reset()
-	{
-		m_abVisited.reset();
-	}
+	void reset() { m_abVisited.reset(); }
 };
 
 // V should be derived from PlotVisitor

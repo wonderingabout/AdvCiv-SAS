@@ -78,6 +78,7 @@ import CvMapGeneratorUtil
 #import Popup as PyPopup
 #from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
+from SASUtils import getInfoTypeOrFail
 
 # advc.165:
 def getNumPlotsPercent(argsList):
@@ -100,9 +101,11 @@ def getNumPlotsPercent(argsList):
 def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_TECTONICS_DESCR"
 
+# <!-- custom: Simple Game visibility is controlled here (not only by CIV4WorldPickerInfos.xml):
+# return 1 keeps this map out of Simple Game and in advanced/custom-only lists. (GPT-5.3-Codex) -->
 def isAdvancedMap():
-	"This map should show up in simple mode"
-	return 0
+	"This map should not show up in simple mode"
+	return 1
 
 def isSeaLevelMap():
 	return 0
@@ -144,25 +147,22 @@ def getBottomLatitude():
 		return 25
 	#return -90
 	CyPythonMgr().allowDefaultImpl() # advc.129
-	
+
 def getCustomMapOptionDescAt(argsList):
 	iOption = argsList[0]
 	iSelection = argsList[1]
 	selection_names = ["TXT_KEY_MAP_SCRIPT_EARTH_70",
-	                   "TXT_KEY_MAP_SCRIPT_EARTH_60",
-					   "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
-	                   "TXT_KEY_MAP_SCRIPT_PANGAEA",
-	                   "TXT_KEY_MAP_SCRIPT_LAKES",
-	                   "TXT_KEY_MAP_SCRIPT_ISLANDS_90", # advc.021a: was ..._ISLANDS
-	                   "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN", 
-	                   "TXT_KEY_MAP_SCRIPT_TERRA",
-	                   "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
-	                   
-	aridity_names = ["TXT_KEY_CLIMATE_ARID",
-	                 "TXT_KEY_GAMESPEED_NORMAL",
-	                 "TXT_KEY_MAP_SCRIPT_WET",
-	                 "TXT_KEY_MAP_SCRIPT_NO_ICE"]
-	                 
+                       "TXT_KEY_MAP_SCRIPT_EARTH_60",
+                       "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
+                       "TXT_KEY_MAP_SCRIPT_PANGAEA",
+                       "TXT_KEY_MAP_SCRIPT_LAKES",
+                       "TXT_KEY_MAP_SCRIPT_ISLANDS_90", # advc.021a: was ..._ISLANDS
+                       "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN",
+                       "TXT_KEY_MAP_SCRIPT_TERRA",
+                       "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
+
+	aridity_names = ["TXT_KEY_CLIMATE_ARID", "TXT_KEY_GAMESPEED_NORMAL", "TXT_KEY_MAP_SCRIPT_WET", "TXT_KEY_MAP_SCRIPT_NO_ICE"]
+
 	if (iOption == 0):
 		return unicode(CyTranslator().getText(selection_names[iSelection], ()))
 	else:
@@ -185,21 +185,21 @@ def generateTerrainTypes():
 	return terrainTypes
 
 # advc: Obsolete (probably since v3.7)
-'''
-def addFeatures():
-	NiTextOut("Adding Features (from Python Continents) ...")
-	# advc.021a: was ...==5
-	if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
-		featuregen = NoIceFeatureGenerator()
-	else:
-		featuregen = FeatureGenerator()
-	featuregen.addFeatures()
-	return 0
-
-class NoIceFeatureGenerator(FeatureGenerator):
-	def addIceAtPlot(self, pPlot, iX, iY, lat):
-		return
-'''
+#
+# def addFeatures():
+# 	NiTextOut("Adding Features (from Python Continents) ...")
+# 	# advc.021a: was ...==5
+# 	if (CyMap().getCustomMapOption(0) == 6):         #  "Mediterranean"
+# 		featuregen = NoIceFeatureGenerator()
+# 	else:
+# 		featuregen = FeatureGenerator()
+# 	featuregen.addFeatures()
+# 	return 0
+#
+# class NoIceFeatureGenerator(FeatureGenerator):
+# 	def addIceAtPlot(self, pPlot, iX, iY, lat):
+# 		return
+#
 
 class voronoiMap:
 	def __init__(self,landPlates,seaPlates,hotspotsF):
@@ -349,8 +349,10 @@ class voronoiMap:
 				currentCoord = y*self.mapWidth + x
 				lastPlate = self.checkFault(currentCoord,sum,width,lastPlate)
 		for i in range(plates):
-			if (width[i] != 0): self.verticalFault(i,width[i])
-			elif (height[i] != 0): self.horizontalFault(i,height[i])
+			if (width[i] != 0):
+				self.verticalFault(i,width[i])
+			elif (height[i] != 0):
+				self.horizontalFault(i,height[i])
 
 	def checkFault(self,currentCoord,sum,table,lastPlate):
 		plates = self.numContinents + self.numSeaPlates
@@ -441,7 +443,6 @@ class voronoiMap:
 					self.heightMap[i] = self.heightMap[i] - 1
 				if (hasHillNeighbour):
 					self.heightMap[i] = self.heightMap[i] - 1
-
 
 	def min( height, left, right, top, bottom ):
 		minHeight = height
@@ -932,14 +933,14 @@ class ClimateGenerator:
 		elif (self.climate == 3):                        # No ice
 			self.maxWindForce = self.mapWidth / 8
 		self.mapHeight = self.map.getGridHeight()
-		self.terrainDesert = gc.getInfoTypeForString("TERRAIN_DESERT")
-		self.terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
-		self.terrainIce = gc.getInfoTypeForString("TERRAIN_SNOW")
-		self.terrainTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
-		self.terrainGrass = gc.getInfoTypeForString("TERRAIN_GRASS")
+		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
+		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
 		if (self.climate == 3):                        # No ice
-			self.terrainIce = gc.getInfoTypeForString("TERRAIN_TUNDRA")
-			self.terrainTundra = gc.getInfoTypeForString("TERRAIN_GRASS")
+			self.terrainIce = getInfoTypeOrFail("TERRAIN_TUNDRA")
+			self.terrainTundra = getInfoTypeOrFail("TERRAIN_GRASS")
 		self.terrain = [0] * (self.mapWidth*self.mapHeight)
 		self.moisture = [0] * (self.mapWidth*self.mapHeight)
 		self.dice = gc.getGame().getMapRand()
@@ -989,7 +990,7 @@ class ClimateGenerator:
 								self.terrain[i-1] = self.terrainPlains
 							if self.terrain[i+1] == self.terrainGrass:
 								self.terrain[i+1] = self.terrainPlains
-					
+
 	def getArcticTerrain(self, climate, latitude, moisture):
 		polar = 0
 		if (latitude > 70):
@@ -1599,7 +1600,6 @@ class riversFromSea:
 				return true
 		return false
 
-
 	def addRiverFrom(self,x,y,flow,riverID):
 		plot = self.map.plot(x,y)
 		if (plot.isWater()):
@@ -1633,9 +1633,9 @@ class riversFromSea:
 		nextI = nextY*self.width + nextX
 		if (self.canFlowFrom(plot,self.map.plot(nextX,nextY)) == False):
 			return
-		if (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
+		if (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
 			return
-		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
+		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"))
 		#Prevent Uturns in rivers
 		turnThreshold = 13
 		if flatDesert:
@@ -1722,7 +1722,7 @@ class riversFromSea:
 			if (upperPlot.isWater()):
 				return False
 		return True
-	
+
 	def westX(self,x):
 		westX = x - 1
 		if (westX < 0):
@@ -1767,7 +1767,8 @@ def findStartingPlot(argsList):
 		allOnBest = true
 
 	for area in areas:
-		if area.isWater(): continue 
+		if area.isWater():
+			continue 
 		areaValue[area.getID()] = area.calculateTotalBestNatureYield() + area.getNumRiverEdges() + 2 * area.countCoastalLand() + 3 * area.countNumUniqueBonusTypes()
 
 	# Shuffle players so the same player doesn't always get the first pick.
@@ -1784,7 +1785,7 @@ def findStartingPlot(argsList):
 	# advc.021a: Need to return sth. to avoid an exception in
 	# CvPlayer::findStartingPlot
 	r = -1
-	
+
 	# Loop through players, assigning starts for each.
 	for assign_loop in range(iPlayers):
 		playerID = shuffledPlayers[assign_loop]
@@ -1801,7 +1802,8 @@ def findStartingPlot(argsList):
 			global bestArea
 			bestArea = -1
 			for area in areas:
-				if area.isWater(): continue 
+				if area.isWater():
+					continue 
 				players = 2*area.getNumStartingPlots()
 				#Avoid single players on landmasses:
 				if (false == isolatedStarts and players == 0):
@@ -1811,7 +1813,7 @@ def findStartingPlot(argsList):
 						players = 2
 				value = areaValue[area.getID()] / (1 + 2*players )
 				if (value > bestAreaValue):
-					bestAreaValue = value;
+					bestAreaValue = value
 					bestArea = area.getID()
 			def isValid(playerID, x, y):
 				global bestArea

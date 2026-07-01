@@ -3,11 +3,11 @@
 	Various Interface Label Translations
 
 	Copyright (c) 2007 The BUG Mod.
-  -->
+ -->
 <Civ4GameText xmlns="http://www.firaxis.com">
 
 	<!-- General -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_OPTIONS_KEY_REMINDER</Tag>
 		<English>Press [BOLD]ALT + CTRL + O[\BOLD] to customize %s1</English>
@@ -24,10 +24,11 @@
 		<Italian>Premi [BOLD]CMD+ALT+O[\BOLD] per personalizzare %s1</Italian>
 		<Spanish>Pulsa [BOLD]ALT + CMD + O[\BOLD] para personalizar %s1</Spanish>
 	</TEXT>
-	
+
+	<!-- custom: Fixed malformed XML angle marker found by workflow; see KI#151. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
-		<English>Created by The BUG Mod.</English>>
+		<English>Created by The BUG Mod.</English>
 		<German>Erstellt durch die BUG Mod.</German>
 		<Italian>Creato dal BUG Mod.</Italian>
 		<Spanish>Creado por el BUG Mod.</Spanish>
@@ -39,9 +40,9 @@
 		<Italian>Predefinito</Italian>
 		<Spanish>Predefinido</Spanish>
 	</TEXT>
-	
+
 	<!-- Help -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_HELP_OPENING</Tag>
 		<English>Opening the BUG Mod help file...</English>
@@ -68,15 +69,15 @@
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUG_HELP_MISSING_BODY</Tag>
-		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG Options screen [ALT + CTRL + O] for details.</English>
+		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG_Options_Screen [ALT + CTRL + O] for details.</English>
 		<French>Impossible de trouver le fichier "%s1" dans les chemins recherchés. Voir l'onglet System dans l'écran d'options du BUG Mod [ALT + CTRL + O] pour les détails.</French>
 		<German>Die Datei "%s1" konnte innerhalb der erkannten Pfade nicht gefunden werden. Details finden Sie im Reiter "System" im Optionsbildschirm der BuG Mod (Tastenkombination [STRG + ALT + O]).</German>
 		<Italian>Impossibile trovare il file "%s1" nei percorsi di ricerca. Vedi la tabella 'System' nella Schermata di Opzioni del BUG Mod [ALT + CTRL + O] per maggiori dettagli.</Italian>
 		<Spanish>No se pudo encontrar el fichero "%s1" en las rutas de búsqueda. Compruebe la pestaña 'Sistema' en las opciones de BUG [ALT + CTRL + O] para más información.</Spanish>
 	</TEXT>
-	
+
 	<!-- Missing Civ4 Entries -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CIV_MINOR_PEDIA</Tag>
 		<English>No description provided.</English>
@@ -126,9 +127,9 @@
 		<Italian>Missionari:</Italian>
 		<Spanish>Misioneros:</Spanish>
 	</TEXT>
-	
+
 	<!-- Gold Rate Warning -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MISC_POS_GOLD</Tag>
 		<English>[ICON_GOLD]: %d1_Gold</English>
@@ -162,9 +163,9 @@
 		<Italian>%D1_Change/Turno</Italian>
 		<Spanish>%D1_Change/turno</Spanish>
 	</TEXT>
-	
+
 	<!-- Not Just Another Game Clock -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_ERA</Tag>
 		<English>%s1 Era</English>
@@ -173,9 +174,9 @@
 		<Italian>Era %s1</Italian>
 		<Spanish>%s1</Spanish>
 	</TEXT>
-	
+
 	<!-- Great Person / General Bars -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_GREAT_PERSON_NONE</Tag>
 		<English>%s1: None</English>
@@ -208,9 +209,9 @@
 		<Tag>INTERFACE_NEXT_GREAT_GENERAL_XP</Tag>
 		<English>%s1 (%d2)</English>
 	</TEXT>
-	
+
 	<!-- Dead Civs Scoreboard -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_DEAD_CIV</Tag>
 		<English>DEAD</English>
@@ -219,38 +220,10 @@
 		<Italian>SCOMPARSA</Italian>
 		<Spanish>ELIMINADO</Spanish>
 	</TEXT>
-	
+
 	<!-- Raw Yields -->
-	
-	<!--TEXT>
-		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
-		<English>Worked Tiles (%d1)</English>
-		<French>Cases Travaillées (%d1)</French>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle lavorate (%d1)</Italian>
-		<Spanish>Casillas Trabajadas (%d1)</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_CITY_TILES</Tag>
-		<English>City's Tiles (%d1)</English>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle della Città (%d1)</Italian>
-		<Spanish>Casillas de la Ciudad (%d1)</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_CONCEPT_OWNED_TILES</Tag>
-		<English>Owned Tiles (%d1)</English>
-		<German>Geländefelder: %d1</German>
-		<Italian>Caselle possedute (%d1)</Italian>
-		<Spanish>Casillas poseídas (%d1)</Spanish>
-	</TEXT-->
-	<!-- advc.002b: The translations above are too long with the current
-		 font size, at least at screen width 1024.
-		 Alternatively, one could put the number first, e.g.
-		 "%d1 caselle lavorate". As suggested here by EmperorFool, one of the
-		 original authors:
-		 https://forums.civfanatics.com/threads/raw-yields.281724/#post-7005748
-		 -->
+
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #96 -->
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_WORKED_TILES</Tag>
 		<English>Worked Tiles (%d1)</English>
@@ -284,7 +257,7 @@
 		<Italian>Tutte le caselle (%d1)</Italian>
 		<Spanish>Todas las casillas (%d1)</Spanish>
 	</TEXT-->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_BASE_MODIFIER</Tag>
 		<!-- Bureaucracy, Forge, Factory, Power, Ironworks -->
@@ -314,7 +287,7 @@
 		<Italian>Totale</Italian>
 		<Spanish>Total</Spanish>
 	</TEXT>
-	
+
 	<!-- advc.004: Minor changes to the next seven keys -->
 	<TEXT>
 		<Tag>TXT_KEY_RAW_YIELD_VIEW_TRADE</Tag>
@@ -372,17 +345,10 @@
 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Casillas Poseídas[COLOR_REVERT][NEWLINE]Cuenta las casillas en el radio de tu ciudad que pertenezcan a tu civilización.</Spanish>
 	</TEXT>
 	<!-- unused -->
-	<!--TEXT>
-		<Tag>TXT_KEY_RAW_YIELD_TILES_ALL</Tag>
-		<English>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</English>
-		<French>[COLOR_HIGHLIGHT_TEXT]Count All Tiles[COLOR_REVERT][NEWLINE]Counts all tiles in the city radius regardless of owner.</French>
-		<German>[COLOR_HIGHLIGHT_TEXT]Alle Geländefelder[COLOR_REVERT][NEWLINE]Zur Berechnung der Roherträge werden alle Geländefelder, die sich im Einzugsgebiet der Stadt befinden, unabhängig davon, welcher Zivilisation sie gehören, herangezogen</German>
-		<Italian>[COLOR_HIGHLIGHT_TEXT]Tutte le caselle[COLOR_REVERT][NEWLINE]Considera tutte le caselle nel raggio cittadino indipendentemente dal proprietario.</Italian>
-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
-	</TEXT-->
-	
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #97 -->
+
 	<!-- Food Assist -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_GROWTH</Tag>
 		<English>Growth!</English>
@@ -391,25 +357,12 @@
 		<Italian>Crescita!</Italian>
 		<Spanish>¡Crecimiento!</Spanish>
 	</TEXT>
-	
-	<!-- advc.004: The whole string was colored yellow, which draws too much
-		 attention (as yellow isn't normally used in this way by the game).
-		 The red coloring is also not great, but the best I can come up with.
-		 German was "Schrumpfen". -->
-	<TEXT>
-		<Tag>INTERFACE_CITY_SHRINKING</Tag>
-		<English>[COLOR_WARNING_TEXT]Shrinking (%d1 [NUM1:Turn:Turns])[COLOR_REVERT]</English>
-		<French>[COLOR_WARNING_TEXT]Rétrécissement (%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
-		<German>[COLOR_WARNING_TEXT]Rückgang (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
-		<Italian>[COLOR_WARNING_TEXT]Riduzione (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Reducción (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
-	</TEXT>
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_FOOD_GROW</Tag>
 		<English>%d1[ICON_FOOD] - %d2[ICON_EATENFOOD] = +%d3[ICON_FOOD]</English>
 	</TEXT>
-	
+
 	<!-- advc.004: Was [ICON_BAD_FOOD] -->
 	<TEXT>
 		<Tag>INTERFACE_CITY_FOOD_SHRINK</Tag>
@@ -419,9 +372,9 @@
 		<Tag>INTERFACE_CITY_FOOD_STAGNATE</Tag>
 		<English>%d1[ICON_FOOD] = %d2[ICON_EATENFOOD]</English>
 	</TEXT>
-	
+
 	<!-- Whip Assist -->
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_PRODUCTION_WHIP</Tag>
 		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</English>
@@ -431,7 +384,7 @@
 		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP</Tag>
 		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</English>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD</Tag>
 		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</English>
@@ -451,9 +404,9 @@
 		<Tag>INTERFACE_CITY_NO_PRODUCTION_BUY</Tag>
 		<English>%s1   -%d2[ICON_GOLD]</English>
 	</TEXT>
-	
+
 	<!-- Production Decay -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_WARNING</Tag>
 		<English>[COLOR_YELLOW][BOLD]![\BOLD][COLOR_REVERT] %s1</English>
@@ -462,9 +415,9 @@
 		<Tag>TXT_KEY_BUG_PRODUCTION_DECAY_THIS_TURN</Tag>
 		<English>[COLOR_WARNING_TEXT][BOLD]!![\BOLD][COLOR_REVERT] %s1</English>
 	</TEXT>
-	
+
 	<!-- Military Advisor -->
-	
+
 	<!-- Unit Groupings -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_TYPE_GROUPING</Tag>
@@ -473,7 +426,7 @@
 		<Italian>Tipo Unit&#224;</Italian>
 		<Spanish>Tipo de Unidad</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_COMBAT_GROUPING</Tag>
 		<English>Combat Type</English>
@@ -489,7 +442,7 @@
 		<Italian>Nessuno</Italian>
 		<Spanish>Ninguno</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_LEVEL_GROUPING</Tag>
 		<English>Level</English>
@@ -506,7 +459,7 @@
 		<Italian>Livello %s1</Italian>
 		<Spanish>Nivel %s1</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_PROMOTION_GROUPING</Tag>
 		<English>Promotions</English>
@@ -523,7 +476,7 @@
 		<Italian>Nessuno</Italian>
 		<Spanish>Ninguno</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_LOCATION_GROUPING</Tag>
 		<English>Location</English>
@@ -594,7 +547,7 @@
 		<Italian>Territorio barbaro</Italian>
 		<Spanish>Territorio Bárbaro</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUPING</Tag>
 		<English>Orders</English>
@@ -643,13 +596,6 @@
 		<German>Wache</German>
 		<Italian>Sentinella</Italian>
 		<Spanish>Vigilar</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
-		<English>Intercept</English>
-		<German>Abfangen</German>
-		<Italian>Intercettare</Italian>
-		<Spanish>Interceptar</Spanish>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_PATROL</Tag>
@@ -728,7 +674,7 @@
 		<Italian>Altri</Italian>
 		<Spanish>Otro</Spanish>
 	</TEXT>
-	
+
 	<!-- General Screen -->
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_UNIT_LOCATION</Tag>
@@ -753,7 +699,7 @@
 		<Italian>Vantaggi Strategici</Italian>
 		<Spanish>Ventajas Estratégicas</Spanish>
 	</TEXT>
-	
+
 	<!-- Situation Report Tab -->
 	<!-- advc.002b: Changed German to "Erz-" (was empty) -->
 	<TEXT>
@@ -886,16 +832,7 @@
 		<Italian>Grave allarme</Italian>
 		<Spanish>Severo</Spanish>
 	</TEXT>
-	
-	<!-- Strategic Advantages Tab -->
-	<TEXT>
-		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
-		<English>Resources</English>
-		<French>Ressources</French>
-		<German>Ressourcen</German>
-		<Italian>Risorse</Italian>
-		<Spanish>Recursos</Spanish>
-	</TEXT>
+
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_STRATADV_OURS</Tag>
 		<English>Ours</English>
@@ -942,9 +879,9 @@
 		<Italian>Possibili</Italian>
 		<Spanish>Posibles</Spanish>
 	</TEXT>
-	
+
 	<!-- Reminders -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_REMINDER_HEADER</Tag>
 		<English>Create Reminder</English>
@@ -977,9 +914,9 @@
 		<Italian>Mostrare nuovamente il promemoria il prossimo turno?</Italian>
 		<Spanish>¿Desea mostrar el recordatorio nuevamente el próximo turno?</Spanish>
 	</TEXT>
-	
+
 	<!-- Tech Prefs -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_BUG_TECH_PREFS_ALL</Tag>
 		<English>Research Preference Order</English>
@@ -1001,9 +938,9 @@
 		<Italian>Future Technologies</Italian>
 		<Spanish>Tecnologías Futuras</Spanish>
 	</TEXT>
-	
+
 	<!-- Fix for Overlap in Foreign Advisor Tab in Italian Translation -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_INFO</Tag>
 		<English>Info</English>
@@ -1012,9 +949,9 @@
 		<Italian>Info</Italian>
 		<Spanish>Info.</Spanish>
 	</TEXT>
-	
+
 	<!-- Fix for wrong translation of "Power" in German, Italian and Spanish language -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_POWER</Tag>
 		<English>Power</English>
@@ -1023,9 +960,9 @@
 		<Italian>Energia</Italian>
 		<Spanish>Energ&#237;a</Spanish>
 	</TEXT>
-	
+
 	<!-- Graph Screen -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_SHOW_ALL</Tag>
 		<English>Show All</English>
@@ -1088,32 +1025,7 @@
 	</TEXT>
 
 	<!-- Victory Screen -->
-	<!-- advc.008e: Articles before wonders are now handled by
-		 CIV4GameText_advc_wonders.xml -->
-	<!--TEXT>
-		<Tag>TXT_KEY_PROJECT_APOLLO_PROGRAM</Tag>
-		<English>Apollo Program</English>
-		<French>
-			<Text>Programme Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</French>
-		<German>
-			<Text>Apollo-Programm</Text>
-			<Gender>Neuter</Gender>
-			<Plural>0</Plural>
-		</German>
-		<Italian>
-			<Text>Programma Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Italian>
-		<Spanish>
-			<Text>Programa Apollo</Text>
-			<Gender>Male</Gender>
-			<Plural>0</Plural>
-		</Spanish>
-	</TEXT-->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #95 -->
 	<TEXT>
 		<Tag>TXT_KEY_BUG_VICTORY_TURNS_NEXT_VOTE</Tag>
 		<English>Turns until next Vote: %d1</English>
@@ -1198,7 +1110,7 @@
 		<Italian>Fonte: recente sondaggio BUG, margine di errore statistico %s1.</Italian>
 		<Spanish>Fuente: Encuesta BUG reciente, margen estadístico de error %s1.</Spanish>
 	</TEXT>
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_GRAPH_SMOOTHING</Tag>
 		<English>Smooth Factor %d1_Num</English>
@@ -1208,7 +1120,7 @@
 	</TEXT>
 
 	<!-- Maze Map Stuff -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_MAP_SCRIPT_MAZE_LAND_PLUS1</Tag>
 		<English>Extra Land Strip</English>
@@ -1232,7 +1144,7 @@
 	</TEXT>
 
 	<!-- Hall of Fame Screen: Win/Loss Result -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_HOF_WINLOSS_WIN</Tag>
 		<English>W-</English>
@@ -1249,9 +1161,9 @@
 		<Italian>L-</Italian>
 		<Spanish>D-</Spanish>
 	</TEXT>
-	
+
 	<!-- Espionage Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_ESPIONAGE_MISSIONS_TAB</Tag>
 		<English>Missions</English>
@@ -1276,7 +1188,7 @@
 	</TEXT>
 
 	<!-- BUG Finance Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_DOMESTIC_TRADE</Tag>
 		<English>Domestic Trade</English>
@@ -1323,7 +1235,7 @@
 	</TEXT>
 
 	<!-- Foreign Advisor Info Screen Header Text
-	
+
 		 All the entries except POSSIBLE_FAV_CIVICS must be kept 
 		 short so that everything lines up properly. 4-6 letters 
 		 is usually best; some can probably fit 8-9 if the letters 
@@ -1331,7 +1243,7 @@
 		 Info Screen to be sure it looks okay. The CIVICOPTION
 		 abbreviations should be similar to the full words used in 
 		 the CIVICOPTION keys in CIV4GameTextInfos_Objects.xml 
-	  -->
+	 -->
 
 	<TEXT>
 		<Tag>TXT_KEY_FOREIGN_ADVISOR_ABBR_LEADER</Tag>
@@ -1396,9 +1308,9 @@
 		<Italian>Religione</Italian>
 		<Spanish>Religi&#243;n</Spanish>
 	</TEXT>
-	
+
 	<!-- Customizable Domestic Advisor -->
-	
+
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SETTLED_SPECIALISTS</Tag>
 		<English>Settled Specialists</English>
@@ -1433,22 +1345,8 @@
 		<Italian>Choose an event which should be triggered.</Italian>
 		<Spanish>Choose an event which should be triggered.</Spanish>
 	</TEXT>
-	
+
 	<!-- BULL -->
 	<!-- advc: Commented out -->
-	<!--TEXT>
-		<Tag>TXT_KEY_BULL_REQUIRED</Tag>
-		<English>[COLOR_WARNING_TEXT]This feature requires the BUG DLL (BULL).[COLOR_REVERT]</English>
-		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird die BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
-		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede la libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere el DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_BULL_REQUIRED_NEWER</Tag>
-		<English>[COLOR_WARNING_TEXT]This feature requires a newer version of the BUG DLL (BULL).[COLOR_REVERT]</English>
-		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird eine neuere Version der BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
-		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede una nuova versione della libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere una versión más nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
-	</TEXT-->
-
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #38 -->
 </Civ4GameText>

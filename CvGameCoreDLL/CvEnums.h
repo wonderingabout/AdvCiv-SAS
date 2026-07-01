@@ -25,7 +25,8 @@ enum PlayerTypes
 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
 		Savegames are still incompatible. */
-	MAX_CIV_PLAYERS = 18,
+	MAX_CIV_PLAYERS = 48,
+	// MAX_CIV_PLAYERS = 18,
 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
 	MAX_PLAYERS
 };
@@ -61,22 +62,28 @@ DEFINE_INCREMENT_OPERATORS(CivTeamTypes);
 // This generates most of the enums with associated XML data
 DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
 
-/*  The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
-	info enums are generated upfront and enums that don't support FOR_EACH_ENUM
-	have been moved to the end. */ // </advc.enum>
+// The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
+// info enums are generated upfront and enums that don't support FOR_EACH_ENUM
+// have been moved to the end. // </advc.enum>
 
-/*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
-	still possible to add values through XML only.
-	(The harcoded world sizes are used by map scripts and random events.) */
+// advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+// still possible to add values through XML only.
+// (The hardcoded world sizes are used by map scripts and random events.)
+// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices. New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
 enum WorldSizeTypes
 {
 	NO_WORLDSIZE = -1,
+	WORLDSIZE_ARENA,
 	WORLDSIZE_DUEL,
 	WORLDSIZE_TINY,
 	WORLDSIZE_SMALL,
 	WORLDSIZE_STANDARD,
 	WORLDSIZE_LARGE,
 	WORLDSIZE_HUGE,
+	WORLDSIZE_SAS24,
+	WORLDSIZE_SAS32,
+	WORLDSIZE_SAS40,
+	WORLDSIZE_SAS48,
 };
 
 enum FlavorTypes
@@ -825,12 +832,12 @@ ENUM_START(UnitAI, UNITAI)
 	UNITAI_CITY_SPECIAL,
 	UNITAI_EXPLORE,
 	UNITAI_MISSIONARY,
-	UNITAI_PROPHET,
-	UNITAI_ARTIST,
-	UNITAI_SCIENTIST,
-	UNITAI_GENERAL,
-	UNITAI_MERCHANT,
-	UNITAI_ENGINEER,
+	UNITAI_GREAT_PROPHET,
+	UNITAI_GREAT_ARTIST,
+	UNITAI_GREAT_SCIENTIST,
+	UNITAI_GREAT_GENERAL,
+	UNITAI_GREAT_MERCHANT,
+	UNITAI_GREAT_ENGINEER,
 	UNITAI_GREAT_SPY, // K-Mod
 	UNITAI_SPY,
 	UNITAI_ICBM,
@@ -1040,13 +1047,14 @@ ENUM_START(Control, CONTROL)
 	CONTROL_MOUSE_FLYING_CAMERA,
 	CONTROL_TOP_DOWN_CAMERA,
 	CONTROL_CIVILOPEDIA,
-	CONTROL_RELIGION_SCREEN,
-	CONTROL_CORPORATION_SCREEN,
+	// <!-- custom: Religion/Corporation controls removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	CONTROL_CIVICS_SCREEN,
 	CONTROL_FOREIGN_SCREEN,
-	CONTROL_FINANCIAL_SCREEN,
+	CONTROL_FOREIGN_DIPLOMACY_SCREEN,
 	CONTROL_MILITARY_SCREEN,
 	CONTROL_TECH_CHOOSER,
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	CONTROL_WORLD_ADVISOR_SCREEN,
 	CONTROL_TURN_LOG,
 	CONTROL_CHAT_ALL,
 	CONTROL_CHAT_TEAM,
@@ -1265,10 +1273,15 @@ ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_PERFECT, // for advc.ctr
 ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
 
+/* <!-- custom: new unit combat types and modifying existing ones --> */
 ENUM_START(Feat, FEAT)
-	FEAT_UNITCOMBAT_ARCHER,
-	FEAT_UNITCOMBAT_MOUNTED,
-	FEAT_UNITCOMBAT_MELEE,
+	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
+	FEAT_UNITCOMBAT_ARCHER_BOW_LONG,
+	FEAT_UNITCOMBAT_ARCHER_CROSSBOW,
+	FEAT_UNITCOMBAT_MOUNTED_MELEE,
+	FEAT_UNITCOMBAT_MOUNTED_RANGED,
+	FEAT_UNITCOMBAT_MELEE_POLEARM,
+	FEAT_UNITCOMBAT_MELEE_SHOCK,
 	FEAT_UNITCOMBAT_SIEGE,
 	FEAT_UNITCOMBAT_GUN,
 	FEAT_UNITCOMBAT_ARMOR,

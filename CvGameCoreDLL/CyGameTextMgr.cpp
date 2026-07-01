@@ -103,6 +103,17 @@ std::wstring CyGameTextMgr::getSpecificUnitHelp(CyUnit* pUnit, bool bOneLine, bo
 	return szBuffer.getCString();
 }
 
+std::wstring CyGameTextMgr::getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize)
+{
+	CvWStringBuffer szBuffer;
+	if (pUnit && pUnit->getUnit())
+	{
+		// <!-- custom: The Military Advisor Map tab already filters by selected player, so repeated owner text ("PC") clutters each unit row and can visually corrupt worker build text such as "Build a Cottage" into "Build a PC". Expose setUnitHelp's existing omit-owner path and promotion icon size to Python so advisor UI controls DLL-generated image markup directly instead of patching formatted strings afterward. See KI#130. (GPT-5.5) -->
+		GAMETEXT.setUnitHelp(szBuffer, pUnit->getUnit(), bOneLine, bShort, false, true, false, iPromotionIconSize);
+	}
+	return szBuffer.getCString();
+}
+
 // advc.004:
 std::wstring CyGameTextMgr::getHurtUnitStrength(CyUnit* pUnit)
 {

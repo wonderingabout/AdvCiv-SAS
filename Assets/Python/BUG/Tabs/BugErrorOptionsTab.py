@@ -14,7 +14,7 @@ import BugPath
 
 class BugErrorOptionsTab(BugOptionsTab.BugOptionsTab):
 	"BUG Error Options Screen Tab -- Displayed only when the INI file isn't found."
-	
+
 	def __init__(self, screen):
 		BugOptionsTab.BugOptionsTab.__init__(self, "Error", "Error")
 
@@ -22,9 +22,9 @@ class BugErrorOptionsTab(BugOptionsTab.BugOptionsTab):
 		tab = self.createTab(screen)
 		panel = self.createMainPanel(screen)
 		column = self.addOneColumnLayout(screen, panel)
-		
+
 		self.addLabel(screen, column, "FileNotFound", "File Not Found:")
 		self.addLabel(screen, column, "IniFilename", "\"" + BugPath.getModName() + ".ini\"")
-		
+
 		self.addLabel(screen, column, "DataDirectory", "Data Directory:")
 		self.addLabel(screen, column, "DataPath", BugPath.getDataDir())

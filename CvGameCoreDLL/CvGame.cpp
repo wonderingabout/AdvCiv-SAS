@@ -219,8 +219,12 @@ void CvGame::setInitialItems()
 	// Delay part of the freebies until starting sites have been assigned
 	initFreeCivState(); // </advc.tsl>
 	initFreeUnits();
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bIncreaseStartTurn = GC.getDefineBOOL("INCREASE_START_TURN");
+
 	// <advc.250c>
-	if (GC.getDefineBOOL("INCREASE_START_TURN") && getStartEra() == 0)
+	if (bIncreaseStartTurn && getStartEra() == 0)
 	{
 		int iStartTurn = getStartTurn();
 		bool bAllHuman = (PlayerIter<HUMAN>::count() >= PlayerIter<CIV_ALIVE>::count());
@@ -262,8 +266,89 @@ void CvGame::setInitialItems()
 	for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
 		it->AI_updateFoundValues();
 	// <advc.tsl>
-	if (m_iMapRegens < GC.getDefineINT("AUTO_REGEN_MAP"))
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iAutoRegenMap = GC.getDefineINT("AUTO_REGEN_MAP");
+
+	if (m_iMapRegens < iAutoRegenMap)
 		regenerateMap(true); // </advc.tsl>
+}
+
+static bool SAS_isMapScriptListedInDefine(CvWString const& szMapScriptName, char const* szDefineName)
+{
+	CvString szMapName = CvString(szMapScriptName);
+	if (szMapName.empty())
+		return false;
+
+	CvString const szCsv = GC.getDefineSTRING(szDefineName);
+	std::vector<CvString> aszTokens;
+	szCsv.getTokens(",", aszTokens);
+	for (size_t i = 0; i < aszTokens.size(); i++)
+	{
+		if (aszTokens[i] == szMapName)
+			return true;
+	}
+	return false;
+}
+
+// <!-- custom: new helpers, see also KI#42; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map during civ4 run time, as advised by chatgpt 5 too. (GPT-5.2-Codex (summarized)) -->
+void CvGame::recomputeMapnameHeaviness()
+{
+	CvWString const szName = GC.getInitCore().getMapScriptName();
+
+	// <!-- custom: note: not static since we compute them only once -->
+	m_bLandHeavyMapname =
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND") ||
+		SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_LAND_HEAVY");
+	m_bNavalHeavyMapname = SAS_isMapScriptListedInDefine(szName, "SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY");
+
+	if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
+		m_bNavalHeavyMapname = false;
+
+	if (m_bLandHeavyMapname || m_bNavalHeavyMapname)
+		return;
+
+	std::map<int,int> aiAreaStarts;
+	int iMajorCivs = 0;
+	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+	{
+		CvPlot const* pStart = it->getStartingPlot();
+		if (pStart == NULL)
+			continue;
+		++iMajorCivs;
+		aiAreaStarts[pStart->getArea().getID()]++;
+	}
+	if (iMajorCivs > 1)
+	{
+		int iLargestAreaStartCount = 0;
+		for (std::map<int,int>::const_iterator it = aiAreaStarts.begin();
+			it != aiAreaStarts.end(); ++it)
+		{
+			if (it->second > iLargestAreaStartCount)
+				iLargestAreaStartCount = it->second;
+		}
+		int const iAreaCount = static_cast<int>(aiAreaStarts.size());
+		int const iDistinctAreaPercent = (iAreaCount * 100) / iMajorCivs;
+		int const iLargestAreaPercent = (iLargestAreaStartCount * 100) / iMajorCivs;
+		static const int iNavalHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
+		static const int iLandHeavyStartAreaPercentMin = GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
+
+		if (iDistinctAreaPercent >= iNavalHeavyStartAreaPercentMin)
+		{
+			m_bNavalHeavyMapname = true;
+			m_bLandHeavyMapname = false;
+			return;
+		}
+		if (iLargestAreaPercent >= iLandHeavyStartAreaPercentMin)
+		{
+			m_bLandHeavyMapname = true;
+			m_bNavalHeavyMapname = false;
+			return;
+		}
+	}
+
+	m_bLandHeavyMapname = false;
+	m_bNavalHeavyMapname = false;
 }
 
 
@@ -322,6 +407,11 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After regenerating map: right after addGameElements() in regenerateMap(...)
+	recomputeMapnameHeaviness();
+
 	gDLL->getEngineIFace()->RebuildAllPlots();
 	/*	<advc.001> Even if we call CvMap::setupGraphical before RebuildAllPlots,
 		there are still artifacts in texture surfaces. I guess we need to give
@@ -330,8 +420,8 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	setUpdateTimer(UPDATE_REBUILD_PLOTS, 1);
 	// Fix dark lines running through Flood Plains
 	{
-		FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString(
-				"FEATURE_FLOOD_PLAINS");
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const FeatureTypes eFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
 		FOR_EACH_ENUM(PlotNum)
 		{
 			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
@@ -374,8 +464,12 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
 
 	cycleSelectionGroups_delayed(1, false);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bShownDawnAfterRegen = GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN");
+
 	// <advc.004j>
-	bool bShowDawn = (GC.getDefineBOOL("SHOW_DAWN_AFTER_REGEN") &&
+	bool bShowDawn = (bShownDawnAfterRegen &&
 			// Somehow doesn't work with Adv. Start; Dawn screen doesn't appear.
 			(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH)));
 	// </advc.004j>
@@ -492,7 +586,10 @@ void CvGame::setStartTurnYear(int iTurn)
 	}
 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
 
-	setStartYear(GC.getDefineINT("START_YEAR"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iStartYear = GC.getDefineINT("START_YEAR");
+
+	setStartYear(iStartYear);
 }
 
 /*	Initialize data members that are serialized. (advc: I'm also initializing some
@@ -556,6 +653,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	m_eHandicap = eHandicap;
 	// <advc.127>
+	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate -->
 	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
 			// (XML not loaded when constructor called)
 			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
@@ -567,6 +665,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_eInitialActivePlayer = NO_PLAYER; // advc.106h
 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
 	m_szScriptData = "";
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// In your CvGame::reset body where all the other members get defaults, set:
+	m_bLandHeavyMapname  = false;
+	m_bNavalHeavyMapname = false;
 
 	if (!bConstructorCall)
 	{
@@ -687,6 +790,11 @@ void CvGame::initDiplomacy()
 			}
 		}
 	}
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
+	recomputeMapnameHeaviness();
 }
 
 /*	advc.002i: Assign unique player colors in games where multiple players
@@ -781,10 +889,10 @@ void CvGame::initGameHandicap()
 		int const iDiv = it.nextIndex();
 		if (iDiv > 0)
 		{
-			/*	advc.250a: Relies on no strange new handicaps being placed
-				between Settler and Deity. Same in CvTeam::getHandicapType. */
-				setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(
-						iSum, 10 * iDiv));
+			// //	advc.250a: Relies on no strange new handicaps being placed between Settler and Deity. Same in CvTeam::getHandicapType. 
+			// setHandicapType((HandicapTypes) /* kekm.22: */ intdiv::round(iSum, 10 * iDiv));
+			// <!-- custom: Average the iDifficulty score first, then map back to the nearest XML handicap entry. (ChatGPT-5.5) -->
+			setHandicapType(handicapFromDifficulty(/* kekm.22: */ intdiv::round(iSum, iDiv)));
 		}
 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
 	} // K-Mod end
@@ -803,19 +911,23 @@ void CvGame::initGameHandicap()
 // advc.127: Set m_eAIHandicap to the average of AI handicaps
 void CvGame::updateAIHandicap()
 {
-	int iHandicapSum = 0;
+	int iHandicapDifficultySum = 0;
 	int iDiv = 0;
 	FOR_EACH_ENUM(Player) // Cache for PlayerIter not yet available here
 	{
 		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
 		if (kPlayer.isAlive() && !kPlayer.isHuman() && kPlayer.isMajorCiv())
 		{
-			iHandicapSum += kPlayer.getHandicapType();
+			iHandicapDifficultySum += GC.getInfo(kPlayer.getHandicapType()).getDifficulty();
 			iDiv++;
 		}
 	}
 	if (iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
-		m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+	{
+		// <!-- custom: Average XML iDifficulty rather than raw enum IDs; this keeps added or non-linear handicaps correct. (ChatGPT-5.5 + GPT-5.5) -->
+		// m_eAIHandicap = (HandicapTypes)intdiv::uround(iHandicapSum, iDiv);
+		m_eAIHandicap = handicapFromDifficulty(intdiv::uround(iHandicapDifficultySum, iDiv));
+	}
 }
 
 
@@ -1261,8 +1373,7 @@ namespace
 }
 
 // advc.108b: Cut from assignStartingPlots
-void CvGame::applyStartingLocHandicaps(
-	NormalizationTarget const* pStartValues) // advc.027
+void CvGame::applyStartingLocHandicaps(NormalizationTarget const* pStartValues) // advc.027
 {
 	/*	Replace all this. Don't want to ignore StartingLocPercent
 		in multiplayer games, and the BtS random assignment of human starts
@@ -1423,9 +1534,7 @@ void CvGame::applyStartingLocHandicaps(
 	The Agent type can be either CvPlayer or CvTeam. The agents have to be
 	alive and non-Barbarian. kResult should be empty before the call. */
 template<class Agent>
-void CvGame::sortByStartingLocHandicap(
-	std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
-	std::vector<Agent*>& kResult)
+void CvGame::sortByStartingLocHandicap(std::vector<std::pair<Agent*, int> > const& kStartingLocPercentPerAgent, std::vector<Agent*>& kResult)
 {
 	int const iAgents = kStartingLocPercentPerAgent.size();
 	int iHumanAgents = 0;
@@ -1536,7 +1645,7 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
 
 	std::vector<PlayerTypes> aeStartingLocs(MAX_CIV_PLAYERS);
 	// each player starting in own location
-	std11::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
+	sequtil::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
 
 	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
 	bool bFoundSwap = true;
@@ -1608,9 +1717,8 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
 	the players' starting locations are.
 	Note: for the purposes of this function, player i will be assumed to start
 	in the location of player kStartingLocs[i] */
-int CvGame::getTeamClosenessScore( // advc: params used to be arrays
-	ArrayEnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
-	std::vector<PlayerTypes> const& kStartingLocs)
+// advc: params used to be arrays <!-- custom: hoisted from multiline signature before `kDistances` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGame::getTeamClosenessScore(ArrayEnumMap2D<PlayerTypes, PlayerTypes, int> const& kDistances, std::vector<PlayerTypes> const& kStartingLocs)
 {
 	int iScore = 0;
 	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
@@ -1657,7 +1765,10 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
 {
 	if (eLevel == NORMALIZE_DEFAULT)
 	{
-		eLevel = (GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY") ?
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bNormalizeStartplotsAggressively = GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY");
+
+		eLevel = (bNormalizeStartplotsAggressively ?
 				NORMALIZE_HIGH : NORMALIZE_LOW);
 		if (eLevel == NORMALIZE_LOW && isGameMultiPlayer() &&
 			TeamIter<HUMAN>::count() > 1)
@@ -1752,8 +1863,12 @@ void CvGame::normalizeRemovePeaks()
 {
 	// <advc.108>
 	scaled rRemovalProb = 1;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRemovalChancePeak = GC.getDefineINT("REMOVAL_CHANCE_PEAK");
+
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rRemovalProb = per100(GC.getDefineINT("REMOVAL_CHANCE_PEAK"));
+		rRemovalProb = per100(iRemovalChancePeak);
 	// </advc.108>
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -1832,8 +1947,9 @@ bool CvGame::normalizeCanAddLakeTo(CvPlot const& kPlot) const
 
 void CvGame::normalizeRemoveBadFeatures()
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// advc.108:
-	int const iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
 
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
@@ -1926,10 +2042,13 @@ void CvGame::normalizeRemoveBadFeatures()
 
 void CvGame::normalizeRemoveBadTerrain()
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRemovalChanceBadTerrain = GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN");
+
 	// <advc.108>
 	scaled rKeepProb;
 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
-		rKeepProb = 1 - per100(GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN"));
+		rKeepProb = 1 - per100(iRemovalChanceBadTerrain);
 	// </advc.108>
 	int const iCityRange = CITY_PLOTS_RADIUS;
 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
@@ -2660,7 +2779,11 @@ void CvGame::updateStartingPlotRange() const
 {
 	CvMap const& kMap = GC.getMap();
 	int iRange = kMap.maxStepDistance() + 10;
-	iRange *= GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iStartingDistancePercent = GC.getDefineINT("STARTING_DISTANCE_PERCENT");
+
+	iRange *= iStartingDistancePercent;
 	iRange /= 100;
 	int const iAlive = countCivPlayersAlive();
 	int const iLand = kMap.getLandPlots();
@@ -2680,13 +2803,15 @@ void CvGame::updateStartingPlotRange() const
 	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
 	iRange /= 100;
-	m_iStartingPlotRange = std::max(iRange, GC.getDefineINT("MIN_CIV_STARTING_DISTANCE"));
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinCivStartingDistance = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
+
+	m_iStartingPlotRange = std::max(iRange, iMinCivStartingDistance);
 }
 
 // advc: Cut, refactored from normalizeAddExtras
-bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
-		bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature,
-		bool bNoFood) // advc.108
+bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude, bool bRemoveFeature, bool bNoFood) // advc.108
 {
 	CvPlot const& kStartPlot = *GET_PLAYER(eStartPlayer).getStartingPlot();
 	// <advc.108>
@@ -2728,8 +2853,7 @@ bool CvGame::placeExtraBonus(PlayerTypes eStartPlayer, CvPlot& kPlot,
 
 /*	advc.108: May probabilistically return false when there is already a resource
 	of type eBonus near kStartPlot */
-bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot,
-	BonusTypes eBonus, bool bSecondPass)
+bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot const& kPlot, BonusTypes eBonus, bool bSecondPass)
 {
 	scaled rSkipPr = fixp(1/3.);
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
@@ -2750,8 +2874,7 @@ bool CvGame::skipDuplicateNormalizationBonus(CvPlot const& kStartPlot, CvPlot co
 }
 
 // advc: Cut, pasted, refactored from normalizeAddExtras
-bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer,
-	CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
+bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer, CvPlot const& kPlot, bool bCheckCanPlace, bool bIgnoreLatitude) const
 {
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	if (!kBonus.isNormalize())
@@ -2789,8 +2912,9 @@ bool CvGame::isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
 	BonusTypes eBonus = kPlot.getBonusType(TEAMID(eStartPlayer));
 	if (eBonus == NO_BONUS)
 		return false;
-	return (GC.getInfo(eBonus).getBonusClassType() ==
-			GC.getInfoTypeForString("BONUSCLASS_PRECIOUS"));
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const BonusClassTypes eBonusClassPrecious = (BonusClassTypes)GC.getInfoTypeForString("BONUSCLASS_PRECIOUS");
+	return (GC.getInfo(eBonus).getBonusClassType() == eBonusClassPrecious);
 }
 
 // Tailored for Tundra Deer, dry Jungle Rice
@@ -2837,25 +2961,30 @@ void CvGame::update()
 	startProfilingDLL(false);
 	PROFILE_BEGIN("CvGame::update");
 	// <advc.256> Based on C2C, originally mostly from Rise of Mankind, I think.
-	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
+	// <!-- custom: Check for NO_PLAYER to prevent crash during autoplay. See KI#102. (Claude code Opus 4.5) -->
+	PlayerTypes const eActivePlayer = getActivePlayer();
 	int iSuccessiveUpdates = 1;
-	if (getTurnSlice() > 0) // Wait for BUG initialization
+	if (eActivePlayer != NO_PLAYER)
 	{
-		// Needs to match the value range set in XML
-		int const iDefaultGraphicsUpdateRate = 12;
-		int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
-				iDefaultGraphicsUpdateRate);
-		if (iGraphicsUpdateRate <= 0)
-			iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
-		else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
-	}
-	if (isGameMultiPlayer() || !kActivePlayer.isAlive())
-		iSuccessiveUpdates = 1;
-	if (kActivePlayer.isTurnActive() &&
-		(!kActivePlayer.isAutoMoves() ||
-		!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
-	{
-		iSuccessiveUpdates = 1;
+		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
+		if (getTurnSlice() > 0) // Wait for BUG initialization
+		{
+			// Needs to match the value range set in XML
+			int const iDefaultGraphicsUpdateRate = 12;
+			int iGraphicsUpdateRate = BUGOption::getValue("MainInterface__GraphicsUpdateRate",
+					iDefaultGraphicsUpdateRate);
+			if (iGraphicsUpdateRate <= 0)
+				iSuccessiveUpdates = 128; // Not quite infinite, but a lot in a row.
+			else iSuccessiveUpdates = iDefaultGraphicsUpdateRate / iGraphicsUpdateRate;
+		}
+		if (isGameMultiPlayer() || !kActivePlayer.isAlive())
+			iSuccessiveUpdates = 1;
+		if (kActivePlayer.isTurnActive() &&
+			(!kActivePlayer.isAutoMoves() ||
+			!kActivePlayer.isOption(PLAYEROPTION_QUICK_MOVES)))
+		{
+			iSuccessiveUpdates = 1;
+		}
 	}
 	if (gDLL->GetWorldBuilderMode() && !isInAdvancedStart()) // As in BtS
 		iSuccessiveUpdates = 0;
@@ -3020,8 +3149,7 @@ void CvGame::updateScore(bool bForce)
 }
 
 // advc.003y: Ported from CvUtil.py
-int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
-	int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
+int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier, bool bExponential, bool bFinal, bool bVictory) const
 {
 	if (getEstimateEndTurn() <= 0)
 		return 0;
@@ -3108,6 +3236,10 @@ void CvGame::updateGwPercentAnger()
 		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
 	} // advc: Ensure initialization
 	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
+
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
+
 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
 		int iAngerPercent = 0;
@@ -3125,7 +3257,6 @@ void CvGame::updateGwPercentAnger()
 			// amplify the affects of responsibility
 			iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
 
-			static int const iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
 			iAngerPercent = iGLOBAL_WARMING_BASE_ANGER_PERCENT * iGwSeverityRating * iResponsibilityFactor;
 			iAngerPercent = intdiv::round(iAngerPercent, 100 * 100);
 		}
@@ -3166,8 +3297,7 @@ void CvGame::testExtendedGame()
 }
 
 
-void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData,
-	bool bAlt, bool bShift, bool bCtrl) const
+void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl) const
 {
 	if (pCity->getProduction() > 0)
 	{
@@ -3416,9 +3546,7 @@ bool CvGame::selectionListIgnoreBuildingDefense() const
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
 {
 	// <advc> Not sure if the EXE ever calls implementDeal with a NULL list
 	CLinkList<TradeData> emptyList;
@@ -3429,18 +3557,14 @@ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
 }
 
 
-void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce)
+void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce)
 {
 	// </advc>  <advc.036>
 	implementAndReturnDeal(eWho, eOtherWho, kOurList, kTheirList, bForce);
 }
 
 
-CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho,
-	CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList,
-	bool bForce) // </advc.036>
+CvDeal* CvGame::implementAndReturnDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>& kOurList, CLinkList<TradeData>& kTheirList, bool bForce) // </advc.036>
 {
 	FAssert(eWho != NO_PLAYER);
 	FAssert(eOtherWho != NO_PLAYER);
@@ -3468,8 +3592,7 @@ void CvGame::verifyDeals()
 	If bStarsVisible, then there will be stars visible behind the globe when it is on.
 	If bWorldIsRound, then the world will bend into a globe;
 	otherwise, it will show up as a plane. */
-void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam,
-	bool& bStarsVisible, bool& bWorldIsRound)
+void CvGame::getGlobeviewConfigurationParameters(TeamTypes eTeam, bool& bStarsVisible, bool& bWorldIsRound)
 {
 	if (GET_TEAM(eTeam).isMapCentering() || isCircumnavigated())
 	{
@@ -3631,7 +3754,11 @@ bool CvGame::isTeamVoteEligible(TeamTypes eTeam, VoteSourceTypes eVoteSource) co
 		if (it->isForceTeamVoteEligible(eVoteSource))
 			iCount++;
 	}
-	int iExtraEligible = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES") - iCount;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iTeamVoteMinCandidates = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES");
+
+	int iExtraEligible = iTeamVoteMinCandidates - iCount;
 	if (iExtraEligible <= 0)
 		return false;
 	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
@@ -3995,8 +4122,7 @@ void CvGame::replaceCorporation(CorporationTypes eOldCorp, CorporationTypes eNew
 }
 
 
-int CvGame::calculateReligionPercent(ReligionTypes eReligion,
-	bool bIgnoreOtherReligions) const // advc.115b: Param added
+int CvGame::calculateReligionPercent(ReligionTypes eReligion, bool bIgnoreOtherReligions) const // advc.115b: Param added
 {
 	if (getTotalPopulation() == 0)
 		return 0;
@@ -4656,7 +4782,11 @@ int CvGame::getGlobalWarmingChances() const
 		number of turns in the game, so, by scaling the chances, and the
 		probability per chance, I hope to get roughly the same number of
 		actual events per game. */
-	scaled rIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
+
+	scaled rIndexPerChance = iGlobalWarmingIndexPerChance;
 	rIndexPerChance *= per100(getSpeedPercent());
 	/*	advc.055: The more teams there are, the less evenly the world tends to
 		develop. GW causes the most damage when much of the world has a similar
@@ -4712,8 +4842,12 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
 	/*	expect each pop to give ~10 pollution per turn at the time
 		we cross the threshold, and ~1 pop per land tile...
 		so default resistance should be around 10 per tile. */
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingResistance = GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+
 	int iGlobalThreshold = GC.getMap().getLandPlots() *
-			GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+			iGlobalWarmingResistance;
 
 	/*	maybe we should add some points for coastal tiles as well,
 		so that watery maps don't get too much warming */
@@ -4746,7 +4880,11 @@ int CvGame::calculateGwSeverityRating() const
 	I recommend looking at the graph of this function to get a sense of how it works. */
 	/*	advc: Was long, which is equivalent to int. Could use long long,
 		but it looks like 32 bit should suffice. */
-	int const x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
+	int const x = iGlobalWarmingProb * getGlobalWarmingIndex() /
 			(GC.getMap().getLandPlots() * 4 * getSpeedPercent());
 	// shape parameter. Lower values result in the function being steeper earlier.
 	int const b = 55; // advc.055: was 70
@@ -4839,8 +4977,7 @@ void CvGame::changeDiploVote(VoteSourceTypes eVoteSource, int iChange)
 }
 
 
-bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	CvVoteInfo const& kVote = GC.getInfo(kData.eVote);
 	if (kVote.isVictory())
@@ -4885,8 +5022,7 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource,
 }
 
 // advc (note): Needs to be consistent with processVote
-bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kData) const
+bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kData) const
 {
 	if (kData.ePlayer!= NO_PLAYER)
 	{
@@ -5429,12 +5565,14 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	{
 		if (getWinner() != NO_TEAM)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 			CvWString szBuffer(gDLL->getText("TXT_KEY_GAME_WON",
 					GET_TEAM(getWinner()).getReplayName().GetCString(),
 					GC.getInfo(getVictory()).getTextKeyWide()));
 			addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
 					GET_TEAM(getWinner()).getLeaderID(), szBuffer,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 		if ((getAIAutoPlay() > 0 || gDLL->GetAutorun()) &&
 			!isOption(GAMEOPTION_RISE_FALL)) // advc.707
@@ -5548,8 +5686,7 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
 }
 
 // advc: Mostly cut from CvPlayer::canConstruct
-bool CvGame::canConstruct(BuildingTypes eBuilding,
-	bool bIgnoreCost, bool bTestVisible) const
+bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
 
@@ -5808,21 +5945,22 @@ void CvGame::makeSpecialUnitValid(SpecialUnitTypes eSpecialUnit)
 }
 
 
-void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding,
-	bool bAnnounce)
+void CvGame::makeSpecialBuildingValid(SpecialBuildingTypes eSpecialBuilding, bool bAnnounce)
 {
 	if (m_abSpecialBuildingValid.get(eSpecialBuilding))
 		return;
 	m_abSpecialBuildingValid.set(eSpecialBuilding, true);
 	if (bAnnounce)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 		CvWString szBuffer = gDLL->getText("TXT_KEY_SPECIAL_BUILDING_VALID",
 				GC.getInfo(eSpecialBuilding).getTextKeyWide());
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 		}
 	}
 }
@@ -5873,10 +6011,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 	//updateCitySight(false, true);
 	m_aeHolyCity.set(eReligion, pCity == NULL ? NO_PLOT_NUM : pCity->plotNum());
 	//updateCitySight(true, true);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iHolyCityInfluence = GC.getDefineINT("HOLY_CITY_INFLUENCE");
+
 	if (pOldCity != NULL)
 	{
 		pOldCity->changeReligionInfluence(eReligion,
-				-GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+				-iHolyCityInfluence);
 		pOldCity->updateReligionCommerce();
 		pOldCity->setInfoDirty(true);
 	}
@@ -5886,11 +6029,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 
 	CvCity* pHolyCity = getHolyCity(eReligion);
 	pHolyCity->setHasReligion(eReligion, true, bAnnounce, true);
-	pHolyCity->changeReligionInfluence(eReligion, GC.getDefineINT("HOLY_CITY_INFLUENCE"));
+	pHolyCity->changeReligionInfluence(eReligion, iHolyCityInfluence);
 	pHolyCity->updateReligionCommerce();
 	pHolyCity->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED",
 			GC.getInfo(eReligion).getTextKeyWide(), pHolyCity->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN",
@@ -5908,7 +6055,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eReligion).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHolyCity->getX() : -1, bRevealed ? pHolyCity->getY() : -1,
 				false, bRevealed);
 	}
@@ -5935,6 +6082,10 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 	pHeadquarters->setInfoDirty(true);
 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvWString szMsgRevealed(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED",
 			GC.getInfo(eCorp).getTextKeyWide(), pHeadquarters->getNameKey()));
 	CvWString szMsgUnknown(gDLL->getText("TXT_KEY_MISC_CORPORATION_FOUNDED_UNKNOWN",
@@ -5952,7 +6103,7 @@ void CvGame::setHeadquarters(CorporationTypes eCorp, CvCity* pCity, bool bAnnoun
 				bRevealed ? szMsgRevealed : szMsgUnknown,
 				GC.getInfo(eCorp).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
 				GC.getInfo(eCorp).getButton(),
-				GC.getColorType("HIGHLIGHT_TEXT"),
+				eColorHighlightText,
 				bRevealed ? pHeadquarters->getX() : -1,
 				bRevealed ? pHeadquarters->getY() : -1,
 				false, bRevealed);
@@ -6275,19 +6426,22 @@ void CvGame::doGlobalWarming()
 	{
 		setGwEventTally(0);
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		// Send a message saying that the threshold has been passed
 		CvWString szBuffer;
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE");
 		// add the message to the replay
 		addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 		{
 			gDLL->UI().addMessage(itObs->getID(), false, -1, szBuffer,
 					"AS2D_GLOBALWARMING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 			// Tell human players that the threshold has been reached
 			if (itObs->isHuman() && !isNetworkMultiPlayer())
 			{
@@ -6324,11 +6478,16 @@ void CvGame::doGlobalWarming()
 	// advc.055:
 	std::vector<PreGWPlot> aChangedPlots;
 	bool bSoundPlayed = false; // advc.002l
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
+
 	for (int i = 0; i < iGlobalWarmingRolls; i++)
 	{
 		// note, warming prob out of 1000, not percent.
 		int iLeftOdds = 10 * getSpeedPercent();
-		if (SyncRandNum(iLeftOdds) >= GC.getDefineINT("GLOBAL_WARMING_PROB"))
+		if (SyncRandNum(iLeftOdds) >= iGlobalWarmingProb)
 			continue;
 		//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
 		/*	Global warming is no longer completely random.
@@ -6452,8 +6611,11 @@ void CvGame::doGlobalWarming()
 	updateGwPercentAnger();
 	if (getGlobalWarmingIndex() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingRestorationRate = GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0);
+
 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
-				GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
+				iGlobalWarmingRestorationRate/100);
 	}
 	// <advc.055>
 	/*	advc.706 (note): These will be shortlived INFO-type messages,
@@ -6989,8 +7151,11 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 		}
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinBarbarianStartingDistance = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
+
 	CitySiteEvaluator citySiteEval(GET_PLAYER(BARBARIAN_PLAYER),
-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
+			iMinBarbarianStartingDistance);
 	/*	<advc.300> Randomize penalty on short inter-city distance for more variety
 		in Barbarian settling patterns. Was 8 in K-Mod. */
 	citySiteEval.discourageBarbarians(5 + SyncRandNum(7));
@@ -7284,7 +7449,10 @@ void CvGame::createAnimals()
 	if (getElapsedGameTurns() < 5)
 		return;
 
-	int const iMinAnimalStartingDist = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE"); // advc.300
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMinAnimalStartingDistance = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE");
+
+	int const iMinAnimalStartingDist = iMinAnimalStartingDistance; // advc.300
 	FOR_EACH_AREA(pLoopArea)
 	{
 		if (pLoopArea->isWater())
@@ -7377,8 +7545,7 @@ int CvGame::getBarbarianStartTurn() const
 }
 
 // Based on code originally in createBarbarianUnits, but modified beyond recognition.
-int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
-	int iUnitsPresent)
+int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, int iUnitsPresent)
 {
 	int const iOwned = iTiles - iUnowned;
 	scaled const rPeakRatio = barbarianPeakLandRatio();
@@ -7443,8 +7610,7 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
 
 /*	Returns the number of land units spawned (possibly in cargo).
 	The first half is new code. */
-int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
-	CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
+int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
 {
 	/*	<advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
 		would always be an eligible target and too many ships would carry cargo. */
@@ -7529,19 +7695,21 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 		if (!pPlot->isWater())
 			iCreated++;
 		// </advc.300>
+	// <!-- custom: since this seems unused in XML, commented out in the DLL now as approved to be possible by chatgpt 5, check if accurate -->
+	// <!-- custom: note: i don't know why, but it seems this block is indented one indentation higher than previous and following code despite seemingly being in same scope which seems weird, leave is as such for safety or maybe rather no tediousness, but added this note if helps about this seemingly weirdness -->
 	// advc.313: Replaced by a handicap-based modifier
-	#if 0
-		/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
-			real civilizations to defend against. */
-		if (pPlot->isWater() &&
-			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
-		{
-			PromotionTypes eDisorganized = (PromotionTypes)
-					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
-			if (eDisorganized != NO_PROMOTION)
-				pNewUnit->setHasPromotion(eDisorganized, true);
-		} // K-Mod end
-	#endif
+	// #if 0
+	// 	/*	K-Mod. Sorry, barbarians. Free ships are just too dangerous for
+	// 		real civilizations to defend against. */
+	// 	if (pPlot->isWater() &&
+	// 		!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+	// 	{
+	// 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// 		static const PromotionTypes eDisorganized = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+	// 		if (eDisorganized != NO_PROMOTION)
+	// 			pNewUnit->setHasPromotion(eDisorganized, true);
+	// 	} // K-Mod end
+	// #endif
 		// <advc.304> Discourage nearby unit placement for some time
 		getBarbarianWeightMap().getActivityMap().change(*pPlot,
 				BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
@@ -7550,8 +7718,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
 }
 
 // <advc.300>
-CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
-	CvArea const& kArea, Shelf const* pShelf)
+CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid, CvArea const& kArea, Shelf const* pShelf)
 {
 	RandPlotFlags const eFlags = (RANDPLOT_NOT_VISIBLE_TO_CIV |
 			/*	Shelves already ensure this and one-tile islands
@@ -7581,8 +7748,7 @@ CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
 }
 
 
-bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop,
-	CvArea& kArea, Shelf* pShelf)
+bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& kArea, Shelf* pShelf)
 {
 	if (iUnitsPresent <= 5) // 5 is never a crowd
 		return false;
@@ -7659,6 +7825,9 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 	UnitTypes eR = NO_UNIT;
 	int iBestValue = 0;
 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
+	// <!-- custom: hoist for performance optimization -->
+	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
 	for (int i = 0; i < kCiv.getNumUnits(); i++)
 	{
 		UnitTypes const eUnit = kCiv.unitAt(i);
@@ -7731,10 +7900,10 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 		if (eAndTech == NO_TECH)
 			iUnitEra = -1;
 		// Mounted units only in open terrain
-		static UnitCombatTypes const eMounted = (UnitCombatTypes)
-				GC.getInfoTypeForString("UNITCOMBAT_MOUNTED");
-		bool const bMounted = (kUnit.getUnitCombatType() == eMounted);
-		if (bMounted)
+		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such -->
+		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
+		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
+		if (bMountedMelee || bMountedRanged)
 		{
 			if (kPlot.isWater() || kPlot.defenseModifier(NO_TEAM, true) > 0)
 				continue;
@@ -7758,7 +7927,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
 				become available. The game era is usually already Classical
 				when Archers become available. */
 			(!bAnyExpensiveTech || iUnitEra + 1 >= getCurrentEra())) ||
-			bMounted) // To make up for the terrain restriction
+			bMountedMelee || bMountedRanged) // To make up for the terrain restriction
 		{
 			iDieSides = (iDieSides * rNoBonusReqDieSidesMult).uround();
 		} // </advc.301>
@@ -8324,8 +8493,7 @@ CvDeal* CvGame::addDeal()
 
 /*	advc.072: All the FAssert(false) in this function mean that we're somehow
 	out of step with the iteration that happens in the EXE. */
-CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
-	TradeableItems eItemType, int iData, bool bWidget)
+CvDeal* CvGame::nextCurrentDeal(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer, TradeableItems eItemType, int iData, bool bWidget)
 {
 	if (!m_bShowingCurrentDeals)
 	{
@@ -8605,7 +8773,7 @@ bool CvGame::checkInSync()
 }
 
 /*	<advc.003g> Test the platform's floating point behavior (intermediate precision
-	and/or rounding). */
+	or rounding). */
 int CvGame::FPChecksum() const
 {
 	/*	I've used this together with the _controlfp call at the end to test the
@@ -8639,12 +8807,15 @@ void CvGame::doFPCheck(int iChecksum, PlayerTypes ePlayer)
 	if (iChecksum == FPChecksum())
 		return; // Active player is able to reproduce checksum received over the net
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 	gDLL->UI().addMessage(getActivePlayer(), true, -1,
 			CvWString::format(L"Your machine's FP test computation has yielded a"
 			L" different result than that of %s. The game may frequently go"
 			L" out of sync due to floating point calculations in the AdvCiv mod.",
 			GET_PLAYER(ePlayer).getName()), NULL, MESSAGE_TYPE_MAJOR_EVENT, NULL,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 } // </advc.003g
 
 // advc.003r:
@@ -8687,22 +8858,24 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
 }
 
 
-void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer,
-	CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
+void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
 {
 	int iGameTurn = getGameTurn();
 	CvReplayMessage* pMessage = new CvReplayMessage(iGameTurn, eType, ePlayer);
 	pMessage->setPlot(iPlotX, iPlotY);
 	pMessage->setText(szText);
 	if (NO_COLOR == eColor)
-		eColor = GC.getColorType("WHITE");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+		eColor = eColorWhite;
+	}
 	pMessage->setColor(eColor);
 	m_listReplayMessages.push_back(pMessage);
 }
 
 // advc: Wrapper with CvPlot param
-void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType,
-	PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
+void CvGame::addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor)
 {
 	addReplayMessage(eType, ePlayer, szText, eColor, kPlot.getX(), kPlot.getY());
 }
@@ -8782,16 +8955,14 @@ void CvGame::read(FDataStreamBase* pStream)
 {
 	reset(NO_HANDICAP);
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 	/*	advc: So that onAllGameDataRead can perform some final updates
 		based on the save version */
 	m_uiSaveFlag = uiFlag;
-	if (uiFlag < 1)
-	{
-		int iEndTurnMessagesSent;
-		pStream->Read(&iEndTurnMessagesSent);
-	}
+
 	pStream->Read(&m_iElapsedGameTurns);
 	pStream->Read(&m_iStartTurn);
 	pStream->Read(&m_iStartYear);
@@ -8819,13 +8990,10 @@ void CvGame::read(FDataStreamBase* pStream)
 		m_iAIAutoPlay = -1; // </advc.127>
 	pStream->Read(&m_iGlobalWarmingIndex); // K-Mod
 	pStream->Read(&m_iGwEventTally); // K-Mod
+
 	// <advc.opt>
-	if (uiFlag >= 4)
-	{
-		pStream->Read(&m_iCivPlayersEverAlive);
-		pStream->Read(&m_iCivTeamsEverAlive);
-	} /* The else case is handled in allGameDataRead - need to read the players and
-		 teams first. */
+	pStream->Read(&m_iCivPlayersEverAlive);
+	pStream->Read(&m_iCivTeamsEverAlive);
 	// </advc.opt>
 	// m_uiInitialTime not saved
 
@@ -8838,6 +9006,10 @@ void CvGame::read(FDataStreamBase* pStream)
 	// m_bPlayerOptionsSent not saved
 	pStream->Read(&m_bNukesValid);
 
+	// <!-- custom: map heaviness is persisted in saves; no recompute on load, only on new-game map generation. (GPT-5.2-Codex) -->
+	pStream->Read(&m_bLandHeavyMapname);
+	pStream->Read(&m_bNavalHeavyMapname);
+
 	pStream->Read((int*)&m_eHandicap);
 	pStream->Read((int*)&m_eAIHandicap); // advc.127
 	pStream->Read((int*)&m_ePausePlayer);
@@ -8846,111 +9018,47 @@ void CvGame::read(FDataStreamBase* pStream)
 	pStream->Read((int*)&m_eVictory);
 	pStream->Read((int*)&m_eGameState);
 	// <advc.106h>
-	if (uiFlag >= 6)
-		pStream->Read((int*)&m_eInitialActivePlayer);
-	else m_eInitialActivePlayer = getActivePlayer(); // </advc.106h>
+	pStream->Read((int*)&m_eInitialActivePlayer);
+
 	// <advc.004m>
-	if (uiFlag >= 5)
-	{
-		pStream->Read((int*)&m_eCurrentLayer);
-		/*	Initial autosave doesn't contain valid info about the globe layers
-				b/c it gets created before Python calls reportCurrentLayer */
-		if (getTurnSlice() > 0)
-			m_bLayerFromSavegame = true;
-	} // </advc.004m>
+	pStream->Read((int*)&m_eCurrentLayer);
+	/*	Initial autosave doesn't contain valid info about the globe layers
+			b/c it gets created before Python calls reportCurrentLayer */
+	if (getTurnSlice() > 0)
+		m_bLayerFromSavegame = true;
+	// </advc.004m>
+
 	pStream->ReadString(m_szScriptData);
 
-	if (uiFlag < 1)
-	{
-		std::vector<int> aiEndTurnMessagesReceived(MAX_PLAYERS);
-		pStream->Read(MAX_PLAYERS, &aiEndTurnMessagesReceived[0]);
-	}
-	if (uiFlag >= 21)
-	{
-		m_aeRankPlayer.read(pStream);
-		m_aePlayerRank.read(pStream);
-		m_aiPlayerScore.read(pStream);
-		m_aeRankTeam.read(pStream);
-		m_aeTeamRank.read(pStream);
-		m_aiTeamScore.read(pStream);
-		m_aiUnitCreatedCount.read(pStream);
-		m_aiUnitClassCreatedCount.read(pStream);
-		m_aiBuildingClassCreatedCount.read(pStream);
-		m_aiProjectCreatedCount.read(pStream);
-		m_aiForceCivicCount.read(pStream);
-	}
-	else
-	{
-		m_aeRankPlayer.readArray<int>(pStream);
-		m_aePlayerRank.readArray<int>(pStream);
-		m_aiPlayerScore.readArray<int>(pStream);
-		m_aeRankTeam.readArray<int>(pStream);
-		m_aeTeamRank.readArray<int>(pStream);
-		m_aiTeamScore.readArray<int>(pStream);
-		m_aiUnitCreatedCount.readArray<int>(pStream);
-		m_aiUnitClassCreatedCount.readArray<int>(pStream);
-		m_aiBuildingClassCreatedCount.readArray<int>(pStream);
-		m_aiProjectCreatedCount.readArray<int>(pStream);
-		m_aiForceCivicCount.readArray<int>(pStream);
-	}
-	if (uiFlag >= 11)
-		m_aiVoteOutcome.read(pStream);
-	else m_aiVoteOutcome.readArray<int>(pStream);
-	if (uiFlag >= 21)
-	{
-		m_aiReligionGameTurnFounded.read(pStream);
-		m_aiCorporationGameTurnFounded.read(pStream);
-		m_aiSecretaryGeneralTimer.read(pStream);
-		m_aiVoteTimer.read(pStream);
-		m_aiDiploVote.read(pStream);
-		if (uiFlag >= 24)
-		{
-			m_abSpecialUnitValid.read(pStream);
-			m_abSpecialBuildingValid.read(pStream);
-			m_abReligionSlotTaken.read(pStream);
-		}
-		else
-		{
-			LegacyArrayEnumMap<SpecialUnitTypes,bool>::convert(m_abSpecialUnitValid, pStream);
-			LegacyArrayEnumMap<SpecialBuildingTypes,bool>::convert(m_abSpecialBuildingValid, pStream);
-			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abReligionSlotTaken, pStream);
-		}
-		m_aeHolyCity.read(pStream);
-		m_aeHeadquarters.read(pStream);
-	}
-	else
-	{
-		m_aiReligionGameTurnFounded.readArray<int>(pStream);
-		m_aiCorporationGameTurnFounded.readArray<int>(pStream);
-		m_aiSecretaryGeneralTimer.readArray<int>(pStream);
-		m_aiVoteTimer.readArray<int>(pStream);
-		m_aiDiploVote.readArray<int>(pStream);
-		m_abSpecialUnitValid.readArray<bool>(pStream);
-		m_abSpecialBuildingValid.readArray<bool>(pStream);
-		m_abReligionSlotTaken.readArray<bool>(pStream);
-		m_pLegacyOrgSeatData = new IDInfo[14];
-		for (int i = 0; i < 7; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			/*	advc.enum: Want to store the city plot ID, but can't obtain that
-				from the cityInfo until the CvPlayer data has been read, so ... */
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			int iOwner, iCity;
-			pStream->Read(&iOwner);
-			pStream->Read(&iCity);
-			IDInfo cityInfo((PlayerTypes)iOwner, iCity);
-			cityInfo.validateOwner(); // advc.opt
-			m_pLegacyOrgSeatData[i] = cityInfo;
-		}
-	}
+	m_aeRankPlayer.read(pStream);
+	m_aePlayerRank.read(pStream);
+	m_aiPlayerScore.read(pStream);
+	m_aeRankTeam.read(pStream);
+	m_aeTeamRank.read(pStream);
+	m_aiTeamScore.read(pStream);
+	m_aiUnitCreatedCount.read(pStream);
+	m_aiUnitClassCreatedCount.read(pStream);
+	m_aiBuildingClassCreatedCount.read(pStream);
+	m_aiProjectCreatedCount.read(pStream);
+	m_aiForceCivicCount.read(pStream);
 
+
+	m_aiVoteOutcome.read(pStream);
+
+	m_aiReligionGameTurnFounded.read(pStream);
+	m_aiCorporationGameTurnFounded.read(pStream);
+	m_aiSecretaryGeneralTimer.read(pStream);
+	m_aiVoteTimer.read(pStream);
+	m_aiDiploVote.read(pStream);
+
+	m_abSpecialUnitValid.read(pStream);
+	m_abSpecialBuildingValid.read(pStream);
+	m_abReligionSlotTaken.read(pStream);
+
+	m_aeHolyCity.read(pStream);
+	m_aeHeadquarters.read(pStream);
+
+	// <!-- custom: brackets without if or else or such was already as such, kept as is as advised by chatgpt 5, check if accurate -->
 	{
 		CvWString szBuffer;
 		uint iSize;
@@ -8978,25 +9086,24 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	m_mapRand.read(pStream);
 	m_sorenRand.read(pStream);
+
 	// <advc.027b>
-	if (uiFlag >= 7)
-	{
-		pStream->Read(&m_initialRandSeed.uiMap);
-		pStream->Read(&m_initialRandSeed.uiSync);
-	} // </advc.027b>
+	pStream->Read(&m_initialRandSeed.uiMap);
+	pStream->Read(&m_initialRandSeed.uiSync);
+	// </advc.027b>
+
+	// <!-- custom: as part of removing uiflag, also removed weird boolean code here as well that has a bunch of nested uiflag conditionals, now directly checking the game options we need as advised by chatgpt 5, check if accurate; this is simplified thanks to claude ai, and my prompt(s) and adjustments too or such, check if accurate (i have deleted old seemingly base advciv or maybe of some other mods who knows i didn't check too much and just deleted and merged old uiflags into latest if checks are truecode, too horrible to look at xd, except maybe in a museum, or maybe is not that bad and i'm exagerating, but hopefully much cleaner now), which i also did here -->
+
+	// Simplified: assuming current UI flag version (27)
+	// Simplified: assuming current UI flag version (no backwards compatibility)
 	// <advc.tsl>, advc.701: Options have been shuffled around a few times
-	bool bNewSeed = isOption((GameOptionTypes)
-			(uiFlag < 2 || uiFlag >= 17 ? 17 : 19));
-	bool bLockMods = isOption((GameOptionTypes)
-			(uiFlag >= 15 && uiFlag < 17 ? 27 : 18));
-	bool bNoVassals = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 23 : 20));
-	bool bNoEspionage = isOption((GameOptionTypes)
-			(uiFlag >= 17 ? 27 : 23));
-	bool bRiseFall = isOption((GameOptionTypes)
-			(uiFlag < 2 ? false : (uiFlag < 17 ? 17 : 19)));
-	bool bTrueStarts = isOption((GameOptionTypes)
-			(uiFlag < 15 ? false : (uiFlag < 17 ? 18 : 20)));
+	const bool bNewSeed = isOption((GameOptionTypes)17);      // or 19 - you'd need to check which is correct
+	const bool bLockMods = isOption((GameOptionTypes)18);
+	const bool bNoVassals = isOption((GameOptionTypes)23);    // for current version
+	const bool bNoEspionage = isOption((GameOptionTypes)27);  // for current version
+	const bool bRiseFall = isOption((GameOptionTypes)19);     // for current version  
+	const bool bTrueStarts = isOption((GameOptionTypes)20);   // for current version
+
 	setOption(GAMEOPTION_NEW_RANDOM_SEED, bNewSeed);
 	setOption(GAMEOPTION_LOCK_MODS, bLockMods);
 	setOption(GAMEOPTION_RISE_FALL, bRiseFall);
@@ -9004,6 +9111,7 @@ void CvGame::read(FDataStreamBase* pStream)
 	setOption(GAMEOPTION_NO_VASSAL_STATES, bNoVassals);
 	setOption(GAMEOPTION_NO_ESPIONAGE, bNoEspionage);
 	// </advc.tsl>
+
 	// <advc.250b>
 	if (isOption(GAMEOPTION_SPAH))
 		m_pSpah->read(pStream); // </advc.250b>
@@ -9026,82 +9134,15 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	pStream->Read(&m_iNumSessions);
 	// <advc.tsl>
-	if (uiFlag >= 16)
-		pStream->Read(&m_iMapRegens); // </advc.tsl>
+	pStream->Read(&m_iMapRegens); // </advc.tsl>
 	if (!isNetworkMultiPlayer())
 		m_iNumSessions++;
-	/*	<advc.enum> In part based on code from obsolete structs
-		PlotExtraYield, PlotExtraCost. */
-	if (uiFlag < 21)
+
+	m_aeVoteSourceReligion.read(pStream);
+
+	if (!isOption(GAMEOPTION_NO_EVENTS))
 	{
-		CvMap& kMap = GC.getMap();
-		/*	Map hasn't yet been reset and won't reset the plot extra data at all
-			when loading a legacy save. It's all up to CvGame then. */
-		kMap.resetPlotExtraData();
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			FOR_EACH_ENUM(Yield)
-			{
-				int iChange;
-				pStream->Read(&iChange);
-				kMap.setPlotExtraYield(kMap.plotNum(iX, iY), eLoopYield, iChange);
-			}
-		}
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iX, iY, iCost;
-			pStream->Read(&iX);
-			pStream->Read(&iY);
-			pStream->Read(&iCost);
-			kMap.changePlotExtraCost(kMap.plotNum(iX, iY), iCost);
-		}
-	} // </advc.enum>
-	// <advc>
-	if (uiFlag >= 9)
-	{
-		if (uiFlag >= 11)
-			m_aeVoteSourceReligion.read(pStream);
-		else m_aeVoteSourceReligion.readArray<int>(pStream);
-	}
-	else // </advc>
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			VoteSourceTypes eVoteSource;
-			ReligionTypes eReligion;
-			pStream->Read((int*)&eVoteSource);
-			pStream->Read((int*)&eReligion);
-			m_aeVoteSourceReligion.set(eVoteSource, eReligion); // advc
-		}
-	}
-	if (uiFlag >= 21)
-	{
-		if (!isOption(GAMEOPTION_NO_EVENTS))
-		{
-			if (uiFlag >= 24)
-				m_abInactiveTriggers.read(pStream);
-			else LegacyArrayEnumMap<EventTriggerTypes,bool>::convert(m_abInactiveTriggers, pStream);
-		}
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iTrigger;
-			pStream->Read(&iTrigger);
-			if (!isOption(GAMEOPTION_NO_EVENTS)) // advc.003v
-				m_abInactiveTriggers.set((EventTriggerTypes)iTrigger, true);
-		}
+		m_abInactiveTriggers.read(pStream);
 	}
 
 	// Get the active player information from the initialization structure
@@ -9121,67 +9162,42 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	if (isOption(GAMEOPTION_NEW_RANDOM_SEED))
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bIgnoreNewRandomSeedOption = GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION");
+
 		if (!isNetworkMultiPlayer() &&
-			!GC.getDefineBOOL("IGNORE_NEW_RANDOM_SEED_OPTION")) // advc
+			!bIgnoreNewRandomSeedOption) // advc
 		{
 			m_sorenRand.reseed(timeGetTime());
 		}
 	}
-	if (uiFlag < 21)
-	{
-		// advc.enum: Skip data now handled by CvMap
-		int iShrineBuildingCount;
-		pStream->Read(&iShrineBuildingCount);
-		int* aiShrineBuildingOrReligion = new int[GC.getNumBuildingInfos()];
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		pStream->Read(GC.getNumBuildingInfos(), aiShrineBuildingOrReligion);
-		delete[] aiShrineBuildingOrReligion;
-	}
+
 	pStream->Read(&m_iNumCultureVictoryCities);
 	pStream->Read((int*)&m_eCultureVictoryCultureLevel);
 	// <advc.052>
-	if (uiFlag >= 3)
-		pStream->Read(&m_bScenario); // </advc.052>
+
+	pStream->Read(&m_bScenario); // </advc.052>
+
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
-	GAMETEXT.setAlwaysShowPlotCulture(uiFlag >= 10); // advc.099f
+	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
 	applyOptionEffects(); // advc.310
 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). Added with the help of chatgpt 5 thanks -->
+	// 5) Call sites (in CvGame.cpp) — recap
+	// After loading a save: end of CvGame::read(FDataStreamBase*)
+	// Update: Now loaded from save (no recompute here). (GPT-5.2-Codex)
 }
 
 
 void CvGame::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // BtS
-	//uiFlag = 2; // advc.701: R&F option
-	//uiFlag = 3; // advc.052
-	//uiFlag = 4; // advc.opt: Players and teams ever alive
-	//uiFlag = 5; // advc.004m
-	//uiFlag = 6; // advc.106h
-	//uiFlag = 7; // advc.027b
-	//uiFlag = 8; // advc.172
-	//uiFlag = 9; // advc (m_aeVoteSourceReligion)
-	//uiFlag = 10; // advc.099f
-	//uiFlag = 11; // advc.enum: new enum map save behavior
-	//uiFlag = 12; // advc.130n: DifferentReligionThreat added to CvPlayerAI
-	//uiFlag = 13; // advc.148: RELATIONS_THRESH_WORST_ENEMY
-	//uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
-	//uiFlag = 15; // advc.tsl: new game option
-	//uiFlag = 16; // advc.tsl: map regen counter
-	//uiFlag = 17; // advc.tsl: game options moved around
-	//uiFlag = 18; // advc.130c: change in rank hate calc
-	//uiFlag = 19; // advc.500c: Update citizen assignments
-	//uiFlag = 20; // advc.130r: Update war attitude
-	//uiFlag = 21; // advc.enum
-	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
-	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
-	/*	advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak;
-		advc.130n: fave civic based on displayed leader type. */
-	//uiFlag = 24;
-	//uiFlag = 25; // advc.130n (bugfix)
-	//uiFlag = 26; // advc.130w: Cache for expansionist hate
 	uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE("Game pt1");
 	pStream->Write(m_iElapsedGameTurns);
@@ -9224,6 +9240,9 @@ void CvGame::write(FDataStreamBase* pStream)
 	pStream->Write(m_bHotPbemBetweenTurns);
 	// m_bPlayerOptionsSent not saved
 	pStream->Write(m_bNukesValid);
+
+	pStream->Write(m_bLandHeavyMapname);
+	pStream->Write(m_bNavalHeavyMapname);
 
 	pStream->Write(m_eHandicap);
 	pStream->Write(m_eAIHandicap); // advc.127
@@ -9349,18 +9368,8 @@ void CvGame::onAllGameDataRead()
 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
 	// </advc.opt>
 	GC.getAgents().gameStart(true); // advc.agent
-	// <advc.250a> Cf. CvInitCore::read
-	if (m_uiSaveFlag <= 1)
-	{
-		if (getHandicapType() >= GC.getNumHandicapInfos())
-		{
-			setHandicapType(GET_PLAYER(getActivePlayer()).getHandicapType());
-			initGameHandicap();
-		}
-	} // </advc.250a>
-	// <advc.124b> River connection rules have changed
-	if (m_uiSaveFlag <= 23)
-		updatePlotGroups(); // </advc.124b>
+	// <!-- custom: removed old m_uiSaveFlag code -->
+
 	// <advc.003m>
 	for (TeamIter<> it; it.hasNext(); ++it)
 	{
@@ -9382,74 +9391,16 @@ void CvGame::onAllGameDataRead()
 		}
 	} // </advc.opt>
 	m_bAllGameDataRead = true;
-	// <advc.enum>
-	if (m_uiSaveFlag < 21)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHolyCity.set((ReligionTypes)i, pCity->plotNum());
-		}
-		for (int i = 7; i < 14; i++)
-		{
-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
-			if (pCity != NULL)
-				m_aeHeadquarters.set((CorporationTypes)(i - 7), pCity->plotNum());
-		}
-		SAFE_DELETE_ARRAY(m_pLegacyOrgSeatData);
-	} // </advc.enum>
-	// <advc.251> Maintenance changed in XML
-	if (m_uiSaveFlag < 25)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->updateMaintenance();
-	} // </advc.251>
-	// <advc.130w>
-	bool bAttitudeUpdated = false;
-	if (m_uiSaveFlag < 26)
-	{
-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			itPlayer->AI_updateExpansionistHate();
-		bAttitudeUpdated = true;
-	} // </advc.130w>
+
+	// <!-- custom: while removing old m_uiSaveFlag code, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these -->
 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
-	if (m_uiSaveFlag < 27 ||
-		// <advc.127> Save created during AI Auto Play
-		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+	// <advc.127> Save created during AI Auto Play
+	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
 	{
 		m_iAIAutoPlay = 0; // </advc.127>
-		if (!bAttitudeUpdated) // advc.130w
-			CvPlayerAI::AI_updateAttitudes();
+		CvPlayerAI::AI_updateAttitudes();
 	} // </advc.130n>
-	// <advc.500c>
-	if (m_uiSaveFlag < 19)
-	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH)
-		{
-			for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-			{
-				if (GET_TEAM(itPlayer->getTeam()).isHasTech(eNationalism))
-				{
-					FOR_EACH_CITY_VAR(pCity, *itPlayer)
-					{
-						if (pCity->getMilitaryHappinessUnits() <= 0)
-							pCity->AI_setAssignWorkDirty(true);
-					}
-				}
-			}
-		}
-	} // </advc.500c>
-	// <advc.172>
-	if (m_uiSaveFlag < 8)
-	{
-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
-		{
-			FOR_EACH_CITY_VAR(pCity, *itPlayer)
-				pCity->updateReligionCommerce();
-		}
-	} // </advc.172>
+
 	// <advc.134a>
 	for (PlayerIter<HUMAN> itActive; itActive.hasNext(); ++itActive)
 	{
@@ -9611,8 +9562,11 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 	}
 	if (bFindNewColor)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iBarbarianCivilization = GC.getDefineINT("BARBARIAN_CIVILIZATION");
+
 		PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
-				GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
+				iBarbarianCivilization).getDefaultPlayerColor();
 		FOR_EACH_ENUM(PlayerColor)
 		{
 			if (eLoopPlayerColor == eBarbarianColor)
@@ -9656,8 +9610,7 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 
 /*	BETTER_BTS_AI_MOD, Debug, 8/1/08, jdog5000: START
 	(advc: Merged with code from nextActivePlayer) */
-void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
-	bool bSetTurnActive) // advc
+void CvGame::changeHumanPlayer(PlayerTypes eNewHuman, bool bSetTurnActive) // advc
 {
 	PlayerTypes const eCurHuman = getActivePlayer();
 	/*	<advc.001> For BUG dot map update and Civ4lerts (when switching to
@@ -9733,12 +9686,14 @@ bool CvGame::isCompetingCorporation(CorporationTypes eCorp1, CorporationTypes eC
 }
 
 
-void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
-	ReligionTypes eReligion, bool bAnnounce)
+void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource, ReligionTypes eReligion, bool bAnnounce)
 {
 	m_aeVoteSourceReligion.set(eVoteSource, eReligion);
 	if (bAnnounce && eReligion != NO_RELIGION)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_VOTE_SOURCE_RELIGION",
 				GC.getInfo(eReligion).getTextKeyWide(),
 				GC.getInfo(eReligion).getAdjectiveKey(),
@@ -9750,7 +9705,7 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
 					itPlayer->getTeam(), true); // </advc.127>
 			gDLL->UI().addMessage(itPlayer->getID(), false, -1, szBuffer,
 					GC.getInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					iiXY.first, iiXY.second); // advc.127b
 		}
 	}
@@ -10016,8 +9971,7 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSelectionData const& kData, int 
 }
 
 
-VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource,
-	VoteSelectionSubData const& kOptionData)
+VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, VoteSelectionSubData const& kOptionData)
 {
 	VoteTriggeredData* pData = m_votesTriggered.add();
 	FAssert(pData != NULL); // advc
@@ -10081,6 +10035,9 @@ void CvGame::doVoteResults()
 		VoteSourceTypes eVoteSource = pVoteTriggered->eVoteSource;
 		bool bPassed = false;
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		if (!canDoResolution(eVoteSource, subdata))
 		{
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
@@ -10095,7 +10052,7 @@ void CvGame::doVoteResults()
 				std::pair<int,int> xy = getVoteSourceXY(eVoteSource, itObs->getTeam());
 				gDLL->UI().addMessage(itObs->getID(), false, -1, szMessage,
 						"AS2D_NEW_ERA", MESSAGE_TYPE_INFO, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						xy.first, xy.second); // advc.127b
 			}
 		}
@@ -10334,7 +10291,7 @@ void CvGame::doVoteResults()
 						countPossibleVote(eVote, eVoteSource),
 						szResolution.GetCString());
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage,
-						GC.getColorType("HIGHLIGHT_TEXT"));
+						eColorHighlightText);
 			} // </advc.150b>
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 			{
@@ -10383,7 +10340,7 @@ void CvGame::doVoteResults()
 							// <advc.127b>
 							eVSBuilding == NO_BUILDING ? NULL :
 							GC.getInfo(eVSBuilding).getButton(), // </advc.127b>
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							iiXY.first, iiXY.second); // advc.127b
 				}
 			}
@@ -10588,11 +10545,8 @@ void CvGame::processBuilding(BuildingTypes eBuilding, int iChange)
 }
 
 // advc.314: Between 0 and GOODY_BUFF_PEAK_MULTIPLIER, depending on game turn.
-scaled CvGame::goodyHutEffectFactor(
-	/*	Use true when a goody hut effect is supposed to increase with
-		the game speed. When set to false, the turn numbers in this
-		function are still game-speed adjusted. */
-	bool bSpeedAdjust) const
+// Use true when a goody hut effect is supposed to increase with the game speed. When set to false, the turn numbers in this function are still game-speed adjusted. <!-- custom: hoisted from multiline signature before `bSpeedAdjust` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+scaled CvGame::goodyHutEffectFactor(bool bSpeedAdjust) const
 {
 	static int const iGOODY_BUFF_START_TURN = GC.getDefineINT("GOODY_BUFF_START_TURN");
 	static int const iGOODY_BUFF_PEAK_TURN = GC.getDefineINT("GOODY_BUFF_PEAK_TURN");
@@ -10647,8 +10601,7 @@ void CvGame::reportCurrentLayer(GlobeLayerTypes eLayer)
 } // </advc.004m>
 
 // <advc.127b>
-std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver,
-	bool bDebug) const
+std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes eVS, TeamTypes eObserver, bool bDebug) const
 {
 	CvCity const* pVSCity = getVoteSourceCity(eVS, eObserver, bDebug);
 	std::pair<int,int> r = std::make_pair(-1,-1);

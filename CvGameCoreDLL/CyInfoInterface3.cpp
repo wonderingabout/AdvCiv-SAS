@@ -43,6 +43,15 @@ void CyInfoPythonInterface3()
 		.def("getTechTradeKnownPercent", &CvLeaderHeadInfo::getTechTradeKnownPercent, "int ()")
 		.def("getMaxGoldTradePercent", &CvLeaderHeadInfo::getMaxGoldTradePercent, "int ()")
 		.def("getMaxGoldPerTurnTradePercent", &CvLeaderHeadInfo::getMaxGoldPerTurnTradePercent, "int ()")
+
+		// <!-- custom: as for BBAI weights getter methods, they are not exposed in sevopedia leader (gc) so we can't access their data in python, so adding them for our AI personality panel's code to display them directly from xml, based on the BBAI code sample i have found in CvInfo_Civilization.h, based on the fact that getMaxWarRand is here as well yet BBAI is specifically missing here -->
+		.def("getCultureVictoryWeight", &CvLeaderHeadInfo::getCultureVictoryWeight, "int ()")
+		.def("getSpaceVictoryWeight", &CvLeaderHeadInfo::getSpaceVictoryWeight, "int ()")
+		.def("getConquestVictoryWeight", &CvLeaderHeadInfo::getConquestVictoryWeight, "int ()")
+		.def("getDominationVictoryWeight", &CvLeaderHeadInfo::getDominationVictoryWeight, "int ()")
+		.def("getDiplomacyVictoryWeight", &CvLeaderHeadInfo::getDiplomacyVictoryWeight, "int ()")
+		// <!-- custom: end of BBAI new additon of getters for sevopedia leader -->
+
 		.def("getMaxWarRand", &CvLeaderHeadInfo::getMaxWarRand, "int ()")
 		.def("getMaxWarNearbyPowerRatio", &CvLeaderHeadInfo::getMaxWarNearbyPowerRatio, "int ()")
 		.def("getMaxWarDistantPowerRatio", &CvLeaderHeadInfo::getMaxWarDistantPowerRatio, "int ()")
@@ -87,6 +96,12 @@ void CyInfoPythonInterface3()
 		.def("getDemandTributeAttitudeThreshold", &CvLeaderHeadInfo::getDemandTributeAttitudeThreshold, "int ()")
 		.def("getNoGiveHelpAttitudeThreshold", &CvLeaderHeadInfo::getNoGiveHelpAttitudeThreshold, "int ()")
 		.def("getTechRefuseAttitudeThreshold", &CvLeaderHeadInfo::getTechRefuseAttitudeThreshold, "int ()")
+
+		// <!-- custom: similarly beginning of addition to python expose for sevopedia leader's gc. -->
+		.def("getCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getCityRefuseAttitudeThreshold, "int ()")
+		.def("getNativeCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getNativeCityRefuseAttitudeThreshold, "int ()")
+		// <!-- custom: end of new additions to python expose for sevopedia leader's gc. -->
+
 		.def("getStrategicBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getStrategicBonusRefuseAttitudeThreshold, "int ()")
 		.def("getHappinessBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getHappinessBonusRefuseAttitudeThreshold, "int ()")
 		.def("getHealthBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getHealthBonusRefuseAttitudeThreshold, "int ()")
@@ -107,6 +122,8 @@ void CyInfoPythonInterface3()
 		.def("getFreedomAppreciation", &CvLeaderHeadInfo::getFreedomAppreciation, "int ()")
 
 		.def("getArtDefineTag", &CvLeaderHeadInfo::getArtDefineTag, "string ()")
+		// <!-- custom: per-era leader art tag query — exposed for Sevopedia leader era art preview buttons only; ingame rendering goes through getArtInfo(), not this. (Claude code Sonnet 4.6) -->
+		.def("getEraArtDefineTag", &CvLeaderHeadInfo::py_getEraArtDefineTag, "string (int i)")
 
 		// Arrays
 
@@ -232,6 +249,9 @@ void CyInfoPythonInterface3()
 
 		// Arrays
 		// advc.003t: py_...
+		// <!-- custom: BEGIN expose getBonusProduced in Python bindings so Sevopedia Corporation can query produced bonuses directly from CvCorporationInfo. (GPT-5.3-Codex) -->
+		.def("getBonusProduced", &CvCorporationInfo::py_getBonusProduced, "int ()")
+		// <!-- custom: END expose getBonusProduced in Python bindings. (GPT-5.3-Codex) -->
 		.def("getPrereqBonus", &CvCorporationInfo::py_getPrereqBonus, "int (int i)")
 		.def("getHeadquarterCommerce", &CvCorporationInfo::getHeadquarterCommerce, "int (int i)")
 		.def("getCommerceProduced", &CvCorporationInfo::getCommerceProduced, "int (int i)")
@@ -281,6 +301,11 @@ void CyInfoPythonInterface3()
 		.def("getColonyMaintenancePercent", &CvWorldInfo::getColonyMaintenancePercent, "int ()")
 		.def("getCorporationMaintenancePercent", &CvWorldInfo::getCorporationMaintenancePercent, "int ()")
 		.def("getNumCitiesAnarchyPercent", &CvWorldInfo::getNumCitiesAnarchyPercent, "int ()")
+
+		// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+		.def("getUnitCostPercent", &CvWorldInfo::getUnitCostPercent, "int ()")
+		.def("getAdvancedStartPointsMod", &CvWorldInfo::getAdvancedStartPointsMod, "int ()")
+		// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
 		;
 
 	python::class_<CvClimateInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvClimateInfo")
@@ -387,6 +412,9 @@ void CyInfoPythonInterface3()
 		.def("getStartingDefenseUnits", &CvEraInfo::getStartingDefenseUnits, "int () -")
 		.def("getStartingWorkerUnits", &CvEraInfo::getStartingWorkerUnits, "int () -")
 		.def("getStartingExploreUnits", &CvEraInfo::getStartingExploreUnits, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getAdvancedStartPoints", &CvEraInfo::getAdvancedStartPoints, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getStartingGold", &CvEraInfo::getStartingGold, "int () -")
 		.def("getFreePopulation", &CvEraInfo::getFreePopulation, "int () -")
 		.def("getStartPercent", &CvEraInfo::getStartPercent, "int () -")
@@ -395,14 +423,23 @@ void CyInfoPythonInterface3()
 		.def("getConstructPercent", &CvEraInfo::getConstructPercent, "int () -")
 		.def("getCreatePercent", &CvEraInfo::getCreatePercent, "int () -")
 		.def("getResearchPercent", &CvEraInfo::getResearchPercent, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getTechCostModifier", &CvEraInfo::getTechCostModifier, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getBuildPercent", &CvEraInfo::getBuildPercent, "int () -")
 		.def("getImprovementPercent", &CvEraInfo::getImprovementPercent, "int () -")
 		.def("getGreatPeoplePercent", &CvEraInfo::getGreatPeoplePercent, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("getCulturePercent", &CvEraInfo::getCulturePercent, "int () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 		.def("getAnarchyPercent", &CvEraInfo::getAnarchyPercent, "int () -")
 		.def("getEventChancePerTurn", &CvEraInfo::getEventChancePerTurn, "int () -")
 		.def("getSoundtrackSpace", &CvEraInfo::getSoundtrackSpace, "int () -")
 		.def("isFirstSoundtrackFirst", &CvEraInfo::isFirstSoundtrackFirst, "int () -")
 		.def("getNumSoundtracks", &CvEraInfo::getNumSoundtracks, "int () -")
+		// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+		.def("getSoundtrackScriptName", &CvEraInfo::getSoundtrackScriptName, "string (int i) -")
+		// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 		.def("getAudioUnitVictoryScript", &CvEraInfo::getAudioUnitVictoryScript, "string () -")
 		.def("getAudioUnitDefeatScript", &CvEraInfo::getAudioUnitDefeatScript, "string () -")
 
@@ -410,6 +447,18 @@ void CyInfoPythonInterface3()
 		.def("isNoAnimals", &CvEraInfo::isNoAnimals, "bool () -")
 		.def("isNoBarbUnits", &CvEraInfo::isNoBarbUnits, "bool () -")
 		.def("isNoBarbCities", &CvEraInfo::isNoBarbCities, "bool () -")
+		// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+		.def("isAllGoodyTechs", &CvEraInfo::isAllGoodyTechs, "bool () -")
+		.def("getAIMaxGroundbreakingPenalty", &CvEraInfo::getAIMaxGroundbreakingPenalty, "int () -")
+		.def("getHumanMaxGroundbreakingPenalty", &CvEraInfo::getHumanMaxGroundbreakingPenalty, "int () -")
+		.def("isAIAgeOfExploration", &CvEraInfo::isAIAgeOfExploration, "bool () -")
+		.def("isAIAgeOfPestilence", &CvEraInfo::isAIAgeOfPestilence, "bool () -")
+		.def("isAIAgeOfPollution", &CvEraInfo::isAIAgeOfPollution, "bool () -")
+		.def("isAIAgeOfFertility", &CvEraInfo::isAIAgeOfFertility, "bool () -")
+		.def("isAIAgeOfGuns", &CvEraInfo::isAIAgeOfGuns, "bool () -")
+		.def("isAIAtomicAge", &CvEraInfo::isAIAtomicAge, "bool () -")
+		.def("isAIAgeOfProduction", &CvEraInfo::isAIAgeOfProduction, "bool () -")
+		// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 
 		// Arrays
 
@@ -584,29 +633,60 @@ void CyInfoPythonInterface3()
 		.def("getNumBonusesRequired", &CvEventTriggerInfo::getNumBonusesRequired, "int ()")
 		.def("getRouteRequired", &CvEventTriggerInfo::getRouteRequired, "int (int)")
 		.def("getNumRoutesRequired", &CvEventTriggerInfo::getNumRoutesRequired, "int ()")
-		.def("getReligionRequired", &CvEventTriggerInfo::getBonusRequired, "int (int)")
+		// <!-- custom: fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
+		.def("getReligionRequired", &CvEventTriggerInfo::getReligionRequired, "int (int)")
+		// <!-- custom: end - fix Python binding bug: getReligionRequired was incorrectly bound to getBonusRequired; bind to getReligionRequired so EventTrigger debug/API matches XML fields. (GPT-5.3-Codex). See also KI#122. -->
+		// advc.sas (bugfix): 2nd arg was getBonusRequired
 		.def("getNumReligionsRequired", &CvEventTriggerInfo::getNumReligionsRequired, "int ()")
 		.def("getCorporationRequired", &CvEventTriggerInfo::getCorporationRequired, "int (int)")
 		.def("getNumCorporationsRequired", &CvEventTriggerInfo::getNumCorporationsRequired, "int ()")
+		// <!-- custom: expose missing EventTrigger text/world-news arrays with their original getter names so Python/debug output matches schema and existing CvInfo conventions. (GPT-5.3-Codex) -->
+		.def("getText", &CvEventTriggerInfo::pyGetText, "wstring (int)")
+		.def("getTextEra", &CvEventTriggerInfo::getTextEra, "int (int)")
+		.def("getNumTexts", &CvEventTriggerInfo::getNumTexts, "int ()")
+		.def("getWorldNews", &CvEventTriggerInfo::pyGetWorldNews, "wstring (int)")
+		.def("getNumWorldNews", &CvEventTriggerInfo::getNumWorldNews, "int ()")
+		.def("getPythonCallback", &CvEventTriggerInfo::getPythonCallback, "string ()")
+		.def("getPythonCanDo", &CvEventTriggerInfo::getPythonCanDo, "string ()")
+		.def("getPythonCanDoCity", &CvEventTriggerInfo::getPythonCanDoCity, "string ()")
+		.def("getPythonCanDoUnit", &CvEventTriggerInfo::getPythonCanDoUnit, "string ()")
+		// <!-- custom: end - expose missing EventTrigger text/world-news arrays with their original getter names so Python/debug output matches schema and existing CvInfo conventions. (GPT-5.3-Codex) -->
 
 		.def("isSinglePlayer", &CvEventTriggerInfo::isSinglePlayer, "bool ()")
 		.def("isTeam", &CvEventTriggerInfo::isTeam, "bool ()")
 		.def("isRecurring", &CvEventTriggerInfo::isRecurring, "bool ()")
 		.def("isGlobal", &CvEventTriggerInfo::isGlobal, "bool ()")
 		.def("isPickPlayer", &CvEventTriggerInfo::isPickPlayer, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isOtherPlayerWar", &CvEventTriggerInfo::isOtherPlayerWar, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 		.def("isOtherPlayerHasReligion", &CvEventTriggerInfo::isOtherPlayerHasReligion, "bool ()")
 		.def("isOtherPlayerHasOtherReligion", &CvEventTriggerInfo::isOtherPlayerHasOtherReligion, "bool ()")
 		.def("isOtherPlayerAI", &CvEventTriggerInfo::isOtherPlayerAI, "bool ()")
 		.def("isPickCity", &CvEventTriggerInfo::isPickCity, "bool ()")
-		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickCity, "bool ()")
+		// <!-- custom: fix Python binding bug: isPickOtherPlayerCity was incorrectly bound to isPickCity. (GPT-5.3-Codex). See also KI#122. -->
+		.def("isPickOtherPlayerCity", &CvEventTriggerInfo::isPickOtherPlayerCity, "bool ()")
+		// <!-- custom: end - fix Python binding bug: isPickOtherPlayerCity was incorrectly bound to isPickCity. (GPT-5.3-Codex). See also KI#122. -->
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isShowPlot", &CvEventTriggerInfo::isShowPlot, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
+		// advc.sas (bugfix): 2nd arg was isPickCity
 		.def("isUnitsOnPlot", &CvEventTriggerInfo::isUnitsOnPlot, "bool ()")
 		.def("isOwnPlot", &CvEventTriggerInfo::isOwnPlot, "bool ()")
 		.def("isPickReligion", &CvEventTriggerInfo::isPickReligion, "bool ()")
 		.def("isStateReligion", &CvEventTriggerInfo::isStateReligion, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isHolyCity", &CvEventTriggerInfo::isHolyCity, "bool ()")
+		.def("isPickCorporation", &CvEventTriggerInfo::isPickCorporation, "bool ()")
+		.def("isHeadquarters", &CvEventTriggerInfo::isHeadquarters, "bool ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 		.def("isProbabilityUnitMultiply", &CvEventTriggerInfo::isProbabilityUnitMultiply, "bool ()")
 		.def("isProbabilityBuildingMultiply", &CvEventTriggerInfo::isProbabilityBuildingMultiply, "bool ()")
 		.def("isPrereqEventCity", &CvEventTriggerInfo::isPrereqEventCity, "bool ()")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("isPlotEventTrigger", &CvEventTriggerInfo::isPlotEventTrigger, "bool ()")
 		;
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 
 	python::class_<CvEventInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvEventInfo")
 		.def("isQuest", &CvEventInfo::isQuest, "bool ()")
@@ -628,7 +708,10 @@ void CyInfoPythonInterface3()
 		.def("getTechMinTurnsLeft", &CvEventInfo::getTechMinTurnsLeft, "int ()")
 		.def("getPrereqTech", &CvEventInfo::getPrereqTech, "int ()")
 		.def("getUnitClass", &CvEventInfo::getUnitClass, "int ()")
-		.def("getNumUnits", &CvEventTriggerInfo::getNumUnits, "int ()")
+		// <!-- custom: fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
+		.def("getNumUnits", &CvEventInfo::getNumUnits, "int ()")
+		// <!-- custom: end - fix Python binding bug: CvEventInfo.getNumUnits was incorrectly bound to CvEventTriggerInfo::getNumUnits. (GPT-5.3-Codex). See also KI#122. -->
+		// advc.sas (bugfix): was CvEventTriggerInfo
 		.def("getBuildingClass", &CvEventInfo::getBuildingClass, "int ()")
 		.def("getBuildingChange", &CvEventInfo::getBuildingChange, "int ()")
 		.def("getHappy", &CvEventInfo::getHappy, "int ()")
@@ -673,6 +756,18 @@ void CyInfoPythonInterface3()
 		.def("getFreeSpecialistCount", &CvEventInfo::getFreeSpecialistCount, "int (int)")
 		.def("getUnitCombatPromotion", &CvEventInfo::getUnitCombatPromotion, "int (int)")
 		.def("getUnitClassPromotion", &CvEventInfo::getUnitClassPromotion, "int (int)")
+		// <!-- custom: add getters for sevopedia eventtrigger -->
+		.def("getWorldNews", &CvEventInfo::pyGetWorldNews, "wstring (int)")
+		.def("getNumWorldNews", &CvEventInfo::getNumWorldNews, "int ()")
+		.def("getPythonCallback", &CvEventInfo::getPythonCallback, "string ()")
+		.def("getPythonExpireCheck", &CvEventInfo::getPythonExpireCheck, "string ()")
+		.def("getPythonCanDo", &CvEventInfo::getPythonCanDo, "string ()")
+		.def("getPythonHelp", &CvEventInfo::getPythonHelp, "string ()")
+		.def("getUnitNameKey", &CvEventInfo::pyGetUnitNameKey, "wstring ()")
+		.def("getQuestFailTextKey", &CvEventInfo::pyGetQuestFailTextKey, "wstring ()")
+		.def("getOtherPlayerPopup", &CvEventInfo::pyGetOtherPlayerPopup, "wstring ()")
+		.def("getLocalInfoTextKey", &CvEventInfo::pyGetLocalInfoTextKey, "wstring ()")
+		// <!-- custom: end - add getters for sevopedia eventtrigger -->
 
 		.def("getBuildingYieldChange", &CvEventInfo::py_getBuildingYieldChange, "int (int /*BuildingClassTypes*/, int /*YieldTypes*/)")
 		/*	advc.003t: The DLL doesn't need the getNum... functions, and

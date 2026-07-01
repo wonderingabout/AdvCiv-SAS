@@ -40,47 +40,37 @@ public:
 	void setNetStats(CvWString& szString, PlayerTypes ePlayer);
 	DllExport void setMinimizePopupHelp(CvWString& szString, const CvPopupInfo & info);
 
-	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
-			bool bOneLine = false, bool bShort = false,
-			bool bColorAllegiance = false, // advc.048
-			bool bOmitOwner = false, // advc.061
-			bool bIndicator = false); // advc.007
+	// advc.048 <!-- custom: hoisted from multiline signature between `bColorAllegiance` and `bOmitOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.061 <!-- custom: hoisted from multiline signature between `bOmitOwner` and `bIndicator` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// advc.007 <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	// <!-- custom: Promotion icon size was hardcoded inside setUnitHelp; expose it as a parameter so Python UI callers can request a clean advisor-specific size instead of rewriting emitted image markup. (GPT-5.5) --> <!-- custom: hoisted from multiline signature between `bIndicator` and `iPromotionIconSize` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, bool bOneLine = false, bool bShort = false, bool bColorAllegiance = false, bool bOmitOwner = false, bool bIndicator = false, int iPromotionIconSize = 16);
 	// advc.004 (Exposed to Python, replacing redundant code in CyMainInterface.py)
-	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
-			int iHP = -1); // advc.048c
-	void setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, bool bOneLine, bool bShort,
-			bool bIndicator = false); // advc.061
+	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit, int iHP = -1); // advc.048c
+	void setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, bool bOneLine, bool bShort, bool bIndicator = false); // advc.061
 	// <advc.004c>
-	void setInterceptPlotHelp(CvPlot const& kPlot, CvUnit const& kUnit,
-			CvWString& szHelp, bool bNewline = true); // </advc.004c>
+	void setInterceptPlotHelp(CvPlot const& kPlot, CvUnit const& kUnit, CvWString& szHelp, bool bNewline = true); // </advc.004c>
 	bool setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot);
 	// <advc> Note: These are now implemented in ACOText.cpp
-	void setACOPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot,
-			CvUnit const& kAttacker, CvUnit const& kDefender, int iView,
-			bool bBestOddsHelp);
-	void setACOModifiersPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot,
-			CvUnit const& kAttacker, CvUnit const& kDefender, int iView);
+	void setACOPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView, bool bBestOddsHelp);
+	void setACOModifiersPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView);
 	// </advc>
 	// <advc.089>
-	void setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker,
-			CvUnit const& kDefender); // </advc.089>
+	void setCannotAttackHelp(CvWStringBuffer& szHelp, CvUnit const& kAttacker, CvUnit const& kDefender); // </advc.089>
 	void setPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot);
 	// <advc.099f> (only for legacy saves)
-	void setAlwaysShowPlotCulture(bool bAlwaysShowPlotCulture)
-	{
-		m_bAlwaysShowPlotCulture = bAlwaysShowPlotCulture;
-	} // </advc.099f>
+	void setAlwaysShowPlotCulture(bool bAlwaysShowPlotCulture) { m_bAlwaysShowPlotCulture = bAlwaysShowPlotCulture; } // </advc.099f>
 	void setCityBarHelp(CvWStringBuffer &szString, CvCity const& kCity);
 	void setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity); // advc.101
 	void setScoreHelp(CvWStringBuffer &szString, PlayerTypes ePlayer);
 
-	void parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait, CivilizationTypes eCivilization = NO_CIVILIZATION, bool bDawnOfMan = false);
+	// <!-- custom: pass bCivilopediaText through so Civilopedia can render free promotions in a single compact line; the old multi-line bullets remain elsewhere, while this avoids needless vertical sprawl on the leader page. (GPT-5.2-Codex) -->
+	void parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait, CivilizationTypes eCivilization = NO_CIVILIZATION, bool bDawnOfMan = false, bool bCivilopediaText = false);
 	DllExport void parseLeaderTraits(CvWStringBuffer &szInfoText, LeaderHeadTypes eLeader = NO_LEADER, CivilizationTypes eCivilization = NO_CIVILIZATION, bool bDawnOfMan = false, bool bCivilopediaText = false);
 	DllExport void parseLeaderShortTraits(CvWStringBuffer &szInfoText, LeaderHeadTypes eLeader);
 	DllExport void parseCivInfos(CvWStringBuffer &szHelpString, CivilizationTypes eCivilization, bool bDawnOfMan = false, bool bLinks = true);
 	// <advc>
-	void appendUniqueDesc(CvWStringBuffer& szBuffer, bool bSeparator, bool bDawnOfMan, bool bLinks,
-			wchar const* szUniqueDesc, wchar const* szDefaultDesc = NULL); // </advc>
+	void appendUniqueDesc(CvWStringBuffer& szBuffer, bool bSeparator, bool bDawnOfMan, bool bLinks, wchar const* szUniqueDesc, wchar const* szDefaultDesc = NULL); // </advc>
 	void parseSpecialistHelp(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText = false);
 	void parseFreeSpecialistHelp(CvWStringBuffer &szHelpString, const CvCity& kCity);
 	void parsePromotionHelp(CvWStringBuffer &szBuffer, PromotionTypes ePromo, const wchar* pcNewline = NEWLINE);
@@ -99,16 +89,12 @@ public:
 
 	void setTechHelp(CvWStringBuffer &szBuffer, TechTypes eTech, bool bCivilopediaText = false, bool bPlayerContext = false, bool bStrategyText = false, bool bTreeInfo = true, TechTypes eFromTech = NO_TECH);
 // BULL - Trade Denial - start
-	void setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
-			PlayerTypes eTradePlayer, bool bCivilopediaText = false,
-			bool bPlayerContext = false, bool bStrategyText = false,
-			bool bTreeInfo = true, TechTypes eFromTech = NO_TECH);
+	void setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech, PlayerTypes eTradePlayer, bool bCivilopediaText = false, bool bPlayerContext = false, bool bStrategyText = false, bool bTreeInfo = true, TechTypes eFromTech = NO_TECH);
 // BULL - Trade Denial - end
 	// advc.004a:
 	void setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUnit);
 	// <advc.ctr>
-	void setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
-			PlayerTypes eWhoTo, bool bListMore, bool bReason = true); // </advc.ctr>
+	void setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity, PlayerTypes eWhoTo, bool bListMore, bool bReason = true); // </advc.ctr>
 	void setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false);
 	void setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
 	void setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
@@ -137,42 +123,21 @@ public:
 // BUG - Building Additional Happiness - end
 // BUG - Resumable Value Change Help - start  (advc: unnecessary wrappers removed)
 	template<class YieldChanges> // advc.003t
-	bool setYieldChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			YieldChanges piYieldChange,
-			bool bPercent = false, bool bNewLine = true, bool bStarted = false);
+	bool setYieldChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, YieldChanges piYieldChange, bool bPercent = false, bool bNewLine = true, bool bStarted = false);
 	template<class CommerceChanges> // advc.003t
-	bool setCommerceChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			CommerceChanges piCommerceChange,
-			bool bPercent = false, bool bNewLine = true, bool bStarted = false);
+	bool setCommerceChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, CommerceChanges piCommerceChange, bool bPercent = false, bool bNewLine = true, bool bStarted = false);
 	template<class CommercePercentChanges> // advc.003t
-	bool setCommerceTimes100ChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			CommercePercentChanges piCommerceChange,
-			bool bNewLine, bool bStarted = false);
-	bool setGoodBadChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			int iGood, int iGoodSymbol, int iBad, int iBadSymbol,
-			bool bPercent = false, bool bNewLine = false, bool bStarted = false);
-	bool setValueChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			int iValue, int iSymbol,
-			bool bPercent = false, bool bNewLine = false, bool bStarted = false);
-	bool setValueTimes100ChangeHelp(CvWStringBuffer &szBuffer,
-			const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd,
-			int iValue, int iSymbol,
-			bool bNewLine = false, bool bStarted = false);
+	bool setCommerceTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, CommercePercentChanges piCommerceChange, bool bNewLine, bool bStarted = false);
+	bool setGoodBadChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iGood, int iGoodSymbol, int iBad, int iBadSymbol, bool bPercent = false, bool bNewLine = false, bool bStarted = false);
+	bool setValueChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bPercent = false, bool bNewLine = false, bool bStarted = false);
+	bool setValueTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bNewLine = false, bool bStarted = false);
 // BUG - Resumable Value Change Help - end
 	void setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText = false);
 // BULL - Trade Denial - start
-	void setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
-			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport,
-			bool bForeignAdvisor);
+	void setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport, bool bForeignAdvisor);
 // BULL - Trade Denial - end
 	// <advc.004w>
-	void setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
-			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity const* pCity);
+	void setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity const* pCity);
 	// </advc.004w>  <advc.111>
 	bool setPillageHelp(CvWStringBuffer &szBuffer, ImprovementTypes eImprovement);
 	bool setPillageHelp(CvWStringBuffer &szBuffer, RouteTypes eRoute); // </advc.111>
@@ -198,9 +163,7 @@ public:
 	void setVassalRevoltHelp(CvWStringBuffer& szBuffer, TeamTypes eMaster, TeamTypes eVassal);
 	void setEventHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, int iEventTriggeredId, PlayerTypes ePlayer);
 	void setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvCity* pCity);
-	void setEspionageCostHelp(CvWStringBuffer &szBuffer,
-			EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
-			CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit);
+	void setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, CvUnit const* pSpyUnit);
 	void setEspionageMissionHelp(CvWStringBuffer &szBuffer, const CvUnit* pUnit);
 	// advc.059:
 	void setHealthHappyBuildActionHelp(CvWStringBuffer& szBuffer, CvPlot const& kPlot, BuildTypes eBuild) const;
@@ -229,6 +192,10 @@ public:
 	void buildPermanentAllianceString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildVassalStateString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildBridgeString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
+	// <!-- custom: add the <bTrade> tech info in the tech effect's bullets (technology advisor, Sevopedia, etc.) -->
+	void buildBTradeString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
+	// <!-- custom: similarly also add the <bRepeat> tech info effect's bullets (technology advisor, Sevopedia, etc.) -->
+	void buildBRepeatString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildIrrigationString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildIgnoreIrrigationString(CvWStringBuffer& szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
 	void buildWaterWorkString(CvWStringBuffer &szBuffer, TechTypes eTech, bool bList = false, bool bPlayerContext = false);
@@ -248,8 +215,7 @@ public:
 	void buildHintsList(CvWStringBuffer& szBuffer);
 	void buildBuildingRequiresString(CvWStringBuffer& szBuffer, BuildingTypes eBuilding, bool bCivilopediaText, bool bTechChooserText, const CvCity* pCity);
 	// <advc.179>
-	void buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
-			CvBuildingInfo const& kBuilding); // </advc.179>
+	void buildBuildingReligionYieldString(CvWStringBuffer& szBuffer, CvBuildingInfo const& kBuilding); // </advc.179>
 
 	DllExport void buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvCity* pCity);
 	DllExport void buildCityBillboardCityNameString( CvWStringBuffer& szBuffer, CvCity* pCity);
@@ -264,24 +230,16 @@ public:
 	void buildDisengageString(CvWString& szString, PlayerTypes ePlayer, PlayerTypes eOther);
 
 	void getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWarPlan);
-	void getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer,
-			bool bConstCache = false); // advc.sha
+	void getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer, bool bConstCache = false); // advc.sha
 	// <advc>
-	void appendToAttitudeBreakdown(CvWStringBuffer& szBreakdown, int iPass,
-			int iAttitudeChange, int& iTotal,
-			char const* szTextKey, char const* szTextKeyAlt = NULL); // </advc>
+	void appendToAttitudeBreakdown(CvWStringBuffer& szBreakdown, int iPass, int iAttitudeChange, int& iTotal, char const* szTextKey, char const* szTextKeyAlt = NULL); // </advc>
 	void getVassalInfoString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer); // K-Mod
 	void getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const; // K-Mod
 	//void getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
-	void getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData,
-			PlayerTypes ePlayer1, PlayerTypes ePlayer2,
-			int iTurnsToCancel = -1); // advc.004w
-	void getDealString(CvWStringBuffer& szString, /* advc: const */ CvDeal const& kDeal,
-			PlayerTypes ePlayerPerspective = NO_PLAYER,
-			bool bCancel = false); // advc.004w
+	void getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2, int iTurnsToCancel = -1); // advc.004w
+	void getDealString(CvWStringBuffer& szString, /* advc: const */ CvDeal const& kDeal, PlayerTypes ePlayerPerspective = NO_PLAYER, bool bCancel = false); // advc.004w
 	//void getDealString(...); // advc: Merged into the above
-	void getActiveDealsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer,
-			bool bExcludeDual = false); // advc.087
+	void getActiveDealsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer, bool bExcludeDual = false); // advc.087
 	void getOtherRelationsString(CvWStringBuffer& szString, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
 
 	void buildFinanceInflationString(CvWStringBuffer& szDetails, PlayerTypes ePlayer);
@@ -299,13 +257,10 @@ public:
 	void buildForeignTradeString(CvWStringBuffer& szDetails, PlayerTypes ePlayer);
 	void buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer);
 	// BULL - Finance Advisor - end  // BULL - Trade Hover - start
-	void buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer,
-			PlayerTypes eWithPlayer = NO_PLAYER, bool bDomestic = true,
-			bool bForeign = true, bool bHeading = true);
+	void buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eWithPlayer = NO_PLAYER, bool bDomestic = true, bool bForeign = true, bool bHeading = true);
 	// BULL - Trade Hover - end
 	// BULL - Leaderhead Relations - start
-	void parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer,
-			PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
+	void parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
 	// BULL - Leaderhead Relations - end
 	// BULL - Food Rate Hover:
 	void setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
@@ -353,43 +308,31 @@ private:
 	// BULL - Leaderhead Relations - start  // advc: private
 	void getAllRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam);
 	void getActiveTeamRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam);
-	void getOtherRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam,
-			TeamTypes eOtherTeam, TeamTypes eSkipTeam);
+	void getOtherRelationsString(CvWStringBuffer& szString, TeamTypes eThisTeam, TeamTypes eOtherTeam, TeamTypes eSkipTeam);
 	// BULL - Leaderhead Relations - end
-	void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCityAI* pCity,
-			//bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false);
-			int iPlotIndex, bool bIgnoreFood, int iGrowthValue);
+	// bool bAvoidGrowth, bool bIgnoreGrowth, bool bIgnoreFood = false); <!-- custom: hoisted from multiline signature between `pCity` and `iPlotIndex` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	void setCityPlotYieldValueString(CvWStringBuffer &szString, CvCityAI* pCity, int iPlotIndex, bool bIgnoreFood, int iGrowthValue);
 	void setYieldValueString(CvWStringBuffer &szString, int iValue, bool bActive = false, bool bMakeWhitespace = false);
 	// <advc.059>
 	void setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot const& kPlot) const;
-	void setHealthChangeBuildActionHelp(CvWStringBuffer& szBuffer, int iChange,
-			int iChangePercent, int iIcon) const; // </advc.059>
+	void setHealthChangeBuildActionHelp(CvWStringBuffer& szBuffer, int iChange, int iChangePercent, int iIcon) const; // </advc.059>
 	// <advc>
-	void appendCombatModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot,
-			CvUnit const& kAttacker, CvUnit const& kDefender,
-			bool bAttackModifier, bool bACOEnabled,
-			bool bOnlyGeneric = false, bool bOnlyNonGeneric = false);
+	void appendCombatModifiers(CvWStringBuffer& szBuffer, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, bool bAttackModifier, bool bACOEnabled, bool bOnlyGeneric = false, bool bOnlyNonGeneric = false);
 	struct CombatModifierOutputParams
 	{
 		bool m_bAttackModifier;
 		bool m_bGenericModifier;
 		bool m_bACOEnabled;
 	};
-	void appendCombatModifier(CvWStringBuffer& szBuffer, int iModifier,
-			CombatModifierOutputParams const& kParams, char const* szTextKey,
-			wchar const* szTextArg = NULL);
-	void appendFirstStrikes(CvWStringBuffer& szBuffer,
-			CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor);
+	void appendCombatModifier(CvWStringBuffer& szBuffer, int iModifier, CombatModifierOutputParams const& kParams, char const* szTextKey, wchar const* szTextArg = NULL);
+	void appendFirstStrikes(CvWStringBuffer& szBuffer, CvUnit const& kFirstStriker, CvUnit const& kOther, bool bNegativeColor);
 	void setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot);
 	// </advc>
 	// <advc.004w>
 	template<OrderTypes eORDER, typename ORDER_DATA1, typename ORDER_DATA2>
-	void setProductionSpeedHelp(CvWStringBuffer& szBuffer,
-			ORDER_DATA1 eData1, ORDER_DATA2 eData2,
-			CvCity const* pCity, bool bCivilopediaText); // </advc.004w>
+	void setProductionSpeedHelp(CvWStringBuffer& szBuffer, ORDER_DATA1 eData1, ORDER_DATA2 eData2, CvCity const* pCity, bool bCivilopediaText); // </advc.004w>
 	// <advc.001>
-	void setSpecialistLink(CvWString& szBuffer, SpecialistTypes eSpecialist,
-			bool bPlural = false);
+	void setSpecialistLink(CvWString& szBuffer, SpecialistTypes eSpecialist, bool bPlural = false);
 	void setCorporationLink(CvWString& szBuffer, CorporationTypes eCorp); // </advc.001>
 	// <advc.135c>
 	void setPlotHelpDebug(CvWStringBuffer& szString, CvPlot const& kPlot);
@@ -401,15 +344,10 @@ private:
 	// advc.910:
 	void setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes eTech);
 	// <advc.061>
-	void setPlotListHelpPerOwner(CvWStringBuffer& szString, CvPlot const& kPlot,
-			bool bIndicator, bool bShort);
-	void appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner,
-			int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed = false);
-	void appendUnitTypeAggregated(CvWStringBuffer& szString,
-			std::vector<CvUnit const*> const& ownerUnits,
-			UnitTypes eUnit, CvPlot const& kPlot, bool bIndicator);
-	void appendAverageStrength(CvWStringBuffer& szString, int iSumMaxStrengthTimes100,
-			int iSumStrengthTimes100, int iUnits);
+	void setPlotListHelpPerOwner(CvWStringBuffer& szString, CvPlot const& kPlot, bool bIndicator, bool bShort);
+	void appendUnitOwnerHeading(CvWStringBuffer& szString, PlayerTypes eOwner, int iArmy, int iNavy, int iAir, int iTotal, bool bCollapsed = false);
+	void appendUnitTypeAggregated(CvWStringBuffer& szString, std::vector<CvUnit const*> const& ownerUnits, UnitTypes eUnit, CvPlot const& kPlot, bool bIndicator);
+	void appendAverageStrength(CvWStringBuffer& szString, int iSumMaxStrengthTimes100, int iSumStrengthTimes100, int iUnits);
 	// For std::sort
 	  static CvPlot const* m_pHelpPlot;
 	  static bool listFirstUnitBeforeSecond(CvUnit const* pFirst, CvUnit const* pSecond);

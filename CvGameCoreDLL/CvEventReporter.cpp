@@ -126,8 +126,7 @@ void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
 }
 
 // advc: Cut from CvUnit::resolveCombat
-void CvEventReporter::combatLogHit(CombatDetails const& kAttackerDetails,
-	CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit)
+void CvEventReporter::combatLogHit(CombatDetails const& kAttackerDetails, CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit)
 {
 	CyArgsList pyArgs;
 	pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&kAttackerDetails));
@@ -274,6 +273,12 @@ void CvEventReporter::unitKilled(CvUnit *pUnit, PlayerTypes eAttacker)
 void CvEventReporter::unitLost(CvUnit *pUnit)
 {
 	m_kPythonEventMgr.reportUnitLost(pUnit);
+}
+
+void CvEventReporter::unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
+{
+	// <!-- custom: forward actual capture creation to Python so battle history records captured workers/civilians instead of inferring from the earlier combatResult. (GPT-5.5) -->
+	m_kPythonEventMgr.reportUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
 }
 
 void CvEventReporter::unitPromoted(CvUnit *pUnit, PromotionTypes ePromotion)

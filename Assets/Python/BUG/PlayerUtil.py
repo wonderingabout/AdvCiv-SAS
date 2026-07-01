@@ -16,12 +16,12 @@
 ##
 ## Similar functions exist for Teams, Players and Teams together, and active
 ## versions that don't require an ID or object, using the active player instead.
-## All of them return -1 and/or None if given -1 or None for playerOrId.
+## All of them return -1 or None if given -1 or None for playerOrId.
 ##
 ##   players(), teams(), teamPlayers(teamOrID)
 ##     Loops over players and teams matching various criteria.
 ##     Only valid objects that were alive at some point are returned, and they can
-##     be filtered further by alive, human, barbarian, and/or minor status.
+##     be filtered further by alive, human, barbarian, or minor status.
 ##
 ##   playerUnits(playerOrID, testFunc), playerCities(playerOrID, testFunc)
 ##     Loops over a player's units or cities.
@@ -64,7 +64,7 @@ gc = CyGlobalContext()
 ## Players and Teams - Getting IDs and Cy objects 
 
 def getPlayer(playerOrID):
-	"""Returns the CyPlayer for the given player."""
+	# Returns the CyPlayer for the given player.
 	if playerOrID is None or playerOrID == -1:
 		return None
 	if isinstance(playerOrID, int):
@@ -72,7 +72,7 @@ def getPlayer(playerOrID):
 	return playerOrID
 
 def getPlayerID(playerOrID):
-	"""Returns the Player ID for the given player."""
+	# Returns the Player ID for the given player.
 	if playerOrID is None or playerOrID == -1:
 		return -1
 	if isinstance(playerOrID, int):
@@ -80,16 +80,15 @@ def getPlayerID(playerOrID):
 	return playerOrID.getID()
 
 def getPlayerAndID(playerOrID):
-	"""Returns the Player ID and CyPlayer for the given player."""
+	# Returns the Player ID and CyPlayer for the given player.
 	if playerOrID is None or playerOrID == -1:
 		return -1, None
 	if isinstance(playerOrID, int):
 		return playerOrID, gc.getPlayer(playerOrID)
 	return playerOrID.getID(), playerOrID
 
-
 def getTeam(teamOrID):
-	"""Returns the CyTeam for the given team."""
+	# Returns the CyTeam for the given team.
 	if teamOrID is None or teamOrID == -1:
 		return None
 	if isinstance(teamOrID, int):
@@ -97,7 +96,7 @@ def getTeam(teamOrID):
 	return teamOrID
 
 def getTeamID(teamOrID):
-	"""Returns the Team ID for the given team."""
+	# Returns the Team ID for the given team.
 	if teamOrID is None or teamOrID == -1:
 		return -1
 	if isinstance(teamOrID, int):
@@ -105,114 +104,107 @@ def getTeamID(teamOrID):
 	return teamOrID.getID()
 
 def getTeamAndID(teamOrID):
-	"""Returns the Team ID and CyTeam for the given team."""
+	# Returns the Team ID and CyTeam for the given team.
 	if teamOrID is None or teamOrID == -1:
 		return -1, None
 	if isinstance(teamOrID, int):
 		return teamOrID, gc.getTeam(teamOrID)
 	return teamOrID.getID(), teamOrID
 
-
 def getPlayerTeam(playerOrID):
-	"""Returns the CyTeam for the given player."""
+	# Returns the CyTeam for the given player.
 	player = getPlayer(playerOrID)
 	if player:
 		return gc.getTeam(player.getTeam())
 	return None
 
 def getPlayerTeamID(playerOrID):
-	"""Returns the Team ID for the given player."""
+	# Returns the Team ID for the given player.
 	player = getPlayer(playerOrID)
 	if player:
 		return player.getTeam()
 	return -1
 
 def getPlayerTeamAndID(playerOrID):
-	"""Returns the Team ID and CyTeam for the given player."""
+	# Returns the Team ID and CyTeam for the given player.
 	player = getPlayer(playerOrID)
 	if player:
 		eTeam = player.getTeam()
 		return eTeam, gc.getTeam(eTeam)
 	return -1, None
 
-
 def getPlayerAndTeam(playerOrID):
-	"""Returns the CyPlayer and CyTeam for the given player."""
+	# Returns the CyPlayer and CyTeam for the given player.
 	player = getPlayer(playerOrID)
 	if player:
 		return player, gc.getTeam(player.getTeam())
 	return None, None
 
 def getPlayerAndTeamIDs(playerOrID):
-	"""Returns the Player ID and Team ID for the given player."""
+	# Returns the Player ID and Team ID for the given player.
 	ePlayer, player = getPlayer(playerOrID)
 	if player:
 		return ePlayer, player.getTeam()
 	return -1, -1
 
 def getPlayerAndTeamAndIDs(playerOrID):
-	"""Returns the Player ID, CyPlayer, Team ID and CyTeam for the given player."""
+	# Returns the Player ID, CyPlayer, Team ID and CyTeam for the given player.
 	ePlayer, player = getPlayerAndID(playerOrID)
 	if player:
 		eTeam = player.getTeam()
 		return ePlayer, player, eTeam, gc.getTeam(eTeam)
 	return -1, None, -1, None
 
-
 def getActivePlayer():
-	"""Returns the CyPlayer for the active player."""
+	# Returns the CyPlayer for the active player.
 	return gc.getActivePlayer()
 
 def getActivePlayerID():
-	"""Returns the Player ID for the active player."""
+	# Returns the Player ID for the active player.
 	return gc.getGame().getActivePlayer()
 
 def getActivePlayerAndID():
-	"""Returns the Player ID and CyPlayer for the active player."""
+	# Returns the Player ID and CyPlayer for the active player.
 	return gc.getGame().getActivePlayer(), gc.getActivePlayer()
 
-
 def getActiveTeam():
-	"""Returns the CyTeam for the active player."""
+	# Returns the CyTeam for the active player.
 	return getTeam(getActiveTeamID())
 
 def getActiveTeamID():
-	"""Returns the Team ID for the active player."""
+	# Returns the Team ID for the active player.
 	return gc.getGame().getActiveTeam()
 
 def getActiveTeamAndID():
-	"""Returns the Team ID and CyTeam for the active player."""
+	# Returns the Team ID and CyTeam for the active player.
 	return getActiveTeamID(), getActiveTeam()
 
-
 def getActivePlayerAndTeam():
-	"""Returns the CyPlayer and CyTeam for the active player."""
+	# Returns the CyPlayer and CyTeam for the active player.
 	return getActivePlayer(), getActiveTeam()
 
 def getActivePlayerAndTeamIDs():
-	"""Returns the Player ID and Team ID for the active player."""
+	# Returns the Player ID and Team ID for the active player.
 	return getActivePlayerID(), getActiveTeamID()
 
 def getActivePlayerAndTeamAndIDs():
-	"""Returns the Player ID, CyPlayer, Team ID and CyTeam for the active player."""
+	# Returns the Player ID, CyPlayer, Team ID and CyTeam for the active player.
 	return getActivePlayerAndID() + getActiveTeamAndID()
-
 
 ## Players and Teams - Iteration
 
 def players(alive=None, human=None, barbarian=None, minor=None, active=None):
-	"""
-	Creates an iterator for all valid CyPlayers that were ever alive.
-	
-	Pass in True or False for alive to limit to alive or dead players, respectively.
-	Pass in True or False for human to limit to human or AI players, respectively.
-	Pass in True or False for barbarian to limit to/from barbarian players, respectively.
-	Pass in True or False for minor to limit to/from minor players, respectively.
-	Pass in True or False for active to limit to/from players that can ever be active, respectively.
-	
-	for player in PlayerUtil.players():
-		...
-	"""
+	# Creates an iterator for all valid CyPlayers that were ever alive.
+	#
+	# Pass in True or False for alive to limit to alive or dead players, respectively.
+	# Pass in True or False for human to limit to human or AI players, respectively.
+	# Pass in True or False for barbarian to limit to/from barbarian players, respectively.
+	# Pass in True or False for minor to limit to/from minor players, respectively.
+	# Pass in True or False for active to limit to/from players that can ever be active, respectively.
+	#
+	# for player in PlayerUtil.players():
+	# 	...
+	#
 	for ePlayer in range(gc.getMAX_PLAYERS()):
 		player = gc.getPlayer(ePlayer)
 		if not player.isNone() and player.isEverAlive():
@@ -220,19 +212,18 @@ def players(alive=None, human=None, barbarian=None, minor=None, active=None):
 				yield player
 
 def teamPlayers(teamOrID, alive=None, human=None, barbarian=None, minor=None, active=None):
-	"""
-	Creates an iterator for the CyPlayers on the given team.
-	
-	Pass in True or False for alive to limit to alive or dead players, respectively.
-	Pass in True or False for human to limit to human or AI players, respectively.
-	Pass in True or False for barbarian to limit to/from barbarian players, respectively.
-	Pass in True or False for minor to limit to/from minor players, respectively.
-	Pass in True or False for active to limit to/from players that can ever be active, respectively.
-	These restrictions are first applied to the CyTeam itself.
-	
-	for player in PlayerUtil.teamPlayers(PlayerUtil.getActiveTeamID()):
-		...
-	"""
+	# Creates an iterator for the CyPlayers on the given team.
+	#
+	# Pass in True or False for alive to limit to alive or dead players, respectively.
+	# Pass in True or False for human to limit to human or AI players, respectively.
+	# Pass in True or False for barbarian to limit to/from barbarian players, respectively.
+	# Pass in True or False for minor to limit to/from minor players, respectively.
+	# Pass in True or False for active to limit to/from players that can ever be active, respectively.
+	# These restrictions are first applied to the CyTeam itself.
+	#
+	# for player in PlayerUtil.teamPlayers(PlayerUtil.getActiveTeamID()):
+	# 	...
+	#
 	eTeam, team = getTeamAndID(teamOrID)
 	if matchPlayerOrTeam(team, alive, human, barbarian, minor):
 		for player in players(alive, human, barbarian, minor):
@@ -240,138 +231,116 @@ def teamPlayers(teamOrID, alive=None, human=None, barbarian=None, minor=None, ac
 				yield player
 
 def teams(alive=None, human=None, barbarian=None, minor=None, active=None):
-	"""
-	Creates an iterator for all valid CyTeams that were ever alive.
-	
-	Pass in True or False for alive to limit to alive or dead teams, respectively.
-	Pass in True or False for human to limit to human or AI teams, respectively.
-	Pass in True or False for barbarian to limit to/from barbarian teams, respectively.
-	Pass in True or False for minor to limit to/from minor players, respectively.
-	Pass in True or False for active to limit to/from players that can ever be active, respectively.
-	
-	for team in PlayerUtil.teams():
-		...
-	"""
+	# Creates an iterator for all valid CyTeams that were ever alive.
+	#
+	# Pass in True or False for alive to limit to alive or dead teams, respectively.
+	# Pass in True or False for human to limit to human or AI teams, respectively.
+	# Pass in True or False for barbarian to limit to/from barbarian teams, respectively.
+	# Pass in True or False for minor to limit to/from minor players, respectively.
+	# Pass in True or False for active to limit to/from players that can ever be active, respectively.
+	#
+	# for team in PlayerUtil.teams():
+	# 	...
+	#
 	for eTeam in range(gc.getMAX_TEAMS()):
 		team = gc.getTeam(eTeam)
-		if (not team.isNone() and team.isEverAlive() 
-				and matchPlayerOrTeam(team, alive, human, barbarian, minor)):
+		if (not team.isNone() and team.isEverAlive() and matchPlayerOrTeam(team, alive, human, barbarian, minor)):
 			yield team
 
 def matchPlayerOrTeam(teamOrPlayer, alive=None, human=None, barbarian=None, minor=None, active=None):
-	"""
-	Returns True of the CyPlayer or CyTeam matches the selected filters.
-	
-	Pass in True or False for alive to limit to alive or dead teams, respectively.
-	Pass in True or False for human to limit to human or AI teams, respectively.
-	Pass in True or False for barbarian to limit to/from barbarian teams, respectively.
-	Pass in True or False for minor to limit to/from minor players, respectively.
-	Pass in True or False for active to limit to/from players that can ever be active, respectively.
-	
-	Pass None (or leave out) for any filter to ignore it.
-	"""
-	return ((alive is None or alive == teamOrPlayer.isAlive())
-			and (human is None or human == teamOrPlayer.isHuman())
-			and (barbarian is None or barbarian == teamOrPlayer.isBarbarian())
-			and (minor is None or minor == teamOrPlayer.isMinorCiv())
-			and (active is None or active == isEverActive(teamOrPlayer)))
+	# Returns True of the CyPlayer or CyTeam matches the selected filters.
+	#
+	# Pass in True or False for alive to limit to alive or dead teams, respectively.
+	# Pass in True or False for human to limit to human or AI teams, respectively.
+	# Pass in True or False for barbarian to limit to/from barbarian teams, respectively.
+	# Pass in True or False for minor to limit to/from minor players, respectively.
+	# Pass in True or False for active to limit to/from players that can ever be active, respectively.
+	#
+	# Pass None (or leave out) for any filter to ignore it.
+	#
+	return ((alive is None or alive == teamOrPlayer.isAlive()) and (human is None or human == teamOrPlayer.isHuman()) and (barbarian is None or barbarian == teamOrPlayer.isBarbarian()) and (minor is None or minor == teamOrPlayer.isMinorCiv()) and (active is None or active == isEverActive(teamOrPlayer)))
 
 def isEverActive(teamOrPlayer):
-	"""
-	Returns True if the given team/player can ever be the active team/player.
-	
-	For HotSeat games this includes all human players/teams. For all other game types there is only one.
-	"""
-	return ((gc.getGame().isHotSeat() and teamOrPlayer.isHuman()) 
-			or (isinstance(teamOrPlayer, CyPlayer) and teamOrPlayer.getID() == getActivePlayerID())
-			or (isinstance(teamOrPlayer, CyTeam) and teamOrPlayer.getID() == getActiveTeamID()))
-
+	# Returns True if the given team/player can ever be the active team/player.
+	#
+	# For HotSeat games this includes all human players/teams. For all other game types there is only one.
+	#
+	return ((gc.getGame().isHotSeat() and teamOrPlayer.isHuman()) or (isinstance(teamOrPlayer, CyPlayer) and teamOrPlayer.getID() == getActivePlayerID()) or (isinstance(teamOrPlayer, CyTeam) and teamOrPlayer.getID() == getActiveTeamID()))
 
 ## Player Information
 
 def getStateReligion(playerOrID):
-	"""Returns the state religion of the given player or -1 if none."""
+	# Returns the state religion of the given player or -1 if none.
 	player = getPlayer(playerOrID)
 	return player.getStateReligion()
 
 def getFavoriteCivic(playerOrID):
-	"""
-	Returns the favorite civic of the given player's leader or -1 if none.
-	
-	This works even when the Random Personalities option is enabled.
-	"""
-	'''
-	eLeaderType = getPlayer(playerOrID).getPersonalityType()
-	if eLeaderType != -1:
-		leader = gc.getLeaderHeadInfo(eLeaderType)
-		if leader:
-			return leader.getFavoriteCivic()
-	return CivicTypes.NO_CIVIC
-	'''
+	# Returns the favorite civic of the given player's leader or -1 if none.
+	#
+	# This works even when the Random Personalities option is enabled.
+	#
+	# eLeaderType = getPlayer(playerOrID).getPersonalityType()
+	# if eLeaderType != -1:
+	# 	leader = gc.getLeaderHeadInfo(eLeaderType)
+	# 	if leader:
+	# 		return leader.getFavoriteCivic()
+	# return CivicTypes.NO_CIVIC
+	#
 	# advc.130n (DLL takes care of dead civs that have no leader info)
 	return getPlayer(playerOrID).getFavoriteCivic()
 
 def getWorstEnemy(playerOrID, askingPlayerOrID=None):
-	"""
-	Returns the CyPlayer who is the worst enemy of playerOrID or None.
-	
-	If askingPlayerOrID is given, the check is restricted to players they have met.
-	"""
+	# Returns the CyPlayer who is the worst enemy of playerOrID or None.
+	#
+	# If askingPlayerOrID is given, the check is restricted to players they have met.
+	#
 	name = getPlayer(playerOrID).getWorstEnemyName()
 	if name:
 		for player in players(alive=True, barbarian=False, minor=False):
 			if player.getName() == name:
 				if askingPlayerOrID is not None:
 					askingTeam = getPlayerTeam(askingPlayerOrID)
-					if (askingTeam and (askingTeam.isHasMet(player.getTeam())
-							or gc.getGame().isDebugMode())):
+					if (askingTeam and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 						return player
 					return None
 				return player
 	return None
 
-
 ## Vassalage and other Diplomatic Agreements
 
 def getVassals(playerOrID, askingPlayerOrID):
-	"""
-	Returns a list of CyPlayers who are vassals of playerOrID.
-	
-	The askingPlayerOrID is used to limit the list to players they have met.
-	"""
+	# Returns a list of CyPlayers who are vassals of playerOrID.
+	#
+	# The askingPlayerOrID is used to limit the list to players they have met.
+	#
 	vassals = []
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	for player in players(alive=True, barbarian=False, minor=False):
-		if (askedPlayer.getTeam() != player.getTeam() and 
-				(askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
+		if (askedPlayer.getTeam() != player.getTeam() and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 			team = getPlayerTeam(player)
 			if team.isAVassal() and team.isVassal(askedTeam.getID()):
 				vassals.append(player)
 	return vassals
 
 def getDefensivePacts(playerOrID, askingPlayerOrID):
-	"""
-	Returns a list of CyPlayers who have a Defensive Pact with playerOrID.
-	
-	The askingPlayerOrID is used to limit the list to players they have met.
-	"""
+	# Returns a list of CyPlayers who have a Defensive Pact with playerOrID.
+	# The askingPlayerOrID is used to limit the list to players they have met.
+	#
 	pacts = []
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	for player in players(alive=True, barbarian=False, minor=False):
-		if (askedPlayer.getTeam() != player.getTeam() and 
-				(askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
+		if (askedPlayer.getTeam() != player.getTeam() and (askingTeam.isHasMet(player.getTeam()) or gc.getGame().isDebugMode())):
 			if askedTeam.isDefensivePact(player.getTeam()):
 				pacts.append(player)
 	return pacts
 
 def getPossibleEmbargos(playerOrID, askingPlayerOrID):
-	"""
-	Returns a list of all CyPlayers with which playerOrID will stop trading.
-	
-	The askingPlayerOrID is used to limit the list to players they have met.
-	"""
+	# Returns a list of all CyPlayers with which playerOrID will stop trading.
+	#
+	# The askingPlayerOrID is used to limit the list to players they have met.
+	#
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	if not TradeUtil.canTrade(askingPlayer, askedPlayer):
@@ -392,15 +361,13 @@ def getPossibleEmbargos(playerOrID, askingPlayerOrID):
 			embargos.append(player)
 	return embargos
 
-
 ## Wars and WHEOOH
 
 def getActiveWars(playerOrID, askingPlayerOrID):
-	"""
-	Returns a list of CyPlayers who are at war with playerOrID.
-	
-	The askingPlayerOrID is used to limit the list to players they have met.
-	"""
+	# Returns a list of CyPlayers who are at war with playerOrID.
+	#
+	# The askingPlayerOrID is used to limit the list to players they have met.
+	#
 	wars = []
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
@@ -411,12 +378,11 @@ def getActiveWars(playerOrID, askingPlayerOrID):
 	return wars
 
 def getPossibleWars(playerOrID, askingPlayerOrID):
-	"""
-	Returns a tuple containing the WHEOOH status of the given player and 
-	a list of all CyPlayers on which playerOrID will declare war in a trade.
-	
-	The askingPlayerOrID is used to limit the list to players they have met.
-	"""
+	# Returns a tuple containing the WHEOOH status of the given player and 
+	# a list of all CyPlayers on which playerOrID will declare war in a trade.
+	#
+	# The askingPlayerOrID is used to limit the list to players they have met.
+	#
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	if not TradeUtil.canTrade(askingPlayer, askedPlayer):
@@ -443,12 +409,11 @@ def getPossibleWars(playerOrID, askingPlayerOrID):
 	return (wheooh, wars)
 
 def isWHEOOH(playerOrID, askingPlayerOrID):
-	"""
-	Returns True if askingPlayerOrID can see that playerOrID is WHEOOH.
-	
-	In game terms, this is the case if the player gives the TOO_MANY_WARS denial type
-	for a request to go to war against a rival.
-	"""
+	# Returns True if askingPlayerOrID can see that playerOrID is WHEOOH.
+	#
+	# In game terms, this is the case if the player gives the TOO_MANY_WARS denial type
+	# for a request to go to war against a rival.
+	#
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
 	askingPlayer, askingTeam = getPlayerAndTeam(askingPlayerOrID)
 	if not TradeUtil.canTrade(askingPlayer, askedPlayer):
@@ -474,14 +439,13 @@ def isWHEOOH(playerOrID, askingPlayerOrID):
 	return False
 
 def isGivingFavoriteCivicDenial(playerOrID, askingPlayerOrID):
-	"""
-	Returns True if askingPlayerOrID can see that playerOrID is refusing Civic changes
-	because of the "that would go against everything we stand for" FAVORITE_CIVIC denial.
-	
-	In the unmodified game, this denial type will show for every available civic choice 
-	so long as they are running their favorite civic; so we can't tell which civic is the 
-	favorite, but we do know that one of their current civics is the favorite one.
-	"""
+	# Returns True if askingPlayerOrID can see that playerOrID is refusing Civic changes
+	# because of the "that would go against everything we stand for" FAVORITE_CIVIC denial.
+	#
+	# In the unmodified game, this denial type will show for every available civic choice 
+	# so long as they are running their favorite civic; so we can't tell which civic is the 
+	# favorite, but we do know that one of their current civics is the favorite one.
+	#
 	tradeData = TradeData()
 	tradeData.ItemType = TradeableItems.TRADE_CIVIC
 	askedPlayer, askedTeam = getPlayerAndTeam(playerOrID)
@@ -496,17 +460,15 @@ def isGivingFavoriteCivicDenial(playerOrID, askingPlayerOrID):
 					return True
 	return False
 
-
 ## Cities
 
 def canSeeCityList(playerOrID):
-	"""
-	Returns True if the active player can see the list of <player>'s cities.
-	
-	In the unmodified game, this is possible if the players have met and <player>
-	is not a vassal of a rival. They must be able to contact (trade with)
-	<player>, and OCC must be disabled. You can always see a teammate's cities.
-	"""
+	# Returns True if the active player can see the list of <player>'s cities.
+	#
+	# In the unmodified game, this is possible if the players have met and <player>
+	# is not a vassal of a rival. They must be able to contact (trade with)
+	# <player>, and OCC must be disabled. You can always see a teammate's cities.
+	#
 	# In K-Mod, the city list is only visible when at war. - Also, human players will only show their city list if they are willing to talk!
 	# Rather than risk getting this wrong..
 	return False
@@ -522,15 +484,13 @@ def canSeeCityList(playerOrID):
 	return TradeUtil.canTrade(askingPlayer, askedPlayer)
 
 def getNumCities(playerOrID):
-	"""
-	Returns the actual number of cities owned by <player>.
-	"""
+	# Returns the actual number of cities owned by <player>.
+	#
 	return getPlayer(playerOrID).getNumCities()
 
 def getNumRevealedCities(playerOrID):
-	"""
-	Returns the number of cities owned by <player> that are revealed to the active player.
-	"""
+	# Returns the number of cities owned by <player> that are revealed to the active player.
+	#
 	player = getPlayer(playerOrID)
 	eActiveTeam = getActiveTeamID()
 	count = 0
@@ -542,14 +502,13 @@ def getNumRevealedCities(playerOrID):
 	return count
 
 def playerCities(playerOrID, testFunc=None):
-	"""
-	Creates an iterator for the CyCity objects owned by the given player.
-	
-	If testFunc is given, only cities for which it returns True are returned.
-	
-	for city in PlayerUtil.playerCities(PlayerUtil.getActivePlayerID()):
-		...
-	"""
+	# Creates an iterator for the CyCity objects owned by the given player.
+	#
+	# If testFunc is given, only cities for which it returns True are returned.
+	#
+	# for city in PlayerUtil.playerCities(PlayerUtil.getActivePlayerID()):
+	# 	...
+	#
 	player = getPlayer(playerOrID)
 	city, iter = player.firstCity(False)
 	while city:
@@ -558,20 +517,18 @@ def playerCities(playerOrID, testFunc=None):
 		city, iter = player.nextCity(iter, False)
 
 def getPlayerCities(playerOrID, testFunc=None):
-	"""
-	Creates and returns a list containing all the CyCitys owned by the given player.
-	
-	If testFunc is given, only cities for which it returns True are returned.
-	"""
+	# Creates and returns a list containing all the CyCitys owned by the given player.
+	#
+	# If testFunc is given, only cities for which it returns True are returned.
+	#
 	return [city for city in playerCities(playerOrID, testFunc)]
 
 def isSaltWaterPort(city, askingTeamOrID=None):
-	"""
-	Returns True if the asking team can tell that the CyCity is on the coast
-	of the sea.
-	
-	If askingTeamOrID is None, the result is as if the owner of the city is asking.
-	"""
+	# Returns True if the asking team can tell that the CyCity is on the coast
+	# of the sea.
+	#
+	# If askingTeamOrID is None, the result is as if the owner of the city is asking.
+	#
 	if city:
 		eAskingTeam = getTeamID(askingTeamOrID)
 		map = CyMap()
@@ -583,18 +540,16 @@ def isSaltWaterPort(city, askingTeamOrID=None):
 				return True
 	return False
 
-
 ## Units
 
 def playerUnits(playerOrID, testFunc=None):
-	"""
-	Creates an iterator for the CyUnits owned by the given player.
-	
-	If testFunc is given, only units for which it returns True are returned.
-	
-	for unit in PlayerUtil.playerUnits(PlayerUtil.getActivePlayerID()):
-		...
-	"""
+	# Creates an iterator for the CyUnits owned by the given player.
+	#
+	# If testFunc is given, only units for which it returns True are returned.
+	#
+	# for unit in PlayerUtil.playerUnits(PlayerUtil.getActivePlayerID()):
+	# 	...
+	#
 	player = getPlayer(playerOrID)
 	unit, iter = player.firstUnit(False)
 	while unit:
@@ -603,9 +558,8 @@ def playerUnits(playerOrID, testFunc=None):
 		unit, iter = player.nextUnit(iter, False)
 
 def getPlayerUnits(playerOrID, testFunc=None):
-	"""
-	Creates and returns a list containing all the CyUnits owned by the given player.
-	
-	If testFunc is given, only units for which it returns True are returned.
-	"""
+	# Creates and returns a list containing all the CyUnits owned by the given player.
+	#
+	# If testFunc is given, only units for which it returns True are returned.
+	#
 	return [unit for unit in playerUnits(playerOrID, testFunc)]

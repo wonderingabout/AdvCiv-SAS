@@ -9,6 +9,12 @@
 ## Copyright (c) 2007-2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 import BugCore
@@ -18,10 +24,14 @@ import DealUtil
 import FontUtil
 import CvUtil
 import re
-import string
+# <!-- custom: remove or comment out seemingly unused imports -->
+#import string
 import MonkeyTools # advc.085: For checking Ctrl key
 import LayoutDict # advc.092
 import CvScreensInterface # advc.092
+import CvScreenEnums
+import SASTextScale
+# <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
 
 # Globals
 ScoreOpt = BugCore.game.Scores
@@ -32,40 +42,11 @@ Z_DEPTH = -0.3
 
 # Columns IDs
 NUM_PARTS = 28
-(
-	ALIVE,
-	WAR,
-	SCORE,
-	SCORE_DELTA,
-	RANK,
-	ID,
-	MASTER,
-	NAME,
-	NOT_MET,
-	POWER,
-	RESEARCH,
-	RESEARCH_TURNS,
-	ESPIONAGE,
-	TRADE,
-	BORDERS,
-	PACT,
-	RELIGION,
-	ATTITUDE,
-	WONT_TALK,
-	WORST_ENEMY,
-	WHEOOH,
-	CITIES,
-	WAITING,
-	NET_STATS,
-	OOS,
-	LEADER_BUTTON, CIV_BUTTON, # kekm.30
-	GOLDEN_AGE # advc.085
-) = range(NUM_PARTS)
+# kekm.30: LEADER_BUTTON, CIV_BUTTON added. advc.085: GOLDEN_AGE added (last).
+(ALIVE, WAR, SCORE, SCORE_DELTA, RANK, ID, MASTER, NAME, NOT_MET, POWER, RESEARCH, RESEARCH_TURNS, ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WONT_TALK, WORST_ENEMY, WHEOOH, CITIES, WAITING, NET_STATS, OOS, LEADER_BUTTON, CIV_BUTTON, GOLDEN_AGE) = range(NUM_PARTS)
 
 # <advc.002b> These need to be placed a little lower than other text
-gameTextColumns = (
-	ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WORST_ENEMY, WHEOOH, GOLDEN_AGE
-) # </advc.002b>
+gameTextColumns = (ESPIONAGE, TRADE, BORDERS, PACT, RELIGION, ATTITUDE, WORST_ENEMY, WHEOOH, GOLDEN_AGE) # </advc.002b>
 
 # Types
 SKIP = 0
@@ -77,12 +58,7 @@ SPECIAL = 3
 columns = []
 columnsByKey = {}
 
-TRADE_TYPES = (
-	TradeableItems.TRADE_OPEN_BORDERS,
-	TradeableItems.TRADE_DEFENSIVE_PACT,
-	TradeableItems.TRADE_PERMANENT_ALLIANCE,
-	TradeableItems.TRADE_PEACE_TREATY,
-)
+TRADE_TYPES = (TradeableItems.TRADE_OPEN_BORDERS, TradeableItems.TRADE_DEFENSIVE_PACT, TradeableItems.TRADE_PERMANENT_ALLIANCE, TradeableItems.TRADE_PEACE_TREATY)
 
 WAR_ICON = None
 PEACE_ICON = None
@@ -94,11 +70,10 @@ VASSAL_PREFIX = None
 VASSAL_POSTFIX = None
 
 def init():
-	"""
-	Initializes the strings used to display the scoreboard.
-	"""
+	# Initializes the strings used to display the scoreboard.
+	#
 	global columns
-	
+
 	# Used keys:
 	# ABCDEFHIKLMNOPQRSTUVWZ*?
 	# (unused: XY)
@@ -132,15 +107,15 @@ def init():
 	columns.append(Column('G', CIV_BUTTON, SPECIAL))
 	# </kekm.30>
 	columns.append(Column('J', GOLDEN_AGE, DYNAMIC)) # advc.085
-	
+
 	global WAR_ICON, PEACE_ICON
 	WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
 	PEACE_ICON = smallSymbol(FontSymbols.PEACE_CHAR)
-	
+
 	global MASTER_ICON, ACTIVE_MASTER_ICON
 	MASTER_ICON = smallSymbol(FontSymbols.SILVER_STAR_CHAR)
 	ACTIVE_MASTER_ICON = smallSymbol(FontSymbols.STAR_CHAR)
-	
+
 	global VASSAL_PREFIX, VASSAL_POSTFIX
 	VASSAL_PREFIX = smallSymbol(FontSymbols.BULLET_CHAR)
 	VASSAL_POSTFIX = smallText(u" %s" % FontUtil.getChar(FontSymbols.BULLET_CHAR))
@@ -150,18 +125,18 @@ def init():
 	ANARCHY_ICON = smallSymbol(FontSymbols.BAD_GOLD_CHAR) # </advc.085>
 
 def smallText(text):
-	return u"<font=2>%s</font>" % text
+	return SASTextScale.labelText(u"%s" % text)
 
 def smallSymbol(symbol):
 	return smallText(FontUtil.getChar(symbol))
 
 def onDealCanceled(argsList):
-	"""Sets the scoreboard dirty bit so it will redraw."""
+	# Sets the scoreboard dirty bit so it will redraw.
+	#
 	CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
 
-
 class Column:
-	
+
 	def __init__(self, key, id, type=SKIP, text=None, alt=None):
 		self.key = key
 		self.id = id
@@ -174,25 +149,23 @@ class Column:
 			self.width = 0
 		if (key):
 			columnsByKey[key] = self
-	
+
 	def isSkip(self):
 		return self.type == SKIP
-	
+
 	def isFixed(self):
 		return self.type == FIXED
-	
+
 	def isDynamic(self):
 		return self.type == DYNAMIC
-	
+
 	def isSpecial(self):
 		return self.type == SPECIAL
 
-
 class Scoreboard:
-	"""
-	Holds and builds the ScoreCards.
-	"""
-	
+	# Holds and builds the ScoreCards.
+	#
+
 	def __init__(self):
 		self._activePlayer = gc.getGame().getActivePlayer()
 		self._teamScores = []
@@ -202,34 +175,33 @@ class Scoreboard:
 		self._currTeamScores = None
 		self._currPlayerScore = None
 		self._deals = DealUtil.findDealsByPlayerAndType(self._activePlayer, TRADE_TYPES)
-		
+
 	def addTeam(self, team, rank):
 		self._currTeamScores = TeamScores(self, team, rank)
 		self._teamScores.append(self._currTeamScores)
 		self._teamScoresByID[team.getID()] = self._currTeamScores
 		self._currPlayerScore = None
-		
+
 	def getTeamScores(self, eTeam):
 		return self._teamScoresByID.get(eTeam, None)
-		
+
 	def addPlayer(self, player, rank):
 		if self._currTeamScores:
 			self._currPlayerScore = self._currTeamScores.addPlayer(player, rank)
 			self._playerScores.append(self._currPlayerScore)
-		
+
 	def size(self):
 		return len(self._playerScores)
-		
-		
+
 	def setAlive(self):
 		self._set(ALIVE)
-		
+
 	def setMaster(self):
 		self._set(MASTER, MASTER_ICON)
-		
+
 	def setMasterSelf(self):
 		self._set(MASTER, ACTIVE_MASTER_ICON)
-		
+
 	def setScore(self, value):
 		# <advc.085>
 		# Set the contact widget explicitly for Score and Name (no longer the default)
@@ -241,35 +213,35 @@ class Scoreboard:
 			widgetData = (WidgetTypes.WIDGET_SCORE_BREAKDOWN, self._currPlayerScore.getID(), 0)
 		# </advc.085>
 		self._set(SCORE, smallText(value), widgetData)
-		
+
 	def setScoreDelta(self, value):
 		self._set(SCORE_DELTA, smallText(value))
-		
+
 	def setRank(self, value):
 		self._set(RANK, smallText(value))
-		
+
 	def setID(self, value):
 		self._set(ID, smallText(value))
-		
+
 	def setName(self, value):
 		# advc.085: See setScore
 		widgetData = None
 		if gc.getPlayer(self._currPlayerScore.getID()).isAlive():
 			widgetData = self._getContactWidget()
 		self._set(NAME, smallText(value), widgetData)
-		
+
 	def setNotMet(self):
 		self._set(NOT_MET)
-		
+
 	def setWHEOOH(self):
 		self._set(WHEOOH)
-		
+
 	def setNumCities(self, value):
 		self._set(CITIES, smallText(value))
-		
+
 	def setWar(self):
 		self._set(WAR, WAR_ICON)
-		
+
 	def setPeace(self):
 		self._set(WAR, PEACE_ICON, self._getDealWidget(TradeableItems.TRADE_PEACE_TREATY))
 	# <advc.085> Widget help added; pass along color.
@@ -287,40 +259,39 @@ class Scoreboard:
 		# <advc.085> Replacing the two lines above
 		szProgress = u" %d%%" % progress
 		# Color it green? I guess better not.
-		#szProgress = CyTranslator().changeTextColor(szProgress, gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"))
+		#szProgress = CyTranslator().changeTextColor(szProgress, getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT"))
 		self._set(RESEARCH_TURNS, smallText(szProgress)) # </advc.085>
-		
+
 	def setEspionage(self):
 		self._set(ESPIONAGE)
-		
+
 	def setTrade(self): # advc.004: BULL widget help enabled
 		self._set(TRADE, True, (WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, self._activePlayer, self._currPlayerScore.getID()))
-		
+
 	def setBorders(self):
 		self._set(BORDERS, True, self._getDealWidget(TradeableItems.TRADE_OPEN_BORDERS))
-		
+
 	def setPact(self):
 		self._set(PACT, True, self._getDealWidget(TradeableItems.TRADE_DEFENSIVE_PACT))
-		
+
 	def setReligion(self, value):
 		self._set(RELIGION, smallText(value))
-		
+
 	def setAttitude(self, value):
 		self._set(ATTITUDE, smallText(value))
-		
+
 	def setWontTalk(self):
 		self._set(WONT_TALK)
-		
+
 	def setWorstEnemy(self):
 		self._set(WORST_ENEMY)
-		
-		
+
 	def setWaiting(self):
 		self._set(WAITING)
-		
+
 	def setNetStats(self, value):
 		self._set(NET_STATS, smallText(value))
-		
+
 	def setOOS(self, value):
 		self._set(OOS, smallText(value))
 	# <kekm.30>
@@ -344,7 +315,7 @@ class Scoreboard:
 	def _getContactWidget(self):
 		iData2 = 0 # advc.085: Was -1; tell the DLL to expand the scoreboard.
 		return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), iData2)
-		
+
 	def _getDealWidget(self, type):
 		iData2 = 0 # advc.085: Was -1; tell the DLL to expand the scoreboard.
 		# lookup the Deal containing the given tradeable item type
@@ -354,17 +325,15 @@ class Scoreboard:
 			if deal:
 				return (WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), iData2)
 		return (WidgetTypes.WIDGET_DEAL_KILL, -1, iData2)
-		
+
 	def _set(self, part, value=True, widget=None):
 		self._anyHas[part] = True
 		self._currPlayerScore.set(part, value, widget)
-		
-		
+
 	def assignRanks(self):
-		"""
-		Assigns a rank from 1 to N based on score.
-		As the player scores are currently reversed, this is done in reverse order.
-		"""
+		# Assigns a rank from 1 to N based on score.
+		# As the player scores are currently reversed, this is done in reverse order.
+		#
 		rank = 0
 		scores = list(self._playerScores)
 		scores.reverse()
@@ -374,23 +343,24 @@ class Scoreboard:
 				playerScore.set(RANK, smallText(BugUtil.colorText(u"%d" % rank, ScoreOpt.getRankColor())))
 		if rank > 0:
 			self._anyHas[RANK] = True
-		
+
 	def gatherVassals(self):
 		for teamScores in self._teamScores:
 			teamScores.gatherVassals()
-		
+
 	def sort(self):
-		"""Sorts the list by pulling any vassals up below their masters."""
+		# Sorts the list by pulling any vassals up below their masters.
+		#
 		if ScoreOpt.isGroupVassals():
 			self._playerScores.sort(lambda x, y: cmp(x.sortKey(), y.sortKey()))
 			self._playerScores.reverse()
 		maxPlayers = ScoreOpt.getMaxPlayers()
 		if maxPlayers > 0 and len(self._playerScores) > maxPlayers:
 			self._playerScores = self._playerScores[len(self._playerScores) - maxPlayers:]
-		
-	def hide(self, screen,
-			bUnhide = False): # advc.085
-		"""Hides the text from the screen before building the scoreboard."""
+
+	def hide(self, screen, bUnhide = False): # advc.085
+		# Hides the text from the screen before building the scoreboard.
+		#
 		#screen.hide( "ScoreBackground" ) # advc.004z: Handled by CvMainInterface now
 		for p in range( gc.getMAX_CIV_PLAYERS() ):
 			name = "ScoreText%d" %( p ) # the part that flashes? holds the score and name
@@ -405,8 +375,7 @@ class Scoreboard:
 		# resulting in a call to CvDLLWidgetData::parseHelp)
 		for p, playerScore in enumerate(self._playerScores):
 			iPlayer = playerScore.getID()
-			if (not Scoreboard.isShowTeamScore(gc.getPlayer(iPlayer).getTeam()) or
-					not Scoreboard.isShowPlayerScore(iPlayer)):
+			if (not Scoreboard.isShowTeamScore(gc.getPlayer(iPlayer).getTeam()) or not Scoreboard.isShowPlayerScore(iPlayer)):
 				continue
 			sName = "ScoreText%d" %(iPlayer)
 			screen.show(sName)
@@ -414,7 +383,6 @@ class Scoreboard:
 				if playerScore.has(iPart):
 					sName = "ScoreText%d-%d" %(iPlayer, iPart)
 					screen.show(sName)
-			
 
 	# Both cut from CvMainInterface.updateScoreStrings
 	@staticmethod
@@ -437,22 +405,24 @@ class Scoreboard:
 	@staticmethod
 	def isShowPlayerScore(iPlayer):
 		p = gc.getPlayer(iPlayer)
-		if (CyInterface().isScoresMinimized() and
-				gc.getGame().getActivePlayer() != iPlayer):
+		if (CyInterface().isScoresMinimized() and gc.getGame().getActivePlayer() != iPlayer):
 			return False
 		# BUG - Dead Civs:
 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
 	# </advc.085>
 
-	
-		
-	def draw(self, screen):
-		"""Sorts and draws the scoreboard right-to-left, bottom-to-top."""
+	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
+		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
+		#
 		timer = BugUtil.Timer("scores")
 		self.hide(screen)
 		self.assignRanks()
 		self.gatherVassals()
 		self.sort()
+		# <!-- custom: slice to visible scroll window before drawing; keep sliced so hide(True) on hover only re-shows the visible window. (Claude code Sonnet 4.6) -->
+		if iMaxRows is not None:
+			iScrollOffset = max(0, min(iScrollOffset, max(0, len(self._playerScores) - iMaxRows)))
+			self._playerScores = self._playerScores[iScrollOffset : iScrollOffset + iMaxRows]
 		# <advc.092> "Default" choices added
 		bScaleHUD = BugCore.game.MainInterface.isEnlargeHUD()
 		if ScoreOpt.isRowHeightDefault():
@@ -485,7 +455,8 @@ class Scoreboard:
 		szDisplayOrder = ScoreOpt.getDisplayOrder()
 		# <advc.085>
 		bExpanded = False
-		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
+		# <!-- custom: bForceExpanded overrides hover requirement; always shows expanded columns. (Claude code Sonnet 4.6) -->
+		if bForceExpanded or gc.getPlayer(self._activePlayer).isScoreboardExpanded():
 			bExpanded = True
 		else: # Take out the keys preceded by an underscore
 			stringsToRemove = []
@@ -502,11 +473,18 @@ class Scoreboard:
 		# </advc.085>
 		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
 		format.reverse()
+		# <!-- custom: when Tech Chooser is open, right-align scoreboard names to recover usable width near the left edge of the panel; keep normal alignment elsewhere. (GPT-5.3-Codex) -->
+		bLeftAlignName = ScoreOpt.isLeftAlignName()
+		bTechChooserActive = CyGInterfaceScreen("TechChooser", CvScreenEnums.TECH_CHOOSER).isActive()
+		if bTechChooserActive:
+			bLeftAlignName = False
 		for k in format:
 			if k == '-':
 				spacing = 0
 				continue
-			if k[0] in string.digits or k[0] == '-':
+			# <!-- custom: avoid importing string just for digits; use a literal instead (was string.digits). Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+			#if k[0] in string.digits or k[0] == '-':
+			if k[0] in "0123456789" or k[0] == '-':
 				spacing = int(k)
 				continue
 			if (not columnsByKey.has_key(k)):
@@ -536,6 +514,7 @@ class Scoreboard:
 			elif (type == FIXED):
 				width = column.width
 				value = column.text
+				displayValue = SASTextScale.labelText(value)
 				x -= spacing
 				for p, playerScore in enumerate(self._playerScores):
 					# advc.085: Moved up, insert player ID (not _playerScores index)
@@ -552,7 +531,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								CvUtil.FONT_RIGHT_JUSTIFY,
 								# advc.002b: text offset
 								x, y - p * height + iYTextOffset, Z_DEPTH,
@@ -561,27 +540,23 @@ class Scoreboard:
 						screen.show(name)
 					# <advc.085>
 					elif bExpanded:
-						screen.setText(name, "Background", szBlank,
-								CvUtil.FONT_RIGHT_JUSTIFY,
-								x, y - p * height, Z_DEPTH,
-								FontTypes.SMALL_FONT,
-								WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
+						screen.setText(name, "Background", szBlank, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 						screen.show(name) # </advc.085>
 				x -= width
 				totalWidth += width + spacing
 				spacing = defaultSpacing
-			
+
 			elif (type == DYNAMIC):
 				width = 0
 				for playerScore in self._playerScores:
 					if (playerScore.has(c)):
 						value = playerScore.value(c)
 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
-						newWidth = CyInterface().determineWidth( value )
+						newWidth = CyInterface().determineWidth(SASTextScale.labelText(value))
 						if (newWidth > width):
 							width = newWidth
 				if (width == 0):
@@ -594,15 +569,16 @@ class Scoreboard:
 					if (playerScore.has(c)):
 						value = playerScore.value(c)
 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								value = VASSAL_PREFIX + value
 							else:
 								value += VASSAL_POSTFIX
+						displayValue = SASTextScale.labelText(value)
 						align = CvUtil.FONT_RIGHT_JUSTIFY
 						adjustX = 0
 						if (c == NAME):
 							name = "ScoreText%d" % playerScore.getID() # advc.085: was p
-							if (ScoreOpt.isLeftAlignName()):
+							if (bLeftAlignName):
 								align = CvUtil.FONT_LEFT_JUSTIFY
 								adjustX = width
 								# advc.001: Only a workaround? Can't figure out exactly
@@ -619,7 +595,7 @@ class Scoreboard:
 								widget = (WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 							else: # </advc.085>
 								widget = (WidgetTypes.WIDGET_GENERAL, -1, -1)
-						screen.setText(name, "Background", value,
+						screen.setText(name, "Background", displayValue,
 								align,
 								# advc.002b: text offset
 								x - adjustX, y - p * height + iYTextOffset, Z_DEPTH, 
@@ -632,16 +608,12 @@ class Scoreboard:
 						if c == POWER: # Power ratio takes up extra space
 							# Mustn't add too much space though: when the power ratio is in the leftmost column, too many spaces will prevent the scoreboard from collapsing when the mouse is moved away to the left.
 							szBlankLoop += szBlank + szBlank
-						screen.setText(name, "Background", szBlankLoop,
-								CvUtil.FONT_RIGHT_JUSTIFY,
-								x, y - p * height, Z_DEPTH,
-								FontTypes.SMALL_FONT,
-								WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
+						screen.setText(name, "Background", szBlankLoop, CvUtil.FONT_RIGHT_JUSTIFY, x, y - p * height, Z_DEPTH, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_EXPAND_SCORES, -1, 0)
 						screen.show(name) # </advc.085>
 				x -= width
 				totalWidth += width + spacing
 				spacing = defaultSpacing
-			
+
 			else: # SPECIAL
 				if (c == RESEARCH):
 					x -= spacing
@@ -651,10 +623,7 @@ class Scoreboard:
 							name = "ScoreTech%d" % playerScore.getID() # advc.085: was p
 							info = gc.getTechInfo(tech)
 							iData2 = 0 # advc.085: was -1
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, iData2 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, tech, iData2 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing
@@ -666,10 +635,7 @@ class Scoreboard:
 							leader = playerScore.value(c)
 							name = "ScoreLeader%d" % playerScore.getID() # advc.085: was p
 							info = gc.getLeaderHeadInfo(leader)
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing
@@ -680,15 +646,12 @@ class Scoreboard:
 							civ = playerScore.value(c)
 							name = "ScoreCiv%d" % playerScore.getID() # advc.085: was p
 							info = gc.getCivilizationInfo(civ)
-							screen.addDDSGFC(name, info.getButton(),
-									x - techIconSize, y - p * height + iYIconOffset,
-									techIconSize, techIconSize,
-									WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, civ, -1 )
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, civ, -1 )
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing
 				# </kekm.30>
-		
+
 		for playerScore in self._playerScores:
 			CyInterface().checkFlashReset( playerScore.getID() )
 		# advc.092:
@@ -696,7 +659,6 @@ class Scoreboard:
 
 		#screen.show( "ScoreBackground" ) # advc.004z: Handled by caller now
 		timer.log()
-
 
 class TeamScores:
 	def __init__(self, scoreboard, team, rank):
@@ -708,27 +670,27 @@ class TeamScores:
 		self._isVassal = team.isAVassal() and (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(team.getID()) or gc.getGame().isDebugMode())
 		self._master = None
 		self._vassalTeamScores = []
-		
+
 	def team(self):
 		return self._team
-		
+
 	def rank(self):
 		if self.isVassal():
 			return self._master.rank()
 		else:
 			return self._rank
-		
+
 	def isVassal(self):
 		return self._isVassal
-	
+
 	def addPlayer(self, player, rank):
 		playerScore = PlayerScore(self, player, rank)
 		self._playerScores.append(playerScore)
 		return playerScore
-	
+
 	def addVassal(self, teamScore):
 		self._vassalTeamScores.append(teamScore)
-		
+
 	def gatherVassals(self):
 		#if self._team.isAVassal():
 		if self.isVassal(): # K-Mod
@@ -745,10 +707,9 @@ class TeamScores:
 							playerScore.set(MASTER, MASTER_ICON)
 					self._scoreboard._anyHas[MASTER] = True
 			# K-Mod (to fix a problem when a human player becomes the vassal of an unmet team)
-			if self._master == None:
+			if self._master is None:
 				self._isVassal = False
 			# K-Mod end
-
 
 class PlayerScore:
 	def __init__(self, teamScore, player, rank):
@@ -760,37 +721,38 @@ class PlayerScore:
 		self._values = [None] * NUM_PARTS
 		self._widgets = [None] * NUM_PARTS
 		self._sortKey = None
-		
+
 	def player(self):
 		return self._player
-		
+
 	def rank(self):
 		return self._rank
-		
+
 	def isVassal(self):
 		return self._isVassal
-	
+
 	def getID(self):
 		return self._player.getID()
-	
+
 	def isActive(self):
 		return self.getID() == gc.getGame().getActivePlayer()
-		
+
 	def sortKey(self):
 		if self._sortKey is None:
 				self._sortKey = (self._teamScore.rank(), self._isVassal, self._rank)
 		return self._sortKey
-		
+
 	def set(self, part, value=True, widget=None):
 		self._has[part] = True
 		self._values[part] = value
 		self._widgets[part] = widget
-		
+
 	def has(self, part):
 		return self._has[part]
-		
+
 	def value(self, part):
 		return self._values[part]
-		
+
 	def widget(self, part):
 		return self._widgets[part]
+

@@ -7,8 +7,7 @@
 #define RANDOM_C      (12345)
 #define RANDOM_SHIFT  (16)
 
-unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
-	int iData1, int iData2) // advc.001n
+unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog, int iData1, int iData2) // advc.001n
 {	// <advc.003t>
 	if (GC.getLogger().isEnabledRand() && szLog != NULL)
 		printToLog(szLog, usNum, iData1, iData2); // </advc.003t>
@@ -93,7 +92,7 @@ void CvRandom::shuffle(int* piShuffle, int iNum)
 // advc.enum:
 void CvRandom::shuffle(std::vector<int>& aiIndices)
 {
-	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
+	sequtil::iota(aiIndices.begin(), aiIndices.end(), 0);
 	int const iSize = (int)aiIndices.size();
 	FAssertMsg(iSize > 0, "Shuffling empty vector; intended?");
 	for (int i = 0; i < iSize; i++)
@@ -103,15 +102,13 @@ void CvRandom::shuffle(std::vector<int>& aiIndices)
 // <advc.007c>
 /*	Two function calls that won't get inlined, but it doesn't really matter -
 	only gets called if the log is enabled. */
-void CvRandom::printToLog(TCHAR const* szMsg, unsigned short usNum,
-	int iData1, int iData2) // advc.001n
+void CvRandom::printToLog(TCHAR const* szMsg, unsigned short usNum, int iData1, int iData2) // advc.001n
 {	// advc.003t:
 	GC.getLogger().logRandomNumber(szMsg, usNum, m_uiRandomSeed, iData1, iData2);
 }
 
 
-void CvRandomExtended::printToLog(TCHAR const* szMsg, unsigned short usNum,
-	int iData1, int iData2) // advc.001n
+void CvRandomExtended::printToLog(TCHAR const* szMsg, unsigned short usNum, int iData1, int iData2) // advc.001n
 {
 	GC.getLogger().logRandomNumber(szMsg, usNum, m_uiRandomSeed, iData1, iData2,
 			&m_szFileName);

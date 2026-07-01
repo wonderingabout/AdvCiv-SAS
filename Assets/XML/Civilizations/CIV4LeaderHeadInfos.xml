@@ -3,10 +3,16 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
 <!-- Leader Infos and AI Settings -->
+<!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown -->
 <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<LeaderHeadInfos>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_BARBARIAN (useful for VS Code upper tree view while scrolling) -->
 			<Type>LEADER_BARBARIAN</Type>
 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
@@ -25,8 +31,9 @@
 			<!-- BBAI Victory Strategy -->
 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>0</iConquestVictoryWeight>
-			<iDominationVictoryWeight>0</iDominationVictoryWeight>
+			<!-- custom: try to make barbarians more aggressive or conqueror like now that they have developped enough cities with many units to do so instead of keeping them too long in cities -->
+			<iConquestVictoryWeight>120</iConquestVictoryWeight>
+			<iDominationVictoryWeight>30</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>0</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>0</iMaxWarRand>
@@ -40,15 +47,19 @@
 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
-			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>50</iBuildUnitProb>
+			<!-- custom: make barbarians more likely to destroy cities rather than conquer them; Long_Comments_XML.txt #349, was 10 -->
+			<iRazeCityProb>60</iRazeCityProb>
+			<!-- custom: The barbarians issue of them building wonders and completing them before other players now that they are economically strong enough is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, and so they keep mostly focusing on units, was 50 -->
+			<iBuildUnitProb>70</iBuildUnitProb>
+			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but also to be generally more on the offensive when necessary. -->
 			<!-- advc.114d: was 0 -->
-			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
+			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
 			<!-- advc.114d: was 16 -->
-			<iAttackOddsChangeRand>21</iAttackOddsChangeRand>
-			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+			<iAttackOddsChangeRand>16</iAttackOddsChangeRand>
+			<!-- custom: make them pick up on the weak is smart and more realistic too, they wouldn't attack someone they can't win against ideally i think, even if a bit less hopefully more accurate this way maybe -->
+			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
-			<iCloseBordersAttitudeChange>0</iCloseBordersAttitudeChange>
+			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
 			<iLostWarAttitudeChange>0</iLostWarAttitudeChange>
 			<iAtWarAttitudeDivisor>0</iAtWarAttitudeDivisor>
 			<iAtWarAttitudeChangeLimit>0</iAtWarAttitudeChangeLimit>
@@ -104,7 +115,21 @@
 			<MemoryDecays/>
 			<MemoryAttitudePercents/>
 			<NoWarAttitudeProbs/>
-			<UnitAIWeightModifiers/>
+			<!-- custom: focus more on raw force and light harass units like archers; Long_Comments_XML.txt #350 -->
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<iWeightModifier>75</iWeightModifier>
+				</UnitAIWeightModifier>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<iWeightModifier>75</iWeightModifier>
+				</UnitAIWeightModifier>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_WORKER</UnitAIType>
+					<iWeightModifier>75</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
 			<ImprovementWeightModifiers/>
 			<!-- advc: Should be OK to collapse this -->
 			<DiplomacyIntroMusicPeace/>
@@ -171,16 +196,8 @@
 				</DiploMusicWarEra>
 			</DiplomacyMusicWar>
 		</LeaderHeadInfo>
-
-		<!-- advc.xmldefault (start)
-			 These defaults are used when any of the (proper) LeaderHeadInfo
-			 elements below (i.e. LEADER_BARBARIAN above is exluded from this)
-			 doesn't define an optional element (minOccurs 0 in
-			 Civ4CivilizationsSchema.xml).
-			 (For the non-optional elements, LEADER_DEFAULTS has to set some
-			 default as well - 0, NONE or an empty string - but it won't matter
-			 because every LeaderHeadInfo has to define those elements.) -->
-		<LeaderHeadInfo>
+		<!-- custom: fake leader_defaults to initialize defaults; Long_Comments_XML.txt #361 -->
+		<LeaderHeadInfo> <!-- custom: LEADER_DEFAULTS -->
 			<Type>LEADER_DEFAULTS</Type>
 			<Description></Description>
 			<Civilopedia></Civilopedia>
@@ -216,7 +233,8 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>0</iBuildUnitProb>
+			<!-- custom: additionally to iBuildUnitProb changes to some leaders, also increase all leaders iBuildUnitProb by 10 so they are more competitive and military focused overall and throughout the game; Long_Comments_XML.txt #351, was 0 -->
+			<iBuildUnitProb>10</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
@@ -847,7 +865,7 @@
 		</LeaderHeadInfo>
 		<!-- advc.xmldefault (end) -->
 
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_ALEXANDER -->
 			<Type>LEADER_ALEXANDER</Type>
 			<Description>TXT_KEY_LEADER_ALEXANDER</Description>
 			<Civilopedia>TXT_KEY_LEADER_ALEXANDER_PEDIA</Civilopedia>
@@ -879,7 +897,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -908,7 +927,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -1026,29 +1045,29 @@
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_ASOKA -->
 			<Type>LEADER_ASOKA</Type>
 			<Description>TXT_KEY_LEADER_ASOKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ASOKA_PEDIA</Civilopedia>
@@ -1080,7 +1099,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -1110,15 +1129,19 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
+			<!-- custom: favourite civics reworked similarly to the traits rebalancing, with the very nice help of chatgpt 5.1 and me xd too, and reviewed with other ais like claude sonnet 4.5 and grok 4.1 or such, see as of now README_Assets_Rebalancing.md for details -->
+			<!-- Asoka: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_PACIFISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
+			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the main changes guide if filename changed since then or git commit or such)) for details -->
+			<!-- Asoka — was TRAIT_SPIRITUAL and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_PROTECTIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -1289,7 +1312,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_AUGUSTUS -->
 			<Type>LEADER_AUGUSTUS</Type>
 			<Description>TXT_KEY_LEADER_AUGUSTUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_AUGUSTUS_CAESAR_PEDIA</Civilopedia>
@@ -1321,7 +1344,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -1350,8 +1374,9 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Augustus: was CIVIC_REPRESENTATION -->
+			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_IMPERIALIST</TraitType>
@@ -1470,37 +1495,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_AUGUSTUS_CAESAR_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_BISMARCK -->
 			<Type>LEADER_BISMARCK</Type>
 			<Description>TXT_KEY_LEADER_BISMARCK</Description>
 			<Civilopedia>TXT_KEY_LEADER_BISMARCK_PEDIA</Civilopedia>
@@ -1514,14 +1539,12 @@
 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>70</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 20/25/25/30/40 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>20</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
 			<iConquestVictoryWeight>25</iConquestVictoryWeight>
-			<!-- advc.005a: was 55 -->
-			<iDominationVictoryWeight>30</iDominationVictoryWeight>
-			<!-- advc.005a: was 25 -->
-			<iDiplomacyVictoryWeight>40</iDiplomacyVictoryWeight>
+			<iDominationVictoryWeight>35</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>200</iMaxWarRand>
 			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
@@ -1535,7 +1558,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -1567,13 +1590,14 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Bismarck — was TRAIT_EXPANSIVE and TRAIT_INDUSTRIOUS -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+					<TraitType>TRAIT_PROTECTIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -1712,7 +1736,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_BOUDICA -->
 			<Type>LEADER_BOUDICA</Type>
 			<Description>TXT_KEY_LEADER_BOUDICA</Description>
 			<Civilopedia>TXT_KEY_LEADER_BOUDICA_PEDIA</Civilopedia>
@@ -1744,7 +1768,8 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -1774,8 +1799,9 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>10</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Boudica: was CIVIC_UNIVERSAL_SUFFRAGE -->
+			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>
@@ -1884,37 +1910,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_BRENNUS_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_BOUDICA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_BRENNUS -->
 			<Type>LEADER_BRENNUS</Type>
 			<Description>TXT_KEY_LEADER_BRENNUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_BRENNUS_PEDIA</Civilopedia>
@@ -1928,13 +1954,11 @@
 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>40</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 0/30/30/50/30 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
-			<iConquestVictoryWeight>30</iConquestVictoryWeight>
-			<!-- advc.005a: was 35 -->
-			<iDominationVictoryWeight>50</iDominationVictoryWeight>
-			<!-- advc.005a: was 55 -->
+			<iConquestVictoryWeight>35</iConquestVictoryWeight>
+			<iDominationVictoryWeight>55</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>100</iMaxWarRand>
@@ -1948,7 +1972,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -1977,7 +2002,10 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
+			<!-- custom: see also assets_rebalancing.md doc for rationale about change to his favourite civic -->
+			<!-- Brennus: old favourite civic = CIVIC_ORGANIZED_RELIGION -->
+			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+			<!-- custom: none, not religion_paganism for brennus, see notes_about_religious_design.txt in the mod's google drive for details -->
 			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -2000,9 +2028,10 @@
 				</Flavor>
 			</Flavors>
 			<ContactRands>
+				<!-- custom: was 250 -->
 				<ContactRand>
 					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
-					<iContactRand>250</iContactRand>
+					<iContactRand>500</iContactRand>
 				</ContactRand>
 				<ContactRand>
 					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
@@ -2118,7 +2147,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_CATHERINE -->
 			<Type>LEADER_CATHERINE</Type>
 			<Description>TXT_KEY_LEADER_CATHERINE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CATHERINE_PEDIA</Civilopedia>
@@ -2153,7 +2182,8 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -2185,9 +2215,10 @@
 			<iVassalPowerModifier>-20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Catherine — was TRAIT_CREATIVE and TRAIT_IMPERIALIST -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_CREATIVE</TraitType>
+					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -2356,7 +2387,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_CHARLEMAGNE -->
 			<Type>LEADER_CHARLEMAGNE</Type>
 			<Description>TXT_KEY_LEADER_CHARLEMAGNE</Description>
 			<Civilopedia>TXT_KEY_LEADER_CHARLEMAGNE_PEDIA</Civilopedia>
@@ -2389,12 +2420,12 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
 			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
-			<!-- advc.148: was  -->
+			<!-- advc.148: was -->
 			<iSameReligionAttitudeChangeLimit>5</iSameReligionAttitudeChangeLimit>
 			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
 			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
@@ -2421,13 +2452,14 @@
 			<iVassalPowerModifier>10</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Charlemagne — was TRAIT_IMPERIALIST and TRAIT_PROTECTIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_PROTECTIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -2564,7 +2596,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_CHURCHILL -->
 			<Type>LEADER_CHURCHILL</Type>
 			<Description>TXT_KEY_LEADER_CHURCHILL</Description>
 			<Civilopedia>TXT_KEY_LEADER_WINSTON_CHURCHILL_PEDIA</Civilopedia>
@@ -2596,7 +2628,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -2626,7 +2658,8 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- custom: none, not religion_christianity, see notes_about_religious_design.txt in the mod's google drive for details -->
+			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_CHARISMATIC</TraitType>
@@ -2744,37 +2777,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CHURCHILL_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_CYRUS -->
 			<Type>LEADER_CYRUS</Type>
 			<Description>TXT_KEY_LEADER_CYRUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
@@ -2807,7 +2840,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -2837,7 +2870,9 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+			<!-- Cyrus: was CIVIC_VASSALAGE -->
+			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- custom: seems none not paganism, see notes for details -->
 			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -2949,15 +2984,15 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
@@ -2971,29 +3006,29 @@
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_DARIUS -->
 			<Type>LEADER_DARIUS</Type>
 			<Description>TXT_KEY_LEADER_DARIUS</Description>
 			<Civilopedia>TXT_KEY_LEADER_DARIUS_PEDIA</Civilopedia>
@@ -3025,7 +3060,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -3056,8 +3091,10 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Darius: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+			<!-- custom: paganism not none, see notes for details -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
@@ -3171,51 +3208,51 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DARIUS_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_DE_GAULLE -->
 			<Type>LEADER_DE_GAULLE</Type>
 			<Description>TXT_KEY_LEADER_DE_GAULLE</Description>
 			<Civilopedia>TXT_KEY_LEADER_DE_GAULLE_PEDIA</Civilopedia>
@@ -3247,7 +3284,7 @@
 			<iDemandRebukedSneakProb>10</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -3279,13 +3316,14 @@
 			<iVassalPowerModifier>-20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- De Gaulle — was TRAIT_INDUSTRIOUS and TRAIT_CHARISMATIC -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+					<TraitType>TRAIT_CHARISMATIC</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_CHARISMATIC</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -3398,37 +3436,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_NAPOLEON_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_DE_GAULLE_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_ELIZABETH -->
 			<Type>LEADER_ELIZABETH</Type>
 			<Description>TXT_KEY_LEADER_ELIZABETH</Description>
 			<Civilopedia>TXT_KEY_LEADER_ELIZABETH_PEDIA</Civilopedia>
@@ -3460,7 +3498,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -3490,11 +3528,13 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
+			<!-- Elizabeth: was CIVIC_FREE_RELIGION (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Elizabeth — was TRAIT_PHILOSOPHICAL and TRAIT_FINANCIAL -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
+					<TraitType>TRAIT_CREATIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -3640,7 +3680,234 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #18 -->
+		<LeaderHeadInfo> <!-- custom: LEADER_EWUARE -->
+			<Type>LEADER_EWUARE</Type>
+			<Description>TXT_KEY_LEADER_EWUARE</Description>
+			<Civilopedia>TXT_KEY_LEADER_EWUARE_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_EWUARE</ArtDefineTag>
+			<iWonderConstructRand>40</iWonderConstructRand>
+			<iBaseAttitude>1</iBaseAttitude>
+			<iBasePeaceWeight>4</iBasePeaceWeight>
+			<iWarmongerRespect>1</iWarmongerRespect>
+			<iEspionageWeight>70</iEspionageWeight>
+			<iRefuseToTalkWarThreshold>7</iRefuseToTalkWarThreshold>
+			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
+			<iTechTradeKnownPercent>23</iTechTradeKnownPercent>
+			<iMaxGoldTradePercent>16</iMaxGoldTradePercent>
+			<!-- BBAI Victory Strategy -->
+			<iCultureVictoryWeight>25</iCultureVictoryWeight>
+			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
+			<iConquestVictoryWeight>40</iConquestVictoryWeight>
+			<iDominationVictoryWeight>50</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>35</iDiplomacyVictoryWeight>
+			<!-- BBAI Victory Strategy -->
+			<iMaxWarRand>150</iMaxWarRand>
+			<iMaxWarNearbyPowerRatio>110</iMaxWarNearbyPowerRatio>
+			<iMaxWarDistantPowerRatio>70</iMaxWarDistantPowerRatio>
+			<iMaxWarMinAdjacentLandPercent>1</iMaxWarMinAdjacentLandPercent>
+			<iLimitedWarRand>160</iLimitedWarRand>
+			<iLimitedWarPowerRatio>100</iLimitedWarPowerRatio>
+			<iDogpileWarRand>125</iDogpileWarRand>
+			<iMakePeaceRand>20</iMakePeaceRand>
+			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+			<!-- custom: seems especially vengeful, especially with the name buying of ewuare story i mean from wikipedia (in pedia entry too) (check if accurate), was 0 in cyrus among other uncommented changes in ewuare's xml -->
+			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
+			<iRazeCityProb>0</iRazeCityProb>
+			<iBuildUnitProb>45</iBuildUnitProb>
+			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
+			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
+			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+			<iFavoriteCivicAttitudeChangeLimit>2</iFavoriteCivicAttitudeChangeLimit>
+			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
+			<!-- advc.ctr: start -->
+			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
+			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
+			<!-- advc.ctr: end -->
+			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</StrategicBonusRefuseAttitudeThreshold>
+			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
+			<MapRefuseAttitudeThreshold>ATTITUDE_ANNOYED</MapRefuseAttitudeThreshold>
+			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarRefuseAttitudeThreshold>
+			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DeclareWarThemRefuseAttitudeThreshold>
+			<StopTradingRefuseAttitudeThreshold>ATTITUDE_PLEASED</StopTradingRefuseAttitudeThreshold>
+			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
+			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
+			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
+			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
+			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_PLEASED</DefensivePactRefuseAttitudeThreshold>
+			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
+			<iVassalPowerModifier>20</iVassalPowerModifier>
+			<!-- custom: Kingdom of Benin was a hereditary monarchy according to: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Burials -->
+			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin, etc, see notes for details -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Ewuare — was TRAIT_IMPERIALIST and TRAIT_SPIRITUAL -->
+			<Traits>
+				<Trait>
+					<TraitType>TRAIT_SPIRITUAL</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+				<Trait>
+					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+			</Traits>
+			<!-- custom: rebalanced according to and with the help of chatgpt o3 much later to follow civ4 original format, i had done 5 military 3 growth 2 religion originally, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too -->
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_CULTURE</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+			</Flavors>
+			<ContactRands>
+				<ContactRand>
+					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
+					<iContactRand>500</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
+					<iContactRand>1000</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_JOIN_WAR</ContactType>
+					<iContactRand>20</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_STOP_TRADING</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_GIVE_HELP</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
+					<iContactRand>100</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
+					<iContactRand>125</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactRand>20</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_TECH</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_BONUS</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+			</ContactRands>
+			<ContactDelays>
+				<ContactDelay>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactDelay>10</iContactDelay>
+				</ContactDelay>
+			</ContactDelays>
+			<MemoryDecays/>
+			<MemoryAttitudePercents>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
+					<iMemoryAttitudePercent>5</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+			</MemoryAttitudePercents>
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
+					<iNoWarProb>10</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>60</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>90</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+			<!-- advc.005a: was Attack 100 -->
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<iWeightModifier>60</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
+			<!-- custom: add workshop as per chatgpt's recommendation after it did a web search plus feeding it our pedia entry that is wiki based if it remembered it quite accurately since the quite many prompts we did, among other uncommented xml changes -->
+			<ImprovementWeightModifiers>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
+					<iWeightModifier>25</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+					<iWeightModifier>15</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
+					<iWeightModifier>10</iWeightModifier>
+				</ImprovementWeightModifier>
+			</ImprovementWeightModifiers>
+			<DiplomacyIntroMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyIntroMusicPeace>
+			<DiplomacyMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_ANCIENT</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_CLASSICAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyMusicPeace>
+			<DiplomacyIntroMusicWar/>
+			<DiplomacyMusicWar/>
+		</LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_FREDERICK -->
 			<Type>LEADER_FREDERICK</Type>
 			<Description>TXT_KEY_LEADER_FREDERICK</Description>
 			<Civilopedia>TXT_KEY_LEADER_FREDERICK_PEDIA</Civilopedia>
@@ -3672,7 +3939,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -3701,15 +3968,18 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_ANNOYED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Frederick: was CIVIC_UNIVERSAL_SUFFRAGE -->
+			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+			<!-- custom: actually seems none not christianity, see notes for details -->
+			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Frederick — was TRAIT_PHILOSOPHICAL and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_CREATIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -3720,9 +3990,10 @@
 				</Flavor>
 			</Flavors>
 			<ContactRands>
+				<!-- custom: was 250 -->
 				<ContactRand>
 					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
-					<iContactRand>250</iContactRand>
+					<iContactRand>500</iContactRand>
 				</ContactRand>
 				<ContactRand>
 					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
@@ -3851,7 +4122,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_GANDHI -->
 			<Type>LEADER_GANDHI</Type>
 			<Description>TXT_KEY_LEADER_GANDHI</Description>
 			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
@@ -3883,7 +4154,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>15</iBuildUnitProb>
+			<iBuildUnitProb>25</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -3912,7 +4183,8 @@
 			<OpenBordersRefuseAttitudeThreshold>NONE</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_ANNOYED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>-20</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
+			<!-- Gandhi: was CIVIC_UNIVERSAL_SUFFRAGE -->
+			<FavoriteCivic>CIVIC_PACIFISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_HINDUISM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -4051,8 +4323,9 @@
 					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
 					<iNoWarProb>110</iNoWarProb>
 				</NoWarAttitudeProb>
+				<!-- custom: fix AdvCiv Duplicate PLEASED, should be friendly unless i'm mistaken, was ATTITUDE_PLEASED 115-->
 				<NoWarAttitudeProb>
-					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<AttitudeType>ATTITUDE_FRIENDLY</AttitudeType>
 					<iNoWarProb>115</iNoWarProb>
 				</NoWarAttitudeProb>
 			</NoWarAttitudeProbs>
@@ -4111,7 +4384,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_GENGHIS_KHAN -->
 			<Type>LEADER_GENGHIS_KHAN</Type>
 			<Description>TXT_KEY_LEADER_GENGHIS_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_GENGHIS_KHAN_PEDIA</Civilopedia>
@@ -4143,7 +4416,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>75</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -4173,7 +4447,8 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- custom: not strictly daoist, but closest and seems accurate, see notes in docs or mod's google drive if there as well for details -->
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -4278,59 +4553,59 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_GENGHISKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_GENGHIS_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_GILGAMESH -->
 			<Type>LEADER_GILGAMESH</Type>
 			<Description>TXT_KEY_LEADER_GILGAMESH</Description>
 			<Civilopedia>TXT_KEY_LEADER_GILGAMESH_PEDIA</Civilopedia>
@@ -4362,7 +4637,7 @@
 			<iDemandRebukedSneakProb>25</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -4393,7 +4668,8 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- custom: not sure and quick read but (this)(paganism) seems accurate enough -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PROTECTIVE</TraitType>
@@ -4534,7 +4810,275 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<!-- custom: Ireland leader based on Ragnar with economy-raider behavior and low ideology pressure. (GPT-5.3-Codex) -->
+		<LeaderHeadInfo> <!-- custom: LEADER_GRACE_OMALLEY -->
+			<Type>LEADER_GRACE_OMALLEY</Type>
+			<Description>TXT_KEY_LEADER_GRACE_OMALLEY</Description>
+			<Civilopedia>TXT_KEY_LEADER_GRACE_OMALLEY_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_GRACE_OMALLEY</ArtDefineTag>
+			<iWonderConstructRand>10</iWonderConstructRand>
+			<iBaseAttitude>0</iBaseAttitude>
+			<iBasePeaceWeight>0</iBasePeaceWeight>
+			<iWarmongerRespect>2</iWarmongerRespect>
+			<iEspionageWeight>100</iEspionageWeight>
+			<iRefuseToTalkWarThreshold>10</iRefuseToTalkWarThreshold>
+			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
+			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
+			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
+			<!-- BBAI Victory Strategy -->
+			<iCultureVictoryWeight>10</iCultureVictoryWeight>
+			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
+			<iConquestVictoryWeight>50</iConquestVictoryWeight>
+			<iDominationVictoryWeight>60</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
+			<!-- BBAI Victory Strategy -->
+			<iMaxWarRand>90</iMaxWarRand>
+			<iMaxWarNearbyPowerRatio>125</iMaxWarNearbyPowerRatio>
+			<iMaxWarDistantPowerRatio>85</iMaxWarDistantPowerRatio>
+			<iMaxWarMinAdjacentLandPercent>0</iMaxWarMinAdjacentLandPercent>
+			<iLimitedWarRand>40</iLimitedWarRand>
+			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+			<iDogpileWarRand>50</iDogpileWarRand>
+			<iMakePeaceRand>30</iMakePeaceRand>
+			<iDemandRebukedSneakProb>110</iDemandRebukedSneakProb>
+			<iDemandRebukedWarProb>45</iDemandRebukedWarProb>
+			<iRazeCityProb>10</iRazeCityProb>
+			<iBuildUnitProb>45</iBuildUnitProb>
+			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
+			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
+			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+			<iCloseBordersAttitudeChange>-1</iCloseBordersAttitudeChange>
+			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
+			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
+			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
+			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+			<iFavoriteCivicAttitudeChangeLimit>5</iFavoriteCivicAttitudeChangeLimit>
+			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+			<!-- advc.ctr: start -->
+			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
+			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
+			<!-- advc.ctr: end -->
+			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_PLEASED</HappinessBonusRefuseAttitudeThreshold>
+			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+			<MapRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</MapRefuseAttitudeThreshold>
+			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarRefuseAttitudeThreshold>
+			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarThemRefuseAttitudeThreshold>
+			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
+			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
+			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
+			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</ConvertReligionRefuseAttitudeThreshold>
+			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
+			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
+			<iVassalPowerModifier>0</iVassalPowerModifier>
+			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
+			<FavoriteReligion>NONE</FavoriteReligion>
+			<Traits>
+				<Trait>
+					<TraitType>TRAIT_FINANCIAL</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+				<Trait>
+					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+			</Traits>
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+			</Flavors>
+			<ContactRands>
+				<ContactRand>
+					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
+					<iContactRand>1000</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
+					<iContactRand>1000</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_JOIN_WAR</ContactType>
+					<iContactRand>20</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_STOP_TRADING</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_GIVE_HELP</ContactType>
+					<iContactRand>250</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
+					<iContactRand>500</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
+					<iContactRand>25</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactRand>12</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_TECH</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_BONUS</ContactType>
+					<iContactRand>2</iContactRand>
+				</ContactRand>
+			</ContactRands>
+			<ContactDelays>
+				<ContactDelay>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactDelay>10</iContactDelay>
+				</ContactDelay>
+			</ContactDelays>
+			<MemoryDecays>
+				<MemoryDecay>
+					<MemoryType>MEMORY_REJECTED_DEMAND</MemoryType>
+					<iMemoryRand>150</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
+					<iMemoryRand>120</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+					<iMemoryRand>120</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+					<iMemoryRand>100</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
+					<iMemoryRand>80</iMemoryRand>
+				</MemoryDecay>
+			</MemoryDecays>
+			<MemoryAttitudePercents>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_REJECTED_DEMAND</MemoryType>
+					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_RELIGION</MemoryType>
+					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_CIVIC</MemoryType>
+					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
+					<iMemoryAttitudePercent>10</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+			</MemoryAttitudePercents>
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
+					<iNoWarProb>10</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>62</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>78</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+					<iWeightModifier>25</iWeightModifier>
+				</UnitAIWeightModifier>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+					<iWeightModifier>25</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
+			<ImprovementWeightModifiers>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+					<iWeightModifier>20</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
+					<iWeightModifier>20</iWeightModifier>
+				</ImprovementWeightModifier>
+			</ImprovementWeightModifiers>
+			<DiplomacyIntroMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyIntroMusicPeace>
+			<DiplomacyMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_ANCIENT</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_CLASSICAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyMusicPeace>
+			<DiplomacyIntroMusicWar/>
+			<DiplomacyMusicWar/>
+		</LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_HAMMURABI -->
 			<Type>LEADER_HAMMURABI</Type>
 			<Description>TXT_KEY_LEADER_HAMMURABI</Description>
 			<Civilopedia>TXT_KEY_LEADER_HAMMURABI_PEDIA</Civilopedia>
@@ -4566,7 +5110,7 @@
 			<iDemandRebukedSneakProb>30</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -4597,7 +5141,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_ORGANIZED</TraitType>
@@ -4734,7 +5278,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_HANNIBAL -->
 			<Type>LEADER_HANNIBAL</Type>
 			<Description>TXT_KEY_LEADER_HANNIBAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_HANNIBAL_PEDIA</Civilopedia>
@@ -4766,7 +5310,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -4795,7 +5339,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -4938,7 +5482,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_HATSHEPSUT -->
 			<Type>LEADER_HATSHEPSUT</Type>
 			<Description>TXT_KEY_LEADER_HATSHEPSUT</Description>
 			<Civilopedia>TXT_KEY_LEADER_HATSHEPSUT_PEDIA</Civilopedia>
@@ -4970,7 +5514,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -5000,14 +5544,15 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Hatshepsut — was TRAIT_SPIRITUAL and TRAIT_CREATIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_CREATIVE</TraitType>
+					<TraitType>TRAIT_FINANCIAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -5174,7 +5719,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_HUAYNA_CAPAC -->
 			<Type>LEADER_HUAYNA_CAPAC</Type>
 			<Description>TXT_KEY_LEADER_HUAYNA_CAPAC</Description>
 			<Civilopedia>TXT_KEY_LEADER_HUAYNA_CAPAC_PEDIA</Civilopedia>
@@ -5206,7 +5751,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -5236,15 +5781,17 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Huayna Capac: was CIVIC_HEREDITARY_RULE -->
+			<FavoriteCivic>CIVIC_STATE_PROPERTY</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Huayna Capac — was TRAIT_INDUSTRIOUS and TRAIT_FINANCIAL -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_FINANCIAL</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -5395,7 +5942,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_ISABELLA -->
 			<Type>LEADER_ISABELLA</Type>
 			<Description>TXT_KEY_LEADER_ISABELLA</Description>
 			<Civilopedia>TXT_KEY_LEADER_ISABELLA_PEDIA</Civilopedia>
@@ -5427,7 +5974,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -5458,13 +6006,14 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Isabella — was TRAIT_SPIRITUAL and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -5635,7 +6184,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_JOAO -->
 			<Type>LEADER_JOAO</Type>
 			<Description>TXT_KEY_LEADER_JOAO</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOAO_PEDIA</Civilopedia>
@@ -5667,7 +6216,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -5695,15 +6244,17 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- Joao: was CIVIC_HEREDITARY_RULE -->
+			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Joao II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_FINANCIAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -5841,7 +6392,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_JULIUS_CAESAR -->
 			<Type>LEADER_JULIUS_CAESAR</Type>
 			<Description>TXT_KEY_LEADER_JULIUS_CAESAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_JULIUS_CAESAR_PEDIA</Civilopedia>
@@ -5873,7 +6424,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: increase julius caesar war tendency/profile a bit; Long_Comments_XML.txt #360, was 30 -->
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -5901,11 +6453,13 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Julius Caesar: was CIVIC_REPRESENTATION -->
+			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Julius Caesar — was TRAIT_ORGANIZED and TRAIT_IMPERIALIST -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_AGGRESSIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -6016,37 +6570,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_CAESAR_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_JULIUS_CAESAR_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_JUSTINIAN -->
 			<Type>LEADER_JUSTINIAN</Type>
 			<Description>TXT_KEY_LEADER_JUSTINIAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JUSTINIAN_PEDIA</Civilopedia>
@@ -6078,7 +6632,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -6110,13 +6665,14 @@
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Justinian — was TRAIT_SPIRITUAL and TRAIT_IMPERIALIST -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_SPIRITUAL</TraitType>
+					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_IMPERIALIST</TraitType>
+					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -6257,7 +6813,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_KUBLAI_KHAN -->
 			<Type>LEADER_KUBLAI_KHAN</Type>
 			<Description>TXT_KEY_LEADER_KUBLAI_KHAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_KUBLAI_KHAN_PEDIA</Civilopedia>
@@ -6289,7 +6845,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -6460,59 +7017,59 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_KUBLAIKHAN_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_KUBLAI_KHAN_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_LINCOLN -->
 			<Type>LEADER_LINCOLN</Type>
 			<Description>TXT_KEY_LEADER_LINCOLN</Description>
 			<Civilopedia>TXT_KEY_LEADER_LINCOLN_PEDIA</Civilopedia>
@@ -6527,12 +7084,12 @@
 			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
 			<iMaxGoldPerTurnTradePercent>15</iMaxGoldPerTurnTradePercent>
-			<!-- BBAI Victory Strategy -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 10/35/35/15/45 (140 total) with the help of GPT-5.2-Thinking thanks -->
 			<iCultureVictoryWeight>10</iCultureVictoryWeight>
-			<iSpaceVictoryWeight>35</iSpaceVictoryWeight>
+			<iSpaceVictoryWeight>40</iSpaceVictoryWeight>
 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
 			<iDominationVictoryWeight>15</iDominationVictoryWeight>
-			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
+			<iDiplomacyVictoryWeight>50</iDiplomacyVictoryWeight>
 			<!-- BBAI Victory Strategy -->
 			<iMaxWarRand>300</iMaxWarRand>
 			<iMaxWarNearbyPowerRatio>90</iMaxWarNearbyPowerRatio>
@@ -6545,7 +7102,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -6573,8 +7130,10 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_EMANCIPATION</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Lincoln: was CIVIC_EMANCIPATION (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
+			<!-- custom: lincoln seems to lean much more towards agnosticism, see notes for details -->
+			<FavoriteReligion>NONE</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -6719,7 +7278,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_LOUIS_XIV -->
 			<Type>LEADER_LOUIS_XIV</Type>
 			<Description>TXT_KEY_LEADER_LOUISXIV</Description>
 			<Civilopedia>TXT_KEY_LEADER_LOUISXIV_PEDIA</Civilopedia>
@@ -6751,7 +7310,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -6941,7 +7500,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_MANSA_MUSA -->
 			<Type>LEADER_MANSA_MUSA</Type>
 			<Description>TXT_KEY_LEADER_MANSA_MUSA</Description>
 			<Civilopedia>TXT_KEY_LEADER_MANSA_MUSA_PEDIA</Civilopedia>
@@ -6973,7 +7532,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>4</iBetterRankDifferenceAttitudeChange>
@@ -7144,11 +7704,11 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
-			<Type>LEADER_CHINESE_LEADER</Type>
-			<Description>TXT_KEY_LEADER_CHINESE_LEADER</Description>
-			<Civilopedia>TXT_KEY_LEADER_CHINESE_LEADER_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_CHINESE_LEADER</ArtDefineTag>
+		<LeaderHeadInfo> <!-- custom: LEADER_MAO_ZEDONG -->
+			<Type>LEADER_MAO_ZEDONG</Type>
+			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
+			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
 			<iWonderConstructRand>10</iWonderConstructRand>
 			<iBaseAttitude>0</iBaseAttitude>
 			<iBasePeaceWeight>1</iBasePeaceWeight>
@@ -7176,7 +7736,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>5</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -7208,9 +7769,10 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_STATE_PROPERTY</FavoriteCivic>
 			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Mao Zedong — was TRAIT_EXPANSIVE and TRAIT_PROTECTIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_AGGRESSIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -7351,7 +7913,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_MEHMED -->
 			<Type>LEADER_MEHMED</Type>
 			<Description>TXT_KEY_LEADER_MEHMED</Description>
 			<Civilopedia>TXT_KEY_LEADER_MEHMED_II_PEDIA</Civilopedia>
@@ -7383,7 +7945,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>40</iBuildUnitProb>
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -7412,11 +7974,13 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+			<!-- Mehmed: was CIVIC_VASSALAGE -->
+			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
 			<FavoriteReligion>RELIGION_ISLAM</FavoriteReligion>
+			<!-- Mehmed II — was TRAIT_EXPANSIVE and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -7530,33 +8094,297 @@
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
-			<Type>LEADER_MONTEZUMA</Type>
-			<Description>TXT_KEY_LEADER_MONTEZUMA</Description>
-			<Civilopedia>TXT_KEY_LEADER_MONTEZUMA_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_LEADER_MONTEZUMA</ArtDefineTag>
+		<!-- custom: Ireland leader based on Frederick with disciplined intelligence-state behavior. (GPT-5.3-Codex) -->
+		<LeaderHeadInfo> <!-- custom: LEADER_MICHAEL_COLLINS -->
+			<Type>LEADER_MICHAEL_COLLINS</Type>
+			<Description>TXT_KEY_LEADER_MICHAEL_COLLINS</Description>
+			<Civilopedia>TXT_KEY_LEADER_MICHAEL_COLLINS_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MICHAEL_COLLINS</ArtDefineTag>
+			<iWonderConstructRand>20</iWonderConstructRand>
+			<iBaseAttitude>0</iBaseAttitude>
+			<iBasePeaceWeight>6</iBasePeaceWeight>
+			<iWarmongerRespect>1</iWarmongerRespect>
+			<iEspionageWeight>140</iEspionageWeight>
+			<iRefuseToTalkWarThreshold>6</iRefuseToTalkWarThreshold>
+			<iNoTechTradeThreshold>10</iNoTechTradeThreshold>
+			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
+			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
+			<!-- BBAI Victory Strategy -->
+			<iCultureVictoryWeight>20</iCultureVictoryWeight>
+			<iSpaceVictoryWeight>20</iSpaceVictoryWeight>
+			<iConquestVictoryWeight>30</iConquestVictoryWeight>
+			<iDominationVictoryWeight>30</iDominationVictoryWeight>
+			<iDiplomacyVictoryWeight>50</iDiplomacyVictoryWeight>
+			<!-- BBAI Victory Strategy -->
+			<iMaxWarRand>150</iMaxWarRand>
+			<iMaxWarNearbyPowerRatio>90</iMaxWarNearbyPowerRatio>
+			<iMaxWarDistantPowerRatio>85</iMaxWarDistantPowerRatio>
+			<iMaxWarMinAdjacentLandPercent>3</iMaxWarMinAdjacentLandPercent>
+			<iLimitedWarRand>100</iLimitedWarRand>
+			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
+			<iDogpileWarRand>80</iDogpileWarRand>
+			<iMakePeaceRand>20</iMakePeaceRand>
+			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
+			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
+			<iRazeCityProb>0</iRazeCityProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
+			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
+			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
+			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
+			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
+			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
+			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
+			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
+			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
+			<!-- advc.ctr: start -->
+			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
+			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
+			<!-- advc.ctr: end -->
+			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
+			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
+			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
+			<MapRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</MapRefuseAttitudeThreshold>
+			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarRefuseAttitudeThreshold>
+			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarThemRefuseAttitudeThreshold>
+			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
+			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
+			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
+			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
+			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
+			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
+			<iVassalPowerModifier>0</iVassalPowerModifier>
+			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<Traits>
+				<Trait>
+					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+				<Trait>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<bTrait>1</bTrait>
+				</Trait>
+			</Traits>
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>5</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+			</Flavors>
+			<ContactRands>
+				<ContactRand>
+					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
+					<iContactRand>500</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
+					<iContactRand>100</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_JOIN_WAR</ContactType>
+					<iContactRand>10</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_STOP_TRADING</ContactType>
+					<iContactRand>50</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_GIVE_HELP</ContactType>
+					<iContactRand>100</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
+					<iContactRand>100</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
+					<iContactRand>500</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactRand>12</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_TECH</ContactType>
+					<iContactRand>10</iContactRand>
+				</ContactRand>
+				<ContactRand>
+					<ContactType>CONTACT_TRADE_BONUS</ContactType>
+					<iContactRand>5</iContactRand>
+				</ContactRand>
+			</ContactRands>
+			<ContactDelays>
+				<ContactDelay>
+					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+					<iContactDelay>10</iContactDelay>
+				</ContactDelay>
+			</ContactDelays>
+			<MemoryDecays>
+				<MemoryDecay>
+					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
+					<iMemoryRand>100</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_DENIED_JOIN_WAR</MemoryType>
+					<iMemoryRand>150</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_DECLARED_WAR_ON_FRIEND</MemoryType>
+					<iMemoryRand>200</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
+					<iMemoryRand>100</iMemoryRand>
+				</MemoryDecay>
+				<MemoryDecay>
+					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+					<iMemoryRand>100</iMemoryRand>
+				</MemoryDecay>
+			</MemoryDecays>
+			<MemoryAttitudePercents>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
+					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_JOIN_WAR</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DECLARED_WAR_ON_FRIEND</MemoryType>
+					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_RELIGION</MemoryType>
+					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_DENIED_CIVIC</MemoryType>
+					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+				<MemoryAttitudePercent>
+					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
+					<iMemoryAttitudePercent>10</iMemoryAttitudePercent>
+				</MemoryAttitudePercent>
+			</MemoryAttitudePercents>
+			<NoWarAttitudeProbs>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
+					<iNoWarProb>22</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
+					<iNoWarProb>62</iNoWarProb>
+				</NoWarAttitudeProb>
+				<NoWarAttitudeProb>
+					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
+					<iNoWarProb>90</iNoWarProb>
+				</NoWarAttitudeProb>
+			</NoWarAttitudeProbs>
+			<UnitAIWeightModifiers>
+				<UnitAIWeightModifier>
+					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+					<iWeightModifier>50</iWeightModifier>
+				</UnitAIWeightModifier>
+			</UnitAIWeightModifiers>
+			<ImprovementWeightModifiers>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+					<iWeightModifier>20</iWeightModifier>
+				</ImprovementWeightModifier>
+				<ImprovementWeightModifier>
+					<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
+					<iWeightModifier>20</iWeightModifier>
+				</ImprovementWeightModifier>
+			</ImprovementWeightModifiers>
+			<DiplomacyIntroMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyIntroMusicPeace>
+			<DiplomacyMusicPeace>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_ANCIENT</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_CLASSICAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MEDIEVAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_RENAISSANCE</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_INDUSTRIAL</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_MODERN</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+				<DiploMusicPeaceEra>
+					<EraType>ERA_FUTURE</EraType>
+					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
+				</DiploMusicPeaceEra>
+			</DiplomacyMusicPeace>
+			<DiplomacyIntroMusicWar/>
+			<DiplomacyMusicWar/>
+		</LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_MOCTEZUMA -->
+			<Type>LEADER_MOCTEZUMA</Type>
+			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
+			<Civilopedia>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_LEADER_MOCTEZUMA</ArtDefineTag>
 			<iWonderConstructRand>0</iWonderConstructRand>
 			<iBaseAttitude>-1</iBaseAttitude>
 			<iBasePeaceWeight>0</iBasePeaceWeight>
@@ -7584,7 +8412,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -7612,8 +8440,9 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Moctezuma: was CIVIC_POLICE_STATE -->
+			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
@@ -7719,67 +8548,67 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_EARLY_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MONTEZUMA_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_MOCTEZUMA_LATE_LP</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_NAPOLEON -->
 			<Type>LEADER_NAPOLEON</Type>
 			<Description>TXT_KEY_LEADER_NAPOLEON</Description>
 			<Civilopedia>TXT_KEY_LEADER_NAPOLEON_PEDIA</Civilopedia>
@@ -7812,7 +8641,7 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>40</iBuildUnitProb>
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -7842,11 +8671,13 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
+			<!-- Napoleon: was CIVIC_REPRESENTATION -->
+			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Napoleon — was TRAIT_ORGANIZED and TRAIT_CHARISMATIC -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_IMPERIALIST</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -7992,7 +8823,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_PACAL -->
 			<Type>LEADER_PACAL</Type>
 			<Description>TXT_KEY_LEADER_PACAL</Description>
 			<Civilopedia>TXT_KEY_LEADER_PACAL_PEDIA</Civilopedia>
@@ -8026,7 +8857,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -8056,15 +8887,18 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Pacal: was CIVIC_HEREDITARY_RULE -->
+			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
+			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc.) hopefully accurate enough -->
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Pacal — was TRAIT_FINANCIAL and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -8204,7 +9038,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_PERICLES -->
 			<Type>LEADER_PERICLES</Type>
 			<Description>TXT_KEY_LEADER_PERICLES</Description>
 			<Civilopedia>TXT_KEY_LEADER_PERICLES_PEDIA</Civilopedia>
@@ -8236,7 +9070,7 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -8265,7 +9099,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -8383,37 +9217,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_ALEXANDER_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_PERICLES_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_PETER -->
 			<Type>LEADER_PETER</Type>
 			<Description>TXT_KEY_LEADER_PETER</Description>
 			<Civilopedia>TXT_KEY_LEADER_PETER_PEDIA</Civilopedia>
@@ -8445,7 +9279,7 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -8475,13 +9309,14 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Peter — was TRAIT_PHILOSOPHICAL and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -8652,7 +9487,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_QIN_SHI_HUANG -->
 			<Type>LEADER_QIN_SHI_HUANG</Type>
 			<Description>TXT_KEY_LEADER_QIN_SHI_HUANG</Description>
 			<Civilopedia>TXT_KEY_LEADER_QIN_SHI_HUANG_PEDIA</Civilopedia>
@@ -8684,7 +9519,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<!-- custom: was 20 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -8714,8 +9550,10 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
-			<FavoriteReligion>RELIGION_TAOISM</FavoriteReligion>
+			<!-- Qin Shi Huang: was CIVIC_BUREAUCRACY -->
+			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
+			<!-- custom: Long_Comments_XML.txt #352 -->
+			<FavoriteReligion>RELIGION_DAOISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
@@ -8880,7 +9718,7 @@
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
 		<!-- (advc: Swapped with Ramesses for alphabetical order) -->
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_RAGNAR -->
 			<Type>LEADER_RAGNAR</Type>
 			<Description>TXT_KEY_LEADER_RAGNAR</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAGNAR_PEDIA</Civilopedia>
@@ -8912,7 +9750,7 @@
 			<iDemandRebukedSneakProb>80</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<iBuildUnitProb>40</iBuildUnitProb>
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>6</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -8941,8 +9779,9 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Ragnar: was CIVIC_HEREDITARY_RULE -->
+			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -9081,7 +9920,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_RAMESSES -->
 			<Type>LEADER_RAMESSES</Type>
 			<Description>TXT_KEY_LEADER_RAMESSES</Description>
 			<Civilopedia>TXT_KEY_LEADER_RAMESSES_II_PEDIA</Civilopedia>
@@ -9095,11 +9934,9 @@
 			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
 			<iTechTradeKnownPercent>60</iTechTradeKnownPercent>
 			<iMaxGoldTradePercent>15</iMaxGoldTradePercent>
-			<!-- BBAI Victory Strategy -->
-			<iCultureVictoryWeight>25</iCultureVictoryWeight>
-			<!-- advc.005a: was 15 -->
+			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 25/25/35/35/20 (140 total) with the help of GPT-5.2-Thinking thanks -->
+			<iCultureVictoryWeight>35</iCultureVictoryWeight>
 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
-			<!-- advc.005a: was 55 -->
 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
 			<iDominationVictoryWeight>35</iDominationVictoryWeight>
 			<iDiplomacyVictoryWeight>20</iDiplomacyVictoryWeight>
@@ -9115,7 +9952,8 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>20</iBuildUnitProb>
+			<!-- custom: was 20 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -9146,7 +9984,7 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_SPIRITUAL</TraitType>
@@ -9258,67 +10096,67 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_HATSHEPSUT_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_RAMESSES_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_FRANKLIN_ROOSEVELT -->
 			<Type>LEADER_FRANKLIN_ROOSEVELT</Type>
 			<Description>TXT_KEY_LEADER_ROOSEVELT</Description>
 			<Civilopedia>TXT_KEY_LEADER_ROOSEVELT_PEDIA</Civilopedia>
@@ -9351,7 +10189,7 @@
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
 			<!-- advc.005a: was 20 -->
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -9382,15 +10220,17 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+			<!-- Roosevelt: was CIVIC_MERCANTILISM (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Franklin D. Roosevelt — was TRAIT_INDUSTRIOUS and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_ORGANIZED</TraitType>
+					<TraitType>TRAIT_CHARISMATIC</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -9535,7 +10375,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_SALADIN -->
 			<Type>LEADER_SALADIN</Type>
 			<Description>TXT_KEY_LEADER_SALADIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SALADIN_PEDIA</Civilopedia>
@@ -9570,7 +10410,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -9602,13 +10442,14 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_ISLAM</FavoriteReligion>
+			<!-- Saladin — was TRAIT_PROTECTIVE and TRAIT_SPIRITUAL -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_PROTECTIVE</TraitType>
+					<TraitType>TRAIT_SPIRITUAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_SPIRITUAL</TraitType>
+					<TraitType>TRAIT_CHARISMATIC</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -9775,7 +10616,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_SHAKA -->
 			<Type>LEADER_SHAKA</Type>
 			<Description>TXT_KEY_LEADER_SHAKA</Description>
 			<Civilopedia>TXT_KEY_LEADER_SHAKA_PEDIA</Civilopedia>
@@ -9807,7 +10648,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>40</iDemandRebukedWarProb>
 			<iRazeCityProb>50</iRazeCityProb>
-			<iBuildUnitProb>40</iBuildUnitProb>
+			<iBuildUnitProb>50</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -9836,14 +10677,15 @@
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>20</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+			<!-- Shaka — was TRAIT_AGGRESSIVE and TRAIT_EXPANSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -9968,7 +10810,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_SITTING_BULL -->
 			<Type>LEADER_SITTING_BULL</Type>
 			<Description>TXT_KEY_LEADER_SITTING_BULL</Description>
 			<Civilopedia>TXT_KEY_LEADER_SITTING_BULL_PEDIA</Civilopedia>
@@ -10000,7 +10842,8 @@
 			<iDemandRebukedSneakProb>20</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>20</iRazeCityProb>
-			<iBuildUnitProb>35</iBuildUnitProb>
+			<!-- custom: was 35 -->
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -10028,8 +10871,9 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>50</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_ENVIRONMENTALISM</FavoriteCivic>
-			<FavoriteReligion>NONE</FavoriteReligion>
+			<!-- Sitting Bull: was CIVIC_ENVIRONMENTALISM (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
+			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
@@ -10171,7 +11015,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_STALIN -->
 			<Type>LEADER_STALIN</Type>
 			<Description>TXT_KEY_LEADER_STALIN</Description>
 			<Civilopedia>TXT_KEY_LEADER_JOSEF_STALIN_PEDIA</Civilopedia>
@@ -10205,7 +11049,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -10352,67 +11197,67 @@
 			<DiplomacyIntroMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTROO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_INTRO</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyIntroMusicPeace>
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_EARLY_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_MIDDLE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_PETER_LATE_LP</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_STALIN_EARLY_INTRO</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_SULEIMAN -->
 			<Type>LEADER_SULEIMAN</Type>
 			<Description>TXT_KEY_LEADER_SULEIMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SULEIMAN_PEDIA</Civilopedia>
@@ -10444,7 +11289,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>50</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -10472,7 +11317,8 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+			<!-- Suleiman: was CIVIC_HEREDITARY_RULE -->
+			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_ISLAM</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -10587,37 +11433,37 @@
 			<DiplomacyMusicPeace>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_ANCIENT</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_CLASSICAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_EARLY</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_MIDDLE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_MEHMED_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_SULEIMAN_LATE</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_SURYAVARMAN -->
 			<Type>LEADER_SURYAVARMAN</Type>
 			<Description>TXT_KEY_LEADER_SURYAVARMAN</Description>
 			<Civilopedia>TXT_KEY_LEADER_SURYAVARMAN_PEDIA</Civilopedia>
@@ -10650,7 +11496,7 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<iBuildUnitProb>40</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -10684,9 +11530,10 @@
 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
 			<!-- advc.005a: was BUDDHISM -->
 			<FavoriteReligion>RELIGION_HINDUISM</FavoriteReligion>
+			<!-- Suryavarman II — was TRAIT_EXPANSIVE and TRAIT_CREATIVE -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -10855,7 +11702,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_TOKUGAWA -->
 			<Type>LEADER_TOKUGAWA</Type>
 			<Description>TXT_KEY_LEADER_TOKUGAWA</Description>
 			<Civilopedia>TXT_KEY_LEADER_TOKUGAWA_PEDIA</Civilopedia>
@@ -10887,7 +11734,8 @@
 			<iDemandRebukedSneakProb>60</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>25</iDemandRebukedWarProb>
 			<iRazeCityProb>25</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>45</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -10917,15 +11765,17 @@
 			<DefensivePactRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</DefensivePactRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+			<!-- Tokugawa: was CIVIC_MERCANTILISM (BtS / AdvCiv 1.12) -->
+			<FavoriteCivic>CIVIC_PROTECTIONISM</FavoriteCivic>
 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
+			<!-- Tokugawa — was TRAIT_PROTECTIVE and TRAIT_AGGRESSIVE -->
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_PROTECTIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+					<TraitType>TRAIT_ORGANIZED</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 			</Traits>
@@ -11107,7 +11957,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_VICTORIA -->
 			<Type>LEADER_VICTORIA</Type>
 			<Description>TXT_KEY_LEADER_VICTORIA</Description>
 			<Civilopedia>TXT_KEY_LEADER_VICTORIA_PEDIA</Civilopedia>
@@ -11139,7 +11989,7 @@
 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
@@ -11168,7 +12018,8 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
+			<!-- Victoria: was CIVIC_REPRESENTATION -->
+			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
 			<Traits>
 				<Trait>
@@ -11282,29 +12133,29 @@
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MEDIEVAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_RENAISSANCE</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_MIDDLE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_INDUSTRIAL</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_MODERN</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 				<DiploMusicPeaceEra>
 					<EraType>ERA_FUTURE</EraType>
-					<DiploScriptId>AS2D_DIPLO_VICTORIA_LATE</DiploScriptId>
+					<DiploScriptId>AS2D_DIPLO_VICTORIA_EARLY</DiploScriptId>
 				</DiploMusicPeaceEra>
 			</DiplomacyMusicPeace>
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_WANGKON -->
 			<Type>LEADER_WANGKON</Type>
 			<Description>TXT_KEY_LEADER_WANGKON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WANG_KON_PEDIA</Civilopedia>
@@ -11336,7 +12187,7 @@
 			<iDemandRebukedSneakProb>40</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>10</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>0</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>3</iBetterRankDifferenceAttitudeChange>
@@ -11365,8 +12216,10 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
-			<FavoriteReligion>RELIGION_CONFUCIANISM</FavoriteReligion>
+			<!-- Wang Kon: was CIVIC_CASTE_SYSTEM -->
+			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
+			<!-- custom: no confucianism anymore, leaning closer to buddhism it seems, so changed to it, read notes for details -->
+			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
 			<Traits>
 				<Trait>
 					<TraitType>TRAIT_FINANCIAL</TraitType>
@@ -11512,7 +12365,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_WASHINGTON -->
 			<Type>LEADER_WASHINGTON</Type>
 			<Description>TXT_KEY_LEADER_WASHINGTON</Description>
 			<Civilopedia>TXT_KEY_LEADER_WASHINGTON_PEDIA</Civilopedia>
@@ -11544,7 +12397,7 @@
 			<iDemandRebukedSneakProb>100</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
@@ -11573,11 +12426,13 @@
 			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
 			<iVassalPowerModifier>0</iVassalPowerModifier>
-			<FavoriteCivic>CIVIC_FREE_SPEECH</FavoriteCivic>
+			<!-- Washington: was CIVIC_FREE_SPEECH -->
+			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Washington — was TRAIT_EXPANSIVE and TRAIT_CHARISMATIC -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_EXPANSIVE</TraitType>
+					<TraitType>TRAIT_PROTECTIVE</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>
@@ -11744,7 +12599,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_WILLEM_VAN_ORANJE -->
 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>
@@ -11780,7 +12635,8 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>20</iDemandRebukedWarProb>
 			<iRazeCityProb>0</iRazeCityProb>
-			<iBuildUnitProb>25</iBuildUnitProb>
+			<!-- custom: was 25 -->
+			<iBuildUnitProb>30</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<!-- advc.130c: Swapped the values for WorseRank and
 				 BetterRank -->
@@ -11956,7 +12812,7 @@
 			<DiplomacyIntroMusicWar/>
 			<DiplomacyMusicWar/>
 		</LeaderHeadInfo>
-		<LeaderHeadInfo>
+		<LeaderHeadInfo> <!-- custom: LEADER_ZARA_YAQOB -->
 			<Type>LEADER_ZARA_YAQOB</Type>
 			<Description>TXT_KEY_LEADER_ZARA_YAQOB</Description>
 			<Civilopedia>TXT_KEY_LEADER_ZARA_YAQOB_PEDIA</Civilopedia>
@@ -11988,7 +12844,8 @@
 			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
 			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
 			<iRazeCityProb>5</iRazeCityProb>
-			<iBuildUnitProb>30</iBuildUnitProb>
+			<!-- custom: was 30 -->
+			<iBuildUnitProb>35</iBuildUnitProb>
 			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
@@ -12020,9 +12877,10 @@
 			<iVassalPowerModifier>0</iVassalPowerModifier>
 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+			<!-- Zara Yaqob — was TRAIT_CREATIVE and TRAIT_ORGANIZED -->
 			<Traits>
 				<Trait>
-					<TraitType>TRAIT_CREATIVE</TraitType>
+					<TraitType>TRAIT_SPIRITUAL</TraitType>
 					<bTrait>1</bTrait>
 				</Trait>
 				<Trait>

@@ -8,16 +8,21 @@
 ## Copyright (c) 2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import BugUtil
 
 gc = CyGlobalContext()
 
 # tuple of interesting color names to be selectable from dropdowns
-COLOR_KEYS = ( "COLOR_RED", "COLOR_YELLOW", "COLOR_CYAN", "COLOR_GREEN", 
-			   "COLOR_BLUE", "COLOR_MAGENTA", "COLOR_WHITE", "COLOR_LIGHT_GREY", 
-			   "COLOR_GREY", "COLOR_DARK_GREY", "COLOR_BLACK" )
+COLOR_KEYS = ("COLOR_RED", "COLOR_YELLOW", "COLOR_CYAN", "COLOR_GREEN", "COLOR_BLUE", "COLOR_MAGENTA", "COLOR_WHITE", "COLOR_LIGHT_GREY", "COLOR_GREY", "COLOR_DARK_GREY", "COLOR_BLACK")
 
 COLOR_INDEX_IDX = 0
 COLOR_TYPE_IDX = 1
@@ -42,7 +47,6 @@ COLOR_DISPLAY_NAMES = []
 # Maps key to color type
 TYPES_BY_KEY = {}
 
-
 def getColorKeys():
 	return COLOR_KEYS
 
@@ -50,51 +54,49 @@ def getColorTypes():
 	return COLOR_TYPES
 
 def getColorDisplayNames():
-	"""Returns a tuple of the color display names from the color names above."""
+	# Returns a tuple of the color display names from the color names above.
 	return COLOR_DISPLAY_NAMES
 
-
 def typeToIndex(type):
-	"""Returns the index of the color from its info type, None if not found."""
+	# Returns the index of the color from its info type, None if not found.
 	try:
 		return COLORS_BY_TYPE[type][COLOR_INDEX_IDX]
 	except KeyError:
 		return None
 
 def indexToType(index):
-	"""Returns the info type of the color from its index, None if not found."""
+	# Returns the info type of the color from its index, None if not found.
 	return COLORS[index][COLOR_TYPE_IDX]
 
-
 def keyToIndex(key):
-	"""Returns the index of the color from its key, None if not found."""
+	# Returns the index of the color from its key, None if not found.
+	#
 	try:
 		return COLORS_BY_KEY[key][COLOR_INDEX_IDX]
 	except KeyError:
 		return None
 
 def indexToKey(index):
-	"""Returns the key of the color from its index, None if not found."""
+	# Returns the key of the color from its index, None if not found.
+	#
 	return COLORS[index][COLOR_KEY_IDX]
 
-
 def keyToType(key):
-	"""Returns the info type of the color from its key, -1 if not found.
-	This works for any valid color -- not just those in the list.
-	"""
+	# Returns the info type of the color from its key, -1 if not found.
+	# This works for any valid color -- not just those in the list.
+	#
 	if key in TYPES_BY_KEY:
 		return TYPES_BY_KEY[key]
 	if key in COLORS_BY_KEY:
 		type = COLORS_BY_KEY[key][COLOR_TYPE_IDX]
 	else:
-		type = gc.getInfoTypeForString(key)
+		type = getInfoTypeOrFail(key)
 	TYPES_BY_KEY[key] = type
 	return type
 
-
 def createColors(argsList=None):
 	for key in COLOR_KEYS:
-		type = gc.getInfoTypeForString(key)
+		type = getInfoTypeOrFail(key)
 		if (type >= 0):
 			info = gc.getColorInfo(type)
 			if (info):

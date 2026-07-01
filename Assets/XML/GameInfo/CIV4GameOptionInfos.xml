@@ -167,11 +167,12 @@
 			<bDefault>0</bDefault>
 			<bVisible>1</bVisible>
 		</GameOptionInfo>
+		<!-- custom: events are annoying and it's tedious to go to a custom game just to disable them, set up all players, etc., so make it the default to be no event: players can add events if they want to via a custom game instead, as recommended by chatgpt 5.2 thanks, was bDefault 0 -->
 		<GameOptionInfo>
 			<Type>GAMEOPTION_NO_EVENTS</Type>
 			<Description>TXT_KEY_GAME_OPTION_NO_EVENTS</Description>
 			<Help>TXT_KEY_GAME_OPTION_NO_EVENTS_HELP</Help>
-			<bDefault>0</bDefault>
+			<bDefault>1</bDefault>
 			<bVisible>1</bVisible>
 		</GameOptionInfo>
 		<!-- advc.tsl: Moved down, taking the spot of NO_ESPIONAGE. -->

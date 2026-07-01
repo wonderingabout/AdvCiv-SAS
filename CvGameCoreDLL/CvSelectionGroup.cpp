@@ -204,8 +204,7 @@ void CvSelectionGroup::doTurn()
 	{
 		if (pHeadUnit->isSpy() && pHeadUnit->getPlot().getTeam() != getTeam())
 		{
-			if (pHeadUnit->getFortifyTurns() ==
-				GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
+			if (pHeadUnit->getFortifyTurns() == GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
 			{
 				setActivityType(ACTIVITY_AWAKE); // time to wake up!
 			}
@@ -292,10 +291,15 @@ void CvSelectionGroup::doTurn()
 		if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 			&& GET_TEAM(getTeam()).hasMetHuman()) // K-Mod
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
+			static const int iMIN_TIMER_UNIT_DOUBLE_MOVES = GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES");
+
 			int iBestWaitTurns = 0;
 			FOR_EACH_UNIT_IN(pUnit, *this)
 			{
-				int iWaitTurns = (GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES") -
+				// <!-- custom: seems like this can be made const -->
+				const int iWaitTurns = (iMIN_TIMER_UNIT_DOUBLE_MOVES -
 						(GC.getGame().getTurnSlice() - pUnit->getLastMoveTurn()));
 				if (iWaitTurns > iBestWaitTurns)
 					iBestWaitTurns = iWaitTurns;
@@ -546,10 +550,8 @@ void CvSelectionGroup::playActionSound()  // advc: refactored
 }
 
 
-void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2,
-	MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI,
-	CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, // advc: 2x const
-	bool bModified) // advc.011b
+// advc: 2x const <!-- custom: hoisted from multiline signature between `pMissionAIUnit` and `bModified` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, bool bModified) // advc.011b
 {
 	PROFILE_FUNC();
 
@@ -705,10 +707,8 @@ CvPlot* CvSelectionGroup::lastMissionPlot() const
 }
 
 
-bool CvSelectionGroup::canStartMission(
-	MissionTypes eMission, // advc: was int
-	int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
+// advc: was int <!-- custom: hoisted from multiline signature between `eMission` and `iData1` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::canStartMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
 {
 	if (bUseCache)
 	{
@@ -1757,8 +1757,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 }
 
 
-bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	PROFILE_FUNC();
 
@@ -1792,8 +1791,7 @@ bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData
 	return (eCommand == COMMAND_LOAD); // advc.123c: instead of false
 }
 
-bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	if(eCommand == COMMAND_LOAD)
 	{
@@ -2252,8 +2250,7 @@ int CvSelectionGroup::getCargoSpace() const
 }
 
 // K-Mod:
-int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo,
-	DomainTypes eDomainCargo) const
+int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	int iSpace = 0;
 	FOR_EACH_UNIT_IN(pUnit, *this)
@@ -2328,8 +2325,7 @@ bool CvSelectionGroup::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPas
 	return true;
 }
 
-bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea,
-	bool bIgnoreRightOfPassage) const
+bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage) const
 {
 	if(getNumUnits() <= 0)
 		return false;
@@ -2355,8 +2351,7 @@ bool CvSelectionGroup::canMoveInto(CvPlot const& kPlot, bool bAttack) const
 }
 
 
-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar,
-	bool bCheckMoves, bool bAssumeVisible) const // K-Mod
+bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, bool bCheckMoves, bool bAssumeVisible) const // K-Mod
 {
 	if (getNumUnits() <= 0)
 		return false;
@@ -2616,8 +2611,7 @@ DomainTypes CvSelectionGroup::getDomainType() const
 }
 
 
-RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
-	BuildTypes* peBestBuild) const
+RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot, BuildTypes* peBestBuild) const
 {
 	PROFILE_FUNC();
 
@@ -2650,9 +2644,8 @@ RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
 }
 
 // Returns true if attack was made...
-bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
-	bool& bFailedAlreadyFighting, // advc (note): out-parameter
-	bool bMaxSurvival) // advc.048
+// advc (note): out-parameter <!-- custom: hoisted from multiline signature between `bFailedAlreadyFighting` and `bMaxSurvival` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting, bool bMaxSurvival) // advc.048
 {
 	PROFILE_FUNC();
 
@@ -2716,7 +2709,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
 		{
 			pBestAttackUnit = AI().AI_getBestGroupAttacker(pDestPlot, false,
 					iAttackOdds, false, /* advc.164: */ !bBlitz,
-					!bMaxSurvival, bMaxSurvival); // advc.048
+					!bMaxSurvival, bMaxSurvival, true); // advc.048
 			if (pBestAttackUnit == NULL)
 				break;
 
@@ -3049,6 +3042,11 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 	}
 	// K-Mod end
 	bool bStopOtherWorkers = false; // advc.011c
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/);
+
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
 		FAssertMsg(pUnit->at(kPlot), "pLoopUnit is expected to be at pPlot");
@@ -3080,7 +3078,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 			CvWString szBuffer = gDLL->getText("TXT_KEY_BUILD_NOT_FINISHED", szBuild.c_str());
 			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, NULL, MESSAGE_TYPE_INFO,
 					GC.getInfo(eBuild).getButton()/*getHeadUnit()->getButton()*/,
-					GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/),
+					eColorWhite,
 					getX(), getY(), true, false);
 			// </advc.011b>
 			// <advc.011c>
@@ -3110,8 +3108,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 }
 
 
-void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
-	CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
+void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
 {
 	if (pTransportUnit != NULL) // if we are loading
 	{
@@ -3313,8 +3310,7 @@ bool CvSelectionGroup::readyForMission() const
 }
 
 
-bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
+bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
 {
 	if (pPlot == NULL)
 		pPlot = plot();
@@ -3710,8 +3706,8 @@ void CvSelectionGroup::changeMissionTimer(int iChange)
 }
 
 
-void CvSelectionGroup::updateMissionTimer(int iSteps,  // advc: refactored
-	CvPlot* pFromPlot) // advc.102
+// advc: refactored <!-- custom: hoisted from multiline signature between `iSteps` and `pFromPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::updateMissionTimer(int iSteps, CvPlot* pFromPlot) // advc.102
 {
 	CvGame const& kGame = GC.getGame();
 	if (headMissionQueueNode() == NULL || 
@@ -3864,9 +3860,7 @@ CvPlot& CvSelectionGroup::getPathEndTurnPlot() const
 }
 
 
-bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
-	MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath,
-	bool bUseTempFinder) const // advc.128
+bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo, MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath, bool bUseTempFinder) const // advc.128
 {
 	PROFILE_FUNC();
 	/*	K-Mod - if I can stop the UI from messing with this pathfinder,
@@ -3906,9 +3900,19 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
 
 void CvSelectionGroup::clearUnits()
 {
-	for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
-		pNode = deleteUnitNode(pNode))
-	{} // advc
+	// <!-- custom: Full group teardown should not repeatedly use deleteUnitNode, setAutomateType, clearMissionQueue, or setActivityType, because those normal single-unit-removal helpers can inspect the head unit, plot, cargo, selection state, and mission callbacks while the unit list is being destroyed. Directly reset the small group-owned state here, then clear the list once. See KI#163. (ChatGPT-5.5 + GPT-5.5); (commented-out old code for reference). -->
+	// for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
+	// 	pNode = deleteUnitNode(pNode))
+	// {} // advc
+	if (getOwner() != NO_PLAYER)
+	{
+		m->eAutomateType = NO_AUTOMATE;
+		m_missionQueue.clear();
+		m_iMissionTimer = 0;
+		m_eActivityType = ACTIVITY_AWAKE;
+	}
+	m_units.clear();
+	// <!-- custom: End -->
 }
 
 
@@ -3981,6 +3985,13 @@ void CvSelectionGroup::removeUnit(CvUnit* pUnit)
 
 CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 {
+	// <!-- custom: Keep normal single-unit removal behavior, but make this exported helper tolerate an unexpected null node instead of dereferencing it during rare group/unit teardown edge cases. See KI#163. (ChatGPT-5.5 + GPT-5.5) -->
+	if (pNode == NULL)
+	{
+		FAssert(pNode != NULL);
+		return NULL;
+	}
+
 	CLLNode<IDInfo>* pNextUnitNode;
 	if (getOwner() != NO_PLAYER)
 	{
@@ -4056,8 +4067,7 @@ void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup)
 /*  K-Mod. I've rewritten most of this function. The new version is faster,
 	gives a more even split, and does not create a dummy group.
 	(unless I've made a mistake.) */
-CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize,
-	CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
+CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
 {
 	FAssert(pNewHeadUnit == 0 || pNewHeadUnit->getGroup() == this);
 
@@ -4552,53 +4562,20 @@ void CvSelectionGroup::read(FDataStreamBase* pStream)
 
 	m_units.Read(pStream);
 	// <advc.004l>
-	if(uiFlag >= 2)
-		m->knownEnemies.Read(pStream); // </advc.004l>
+	m->knownEnemies.Read(pStream); // </advc.004l>
+
 	// <advc.011b>
-	if(uiFlag <= 0)
-	{
-		CLinkList<MissionDataLegacy> tmp;
-		tmp.Read(pStream);
-		for(CLLNode<MissionDataLegacy>* pNode = tmp.head();
-			pNode != NULL; pNode = tmp.next(pNode))
-		{
-			MissionDataLegacy tmpMission = pNode->m_data;
-			MissionData mission;
-			mission.bModified = false;
-			mission.eMissionType = tmpMission.eMissionType;
-			mission.iData1 = tmpMission.iData1;
-			mission.iData2 = tmpMission.iData2;
-			mission.eFlags = tmpMission.eFlags;
-			mission.iPushTurn = tmpMission.iPushTurn;
-			m_missionQueue.insertAtEnd(mission);
-		}
-	}
-	else // </advc.011b>
-		m_missionQueue.Read(pStream);
-	// <advc.pf>
-	if (uiFlag < 3)
-	{	// Replace removed movement flag with SAFE_TERRITORY
-		MovementFlags const MOVE_ROUTE_TO = static_cast<MovementFlags>(1 << 14);
-		for (CLLNode<MissionData>* pNode = headMissionQueueNode(); pNode != NULL;
-			pNode = nextMissionQueueNode(pNode))
-		{
-			MissionData& md = pNode->m_data;
-			if (md.eMissionType == MISSION_ROUTE_TO || (md.eFlags & MOVE_ROUTE_TO))
-			{
-				md.eFlags |= MOVE_SAFE_TERRITORY;
-				md.eFlags &= ~MOVE_ROUTE_TO;
-			}
-		}
-	} // </advc.pf>
+	// </advc.011b>
+	m_missionQueue.Read(pStream);
 }
 
 
 void CvSelectionGroup::write(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.011b
-	//uiFlag = 2; // advc.004l
 	uiFlag = 3; // advc.pf (MOVE_ROUTE_TO removed)
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroup(%d,%d,%d)", getID(), getX(), getY()));
 	pStream->Write(m_iID);

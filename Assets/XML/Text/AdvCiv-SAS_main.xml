@@ -1,0 +1,4804 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!-- 
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+-->
+<!-- custom: Long_Comments_XML.txt #152 -->
+<Civ4GameText xmlns="http://www.firaxis.com">
+	<!-- custom: rename from "Ressources" -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
+		<English>Bonuses</English>
+	</TEXT>
+	<!-- custom: tab rename in Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TREATIES</Tag>
+		<English>Treaties</English>
+	</TEXT>
+	<!-- custom: short tab label for unified Foreign Advisor (use "Espionage", not "Espionage Screen"). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_ESPIONAGE_SHORT</Tag>
+		<English>Espionage</English>
+	</TEXT>
+	<!-- custom: ordinary plot hover coordinate line; keep numeric placeholders so BBAI.log coordinates can be matched directly in-game. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_PLOT_HELP_COORDINATES</Tag>
+		<English>%d1,%d2</English>
+	</TEXT>
+	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
+		<English>Air Intercept</English>
+	</TEXT>
+	<!-- custom: was Ressources -->
+	<!-- Strategic Advantages Tab -->
+	<TEXT>
+		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
+		<English>Bonuses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB</Tag>
+		<English>Summary</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB</Tag>
+		<English>Map</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB</Tag>
+		<English>Battles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB</Tag>
+		<English>Composition</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SUPPORT</Tag>
+		<English>Support</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ARMY</Tag>
+		<English>Army</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT</Tag>
+		<English>Deployment</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_UNITS</Tag>
+		<English>Total Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_COST</Tag>
+		<English>U Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_SUPPLY</Tag>
+		<English>U Supply</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_GOLD</Tag>
+		<English>Total Cost + Supply</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIL_BUILDINGS</Tag>
+		<English>Military Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_BARRACKS</Tag>
+		<English>Barracks</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_STABLES</Tag>
+		<English>Stables</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_DRYDOCKS</Tag>
+		<English>Drydocks</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_HEROIC_EPIC</Tag>
+		<English>Heroic Epic</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_MIL_ACADEMY</Tag>
+		<English>Military Academy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNIT_PRODUCTION</Tag>
+		<English>Military Production</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_MODIFIER</Tag>
+		<English>Avg Modifier</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_CITY</Tag>
+		<English>Best City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_NEW_XP</Tag>
+		<English>Avg New XP (All)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_NEW_XP</Tag>
+		<English>Best New XP (All)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEFENSES</Tag>
+		<English>Defenses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_WALLS</Tag>
+		<English>Walls</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BLDG_CASTLES</Tag>
+		<English>Castles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BEST_DEFENDED</Tag>
+		<English>Best Defended</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_DEFENSE</Tag>
+		<English>Avg Defense</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ALLIED_HAMMERS</Tag>
+		<English>Allied Hammers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_OUTSIDE_UNITS</Tag>
+		<English>Outside Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_SHORT</Tag>
+		<English>Free Used</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FREE_USED_CAP_SHORT</Tag>
+		<English>Free Used/Cap</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_PAID_SHORT</Tag>
+		<English>Paid</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_SHORT</Tag>
+		<English>Mil. Cost Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COSTLESS_SHORT</Tag>
+		<English>No Mil. Cost Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_UNIT</Tag>
+		<English>P x R x M</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_MIL_UNIT</Tag>
+		<English>P x R</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_EXTRA_COST</Tag>
+		<English>Extra Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOLD_PER_OUTSIDE</Tag>
+		<English>P x R</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INFLATION_SHORT</Tag>
+		<English>I</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MILITARY_UNITS</Tag>
+		<English>Military Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_CIVILIAN_UNITS</Tag>
+		<English>Civilian Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LAND_UNITS</Tag>
+		<English>Land</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SEA_UNITS</Tag>
+		<English>Sea</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AIR_UNITS</Tag>
+		<English>Air</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_STRONGEST</Tag>
+		<English>Strongest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIGHEST_COST</Tag>
+		<English>Costliest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TOTAL_HAMMERS</Tag>
+		<English>Total Hammers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_XP</Tag>
+		<English>Avg XP</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_LEVEL</Tag>
+		<English>Avg Level</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HAMMERS</Tag>
+		<English>Avg Hammers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_POWER_RANK_KNOWN</Tag>
+		<English>Power Rank (Known)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALS_FREE</Tag>
+		<English>Great Generals</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GENERALED</Tag>
+		<English>GG-Led Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MAX_HEALTH</Tag>
+		<English>Max Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HEALTH</Tag>
+		<English>Avg Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIN_HEALTH</Tag>
+		<English>Min Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FAVORITE_PROMOS</Tag>
+		<English>Top Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COVERT_UNITS</Tag>
+		<English>Covert Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE</Tag>
+		<English>Invisible</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPIES</Tag>
+		<English>Spies</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIDDEN_NAT</Tag>
+		<English>Hidden Nationality</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_FULL</Tag>
+		<English>Full Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_HIGH</Tag>
+		<English>High Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_MEDIUM</Tag>
+		<English>Medium Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HEALTH_LOW</Tag>
+		<English>Low Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_TOTAL</Tag>
+		<English>Battles</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_WON</Tag>
+		<English>Won</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_RETREATED</Tag>
+		<English>Retreated</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BATTLES_LOST</Tag>
+		<English>Lost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_GOOD_LUCK</Tag>
+		<English>Good-Luck Wins</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_BAD_LUCK</Tag>
+		<English>Bad-Luck Losses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_LUCKIEST_WIN</Tag>
+		<English>Best</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UNLUCKIEST_LOSS</Tag>
+		<English>Worst</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADEABLE</Tag>
+		<English>Upgradeable</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MIN_COST</Tag>
+		<English>Min Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_AVG_COST</Tag>
+		<English>Avg Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_MAX_COST</Tag>
+		<English>Max Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_UPGRADE_TOTAL_COST</Tag>
+		<English>Total Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_WOUNDED</Tag>
+		<English>Wounded</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_CITIES</Tag>
+		<English>In Own Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_OWN_TERRITORY</Tag>
+		<English>In Own Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ALLIED</Tag>
+		<English>In Allied Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_NEUTRAL</Tag>
+		<English>In Neutral Civ Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_ENEMY</Tag>
+		<English>In Enemy Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_IN_WILD</Tag>
+		<English>Roaming (Unowned Land)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AT_SEA</Tag>
+		<English>At Sea (Open Water)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS</Tag>
+		<English>Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS</Tag>
+		<English>Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS</Tag>
+		<English>Combats</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COUNT</Tag>
+		<English>Current</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY</Tag>
+		<English>No recorded battles for this player yet.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON</Tag>
+		<English>Log</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN</Tag>
+		<English>Turn</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_YEAR</Tag>
+		<English>Year</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_EST_ODDS</Tag>
+		<English>E%</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_ROLE</Tag>
+		<English>Role</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_XP</Tag>
+		<English>XP</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_OUR_UNIT</Tag>
+		<English>Our Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT</Tag>
+		<English>Their Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT</Tag>
+		<English>Cap#</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
+		<English>PID</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_HILL_PEAK</Tag>
+		<English>H</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TERRAIN</Tag>
+		<English>T</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_FEATURE</Tag>
+		<English>F</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT</Tag>
+		<English>P</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_TOP_5_CITIES_IN_THE_WORLD</Tag>
+		<English>Top 5 Cities in the World</English>
+	</TEXT>
+
+
+	<!-- Foreign Advisor -->
+	<!-- custom: "advc.004: Note about patch history added" + removed "Exotic" since Foreign Advisor is now a single unified file -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_HOVER</Tag>
+		<English>Shows the "Glance" tab (relations matrix) on the Foreign Advisor screen. (This tab had been briefly disabled for aesthetic reasons
+		by a BtS patch.)</English>
+	</TEXT>
+	<!-- Technology Advisor -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_TEXT</Tag>
+		<English>Hide bulbing indicators</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__GPTECHPREFS_HOVER</Tag>
+		<English>When checked, hides the Great Person bulbing indicators on the Technology Advisor screen. Note: indicators appear after turn 0 due to an engine bug.</English>
+	</TEXT>
+
+	<!-- Religion Advisor -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_TEXT</Tag>
+		<English>Disable BUG Religion Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGRELIGIOUSTAB_HOVER</Tag>
+		<English>When checked, disables the BUG Religion Advisor (sortable city table with religious building info) and uses the BtS screen instead.</English>
+	</TEXT>
+
+
+
+	<!-- custom: remove folder name in case it changes as it did since we transitionned from AdvCiv to AdvCiv-SAS folder name if i'm not mistaken. Clearer to remove it entirely rather i'd say i mean i think -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_HOVER</Tag>
+		<English>When checked, the name of the mod's folder is written into your replay files, which excludes them from the Hall of Fame screen when BtS is run without mods. (As for showing replays created by BtS or other mods on the AdvCiv Hall of Fame screen, see the [COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT] variables in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "Difficulty" to "Handicap" -->
+	<!-- advc.048: Expanded a bit (English) b/c ignoring a rule that
+		 causes the actual odds to be ignored is potentially confusing. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ACO__IGNOREBARBFREEWINS_HOVER</Tag>
+		<English>When checked, the shown odds ignore free wins against Barbarians that the handicap level may guarantee. If not checked, the shown odds are 100% when a free win applies.</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #232 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_AUTOSAVE__USEPLAYERNAME_HOVER</Tag>
+		<English>When checked, your player name is used for the saved game name along with the turn year. Otherwise the name is a concatenation of 3-letter versions of Leader Name, Handicap, Map Size, Map Type, Speed, Era, Year, Climate and Sea Level.</English>
+	</TEXT>
+
+
+
+	<!-- custom: add new unit combat types or modify existing ones -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_TEXT</Tag>
+		<English>Naming Convention: Combat[AIR_BOMBER]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_BOMBER_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'AIR_BOMBER'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_TEXT</Tag>
+		<English>Naming Convention: Combat[AIR_FIGHTER]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_AIR_FIGHTER_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'AIR_FIGHTER'.</English>
+	</TEXT>
+	<!-- custom: add new unit combat types or modify existing ones -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_TEXT</Tag>
+		<English>Naming Convention: Combat[ARCHER_BOW_SHORT]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_SHORT_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'ARCHER_BOW_SHORT'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_TEXT</Tag>
+		<English>Naming Convention: Combat[ARCHER_BOW_LONG]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_BOW_LONG_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'ARCHER_BOW_LONG'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_TEXT</Tag>
+		<English>Naming Convention: Combat[ARCHER_CROSSBOW]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_ARCHER_CROSSBOW_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'ARCHER_CROSSBOW'.</English>
+	</TEXT>
+	<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_TEXT</Tag>
+		<English>Naming Convention: Combat[MOUNTED MELEE]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_MELEE_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MOUNTED MELEE'.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_TEXT</Tag>
+		<English>Naming Convention: Combat[MOUNTED RANGED]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__COMBAT_MOUNTED_RANGED_HOVER</Tag>
+		<English>Enter the user defined naming convention for combat units 'MOUNTED RANGED'.</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "Play Now" to "Simple Game" (matches code name, and is as the C2C mod does for example too) -->
+	<!-- advc.002g -->
+	<!-- See CIV4ColorVals.xml for the available colors. PLAYER_GRAY is,
+		 apparently, also used for graying out Multiplayer when it's disabled
+		 through ModName.ini. -->
+	<!-- From Civ4GameTextInfos.xml: -->
+	<!-- Just removed the exclamation mark -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_MAIN_MENU_PLAY_NOW</Tag>
+		<English>Simple Game</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDINGS_ROM_291</Tag>
+		<English>Buildings</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_UNITS_ROM_291</Tag>
+		<English>Units</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE</Tag>
+		<English>Feature</English>
+	</TEXT>
+	<!-- custom: add missing txt key "Terrain" not in RFC DOC mod (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key as below -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_CUSTOM</Tag>
+		<English>Terrain</English>
+	</TEXT>
+	<!-- custom: new entry to clarify some terrains are both plot types but also terrains and from asking chatgpt with a websearch too -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM</Tag>
+		<English>Plot Type / Terrain</English>
+	</TEXT>
+
+
+
+	<!-- custom: add mention that this does not include plot types (such as hills, peak, as well), renamed asset as such; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4) feature -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
+		<English>Terrains (Minus some Plot types)</English>
+	</TEXT>
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #80 -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BOOLEANS</Tag>
+		<English>Terrains (Minus some Plot types) with no Feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BOOLEANS</Tag>
+		<English>Features on any terrain</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_TERRAIN_BOOLEANS</Tag>
+		<English>Terrains Only If With This Bonus's Featur.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE</Tag>
+		<English>Bonuses in this terrain only if the terrain has no feature (see sevopedia bonus)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_HILL</Tag>
+		<English>Bonuses in this plot type (bHills enabled in these bonuses's XML)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE</Tag>
+		<English>Bonuses (Not applicable for this plot type / terrain)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION</Tag>
+		<English>Excluded from display (as is inaccurate or incomplete for this plot type / terrain)</English>
+	</TEXT>
+	<!-- custom: keep a short text as some panels have low width -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE</Tag>
+		<English>Excluded from display</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS</Tag>
+		<English>Bonuses in this terrain only if the bonus's features are compatible with "terrains only if with this feature" (see sevopedia bonus)</English>
+	</TEXT>
+	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such-->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS</Tag>
+		<English>Bonuses On Any Terrain (see also sevopedia bonus)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS</Tag>
+		<English>Favorites</English>
+	</TEXT>
+	<!-- custom: tag name that this is indeed a tag name that i modified, modified, for consistency or and clarity with other similar or and related tag names if i am not similarly mistaken too that these/those are tag names, unlike in RFC DOC mod -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACED_BY_CUSTOM</Tag>
+		<English>Replaced By</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART</Tag>
+		<English>Handicaps</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART</Tag>
+		<English>Speeds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_WORLD_SIZE_CHART</Tag>
+		<English>W. Sizes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART</Tag>
+		<English>Eras</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_MOVIES</Tag>
+		<English>Movies</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_MUSIC</Tag>
+		<English>Music</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_PREV</Tag>
+		<English>[%d1_Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_GAME_PLAYER_ID_NEXT</Tag>
+		<English>%d1_Player]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIE_PANEL</Tag>
+		<English>Movie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_PANEL</Tag>
+		<English>Music</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY</Tag>
+		<English>Victories</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER</Tag>
+		<English>Wonders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT</Tag>
+		<English>Projects</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION</Tag>
+		<English>Religions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA</Tag>
+		<English>Eras</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_CORPORATION</Tag>
+		<English>Corporations</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_TECH_QUOTES</Tag>
+		<English>Tech Quotes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_PEACE</Tag>
+		<English>Leaders (Intro Peace)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_PEACE</Tag>
+		<English>Leaders (Peace)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR</Tag>
+		<English>Leaders (Intro War)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR</Tag>
+		<English>Leaders (War)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS</Tag>
+		<English>Civilizations</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_SELECT</Tag>
+		<English>Select</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_ORDER</Tag>
+		<English>Order</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_VARIANT_NOTE</Tag>
+		<English>Note: Civ selection/action sounds can include several variants. Replay to hear different samples.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_3D_IMPROVEMENT_NOTE</Tag>
+		<English>Note: some Improvement 3D sounds as of now can play no or the wrong sound. Try to click Play several times to hear the correct sound.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_3D_AMBIENCE_NOTE</Tag>
+		<English>Note: Ambience 3D can start late; e.g;, dog begins around 5-20 seconds, and horn beings at around 8-20 seconds (They seem not to start right away, e.g., after entering city screen).</English>
+	</TEXT>
+	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D</Tag>
+		<English>Scripts (Opening, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SONGS_2D</Tag>
+		<English>Scripts (Songs, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_DIPLO_2D</Tag>
+		<English>Scripts (Diplo, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TECH_2D</Tag>
+		<English>Scripts (Tech, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_TUTORIAL_2D</Tag>
+		<English>Scripts (Tutorial, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_BUILDS_2D</Tag>
+		<English>Scripts (Builds, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_2D</Tag>
+		<English>Scripts (Units, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_INTERFACE_2D</Tag>
+		<English>Scripts (Interface, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENT_2D</Tag>
+		<English>Scripts (Ambient, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_GOODY_2D</Tag>
+		<English>Scripts (Goody, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_EVENTS_2D</Tag>
+		<English>Scripts (Events, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_SFX_2D</Tag>
+		<English>Scripts (SFX, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_2D</Tag>
+		<English>Scripts (Other, 2D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_UNITS_3D</Tag>
+		<English>Scripts (Units, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_AMBIENCE_3D</Tag>
+		<English>Scripts (Ambience, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_IMPROVEMENTS_3D</Tag>
+		<English>Scripts (Improvements, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_CIVILIZATIONS_3D</Tag>
+		<English>Scripts (Civilizations, 3D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OTHER_3D</Tag>
+		<English>Scripts (Other, 3D)</English>
+	</TEXT>
+
+
+
+	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia -->
+	<TEXT>
+		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
+		<English></English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #218 -->
+	<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS</Tag>
+		<English>Civilization Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
+		<English>No Civilization Unit</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_CORPORATIONS</Tag>
+		<English>Corporat.</English>
+	</TEXT>
+	<!-- custom: Sevopedia Votes category label and grouping section headers. Grouped by vote source (UN / Apostolic Palace); current XML has all votes single-sourced. (Claude code Opus 4.7) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_VOTE</Tag>
+		<English>Votes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE</Tag>
+		<English>V.Source</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INFO</Tag>
+		<English>Vote Source Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_INTERVAL</Tag>
+		<English>Vote Interval</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_SECRETARY_GENERAL_TEXT</Tag>
+		<English>Secretary General Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_FREE_SPECIALIST_PANEL</Tag>
+		<English>S.Free.Sp</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_CIVIC_PANEL</Tag>
+		<English>S.Civic</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_YIELDS</Tag>
+		<English>Religion Yields</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_SOURCE_RELIGION_COMMERCES</Tag>
+		<English>Religion Commerces</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_REQUIREMENTS</Tag>
+		<English>Requirements</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_FORCE_CIVICS</Tag>
+		<English>Fo.Civics</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_CIVICS_SEE_PANEL</Tag>
+		<English>Force Civic(s) (see Fo.Civics)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_NAME</Tag>
+		<English>Name</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_POPULATION_THRESHOLD</Tag>
+		<English>Population Threshold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_MIN_VOTERS</Tag>
+		<English>Minimum Voters</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_STATE_RELIGION_VOTE</Tag>
+		<English>State Religion Vote</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_TRADE_ROUTES</Tag>
+		<English>Trade Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CITY_VOTING</Tag>
+		<English>City-level voting</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_CIV_VOTING</Tag>
+		<English>Civ-level voting</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_SECRETARY_GENERAL</Tag>
+		<English>Elects Secretary General</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_VICTORY</Tag>
+		<English>Diplomatic Victory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FREE_TRADE</Tag>
+		<English>Free Trade</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_NO_NUKES</Tag>
+		<English>No Nuclear Weapons</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_DEFENSIVE_PACT</Tag>
+		<English>Forced Defensive Pact</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_OPEN_BORDERS</Tag>
+		<English>Forced Open Borders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_PEACE</Tag>
+		<English>Forces Peace</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_NO_TRADE</Tag>
+		<English>Forces Trade Embargo</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_FORCE_WAR</Tag>
+		<English>Forces War</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_ASSIGN_CITY</Tag>
+		<English>Assigns City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_VOTE_EFFECT_TRADE_ROUTES_ALL_CITIES</Tag>
+		<English>All Cities Trade Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CIVIC_FORCE_VOTES_PANEL</Tag>
+		<English>Fo.Votes</English>
+	</TEXT>
+	<!-- custom: full plural labels for Policy advisor tabs (Religion/Corporation) to avoid singular or abbreviated captions in footer tabs. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_RELIGIONS</Tag>
+		<English>Religions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_TAB_CORPORATIONS</Tag>
+		<English>Corporations</English>
+	</TEXT>
+	<!-- custom: Corporation row labels for Policy advisor integrated corporations tab. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_BUILT_BY</Tag>
+		<English>Built by:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_CONSUMES</Tag>
+		<English>Consumes:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES</Tag>
+		<English>Generates:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_GENERATES_2</Tag>
+		<English>Generates 2:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_FOUNDED</Tag>
+		<English>Founded:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_POLICY_CORP_ROW_HQ_ID</Tag>
+		<English>HQ (ID):</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #148 -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+		<English>Outdated</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #228 -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+		<English>Mods Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_TECH</Tag>
+		<English>Techs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNITS</Tag>
+		<English>Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
+		<English>Specialists</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
+		<English>Bonuses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_CIV</Tag>
+		<English>Civs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION</Tag>
+		<English>Pr. List</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_CHART</Tag>
+		<English>Un. Chart</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILD</Tag>
+		<English>Builds</English>
+	</TEXT>
+	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
+	I've kept the FIS translations from there. -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
+		<English>Improv.</English>
+	</TEXT>
+	<!-- custom: rename "Base Terrain" to "Terrains" -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_TERRAIN</Tag>
+		<English>Terrains</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_FEATURE</Tag>
+		<English>Features</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #147 -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
+		<!-- custom: <English>Units Tree</English> -->
+		<English>Un. Tree</English>
+	</TEXT>
+	<!-- custom: use the plural here too: "Promotion Tree" -> "Promotions Tree" -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
+		<!-- custom: <English>Promotions Tree</English> -->
+		<English>Pr. Tree</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS</Tag>
+		<English>N. Wond.</English>
+	</TEXT>
+	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS</Tag>
+		<English>W. Wond.</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_THAT_START_WITH_THIS_TECH</Tag>
+		<English>Civilizations that start with this technology</English>
+	</TEXT>
+
+
+
+	<!-- custom rename "Resource" to "Bonus" -->
+	<!-- New label for the surplus box -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES</Tag>
+		<English>Domestic Bonuses</English>
+	</TEXT>
+	<!-- From CIV4GameText_BTS.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE</Tag>
+		<English>Bonus Trades</English>
+	</TEXT>
+
+
+
+	<!-- custom: renamed from the old and now removed TXT_KEY_PEDIA_FAV_CIVIC so it shows only "Favorites" for concision and so we can show favorite religions (if any) as well -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FAVORITES</Tag>
+		<English>Favorites</English>
+	</TEXT>
+
+
+
+	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you'd need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there) -->
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_AI_PERSONALITY_LEFT_PANEL</Tag>
+		<English></English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES</Tag>
+		<English>Economic Preferences</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES</Tag>
+		<English>Contact Offer Probabilities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES</Tag>
+		<English>Contact Demand Probabilities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER</Tag>
+		<English>Offer Refuse Attitude Thresholds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND</Tag>
+		<English>Demand Refuse Attitude Thresholds</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY</Tag>
+		<English>Core Personality</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS</Tag>
+		<English>Victory Weights (BBAI-style)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_FLAVORS</Tag>
+		<English>Flavors</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS</Tag>
+		<English>Positive Memory Affections</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS</Tag>
+		<English>Negative Memory Resentments</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY</Tag>
+		<English>War Strategy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS</Tag>
+		<English>Misc Modifiers</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT</Tag>
+		<English>No War At</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES</Tag>
+		<English>Attitude Changes +/- Lims +/- Divs</English>
+	</TEXT>
+
+
+
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #74 -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_TRADE</Tag>
+		<English>Tradeable Since</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #154 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
+		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against All Units (using now bIgnoreBuildingDefense 0 (for all units? Not sure.))</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #221 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
+		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] (against pre-Renaissance Units (only? Not sure.))</English>
+	</TEXT>
+	<!-- From CIV4GameText_Warlords_Changed.xml.
+		 To be consistent with the above. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
+		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment (by pre-Renaissance Units (only? Not sure.))</English>
+	</TEXT>
+	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
+		 actually is cumulative with culture defense. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
+		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #220 -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
+		<English>[ICON_BULLET]%D1_Change%% Air Evasion Chance</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_INTERCEPT_TEXT</Tag>
+		<English>[ICON_BULLET]%D1_Change%% Air Interception Chance</English>
+	</TEXT>
+
+
+
+	<!-- custom: add " (Rank)" so we can have more compact strings in the values. -->
+	<TEXT>
+		<Tag>TXT_KEY_INFO_RIVAL_BEST</Tag>
+		<English>Rival Best (Rank)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_RIVAL_WORST</Tag>
+		<English>Rival Worst (Rank)</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #222 -->
+	<TEXT>
+		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
+		<English>Legendary cities</English>
+	</TEXT>
+	<!-- custom: fallback texts for Victory Advisor vote-source tabs when AP/UN entries are unavailable; keep tabs exhaustive and explain status clearly. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>
+		<English>No resolution yet: requires one of the below.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
+		<English>No voting members yet: requires one of the below.</English>
+	</TEXT>
+	<!-- custom: dedicated vote-requirement line for Victory screen tabs; unlike TXT_KEY_POPUP_ELECTION_OPTION, this key has no leading optional placeholder, so spacing remains stable without Python-side trimming. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_POPUP_ELECTION_OPTION_REQUIRES_ONLY</Tag>
+		<English>(Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
+		<English>Not active</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "SEALEVEL" to "SEA LEVEL". -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_SEALEVEL_TITLE</Tag>
+		<English>SEA LEVEL</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MENU_SEALEVEL</Tag>
+		<English>Sea level:</English>
+	</TEXT>
+	<!-- custom: we don't need all this here, clutters the text and overfills here, let players choose what they want xd, was "Low - extra players recommended (+35%%)" -->
+	<!-- advc.137: From Vanilla Civ4GameTextInfos.xml; recommendation added. -->
+	<TEXT>
+		<Tag>TXT_KEY_SEALEVEL_LOW_RECOMMEND</Tag>
+		<English>Low</English>
+	</TEXT>
+	<!-- custom: was "High - fewer players recommended (-25%%)". -->
+	<TEXT>
+		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
+		<English>High</English>
+	</TEXT>
+	<!-- custom: was "DIFFICULTY". -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_DIFFICULTY_TITLE</Tag>
+		<English>HANDICAP</English>
+	</TEXT>
+	<!-- Based on TXT_KEY_MISC_HEALTH_FROM_HANDICAP in Civ4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_FROM_HANDICAP</Tag>
+		<English>[ICON_BULLET]%D1_Change%% from Handicap</English>
+	</TEXT>
+	<!-- custom: add year info in header so we don't need to copy it in headers or maintain it there, was "GAME SPEED" -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_GAME_SPEED_TITLE</Tag>
+		<English>GAME SPEED (50 000 BC - 2105 AD)</English>
+	</TEXT>
+
+
+
+	<!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+	<!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro -->
+	<TEXT>
+		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY</Tag>
+		<English>[ICON_SILVER_STAR]Willing to become Vassal</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE</Tag>
+		<English>[ICON_SILVER_STAR]Willing to Capitulate</English>
+	</TEXT>
+
+
+
+	<!-- advc.004y: Heading for "changes" box in trait articles -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CHANGES</Tag>
+		<English>Changes</English>
+	</TEXT>
+
+
+
+	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ERA</Tag>
+		<English>Era</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
+		<English>No Tech Prerequisite</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_BUILD_REMOVE</Tag>
+		<English>Remove</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_INFO</Tag>
+		<English>Build Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_TIME</Tag>
+		<English>Build Time</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_COST</Tag>
+		<English>Build Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_KILL_WORKER</Tag>
+		<English>Consumes Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_ROUTE</Tag>
+		<English>Route</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO</Tag>
+		<English>Feature Struct Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_FEATURE</Tag>
+		<English>Feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVES_FEATURE_SIMPLE</Tag>
+		<English>Removes feature</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_TIME</Tag>
+		<English>Remove Time</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION</Tag>
+		<English>on remove</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL</Tag>
+		<English>iFeatureProduction</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BUILD</Tag>
+		<English>Build</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
+		<English>Units (Any Build)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_REMOVE</Tag>
+		<English>Units (Remove)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNITS_BUILD</Tag>
+		<English>Units (Build)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_RESULTS_SHORT</Tag>
+		<English>Result</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_COMPETES_WITH</Tag>
+		<English>Competes With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_CONSUMED</Tag>
+		<English>Bonuses Consumed</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSES_GENERATED</Tag>
+		<English>Bonuses Generated</English>
+	</TEXT>
+	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER</Tag>
+		<English>Never</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING</Tag>
+		<English>Nothing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS</Tag>
+		<English>Always</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_YES</Tag>
+		<English>Yes</English>
+	</TEXT>
+
+	<!-- custom: Sevopedia Tech tradeable panel (Claude Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_TRADEABLE_PANEL</Tag>
+		<English>Tradeable</English>
+	</TEXT>
+
+
+
+	<!-- custom: for placeCivilizations, placeObsoletesWith, and placeReplace; added in sevopediaunit with the help of Claude AI thanks -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS</Tag>
+		<English>Civs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND</Tag>
+		<English>All</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETE</Tag>
+		<English>Obsolete</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH</Tag>
+		<English>Obsoletes With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE</Tag>
+		<English>Note: the tech tree does not list obsoleted units to avoid clutter.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM</Tag>
+		<English>Replaces</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
+		<English>Free Promotion, Building, Bonus, Specialists</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
+		<English>Free W/</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
+		<English>Free Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR</Tag>
+		<English>Required For</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
+		<English>Against Classes (A/D), Combat T. (A and D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
+		<English>Of Other Classes's Units 's (A/D) and Combat Types's Units (A and D) 's Modifiers Against This Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS</Tag>
+		<English>Peak, Hill, City, Terrains, Features (A/D)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH</Tag>
+		<English>Obsolete With</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS</Tag>
+		<English>Free Promotions (Units)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS</Tag>
+		<English>Free Promotion (Buildings)</English>
+	</TEXT>
+
+
+
+	<!-- custom: from Age of Empires wiki, did not find much info online so using this (see copyright at root of project if needed): https://ageofempires.fandom.com/wiki/Clubman
+	Slightly edited too to fit AdvCiv-SAS -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
+		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
+	</TEXT>
+
+
+
+	<!-- custom: not a lengthy description per sebut putting here as fits the theme maybe or not -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Tag>
+		<English>[TAB]See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKER</Tag>
+		<English>Worker (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_BARBARIAN_WORKBOAT</Tag>
+		<English>Work Boat (Barbarian)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS</Tag>
+		<English>Relevant Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
+		<English>Cannot move (outside of cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+		<English>Cannot move: Domain Land/Air without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech; Domain Sea without bCanMoveAllTerrain in their XML</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
+		<English>Cannot move (outside of cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
+		<English>Cannot move: Domain Land/Air without bCanMoveAllTerrain; Domain Sea without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech in their XML</English>
+	</TEXT>
+
+
+
+	<!-- custom: added here for exhaustiveness -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER</Tag>
+		<English>[ICON_BULLET]Provides power ([ICON_POWER])</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #311 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH</Tag>
+		<English>[ICON_BULLET]Provides power ([ICON_POWER]) with [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s1_BonusName[\LINK][COLOR_REVERT] (from any city as long as this bonus is connected to your trade network)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_DIRTY</Tag>
+		<English>in this city (dirty power ([ICON_POWER])): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_WITH_BONUS_IN_THIS_CITY_CLEAN</Tag>
+		<English>in this city (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_DIRTY</Tag>
+		<English>in this city (dirty power ([ICON_POWER])): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_POWER_IN_THIS_CITY_CLEAN</Tag>
+		<English>in this city (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
+
+
+	<!-- custom: remove the common provides power part from the areacleanpower message, and add mention that area clean power (areacleanpower) (all cities clean power) also applies to all cities, (note: ) perhaps differently in terms of unhealthiness bonus or not -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_APPENDIX_IN_ALL_CITIES</Tag>
+		<English>(clean power ([ICON_POWER])) for All Cities on this Continent: </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN_OR_DIRTY_QUESTION</Tag>
+		<English>; as for in this City specifically rather instead, i (advciv-sas developer/maintainer) don't know if clean in all cities overrides dirty in this city specifically or if if dirty in this city specifically adds up (only in this city) to clean power health change from all cities so showing both for this city, so in this city clean power ([ICON_POWER]) (or dirty power ([ICON_POWER]) ?): </English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER_IN_THIS_CITY_CLEAN</Tag>
+		<English>: in this City (clean power ([ICON_POWER])): </English>
+	</TEXT>
+
+
+
+	<!-- custom: add info that it applies only outside of cultural borders -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
+		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. This effect applies to these tiles even if they are roaded):</English>
+	</TEXT>
+	<!-- custom: short version ingame in map view -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CANNOT_ENTER_SHORT_MAP_VIEW</Tag>
+		<English>[ICON_BULLET]Cannot Enter (see sevopedia):</English>
+	</TEXT>
+
+
+
+	<!-- custom: add info that some units are exceptions that can move even in impassable -->
+	<TEXT>
+		<Tag>TXT_KEY_PLOT_IMPASSABLE</Tag>
+		<English>[COLOR_WARNING_TEXT]IMPASSABLE (except relevant units)[COLOR_REVERT]</English>
+	</TEXT>
+	<!-- custom: replace inaccurate info of "Impassable terrain" (that i saw in sevopedia feature for example) with a more general text (as ice cap is a feature for example not a terrain so the "terrain" part of the text is inaccurate, also although impassable, some units are exceptions), hinting at exceptions -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_IMPASSABLE</Tag>
+		<English>[NEWLINE][ICON_BULLET]Impassable (except relevant units)</English>
+	</TEXT>
+
+    <!-- custom: rename Civilopedia to Sevopedia -->
+    <TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_CIVILOPEDIA</Tag>
+		<English>Sevopedia</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_WIDGET_HELP</Tag>
+		<English>Sevopedia</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
+		<English>Top</English>
+	</TEXT>
+	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
+	<TEXT>
+		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
+		<English>SEVOPEDIA</English>
+	</TEXT>
+
+
+
+	<!-- custom: no header for more compact and prettier display -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_LEADER_TRAITS</Tag>
+		<English></English>
+	</TEXT>
+
+
+
+	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_STRENGTH_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_MOVEMENT_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_RANGE_CUSTOM</Tag>
+		<English>%d1_Num</English>
+	</TEXT>
+	<!-- advc.004y: Based on TXT_KEY_PEDIA_RANGE
+	(CIV4GameTextInfos.xml) and TXT_KEY_CIVIC_UNLIMTED
+	(CIV4GameTextInfos.xml) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
+		<English>unlimited</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #312 -->
+
+
+
+	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom tag, "Happy: 5" (for example) is now "5" -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_HAPPY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNHAPPY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_HEALTHY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNHEALTHY_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM</Tag>
+		<English>%D1</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #224 -->
+	<TEXT>
+		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
+		<English>"We fear you are trading more than us."</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_MISSION_INTERCEPT</Tag>
+		<English>Air Intercept</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_INTERCEPT_AIRCRAFT</Tag>
+		<English>[ICON_BULLET]Can Air Intercept Aircraft (%d1_Amount%% Chance)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_EVADE_INTERCEPTION</Tag>
+		<English>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</English>
+	</TEXT>
+
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SPECIAL_ABILITIES_WITH_SOME_AI_INFORMATION</Tag>
+		<English>Special Abilities with some AI information</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_EFFECTS_WITH_SOME_AI_INFORMATION</Tag>
+		<English>Effects with some AI information</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_EFFECTS_SPECIALISTS</Tag>
+		<English></English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_STATISTICS</Tag>
+		<English>Statistics</English>
+	</TEXT>
+	<!-- custom: Trait pairing statistics headers and table titles. Credit: Claude Opus 4.5; GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_TRAIT_HEADER</Tag>
+		<English>Trait</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_PAIR_COUNT</Tag>
+		<English>Paired</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_TOTAL_COUNT</Tag>
+		<English>Total</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_RANKING</Tag>
+		<English>Rank</English>
+	</TEXT>
+
+	<!-- custom: Sevopedia Tech statistics tables (Claude Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_STARTING_TECH_HEADER</Tag>
+		<English>Starting Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_UNTRADEABLE_HEADER</Tag>
+		<English>Untradeable</English>
+	</TEXT>
+
+	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot, check if accurate -->
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_FREEDOM_ANGER</Tag>
+		<English>[ICON_BULLET]%D1_Mod iCivicPercentAnger [ICON_UNHAPPY] for civs without[SPACE]</English>
+	</TEXT>
+
+
+
+	<!-- custom: this only lists units without a unit combat, not military ones like swordsmen or such. Rename "All Units" to a clearer or more accurate name. -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ALL_UNITS</Tag>
+		<English>No UnitCombat</English>
+	</TEXT>
+
+
+
+	<!-- custom: new text key for Obsoletes panel in Sevopedia Tech (Claude code Sonnet 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
+		<English>Obsoletes</English>
+	</TEXT>
+	<!-- custom: new text key for First to Discover panel in Sevopedia Tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FIRST_TO_DISCOVER</Tag>
+		<English>First to D</English>
+	</TEXT>
+	<!-- custom: new text key for Enables panel in Sevopedia Tech (Claude code Opus 4.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_ENABLES</Tag>
+		<English>Enables</English>
+	</TEXT>
+
+
+
+	<!-- custom: new panels, see sevopedia improvement for details -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS</Tag>
+		<English>TerrainMakesValids</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS</Tag>
+		<English>FeatureMakesValids</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION</Tag>
+		<English>No Restriction in ImprovementInfo 's TerrainMakesValids</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION</Tag>
+		<English>No Restriction in ImprovementInfo 's FeatureMakesValids</English>
+	</TEXT>
+
+
+
+	<!-- custom: make this a separate entry for headers or such or not such -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
+		<English>Improvements</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_MOST_TILE_YIELD_CHANGES</Tag>
+		<English>Most Yield Changes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_INFO</Tag>
+		<English>Improvement Info</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_IMPROVEMENT</Tag>
+		<English>Improvement</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_IMPROVEMENT_FAVORED_BY_LEADERS</Tag>
+		<English>Improvement Weights (Leaders)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_BONUSS_YIELDS</Tag>
+		<English>Bonus' Yields</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_COUNT</Tag>
+		<English>Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ALL</Tag>
+		<English>All</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_WEIGHT</Tag>
+		<English>Weight</English>
+	</TEXT>
+
+
+
+	<TEXT> 
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES</Tag>
+		<English>Natural Tile Yield Change(s)</English>
+	</TEXT>
+	<!-- custom: also replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT to something clearer -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES</Tag>
+		<English>Total (Base + extra) Improvement(s) Yield Change(s)</English>
+	</TEXT>
+	<!-- custom: create a new entry "Revealed By" specifically for the sevopedia, the civilopedia still uses reveals due to how	the text "reveals" is displayed in the civilopedia rather -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_BONUS_APPEARANCE_REVEALED_BY_CUSTOM</Tag>
+		<English>Revealed By</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "Unique Buildings" to "Civilization Buildings" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
+		<English>Civilization Buildings</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_SEVOPEDIA_TITLE</Tag>
+		<English>SEVOPEDIA</English>
+	</TEXT>
+
+
+
+	<!-- custom: add (new) the <bTrade> tech info xml flag in sevopedia tech's placeSpecial, see also buildBTradeString -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_TECH_CANNOT_BE_TRADED</Tag>
+		<English>[ICON_BULLET]Cannot be traded.</English>
+	</TEXT>
+	<!-- custom: adds the <bRepeat> info similarly, see also similarly buildBRepeatString -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_TECH_CAN_BE_REPEATED</Tag>
+		<English>[ICON_BULLET]Can be researched multiple times.</English>
+	</TEXT>
+
+
+
+	<!-- custom: show this info in sevopedia unit's as of now placeSpecial for example for the robotic_infantry we added in advciv-sas -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST</Tag>
+		<English>No military support cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE</Tag>
+		<English>May grant unit(s) on capture</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS</Tag>
+		<English>Build speed modifiers</English>
+	</TEXT>
+
+
+
+	<!-- advc.650: Would be nice to make clear somehow that the evasion chance
+		 is already taken into account here. -->
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #65 -->
+	<TEXT>
+		<Tag>TXT_KEY_NUKE_INTERCEPT_CHANCE</Tag>
+		<English>[COLOR_NEGATIVE_TEXT]Adjusted Air Interception chance[COLOR_REVERT](%s1_TeamName): %d2%%</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #223 -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE</Tag>
+		<English>[ICON_BULLET]Collateral Damage (base %d1%%, limit %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+	</TEXT>
+	<!-- custom: abbreviated collateral damage to avoid having to have a 2nd line for siege or such units (that have a base of e.g., 100 (instead of 0 or a 2 digit value) that can cause to require one more new line so we trim it to try to avoid that) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT</Tag>
+		<English>[ICON_BULLET]Coll. D. (base %d1%%, lim. %d2%%) to %d3 [NUM3:Defender:Defenders]</English>
+	</TEXT>
+	<!-- custom: not sure if accurate but it does seem to say "extra" and the cpp getter also has extra in its name; since this shouldn't refer to iCollateralDamage i guess, adding the word "extra" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA</Tag>
+		<English>[ICON_BULLET]Causes Extra Collateral Damage (%D1_Amount%%)</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "great wonders" to "world wonders", in line with world project -->
+	<!-- advc.004w: Put only the number in parentheses, not the wonder type -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WORLD_WONDER_LEFT</Tag>
+		<English>[SPACE]World Wonder (%d1_Num Left)</English>
+	</TEXT>
+	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
+		<English>[ICON_BULLET]World Wonder</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "Difficulty" to "Handicap" -->
+	<TEXT>
+		<Tag>TXT_KEY_RF_RISE_BREAKDOWN</Tag>
+		<English>%s14%d1_Pts[TAB]from sum of scored chapters [NEWLINE]%s15%d2_Pts[TAB]from finished but unscored chapters[NEWLINE]%s16+%d3_Pts[TAB]from victory, compensating for %d4 missed chapters[NEWLINE]%s17 -%d5_Pts[TAB]from initial rank (%d6. of %d7)[NEWLINE]%s18+%d8_Pts[TAB]for %d9%% time unspent in current chapter[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) from %s12_Hnd handicap[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]in total</English>
+	</TEXT>
+	<!-- custom: rename "Difficulty" to "Handicap" -->
+	<!-- advc.708 -->
+	<TEXT>
+		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
+		<English>Game Handicap (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Handicap: %s2_HumanPlayerHandicap[NEWLINE]Handicap for AI Players: %s3_AIPlayerHandicap</English>
+	</TEXT>
+
+
+
+	<!-- custom: simplify defense text to only show the char for concision and quicker read, was "%F1 Defense: %D2%%" -->
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_CITY_DEFENSE</Tag>
+		<English>%F1: %D2%%</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE</Tag>
+		<English>Timeline</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_EMPTY</Tag>
+		<English>No timeline entries yet.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON</Tag>
+		<English>Log</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY</Tag>
+		<English>an unknown city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_INFO_ENTIRE_TIMELINE</Tag>
+		<English>Entire timeline</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_ALL</Tag>
+		<English>Show All Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_REGULAR</Tag>
+		<English>Show Regular Buildings Only</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_NATIONAL</Tag>
+		<English>Show National Wonders Only</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FILTER_WORLD</Tag>
+		<English>Show World Wonders Only</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_UNITS</Tag>
+		<English>Start Scroll at Units (Production Chooser Bar)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_BUILDINGS</Tag>
+		<English>Start Scroll at Buildings (Production Chooser Bar)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_CITY_TAB_WONDERS</Tag>
+		<English>Start Scroll at Wonders (Production Chooser Bar)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
+		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP</Tag>
+		<English>WORLD SIZE</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE</Tag>
+		<English>WORLD SIZE</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_MENU_SIZE</Tag>
+		<English>Size:</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ARENA</Tag>
+		<English>Arena</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS24</Tag>
+		<English>SAS24</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS32</Tag>
+		<English>SAS32</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS40</Tag>
+		<English>SAS40</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS48</Tag>
+		<English>SAS48</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ARENA_HELP</Tag>
+		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS24_HELP</Tag>
+		<English>An extra-large World Size sized for about 24 civs. Requires the 48 civs DLL for default player counts.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS32_HELP</Tag>
+		<English>A massive World Size sized for about 32 civs. Requires the 48 civs DLL for default player counts.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS40_HELP</Tag>
+		<English>A huge World Size sized for about 40 civs. Requires the 48 civs DLL for default player counts.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_SAS48_HELP</Tag>
+		<English>A huge World Size sized for about 48 civs. Requires the 48 civs DLL for default player counts.</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_MAP_SCRIPT_SAS_SIMPLE_FLAT_GRASS_DESCR</Tag>
+		<English>A minimal SAS simple flat-grass sandbox map (almost all land).</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NITRO</Tag>
+		<English>Nitro (165 / 33%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_TURBO</Tag>
+		<English>Turbo (250 / 50%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_QUICK</Tag>
+		<English>Quick (330 / 67%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NORMAL</Tag>
+		<English>Normal (500 / 100%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_EPIC</Tag>
+		<English>Epic (750 / 150%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_MARATHON</Tag>
+		<English>Marathon (1000 / 200%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_SLOW</Tag>
+		<English>Slow (1500 / 300%)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_VERY_SLOW</Tag>
+		<English>Very Slow (2000 / 400%)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NITRO_HELP</Tag>
+		<English>A faster game speed than Turbo: Research, growth, building and unit production take less time.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_TURBO_HELP</Tag>
+		<English>A faster game speed than Quick: Research, growth, building and unit production take less time.</English>
+	</TEXT>
+	<!-- custom: reworded to emphasize it's fast, not slow. -->
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_QUICK_HELP</Tag>
+		<English>Research, growth and production are faster than on normal speed. Still, as unit movement is unaffected by game speed, warfare is not necessarily that much faster. This setting is worth considering especially for multiplayer games and small maps.</English>
+	</TEXT>
+	<!-- custom: i've only removed the turn number here (we don't want to maintain it, easier and clearer to show it in header / field name directly). -->
+	<!-- I've only added the turn number here (assuming Ancient-era start and
+		 enabled Time victory) -->
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_NORMAL_HELP</Tag>
+		<English>This is the traditional game speed for Civ.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_EPIC_HELP</Tag>
+		<English>Research, growth and production take longer than on normal speed. As unit movement is unaffected by game speed, this setting allows more time for warfare in each era.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_MARATHON_HELP</Tag>
+		<English>Less turns than in BTS and than in base AdvCiv. Research, growth, building and unit production take longer than on normal speed. This setting favors warfare and demands much patience.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_SLOW_HELP</Tag>
+		<English>A slower game speed than Marathon: Research, growth, building and unit production take longer.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_GAMESPEED_VERY_SLOW_HELP</Tag>
+		<English>A slower game speed than Slow: Research, growth, building and unit production take longer.</English>
+	</TEXT>
+
+
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_ROOKIE</Tag>
+		<English>Rookie</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_DEITY_PLUS</Tag>
+		<English>Deity+</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "Difficulty" to "Handicap"; Long_Comments_XML.txt #233 -->
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_ROOKIE_HELP</Tag>
+		<English>Easiest AdvCiv-SAS handicap setting. Still avoids free worker, settler, and tech handouts, but gives the player the most forgiving economy, barbarian pressure, diplomacy, and AI cost settings.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc.; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall handicap.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but a bit less now, AI attitude should overall be the same or not too much harder otherwise.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_WARLORD_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting still grants some advantages but even less now. Warfare should start to feel even or if not should be close to it, vs barbarians but also other players.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_NOBLE_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This is mostly an even game setting with other players, even though barbarians are still getting stronger.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. The penalties increase in this handicap setting. Economy and overall game plan needs to be really efficient and going forward on higher handicap settings to compensate AI advantages. Barbarians are also getting stronger.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_EMPEROR_HELP</Tag>
+		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. Efficiency and strategy may need to further be refined to be competitive at this handicap setting that has quite strong penalties. Barbarians are also getting stronger and may start to feel like being on a rampage if not at previous handicap settings, but this affects all players.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_IMMORTAL_HELP</Tag>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Penalties are consistently and gradually as well higher than in previous handicap settings, and same for barbarians settings, even though these affect all players as well. No drastic changes otherwise. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled, as there are no free techs nor ai free techs, so this means all players start at turn 1 at this handicap setting.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_DEITY_HELP</Tag>
+		<English>Should be significantly harder than base AdvCiv settings and gradually harder than previous one, but hopefully less of a grind. Should be very challenging still but gradually so ideally. If this is still too easy, i may add another or 2 other handicap settings gradually harder than this one based on player feedback even though this is not guaranteed but may be worthwile for deity players wanting a higher challenge. Note: unlike in base AdvCiv, INCREASE_START_TURN is disabled similarly so all players start at turn 1 at this handicap setting as well.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_HANDICAP_DEITY_PLUS_HELP</Tag>
+		<English>Harder than Deity and intended for players who want one more step above the previous highest challenge. Uses the same fairer AdvCiv-SAS philosophy as Deity, but extrapolates the main AI and barbarian pressure values one step further.</English>
+	</TEXT>
+
+
+
+	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms. -->
+	<TEXT>
+		<Tag>TXT_KEY_TERRAIN_ICE</Tag>
+		<English>Ice Sheet</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_FEATURE_ICE</Tag>
+		<English>Ice Cap</English>
+	</TEXT>
+
+
+
+	<!-- custom: Long_Comments_XML.txt #149 -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
+		<English>Elephants</English>
+	</TEXT>
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #77 -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_CATTLE</Tag>
+		<English>Cattle</English>
+	</TEXT>
+	<!-- custom: rename _CLAM to the more general _MOLLUSCS, see docs or such for details -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_MOLLUSCS</Tag>
+		<English>Molluscs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_GEMSTONES</Tag>
+		<English>Gemstones</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
+		<English>Grapes</English>
+	</TEXT>
+	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or such for details -->
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
+		<English>Maize</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BONUS_CAMEL</Tag>
+		<English>Camel</English>
+	</TEXT>
+
+
+
+	<!-- custom: added new Build action texts (SevoPedia Builds page), generated with the help of ChatGPT-5.2 Thinking. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_ROAD_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a road on the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_RAILROAD_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a railroad route on the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FARM_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Farm improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FISHING_BOATS_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish a fishing improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WHALING_BOATS_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish a whaling improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_MINE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Mine improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WORKSHOP_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Workshop improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_LUMBERMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Lumbermill improvement, usually on a forested tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WINDMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Windmill improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WATERMILL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Watermill improvement, commonly along rivers.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PLANTATION_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Plantation improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_QUARRY_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Quarry improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_PASTURE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Pasture improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_CAMP_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Camp improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_WELL_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Well improvement on a suitable tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_OFFSHORE_PLATFORM_HELP</Tag>
+		<English>[TAB]Order a work boat or similar unit to establish an offshore platform improvement on the selected water tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_COTTAGE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Cottage improvement on a suitable land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FORT_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to construct a Fort improvement on the selected land tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_JUNGLE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to clear jungle from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_REMOVE_FOREST_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to cut down and remove forest from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_SCRUB_FALLOUT_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to remove fallout contamination from the selected tile.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Tag>
+		<English>[TAB]Order a worker-type unit to establish a forest preserve improvement on a suitable tile.</English>
+	</TEXT>
+
+
+
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #78 -->
+	<TEXT>
+		<Tag>TXT_KEY_SPECIALIST_GREAT_PRIEST</Tag>
+		<English>Great Priest</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_DAOISM</Tag>
+		<English>Daoism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Tag>
+		<English>
+			<Text>Daoist</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_TEMPLE</Tag>
+		<English>Daoist Temple</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_MONASTERY</Tag>
+		<English>Daoist Monastery</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_CATHEDRAL</Tag>
+		<English>Daoist Pagoda</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_DAOIST_SHRINE</Tag>
+		<English>The Dai Miao</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DAOIST_MISSIONARY</Tag>
+		<English>Daoist Missionary</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_PAGANISM</Tag>
+		<English>Paganism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Tag>
+		<English>
+			<Text>Pagan</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_TEMPLE</Tag>
+		<English>Pagan Temple</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_MONASTERY</Tag>
+		<English>Pagan Monastery</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL</Tag>
+		<English>Pagan Cathedral</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE</Tag>
+		<English>Pagan Shrine</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PAGAN_MISSIONARY</Tag>
+		<English>Pagan Missionary</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_PREHISTORIC_RELIGION</Tag>
+		<English>Prehistoric Religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_WAGE_LABOR</Tag>
+		<English>Wage Labor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_PROTECTIONISM</Tag>
+		<English>Protectionism</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_TRADE_BLOC</Tag>
+		<English>Trade Bloc</English>
+	</TEXT>
+
+
+
+	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> -->
+	<TEXT>
+		<Tag>TXT_KEY_VOTE_WAGE_LABOR</Tag>
+		<English>U.N. Resolution #743 (Global Civic - Wage Labor)</English>
+	</TEXT>
+	<!-- custom: was <English>U.N. Resolution #1190 (Global Civic - Environmentalism)</English> -->
+	<TEXT>
+		<Tag>TXT_KEY_VOTE_TRADE_BLOC</Tag>
+		<English>U.N. Resolution #1190 (Global Civic - Trade Bloc)</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_PALACE</Tag>
+		<English>Palace (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Tag>
+		<English>Barracks (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_GRANARY</Tag>
+		<English>Granary (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_HARBOR</Tag>
+		<English>Harbor (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Tag>
+		<English>Lighthouse (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_WALLS</Tag>
+		<English>Walls (Barbarian)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_BARBARIAN_CASTLE</Tag>
+		<English>Castle (Barbarian)</English>
+	</TEXT>
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #79 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
+		<English>Obelisk</English>
+	</TEXT>
+	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken to a less confusing name of SECURITY_BUREAU -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
+		<English>Security Bureau</English>
+	</TEXT>
+	<!-- custom: rename GREAT_PALACE to FORBIDDEN_PALACE for clarity. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
+		<English>Forbidden Palace</English>
+	</TEXT>
+	<!-- custom: rename GREAT_DAM to THREE_GORGES_DAM similarly than for FORBIDDEN_PALACE -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
+		<English>The Three Gorges Dam</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #229 -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
+		<English>Natya Shastra</English>
+	</TEXT>
+	<!-- custom: rename "CHICHEN_ITZA" (but not the city though) to "TEMPLE_OF_KUKULCAN" -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_TEMPLE_OF_KUKULCAN</Tag>
+		<English>Temple of Kukulcan</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
+		<English>Gord</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>
+		<English>Longhouse</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PORT</Tag>
+		<English>Port</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_JAPAN_DOUJOU</Tag>
+		<English>Doujou</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_INCAN_QULLQA</Tag>
+		<English>Qullqa</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
+		<English>Gyeongdang</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG</Tag>
+		<English>Changpingcang</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
+		<English>La Tene Smithy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Tag>
+		<English>Metsehaf Bet</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
+		<English>Ancient Maceman</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #231 -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_EGYPTIAN_WAR_CHARIOT</Tag>
+		<English>War Chariot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CHINA_ZHUGE_NU</Tag>
+		<English>Zhuge Nu</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ENGLISH_YEOMAN_ARCHER</Tag>
+		<English>Yeoman Archer</English>
+	</TEXT>
+	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd..) unit ... -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HORSE_KNIGHT</Tag>
+		<English>Horse Knight</English>
+	</TEXT>
+	<!-- custom: similarly rename "UNIT_CUIRASSIER" to "UNIT_HORSE_CUIRASSIER" too as there are camel cuirassiers too now -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HORSE_CUIRASSIER</Tag>
+		<English>Horse Cuirassier</English>
+	</TEXT>
+	<!-- custom: add new camel units -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
+		<English>Camel Archer</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_KNIGHT</Tag>
+		<English>Camel Knight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Tag>
+		<English>Camel Cuirassier</English>
+	</TEXT>
+	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
+		<English>Hajjan</English>
+	</TEXT>
+	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN", name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button as it seems most accurate accurate to comment there -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Tag>
+		<English>Khishigten</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DRAGOON</Tag>
+		<English>Dragoon</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR</Tag>
+		<English>Hussar</English>
+	</TEXT>
+	<!-- custom: replace the "HOLY_ROMAN_LANDSKNECHT" with the "HOLY_ROMAN_HOUFNICE" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_HOLY_ROMAN_HOUFNICE</Tag>
+		<English>Houfnice</English>
+	</TEXT>
+	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+		<English>Immortal</English>
+	</TEXT>
+	<!-- custom: rename "GREEK_PHALANX" to "GREEK_HOPLITE" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_GREEK_HOPLITE</Tag>
+		<English>Hoplite</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #227 -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROMAN_LEGIONARY</Tag>
+		<English>Legionary</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+		<English>Swift Worker</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
+		<English>Patriot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_INFANTRY</Tag>
+		<English>Modern Infantry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MODERN_TANK</Tag>
+		<English>Modern Tank</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_FIELD_GUN</Tag>
+		<English>Field Gun</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_SELF_PROPELLED_ARTILLERY</Tag>
+		<English>Self-Propelled Artillery</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Tag>
+		<English>Robotic Recon Drone</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
+		<English>Robotic Infantry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_ROBOTIC_TANK</Tag>
+		<English>Robotic Tank</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_LEVITATION_ARTILLERY</Tag>
+		<English>Levitation Artillery</English>
+	</TEXT>
+	<!-- custom: rename "AT_INFANTRY" to "BAZOOKA" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_BAZOOKA</Tag>
+		<English>Bazooka</English>
+	</TEXT>
+
+
+
+	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+		<English>City Bombard Damage</English>
+	</TEXT>
+	<!-- custom: an ace can be about ground units too, hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AIR_EVASION</Tag>
+		<English>Air Evasion</English>
+	</TEXT>
+	<!-- custom: name is more epic, not necessarily clearer (especially with new tech requirement that is sooner, in earlier eras, but it is also historically more correct according to my research) -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
+		<English>Blitzkrieg</English>
+	</TEXT>
+	<!-- custom: spies don't conduct raids for example in base civ bts/advciv so "commando" does not fit, is also not intuitive, hopefully clearer now -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+		<English>Logistics</English>
+	</TEXT>
+	<!-- custom: clear counter unit promotion names -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
+		<English>Counter-Tank</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CHARGE</Tag>
+		<English>Counter-Siege</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
+		<English>Counter-Archer</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+		<English>Counter-Melee</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_PINCH</Tag>
+		<English>Counter-Gun</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FORMATION</Tag>
+		<English>Counter-Mounted</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #226 -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+		<English>Combat 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT2</Tag>
+		<English>Combat 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT3</Tag>
+		<English>Combat 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT4</Tag>
+		<English>Combat 4</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
+		<English>Combat 5</English>
+	</TEXT>
+	<!-- custom: added missing languages in base civ4/BTS to have "6" not "VI" everywhere -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
+		<English>Combat 6</English>
+	</TEXT>
+	<!-- custom: use arabic numerals instead of roman numerals, hopefully clearer -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Tag>
+		<English>Air Interception 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION2</Tag>
+		<English>Air Interception 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION3</Tag>
+		<English>Air Interception 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION4</Tag>
+		<English>Air Interception 4</English>
+	</TEXT>
+	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
+	Also switch to arabic numerals, clearer too, i think, and also prefer, anyways. -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
+		<English>Air Range 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
+		<English>Air Range 2</English>
+	</TEXT>
+	<!-- custom: rename "_BARRAGE" to "_COLLATERAL_DAMAGE" -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Tag>
+		<English>Collateral Damage 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Tag>
+		<English>Collateral Damage 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Tag>
+		<English>Collateral Damage 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Tag>
+		<English>Collateral Damage 4</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Tag>
+		<English>Collateral Damage 5</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC1</Tag>
+		<English>Medic 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC2</Tag>
+		<English>Medic 2</English>
+	</TEXT>
+	<!-- custom: from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC3</Tag>
+		<English>Medic 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC4</Tag>
+		<English>Medic 4</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
+		<English>Medic (Ambulatory)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER1</Tag>
+		<English>Hills Master 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER2</Tag>
+		<English>Hills Master 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_HILLS_MASTER3</Tag>
+		<English>Hills Master 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RETREAT1</Tag>
+		<English>Retreat 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_RETREAT2</Tag>
+		<English>Retreat 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_NAVIGATOR</Tag>
+		<English>Navigator</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN1</Tag>
+		<English>Woodsman 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN2</Tag>
+		<English>Woodsman 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_WOODSMAN3</Tag>
+		<English>Woodsman 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE1</Tag>
+		<English>First Strike 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE2</Tag>
+		<English>First Strike 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE3</Tag>
+		<English>First Strike 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_FIRST_STRIKE4</Tag>
+		<English>First Strike 4</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MOBILITY_RANGE</Tag>
+		<English>Mobility (Range)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_MOBILITY_COST</Tag>
+		<English>Mobility (Cost)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER1</Tag>
+		<English>City Raider 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER2</Tag>
+		<English>City Raider 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_CITYRAIDER3</Tag>
+		<English>City Raider 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON1</Tag>
+		<English>City Garrison 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON2</Tag>
+		<English>City Garrison 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PROMOTION_GARRISON3</Tag>
+		<English>City Garrison 3</English>
+	</TEXT>
+
+
+
+	<!-- custom: new/modified unit combat types -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
+		<English>Archers (Bow, Short)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
+		<English>Archers (Bow, Long)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
+		<English>Archers (Crossbow)</English>
+	</TEXT>
+	<!-- custom: rename for concision, was "Recon Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_RECON</Tag>
+		<English>Recon</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_SIEGE</Tag>
+		<English>Siege</English>
+	</TEXT>
+	<!-- custom: was "Armored Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_ARMOR</Tag>
+		<English>Armor</English>
+	</TEXT>
+	<!-- custom: was "Helicopter Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_HELICOPTER</Tag>
+		<English>Helicopters</English>
+	</TEXT>
+	<!-- custom: was "Naval Units" -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_NAVAL</Tag>
+		<English>Naval</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #225 -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_GUN</Tag>
+		<English>Gun</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Tag>
+		<English>Air (Bomber)</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_AIR_FIGHTER</Tag>
+		<English>Air (Fighter)</English>
+	</TEXT>
+	<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Tag>
+		<English>Mounted (Melee)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MOUNTED_RANGED</Tag>
+		<English>Mounted (Ranged)</English>
+	</TEXT>
+	<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK -->
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Tag>
+		<English>Melee (Polearm)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNITCOMBAT_MELEE_SHOCK</Tag>
+		<English>Melee (Shock)</English>
+	</TEXT>
+
+
+
+	<!-- custom: from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Misc1.xml and modified or not for advciv-sas -->
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_SHORT</Tag>
+		<English>Congratulations, you have trained your first Archery (Bow, Short) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_BOW_LONG</Tag>
+		<English>Congratulations, you have trained your first Archery (Bow, Long) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_ARCHER_CROSSBOW</Tag>
+		<English>Congratulations, you have trained your first Archery (Crossbow) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units get a special first-strike ability that allows them a chance to hit their opponent before regular combat begins.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_MELEE</Tag>
+		<English>Congratulations, you have trained your first Mounted (Melee) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FEAT_UNITCOMBAT_MOUNTED_RANGED</Tag>
+		<English>Congratulations, you have trained your first Mounted (Ranged) Unit ([COLOR_UNIT_TEXT]%s1Unit_Name[COLOR_REVERT]) in %s2City_Name! These units can move farther per turn than regular units, allowing them to wreak havoc behind enemy lines.</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
+		<English>Mounted Combat</English>
+	</TEXT>
+	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION</Tag>
+		<English>Postaxial Religion</English>
+	</TEXT>
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
+		<English>Later Abrahamism</English>
+	</TEXT>
+	<!-- custom: rename _UTOPIA to _COMMUNISM -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
+		<English>Communism</English>
+	</TEXT>
+	<!-- custom: rename _SAILING to _SEAFARING -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SEAFARING</Tag>
+		<English>Seafaring</English>
+	</TEXT>
+	<!-- custom: rename _OPTICS to _SAILING -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SAILING</Tag>
+		<English>Sailing</English>
+	</TEXT>
+	<!-- custom: rename _COMPASS to _NAVIGATION -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NAVIGATION</Tag>
+		<English>Navigation</English>
+	</TEXT>
+	<!-- custom: replace _ALPHABET with _NATURALISM -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NATURALISM</Tag>
+		<English>Naturalism</English>
+	</TEXT>
+	<!-- custom: rename _STEEL to _MARINE_TECHNOLOGY -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY</Tag>
+		<English>Marine Technology</English>
+	</TEXT>
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION</Tag>
+		<English>Theory of Evolution</English>
+	</TEXT>
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_GAME_THEORY</Tag>
+		<English>Game Theory</English>
+	</TEXT>
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TERRAFORMING</Tag>
+		<English>Terraforming</English>
+	</TEXT>
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TRANSHUMANISM</Tag>
+		<English>Transhumanism</English>
+	</TEXT>
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS</Tag>
+		<English>Quantum Mechanics</English>
+	</TEXT>
+	<!-- custom: replace fiber_optics in "_FIBER_OPTICS" and "MP_FIBER_OPTICS" with "_AI" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_AI</Tag>
+		<English>AI</English>
+	</TEXT>
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS</Tag>
+		<English>Robot Rights</English>
+	</TEXT>
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ALIEN_LIFE</Tag>
+		<English>Alien Life</English>
+	</TEXT>
+	<!-- custom: replace tech_plastics with tech_depopulation -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_DEPOPULATION</Tag>
+		<English>Depopulation</English>
+	</TEXT>
+	<!-- custom: replace "SCIENTIFIC_METHOD" with "WATER_WHEEL" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_WATER_WHEEL</Tag>
+		<English>Water Wheel</English>
+	</TEXT>
+	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CHIVALRY</Tag>
+		<English>Chivalry</English>
+	</TEXT>
+	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOENGINEERING</Tag>
+		<English>Bioengineering</English>
+	</TEXT>
+	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
+		<English>Space Exploration</English>
+	</TEXT>
+	<!-- custom: rename "_RIFLING" to "_FIREARMS" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FIREARMS</Tag>
+		<English>Firearms</English>
+	</TEXT>
+	<!-- custom: rename "_EDUCATION" to "_BROADER_EDUCATION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
+		<English>Broader Education</English>
+	</TEXT>
+	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with the help of chatgpt 5.2 thanks -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
+		<English>Romanticism</English>
+	</TEXT>
+	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
+		<English>Environmentalism</English>
+	</TEXT>
+	<!-- custom: replace TECH_DRAMA with TECH_PAPER -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PAPER</Tag>
+		<English>Paper</English>
+	</TEXT>
+	<!-- custom: replace TECH_SUPERCONDUCTORS with TECH_PROFESSIONAL_ARMY -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY</Tag>
+		<English>Professional Army</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+	</TEXT>
+	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION"; update: with the quote of tech_priesthood (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
+		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+	</TEXT>
+	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy -->
+	<!-- Not originally by Herodotus -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
+		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+	</TEXT>
+	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
+		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
+	</TEXT>
+	<!-- custom: rename TECH_SAILING to TECH_SEAFARING, use old tech_optics's quote instead -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SEAFARING_QUOTE</Tag>
+		<English>"One doesn't discover new lands without losing sight of the shore." - Andre Gide</English>
+	</TEXT>
+	<!-- custom: rename TECH_OPTICS to TECH_SAILING, use old tech_sailing's quote instead -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SAILING_QUOTE</Tag>
+		<English>"You can't direct the wind, but you can adjust your sails." - Unknown</English>
+	</TEXT>
+	<!-- custom: rename TECH_COMPASS to TECH_NAVIGATION -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NAVIGATION_QUOTE</Tag>
+		<English>"The wisest men follow their own direction." - ascribed to Euripides</English>
+	</TEXT>
+	<!-- custom: replace _ALPHABET with _NATURALISM (update: susing scientific_method (now removed quote)) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
+		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
+	</TEXT>
+	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY; update: with the quote of tech_steam_power -->
+	<!-- "anecdote" should make clear enough that it might be fictional -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
+		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
+	</TEXT>
+	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
+		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
+	</TEXT>
+	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
+		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
+	</TEXT>
+	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
+		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
+	</TEXT>
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio; update: with the quote of tech_theology (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
+		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
+	</TEXT>
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sasand audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Tag>
+		<English>"The future will be better tomorrow." - Dan Quayle</English>
+	</TEXT>
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sasand audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
+		<English>"The whole is more than the sum of its parts." - Aristotle</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_AI now uses the former TECH_FUSION quote (Arthur C. Clarke). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
+		<English>"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke</English>
+	</TEXT>
+	<!-- custom: quote remap v9.2: TECH_LITERATURE now uses the former TECH_PAPER quote (Bacon), swapped with PAPER. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_LITERATURE_QUOTE</Tag>
+		<English>"Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_FUSION uses the former TECH_COMPOSITES quote (Aristotle). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FUSION_QUOTE</Tag>
+		<English>"The whole is greater than the sum of its parts." - Aristotle</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_COMPOSITES uses the former TECH_COMBUSTION quote (Plastics). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMPOSITES_QUOTE</Tag>
+		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_FASCISM uses the former TECH_MASS_MEDIA quote (Oscar Wilde). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FASCISM_QUOTE</Tag>
+		<English>"The only thing worse than being talked about is not being talked about." - Oscar Wilde</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_MASS_MEDIA uses the former TECH_FASCISM quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MASS_MEDIA_QUOTE</Tag>
+		<English>"The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler</English>
+	</TEXT>
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Tag>
+		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
+	</TEXT>
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sasand audio -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
+		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_DEPOPULATION now uses the former TECH_WATER_WHEEL quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
+		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+	</TEXT>
+	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least; update: with the quote of tech_guilds (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
+		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_WATER_WHEEL now uses the former TECH_MILITARY_SCIENCE quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
+		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
+	</TEXT>
+	<!-- custom: replace "_GUILDS" with "_CHIVALRY"; update: with the quote of tech_feudalism -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
+		<English>"I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty</English>
+	</TEXT>
+	<!-- custom: quote remap v9.1: TECH_BIOENGINEERING now uses the former TECH_MYSTICISM quote (Cicero), swapped with PAPER. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
+		<English>"Nature herself has imprinted on the minds of all the idea of God." - Cicero</English>
+	</TEXT>
+	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION"; update: with the quote of tech_laser (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
+		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_COMBUSTION now uses the former TECH_BIOENGINEERING quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
+		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_divine_right (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
+		<English>"I am the state." - ascribed to Louis XIV</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_construction -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_steel (now removed) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_METAL_CASTING_QUOTE</Tag>
+		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
+	</TEXT>
+	<!-- custom: now using the quote of tech_metal_casting -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Tag>
+		<English>"And them that take the sword shall perish by the sword." - The Bible, Matthew</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_MILITARY_SCIENCE now uses the former TECH_CONSTRUCTION quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Tag>
+		<English>"I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_CONSTRUCTION now uses the former TECH_DEPOPULATION quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
+		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_STEAM_POWER now uses the former TECH_PROFESSIONAL_ARMY quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
+		<English>"What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche</English>
+	</TEXT>
+	<!-- custom: rename "_RIFLING" to "_FIREARMS" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_FIREARMS_QUOTE</Tag>
+		<English>"Political power grows out of the barrel of a gun." - Mao Zedong</English>
+	</TEXT>
+	<!-- custom: rename "_EDUCATION" to "_BROADER_EDUCATION" -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
+		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_ROMANTICISM now uses the former TECH_PAPER/DRAMA quote (Shakespeare stage line). (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
+		<English>"All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts." - William Shakespeare</English>
+	</TEXT>
+	<!-- custom: quote remap v9: override base key so TECH_MYSTICISM uses the former TECH_ROMANTICISM quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_MYSTICISM_QUOTE</Tag>
+		<English>"If music be the food of love, play on." - William Shakespeare</English>
+	</TEXT>
+	<!-- custom: quote remap v9.2: TECH_PAPER now uses the former TECH_AI quote (Jefferson), swapped with LITERATURE. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PAPER_QUOTE</Tag>
+		<English>"I cannot live without books" - Thomas Jefferson</English>
+	</TEXT>
+	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
+		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
+	</TEXT>
+	<!-- custom: quote remap v9: TECH_PROFESSIONAL_ARMY now uses the former TECH_STEAM_POWER quote. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_PROFESSIONAL_ARMY_QUOTE</Tag>
+		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "American Empire" and such to "United States of America" and such (too long to fit empire and may be awkward semantically to have a united states empire although actually thinking of it it may fit quite well actually...) -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_DESC</Tag>
+		<English>
+			<Text>United States of America</Text>
+			<Gender>Male</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_SHORT_DESC</Tag>
+		<English>The USA</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #219 -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_AMERICA_ADJECTIVE</Tag>
+		<English>US American</English>
+	</TEXT>
+	<!-- custom: rename "Amerindian Empire" back if i may say in this case at leastto "Native American Empire" -->
+	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
+		<English>Native American Empire</English>
+	</TEXT>
+
+
+	<!-- advc.005: was Pacal II -->
+	<!-- custom: i want the full leader name, plus i'm thinking of
+	adding Basil II	for the byzantine empire -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_PACAL</Tag>
+		<English>Pacal II</English>
+	</TEXT>
+	<!-- custom: was Justinian -->
+	<!-- advc.005: Removed regnal number I (all languages) -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_JUSTINIAN</Tag>
+		<English>Justinian I</English>
+	</TEXT>
+
+	<!-- advc.005: was Asoka -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_ASOKA</Tag>
+		<English>Ashoka</English>
+	</TEXT>
+	<!-- 002b: Shortened leader names -->
+	<!-- custom: increased to "Augustus Caesar" (in Warlords Civ4GameTextObjects XML), then reduced again to "Augustus" (see Willem) -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_AUGUSTUS</Tag>
+		<English>Augustus</English>
+	</TEXT>
+	<!-- custom: increased it to "Willem van Oranje", then reduced back to "Willem" as it was longest leader name and causing scoreboard to be too wide and overflow laterally to the left under our advisors -->
+	<TEXT>
+	<Tag>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Tag>
+		<English>Willem</English>
+	</TEXT>
+	<!-- custom: was Suryavarman. (in BtS Civ4GameTextObjects XML) -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_SURYAVARMAN</Tag>
+		<English>Suryavarman II</English>
+	</TEXT>
+	<!-- custom: was Alexander -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
+		<English>Alexander III</English>
+	</TEXT>
+	<!-- custom: increased it to "Tokugawa Ieyasu", then reduced it back to "Tokugawa" (see Willem) -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
+		<English>Tokugawa</English>
+	</TEXT>
+	<!-- custom: was Genghis in some languages or some other version -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
+		<English>Genghis Khan</English>
+	</TEXT>
+	<!-- custom: was Isabella -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
+		<English>
+			<Text>Isabella I</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<!-- custom: rename to more accurate naming from "Chinese_Leader" to "Mao Zedong" as he is accurately named in several parts of the code if i'm not mistaken, for clarity and consistency. -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
+		<English>Mao Zedong</English>
+	</TEXT>
+	<!-- custom: rename to more accurate naming from "Montezuma" to "Moctezuma II" -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MOCTEZUMA</Tag>
+		<English>Moctezuma II</English>
+	</TEXT>
+
+
+
+	<!-- custom: add Civ Kingdom Of Benin with their leader Ewuare -->
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_EWUARE</Tag>
+		<English>Ewuare</English>
+	</TEXT>
+	<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
+		<English>Kingdom Of Benin</English>
+	</TEXT>
+	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
+		<English>Kingdom Of Benin</English>
+	</TEXT>
+	<!-- custom: Long_Comments_XML.txt #230 -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
+		<English>Edo</English>
+	</TEXT>
+	<!-- custom: this mentions clearly and several times the impluvium as a special building the Kingdom Of Benin had: https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Tag>
+		<English>Impluvium</English>
+	</TEXT>
+	<!-- custom: very disciplined nation, and using crossbowmen, see:
+	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
+		<English>Disciplined Crossbowman</English>
+	</TEXT>
+
+
+
+	<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA" -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_DESC</Tag>
+		<English>Scandinavian Empire</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</Tag>
+		<English>Scandinavia</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Tag>
+		<English>Scandinavian</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Tag>
+		<English>Trading Post</English>
+	</TEXT>
+	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING</Tag>
+		<English>Viking</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland civilization and leaders. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_DESC</Tag>
+		<English>Irish Empire</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_SHORT_DESC</Tag>
+		<English>Ireland</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIV_IRELAND_ADJECTIVE</Tag>
+		<English>Irish</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_GRACE_OMALLEY</Tag>
+		<English>
+			<Text>Grace O'Malley</Text>
+			<Gender>Female</Gender>
+			<Plural>0</Plural>
+		</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_LEADER_MICHAEL_COLLINS</Tag>
+		<English>Michael Collins</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Tag>
+		<English>Scriptorium</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Tag>
+		<English>Flying Column</English>
+	</TEXT>
+
+
+
+	<!-- custom: now renamed "montezuma" to "moctezuma (2/II)"-->
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_MOCTEZUMA_CASTLE</Tag>
+		<English>Moctezuma Castle</English>
+	</TEXT>
+
+
+
+    <!-- custom: Kingdom of Benin cities -->
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_EDO_CUSTOM</Tag>
+		<English>Edo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UGHOTON_CUSTOM</Tag>
+		<English>Ughoton</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UGBINI_CUSTOM</Tag>
+		<English>Ugbini</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_URHONIGBE_CUSTOM</Tag>
+		<English>Urhonigbe</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SAPELE_CUSTOM</Tag>
+		<English>Sapele</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_GWATO_CUSTOM</Tag>
+		<English>Gwato</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UDO_CUSTOM</Tag>
+		<English>Udo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UGO_CUSTOM</Tag>
+		<English>Ugo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UMOGHUNWUN_CUSTOM</Tag>
+		<English>Umoghunwun</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_WARL_CUSTOM</Tag>
+		<English>Warl</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_AGBAR_CUSTOM</Tag>
+		<English>Agbar</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ELUR_CUSTOM</Tag>
+		<English>Elur</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_MAHIN_CUSTOM</Tag>
+		<English>Mahin</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_AKOTOGBO_CUSTOM</Tag>
+		<English>Akotogbo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_AYE_CUSTOM</Tag>
+		<English>Aye</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UGBODU_CUSTOM</Tag>
+		<English>Ugbodu</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UKUNZU_CUSTOM</Tag>
+		<English>Ukunzu</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UROMI_CUSTOM</Tag>
+		<English>Uromi</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_UZEA_CUSTOM</Tag>
+		<English>Uzea</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_HON_CUSTOM</Tag>
+		<English>Hon</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_OWO_CUSTOM</Tag>
+		<English>Owo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_AKURE_CUSTOM</Tag>
+		<English>Akure</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ODE_ITSEKIRI_CUSTOM</Tag>
+		<English>Ode Itsekiri</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ONDO_CUSTOM</Tag>
+		<English>Ondo</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IKARE_CUSTOM</Tag>
+		<English>Ikare</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IKWE_CUSTOM</Tag>
+		<English>Ikwe</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ONITSHA_CUSTOM</Tag>
+		<English>Onitsha</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ABOH_CUSTOM</Tag>
+		<English>Aboh</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_EKO_CUSTOM</Tag>
+		<English>Eko</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IDWARI_CUSTOM</Tag>
+		<English>Idwari</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BADAGRI_CUSTOM</Tag>
+		<English>Badagri</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IKERE_CUSTOM</Tag>
+		<English>Ikere</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ADO_CUSTOM</Tag>
+		<English>Ado</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_EKITI_CUSTOM</Tag>
+		<English>Ekiti</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IDOLA_CUSTOM</Tag>
+		<English>Idola</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_APA_CUSTOM</Tag>
+		<English>Apa</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_IPOKIA_CUSTOM</Tag>
+		<English>Ipokia</English>
+	</TEXT>
+    <TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ITAKETE_CUSTOM</Tag>
+		<English>Itakete</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland city list text keys. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DUBLIN_IRELAND</Tag>
+		<English>Dublin</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CORK_IRELAND</Tag>
+		<English>Cork</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_EMAIN_MACHA_IRELAND</Tag>
+		<English>Emain Macha</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_GALWAY_IRELAND</Tag>
+		<English>Galway</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SWORDS_IRELAND</Tag>
+		<English>Swords</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_WATERFORD_IRELAND</Tag>
+		<English>Waterford</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KILKENNY_IRELAND</Tag>
+		<English>Kilkenny</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BELFAST_IRELAND</Tag>
+		<English>Belfast</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DERRY_IRELAND</Tag>
+		<English>Derry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ARMAGH_IRELAND</Tag>
+		<English>Armagh</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CASHEL_IRELAND</Tag>
+		<English>Cashel</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CLONMACNOISE_IRELAND</Tag>
+		<English>Clonmacnoise</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KELLS_IRELAND</Tag>
+		<English>Kells</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_GLENDALOUGH_IRELAND</Tag>
+		<English>Glendalough</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DOWNPATRICK_IRELAND</Tag>
+		<English>Downpatrick</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DROGHEDA_IRELAND</Tag>
+		<English>Drogheda</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_WEXFORD_IRELAND</Tag>
+		<English>Wexford</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SLIGO_IRELAND</Tag>
+		<English>Sligo</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ATHLONE_IRELAND</Tag>
+		<English>Athlone</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DUNDALK_IRELAND</Tag>
+		<English>Dundalk</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_ENNIS_IRELAND</Tag>
+		<English>Ennis</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_TRALEE_IRELAND</Tag>
+		<English>Tralee</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_KILLARNEY_IRELAND</Tag>
+		<English>Killarney</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CLONMEL_IRELAND</Tag>
+		<English>Clonmel</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_NAVAN_IRELAND</Tag>
+		<English>Navan</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_MULLINGAR_IRELAND</Tag>
+		<English>Mullingar</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_TULLAMORE_IRELAND</Tag>
+		<English>Tullamore</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CARLOW_IRELAND</Tag>
+		<English>Carlow</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_NEWRY_IRELAND</Tag>
+		<English>Newry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_LETTERKENNY_IRELAND</Tag>
+		<English>Letterkenny</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_DONEGAL_IRELAND</Tag>
+		<English>Donegal</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_CASTLEBAR_IRELAND</Tag>
+		<English>Castlebar</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BALLINA_IRELAND</Tag>
+		<English>Ballina</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_BRAY_IRELAND</Tag>
+		<English>Bray</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_SKERRIES_IRELAND</Tag>
+		<English>Skerries</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CITY_NAME_YOUGHAL_IRELAND</Tag>
+		<English>Youghal</English>
+	</TEXT>
+
+
+
+	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets -->
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
+		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
+		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
+		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
+		<Italian>Piacere di incontrarti, [CT_NAME]! Per festeggiare questo momento propizio, dovremmo massacrare cinquantamila schiavi ciascuno.</Italian>
+		<Spanish>Me alegro mucho de conoceros, [CT_NAME]. Sacrifiquemos cada uno a cincuenta mil esclavos para celebrar esta propicia ocasi&#243;n.</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Tag>
+		<English>Talk to the ceremonial blade, [CT_NAME].</English>
+		<French>Parlez plut&#244;t &#224; ma lame de c&#233;r&#233;monie, [CT_NAME].</French>
+		<German>Ihr k&#246;nnt gern Bekanntschaft mit meiner Klinge machen, [CT_NAME]!</German>
+		<Italian>Perch&#233; non ne discuti con la lama cerimoniale, [CT_NAME]?</Italian>
+		<Spanish>Dec&#237;dselo al cuchillo ceremonial, [CT_NAME].</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Tag>
+		<English>Tell me, [CT_NAME]: what has [CT_CIV_SHORT] done to anger the gods so that they give them you as leader?</English>
+		<French>Dites-moi, [CT_NAME]... Qu'ont bien pu faire les [CT_CIV_SHORT] pour que les dieux soient irrit&#233;s au point de vous nommer &#224; leur t&#234;te ?</French>
+		<German>Sagt mir, [CT_NAME]: Wie konnte [CT_CIV_SHORT] die G&#246;tter nur so erz&#252;rnen, dass sie ihm Euch als Staatsoberhaupt vorgesetzt haben?</German>
+		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
+		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
+		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
+		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
+		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
+		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
+		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+	</TEXT>
+	<!-- advc.005f: Make this #2, i.e. preserve "admire my heroic profile". -->
+	<!-- custom: Moved these modified de Gaulle friendly greeting overrides from ActualQuotesText_BtS.xml. Base BtS had two AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2 blocks; AdvCiv-SAS keeps the cheese-profile greeting as _2 and retags the "Greatness..." greeting as _1 that was previously unassigned, and to match CIV4DiplomacyInfos and fix the duplicate-tag workflow failure. Keep only English in AdvCiv-SAS text XML and minor fix "Entré" to "Enter". (GPT-5.5) -->
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_2</Tag>
+		<English>Enter, [CT_NAME]. Please sit. I wonder sometimes ... How can anyone govern a nation that has two hundred and forty-six different kinds of cheese? But enough about my problems. What can I do for you?</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_DE_GAULLE_1</Tag>
+		<English>Greatness is a road leading towards the unknown, mon ami. I am glad we walk it together.</English>
+	</TEXT>
+
+
+
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Tag>
+		<English>I am [OUR_NAME], Oba of Benin. You enter my court, [CT_NAME]. Speak with respect, and we may prosper.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_EWUARE_1</Tag>
+		<English>Your words offend the throne, [CT_NAME]. Return when you can speak with honor.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_EWUARE_1</Tag>
+		<English>Peace is not yet yours, [CT_NAME]. The debt between us remains unpaid.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_EWUARE_1</Tag>
+		<English>Welcome, [CT_NAME]. Benin remembers those who keep their word.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_EWUARE_1</Tag>
+		<English>You stand before me, [CT_NAME], yet you bring only trouble.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_EWUARE_1</Tag>
+		<English>You are in no position to refuse, [CT_NAME]. Send tribute, and keep your people safe.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_EWUARE_1</Tag>
+		<English>Tribute buys stability, [CT_NAME]. Pay, and we will have no quarrel.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_EWUARE_1</Tag>
+		<English>Even the mighty benefit from order, [CT_NAME]. Honor my court with tribute, and we both avoid wasteful war.</English>
+	</TEXT>
+
+
+
+	<!-- custom: Ireland and Ewuare diplomacy text hooks. (GPT-5.3-Codex) -->
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>Ahoy, [CT_NAME]. I am [OUR_NAME]. Speak your business, and be quick about it.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>I have heard enough from you, [CT_NAME]. Leave.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>No peace yet, [CT_NAME]. You have not earned it.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>Fair winds, [CT_NAME]. Your word has held.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GRACE_OMALLEY_1</Tag>
+		<English>We have little to discuss, [CT_NAME]. Choose your next words carefully.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GRACE_OMALLEY_1</Tag>
+		<English>You think me weak, [CT_NAME]? Then prove it. Pay, or face me.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GRACE_OMALLEY_1</Tag>
+		<English>A fair tribute, [CT_NAME], and we avoid trouble.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GRACE_OMALLEY_1</Tag>
+		<English>Pay for safe passage, [CT_NAME]. My ships are not charity.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>I am [OUR_NAME]. We will speak plainly, [CT_NAME]. State your purpose.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Not now, [CT_NAME]. I have nothing to say to you.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_NO_PEACE_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Peace comes when you stop forcing my hand, [CT_NAME].</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Good to see you, [CT_NAME]. Keep it practical.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MICHAEL_COLLINS_1</Tag>
+		<English>Enough games, [CT_NAME]. You are making yourself a problem.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MICHAEL_COLLINS_1</Tag>
+		<English>Do not mistake patience for weakness, [CT_NAME]. Give what I ask.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MICHAEL_COLLINS_1</Tag>
+		<English>A contribution now, [CT_NAME], prevents trouble later.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+	</TEXT>
+	<!-- custom: advisor hotkey labels updated: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4, World Advisor = F7, Info Screen = F8, Victory Screen = F9, Sevopedia = F12. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_ADVISOR_TITLE</Tag>
+		<English>Foreign Diplomacy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Tag>
+		<English>Foreign Trade Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
+		<English>Foreign Diplomacy/Trade [F3/F4]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_DIPLOMACY_ADVISOR</Tag>
+		<English>Foreign Diplomacy [F3]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Tag>
+		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVICS_SCREEN_TITLE</Tag>
+		<English>Policy Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TITLE</Tag>
+		<English>World Advisor</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_TAB</Tag>
+		<English>BFC 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC2_TAB</Tag>
+		<English>BFC 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB</Tag>
+		<English>Territory</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
+		<English>City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_POP</Tag>
+		<English>Pop</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC1_YEAR</Tag>
+		<English>Year</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_SHORT</Tag>
+		<English>BFC</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_WATER</Tag>
+		<English>Water</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_PEAK</Tag>
+		<English>Peak</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_HILL</Tag>
+		<English>Hill</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
+		<English>Flat</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_RIVER</Tag>
+		<English>River</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_LAKE</Tag>
+		<English>Lake</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_COASTAL</Tag>
+		<English>Coastal</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS</Tag>
+		<English>Plots</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN</Tag>
+		<English>Terrain</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_FEATURES</Tag>
+		<English>Features</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES</Tag>
+		<English>Bonuses</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR</Tag>
+		<English>Sub</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR</Tag>
+		<English>Tot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+		<English>Info Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_VICTORY_SCREEN_TITLE</Tag>
+		<English>Victory Screen</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_ESPIONAGE_SCREEN</Tag>
+		<English>Espionage Tab</English>
+	</TEXT>
+	<!-- custom: BUG options advisor headers reflect AdvCiv-SAS shortcut layout: Religion is now inside Policy Advisor (F2), and Info Screen is F8. (GPT-5.5); note: although these TXT_KEY_BUG_OPTLABEL_ seem to be enough to apply the change ingame, also changed the hardcoded text equivalent strings in BugAdvisorOptionsTab.py just in case and for consistency. -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_RELIGIOUS_ADVISOR</Tag>
+		<English>Religion [F2]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
+		<English>Info Screen [F8]:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
+		<English>Victory Screen [F9]:</English>
+	</TEXT>
+	<!-- custom: label EFAGlanceAttitudes explicitly because base AdvCiv 1.12 displayed its dropdown on the Enhanced Info row, making it look like an Info-tab setting even though it controls Glance-tab attitude display. See KI#139. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCEATTITUDES_TEXT</Tag>
+		<English>Glance Tab Attitudes</English>
+	</TEXT>
+	<!-- advc.004y: Was "BUG Mod". Also K-Mod, AdvCiv shortcuts now. Boldface isn't applied by Sevopedia, but affects the alphabetic sorting and thus puts the Mods category on top. -->
+	<!-- custom: removed previous Base AdvCiv change since we don't care about alphabetical ordering (didn't check if it really applies it also). See KI#149. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_BUG</Tag>
+		<English>Mods</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_CHEATS</Tag>
+		<English>Cheats</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
+		<English>Sevopedia [F12]:</English>
+	</TEXT>
+	<!-- custom: Sevopedia Event Triggers category text keys. (Claude code Opus 4.7) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS</Tag>
+		<English>Event Tri.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH</Tag>
+		<English>Any era (no tech requirement)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_INDIRECT_SUFFIX</Tag>
+		<English>(indirect)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
+		<English>None</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN</Tag>
+		<English>Unknown</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SUMMARY</Tag>
+		<English>Summary</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT</Tag>
+		<English>iWeight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
+		<English>Active in Games</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAGS</Tag>
+		<English>Flags</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING</Tag>
+		<English>Recurring</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_GLOBAL</Tag>
+		<English>Global</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_TEAM</Tag>
+		<English>Team</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_SINGLE_PLAYER</Tag>
+		<English>Single Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS</Tag>
+		<English>Obsolete with</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP</Tag>
+		<English>Min Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_POP</Tag>
+		<English>Max Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_TREASURY</Tag>
+		<English>Min Treasury</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_UNITS</Tag>
+		<English>City Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_BUILDINGS</Tag>
+		<English>City Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS</Tag>
+		<English>Global Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS</Tag>
+		<English>Global Buildings</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_DIFFICULTY</Tag>
+		<English>Min Difficulty</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ANGRY</Tag>
+		<English>Angry Citizens</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNHEALTHY</Tag>
+		<English>Unhealthy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_MAP_LANDMASS</Tag>
+		<English>Min Map Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_OUR_LANDMASS</Tag>
+		<English>Min Our Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_OUR_LANDMASS</Tag>
+		<English>Max Our Landmass</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOTS_REQUIRED</Tag>
+		<English>Plots Required</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OWN_PLOT</Tag>
+		<English>Requires our plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_TYPE</Tag>
+		<English>Plot Type</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK</Tag>
+		<English>Peak</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS</Tag>
+		<English>Hills</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND</Tag>
+		<English>Land</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN</Tag>
+		<English>Ocean</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_RELIGIONS</Tag>
+		<English>Religions Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NUM_CORPORATIONS</Tag>
+		<English>Corporations Count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_RELIGION</Tag>
+		<English>Picks a religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_STATE_RELIGION</Tag>
+		<English>Requires state religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HOLY_CITY</Tag>
+		<English>Requires holy city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CORPORATION</Tag>
+		<English>Picks a corporation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_HEADQUARTERS</Tag>
+		<English>Requires headquarters</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PREREQ_EVENT_CITY</Tag>
+		<English>Prereq event must be in the same city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_PLAYER</Tag>
+		<English>Picks another player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_WAR</Tag>
+		<English>Other player at war</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_RELIGION</Tag>
+		<English>Other player has religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_HAS_OTHER_RELIGION</Tag>
+		<English>Other player has another religion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_AI</Tag>
+		<English>Other player must be AI</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_CITY</Tag>
+		<English>Picks one of our cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PICK_OTHER_PLAYER_CITY</Tag>
+		<English>Picks another player's city</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SHOW_PLOT</Tag>
+		<English>Shows target plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNITS_ON_PLOT</Tag>
+		<English>Requires units on plot</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_UNIT_MULTIPLY</Tag>
+		<English>iWeight multiplied by unit count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_IWEIGHT_BUILDING_MULTIPLY</Tag>
+		<English>iWeight multiplied by building count</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OTHER_PLAYER_SHARE_BORDERS</Tag>
+		<English>Other Player Shared Borders</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_FOOD_WEIGHT</Tag>
+		<English>City Food Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DAMAGED_WEIGHT</Tag>
+		<English>Unit Damaged Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_DISTANCE_WEIGHT</Tag>
+		<English>Unit Distance Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNIT_EXPERIENCE_WEIGHT</Tag>
+		<English>Unit Experience Weight</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_REQUIRED_ROUTES</Tag>
+		<English>Required Routes</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PYTHON_GATES</Tag>
+		<English>Python Gates</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER</Tag>
+		<English>Events</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TEXTS</Tag>
+		<English>Texts</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD</Tag>
+		<English>Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD</Tag>
+		<English>Random Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE</Tag>
+		<English>Culture</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE</Tag>
+		<English>Espionage</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS</Tag>
+		<English>Happy Turns</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_POPULATION</Tag>
+		<English>Population</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE</Tag>
+		<English>Golden Age</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DECLARE_WAR</Tag>
+		<English>Declare War</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH</Tag>
+		<English>Free Tech</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT</Tag>
+		<English>Tech Percent</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED</Tag>
+		<English>Scripted (Python callback)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_NO_DIRECT</Tag>
+		<English>No direct effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY</Tag>
+		<English>Happy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HEALTH</Tag>
+		<English>Health</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_REVOLT_TURNS</Tag>
+		<English>Revolt Turns</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OWN_CITIES</Tag>
+		<English>Convert Own Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CONVERT_OTHER_CITIES</Tag>
+		<English>Convert Other Cities</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DISBAND_UNIT</Tag>
+		<English>Disband Unit</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_COST_PERCENT</Tag>
+		<English>Tech Cost</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_INFLATION</Tag>
+		<English>Inflation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SPACE_PRODUCTION</Tag>
+		<English>Space Production</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OUR_ATTITUDE</Tag>
+		<English>Our Attitude Toward Them</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ATTITUDE</Tag>
+		<English>Their Attitude Toward Us</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS</Tag>
+		<English>Free Units</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING</Tag>
+		<English>Free Building</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION</Tag>
+		<English>Free Promotion</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE</Tag>
+		<English>Feature Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE</Tag>
+		<English>Improvement Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED</Tag>
+		<English>Bonus Revealed</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HURRY_ANGER</Tag>
+		<English>Hurry Anger</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD</Tag>
+		<English>Food</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FOOD_PERCENT</Tag>
+		<English>Stored Food</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_EXPERIENCE</Tag>
+		<English>Unit Experience</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_IMMOBILE</Tag>
+		<English>Immobile (turns)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST</Tag>
+		<English>Starts a Quest</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST</Tag>
+		<English>Free Specialist</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT</Tag>
+		<English>Gift Bonus to Other Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE</Tag>
+		<English>Bonus Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE</Tag>
+		<English>Route Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS</Tag>
+		<English>Other player gets a response choice</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD_TO_PLAYER</Tag>
+		<English>Gift Gold to Other Player</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DESTROY_BUILDING</Tag>
+		<English>Destroy Building</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNIT_SUPPORT</Tag>
+		<English>Free Unit Support</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS</Tag>
+		<English>Max Religions in City</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD</Tag>
+		<English>Pillage Gold</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD</Tag>
+		<English>Plot Extra Yield</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT</Tag>
+		<English>Triggers Follow-up Event</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_THEIR_ENEMY_ATTITUDE</Tag>
+		<English>Their Attitude Toward Their Enemy</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_UNIT_NAME</Tag>
+		<English>Unit Name</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_IMPROVEMENT_CHANGE</Tag>
+		<English>Current Plot Improvement Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_ROUTE_CHANGE</Tag>
+		<English>Current Plot Route Change</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PREREQ_TECH_DETAIL</Tag>
+		<English>Tech Selection Prereq</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_MIN_TURNS_LEFT</Tag>
+		<English>Tech Min Turns Left</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_FLAVORS</Tag>
+		<English>Tech Flavor Weights</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_CAN_DO</Tag>
+		<English>Python Apply Gate</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_HELP</Tag>
+		<English>Python Help</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PYTHON_EXPIRE_CHECK</Tag>
+		<English>Python Expire Check</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CLEAR_EVENT</Tag>
+		<English>Clears Event</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_WORLD_NEWS</Tag>
+		<English>World News Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_LOCAL_INFO</Tag>
+		<English>Local Info Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_QUEST_FAIL_TEXT</Tag>
+		<English>Quest Fail Text</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GLOBAL</Tag>
+		<English>Global Event Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TEAM</Tag>
+		<English>Team Event Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CITY_EFFECT</Tag>
+		<English>City Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_CITY_EFFECT</Tag>
+		<English>Other Player City Effect</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GRAPHICAL_ONLY</Tag>
+		<English>Graphical Only</English>
+	</TEXT>
+	<!-- custom: footer Clear button to reset session-persistent Sevopedia Back/Next history without closing the game. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_CLEAR</Tag>
+		<English>Clear</English>
+	</TEXT>
+</Civ4GameText>

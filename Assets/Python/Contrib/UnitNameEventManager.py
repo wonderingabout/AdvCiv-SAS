@@ -79,7 +79,6 @@ import random
 import Popup as PyPopup
 import BugData
 
-
 SD_MOD_ID = "UnitCnt"
 RENAME_EVENT_ID = CvUtil.getNewEventID("UnitNaming.Rename")
 
@@ -88,11 +87,9 @@ PyInfo = PyHelpers.PyInfo
 
 UnitNamingOpt = BugCore.game.UnitNaming
 
-phonetic_array = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet', 'Kilo', 'Lima', 'Mike',
-                  'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey', 'Xray', 'Yankee', 'Zulu']
+phonetic_array = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey', 'Xray', 'Yankee', 'Zulu']
 
-greek_array = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi',
-               'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega']
+greek_array = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega']
 
 ordinal_array = 'th st nd rd th th th th th th'.split()
 
@@ -106,7 +103,7 @@ class UnitNameEventManager:
 	def __init__(self, eventManager):
 
 		BuildUnitName(eventManager)
-		
+
 		# additions to self.Events
 		moreEvents = {
 			RENAME_EVENT_ID : ('', self.__eventUnitRenameApply,  self.__eventUnitRenameBegin),
@@ -172,10 +169,6 @@ class UnitNameEventManager:
 		self.eventMgr.beginEvent(RENAME_EVENT_ID)
 		return
 
-
-
-
-
 class AbstractBuildUnitName(object):
 
 	def __init__(self, eventManager, *args, **kwargs):
@@ -197,9 +190,7 @@ class BuildUnitName(AbstractBuildUnitName):
 	def onKbdEvent(self, argsList):
 		eventType,key,mx,my,px,py = argsList
 		if ( eventType == self.eventMgr.EventKeyDown ):
-			if (int(key) == int(InputTypes.KB_N)
-			and self.eventMgr.bCtrl
-			and self.eventMgr.bAlt):
+			if (int(key) == int(InputTypes.KB_N) and self.eventMgr.bCtrl and self.eventMgr.bAlt):
 
 				if UnitNamingOpt.isEnabled():
 					self.eventMgr.beginEvent(RENAME_EVENT_ID)
@@ -217,14 +208,12 @@ class BuildUnitName(AbstractBuildUnitName):
 
 		#BUGPrint("onUnitBuild-A")
 
-		if (pUnit == None
-		or pUnit.isNone()):
+		if (pUnit is None or pUnit.isNone()):
 			return
 
 		#BUGPrint("onUnitBuild-B %s %s %s" % (iPlayer, CyGame().getActivePlayer(), UnitNamingOpt.isEnabled()))
 
-		if not (iPlayer == CyGame().getActivePlayer()
-		and UnitNamingOpt.isEnabled()):
+		if not (iPlayer == CyGame().getActivePlayer() and UnitNamingOpt.isEnabled()):
 			return
 
 		#BUGPrint("onUnitBuild-C")
@@ -250,15 +239,11 @@ class BuildUnitName(AbstractBuildUnitName):
 		return
 
 	def onCityBuilt(self, argsList):
-		"""
-		If this is the first city founded, apply naming to each unit without a name.
-		"""
+		# If this is the first city founded, apply naming to each unit without a name.
+		#
 		pCity = argsList[0]
 		pPlayer = gc.getPlayer(pCity.getOwner())
-		if not (pCity.isCapital() 
-		and pPlayer.getNumCities() == 1
-		and pCity.getOwner() == PlayerUtil.getActivePlayerID() 
-		and UnitNamingOpt.isEnabled()):
+		if not (pCity.isCapital() and pPlayer.getNumCities() == 1 and pCity.getOwner() == PlayerUtil.getActivePlayerID() and UnitNamingOpt.isEnabled()):
 			return
 		lUnitReName = UnitReName()
 		zsEra = gc.getEraInfo(pPlayer.getCurrentEra()).getType()
@@ -272,9 +257,8 @@ class BuildUnitName(AbstractBuildUnitName):
 					pUnit.setName(zsUnitName)
 
 	def onGoodyReceived(self, argsList):
-		"""
-		Name free units from goody huts.
-		"""
+		# Name free units from goody huts.
+		#
 		iPlayer, pPlot, pUnit, iGoodyType = argsList
 		goody = gc.getGoodyInfo(iGoodyType)
 		if goody.getUnitClassType() != -1:
@@ -301,15 +285,13 @@ class BuildUnitName(AbstractBuildUnitName):
 							if zsUnitName:
 								pUnit.setName(zsUnitName)
 
-
-
 class UnitReName(object):
 
 	def getUnitName(self, sUnitNameConv, pUnit, pCity, bIncrementCounter):
 
 		iPlayer = pUnit.getOwner()
 		pPlayer = gc.getPlayer(iPlayer)
-		
+
 		zsCiv = pPlayer.getCivilizationAdjective(0)
 		zsLeader = pPlayer.getName()
 		zsUnitCombat = self.getUnitCombat(pUnit)
@@ -342,7 +324,6 @@ class UnitReName(object):
 			zsRandomName = RandomNameUtils.getRandomName()
 			zsName = zsName.replace("^rd^", zsRandomName)
 
-
 		#BUGPrint("UnitNameEM-B")
 
 ##  - ^rc^ - random civ related name
@@ -374,14 +355,19 @@ class UnitReName(object):
 		while zsName.find("^cnt") != -1:
 #			determine what I am counting across
 			zsSDKey = self.getCounter(zsName)
-			if zsSDKey == "UNIT":		zsSDKey = zsSDKey + zsUnit
-			elif zsSDKey == "COMBAT":	zsSDKey = zsSDKey + zsUnitCombat
-			elif zsSDKey == "CITY":		zsSDKey = zsSDKey + zsCity
-			elif zsSDKey == "UNITCITY": zsSDKey = zsSDKey + zsUnit + zsCity
-			elif zsSDKey == "DOMAIN":	zsSDKey = zsSDKey + zsUnitDomain
-	
+			if zsSDKey == "UNIT":
+				zsSDKey = zsSDKey + zsUnit
+			elif zsSDKey == "COMBAT":
+				zsSDKey = zsSDKey + zsUnitCombat
+			elif zsSDKey == "CITY":
+				zsSDKey = zsSDKey + zsCity
+			elif zsSDKey == "UNITCITY":
+				zsSDKey = zsSDKey + zsUnit + zsCity
+			elif zsSDKey == "DOMAIN":
+				zsSDKey = zsSDKey + zsUnitDomain
+
 			#BUGPrint("UnitNameEM-E [" + zsSDKey + "]")
-	
+
 #			see if we have already started this counter
 			if (not counters.hasTable(zsSDKey)):
 				#Since no record create entries
@@ -401,8 +387,7 @@ class UnitReName(object):
 #			increment count, adjust totals if required
 			if bIncrementCounter:
 				ziCnt = ziCnt + 1
-				if (ziCnt > ziTT1
-				and ziTT1 > 0):
+				if (ziCnt > ziTT1 and ziTT1 > 0):
 					ziCnt = 1
 					ziTT1 = self.getTotal1(zsName)
 					ziTT2 = ziTT2 + 1
@@ -417,7 +402,7 @@ class UnitReName(object):
 			zsName = self.swapCountCode(zsName, "^tt2", ziTT2)
 
 		return zsName
-	
+
 	def getUnitNameConvFromIniFile(self, Era, UnitClass, UnitCombat):
 ##    a. try to get the advanced naming convention
 ##    b. if it returns 'DEFAULT', then get the combat based naming convention
@@ -453,22 +438,19 @@ class UnitReName(object):
 		zsUnitNameConv = UnitNamingOpt.getDefault()
 		return zsUnitNameConv
 
-
 	def getUnitCombat(self, pUnit):
 
 # Return immediately if the unit passed in is invalid
-		if (pUnit == None
-		or pUnit.isNone()):
+		if (pUnit is None or pUnit.isNone()):
 			return "UNITCOMBAT_None"
 
 		iUnitCombat = pUnit.getUnitCombatType()
 		infoUnitCombat = gc.getUnitCombatInfo(iUnitCombat)
 
-		if (infoUnitCombat == None):
+		if (infoUnitCombat is None):
 			return "UNITCOMBAT_None"
 
 		return infoUnitCombat.getType()
-
 
 	def getCounter(self, conv):
 ##  - ^cnt[f][r]^ - counting code, if the code isn't there - return 'ALL'
@@ -493,12 +475,18 @@ class UnitReName(object):
 
 		#BUGPrint("UnitNameEM-E1 [" + conv  + "|" + str(ziStart)  + "|" + str(ziEnd)  + "|" + zsValue + "]")
 
-		if zsValue == "a": return "ALL"
-		if zsValue == "u": return "UNIT"
-		if zsValue == "c": return "CITY"
-		if zsValue == "t": return "UNITCITY"
-		if zsValue == "b": return "COMBAT"
-		if zsValue == "d": return "DOMAIN"
+		if zsValue == "a":
+			return "ALL"
+		if zsValue == "u":
+			return "UNIT"
+		if zsValue == "c":
+			return "CITY"
+		if zsValue == "t":
+			return "UNITCITY"
+		if zsValue == "b":
+			return "COMBAT"
+		if zsValue == "d":
+			return "DOMAIN"
 		return zsValue
 
 	def getTotal1(self, conv):
@@ -514,20 +502,22 @@ class UnitReName(object):
 		ziStart = conv.find("[",ziStart + 1)
 		ziEnd = conv.find(":",ziStart)
 		ziLow = int(conv[ziStart + 1:ziEnd])
-		if (ziLow < 1): ziLow = 1
+		if (ziLow < 1):
+			ziLow = 1
 
 #		locate and extract the 'high' value
 		ziStart = ziEnd
 		ziEnd = conv.find("]",ziStart)
 		ziHigh = int(conv[ziStart + 1:ziEnd])
-		if (ziHigh < 1): ziHigh = 1
+		if (ziHigh < 1):
+			ziHigh = 1
 
 #		check that the user isn't an idiot
-		if (ziLow > ziHigh): return ziLow
+		if (ziLow > ziHigh):
+			return ziLow
 
 #		return the value
 		return random.randint(ziLow, ziHigh)
-
 
 	def getTotal2(self, conv):
 ##  - ^tt2[f][x]^ - total count (starts at x, incremented by 1 each time ^tt is reset to 1)
@@ -543,9 +533,9 @@ class UnitReName(object):
 		ziEnd = conv.find("]",ziStart)
 		ziValue = int(conv[ziStart + 1:ziEnd])
 
-		if (ziValue < 1): ziValue = 1
+		if (ziValue < 1):
+			ziValue = 1
 		return ziValue
-
 
 	def getNumberFormat(self, conv, searchStr):
 #		return 'not found' indicator
@@ -556,7 +546,6 @@ class UnitReName(object):
 		else:
 			return conv[ziStart + 1:ziStart + 2]
 
-
 	def getCountCode(self, conv, searchStr):
 #		return 'not found' indicator
 		ziStart = conv.find(searchStr)
@@ -566,17 +555,18 @@ class UnitReName(object):
 			ziEnd = conv.find("^", ziStart + 1)
 			return conv[ziStart:ziEnd + 1]
 
-
 	def swapCountCode(self, conv, searchStr, iCnt):
 
 #		return if iCnt is negative (this means that the code is not in the unitnameconv)
-		if iCnt < 0: return conv
+		if iCnt < 0:
+			return conv
 
 		#BUGPrint("UnitNameEM-SCC [" + conv + "] [" + searchStr + "] [" + str(iCnt) + "]")
 
 		zsCntCode = self.getCountCode(conv, searchStr)
 
-		if zsCntCode == "": return conv
+		if zsCntCode == "":
+			return conv
 
 		#BUGPrint("UnitNameEM-SCC [" + zsCntCode + "]")
 
@@ -592,7 +582,6 @@ class UnitReName(object):
 			return conv
 		else:
 			return conv.replace(zsCntCode, zsCnt)
-
 
 	def FormatNumber(self, fmt, i):
 		if (i < 1):
@@ -616,7 +605,6 @@ class UnitReName(object):
 			return Roman.toRoman(i)
 		else:
 			return str(i)
-
 
 	def getOrdinal(self, i):
 		if i % 100 in (11, 12, 13): #special case

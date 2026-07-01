@@ -35,10 +35,10 @@ class autologInstance:
 			BugOptions.write()
 		self.LogFileName = LogFileName
 		self.updateLogFile()
-		
+
 	def getLogFileName(self):
 		return self.LogFileName
-	
+
 	def setLogFilePath(self, LogFilePath, bSaveToOptions=False):
 		if (bSaveToOptions):
 			AutologOpt.setFilePath(LogFilePath)
@@ -47,10 +47,10 @@ class autologInstance:
 			LogFilePath = BugPath.findOrMakeDir("Autolog")
 		self.LogFilePath = LogFilePath
 		self.updateLogFile()
-		
+
 	def getLogFilePath(self):
 		return self.LogFilePath
-	
+
 	def updateLogFile(self):
 		if self.LogFileName and self.LogFilePath:
 			self.bStarted = False
@@ -59,7 +59,7 @@ class autologInstance:
 
 	def isLogging(self):
 		return AutologOpt.isLoggingOn()
-	
+
 	def start(self):
 		self.writeMsg("")
 		self.writeMsg("Logging by " + CvModName.getDisplayNameAndVersion() + " (" + CvModName.getCivNameAndVersion() + ")")
@@ -119,8 +119,8 @@ class autologInstance:
 
 		## determine type of message
 		zStyle = AutologOpt.getFormatStyle()
-		if (zStyle < 0
-		or zStyle > 3): zStyle=0
+		if (zStyle < 0 or zStyle > 3):
+			zStyle=0
 
 		if zStyle == 0: # no formatting so do nothing
 			zMsg = zMsg
@@ -130,8 +130,7 @@ class autologInstance:
 				zMsg = "<b>%s</b>" % (zMsg)
 			if vUnderline:
 				zMsg = "<u>%s</u>" % (zMsg)
-			if (vColor != "Black"
-			and AutologOpt.isColorCoding()):
+			if (vColor != "Black" and AutologOpt.isColorCoding()):
 				zMsg = "<span style=\"color: %s\">%s</span>" % (vColor, zMsg)
 
 			zMsg = "%s<br>" % (zMsg)
@@ -141,8 +140,7 @@ class autologInstance:
 				zMsg = "[b]%s[/b]" % (zMsg)
 			if vUnderline:
 				zMsg = "[u]%s[/u]" % (zMsg)
-			if (vColor != "Black"
-			and AutologOpt.isColorCoding()):
+			if (vColor != "Black" and AutologOpt.isColorCoding()):
 				if zStyle == 2:  # color coding with "
 					zMsg = "[color=\"%s\"]%s[/color]" % (vColor, zMsg)
 				else:  # color coding without "

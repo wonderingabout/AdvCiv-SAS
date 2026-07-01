@@ -74,6 +74,26 @@ float colorDifference(NiColorA const& c1, NiColorA const& c2)
 	return fDiff;
 }
 
+// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10 after AdvCiv-SAS adds Rookie and Deity+. (ChatGPT-5.5) -->
+HandicapTypes handicapFromDifficulty(int iDifficulty)
+{
+	static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	HandicapTypes eBestHandicap = NO_HANDICAP;
+	int iBestDelta = MAX_INT;
+	for (int i = 0; i < GC.getNumHandicapInfos(); i++)
+	{
+		HandicapTypes const eLoopHandicap = (HandicapTypes)i;
+		int const iDelta = std::abs(GC.getInfo(eLoopHandicap).getDifficulty() - iDifficulty);
+		if (iDelta < iBestDelta)
+		{
+			iBestDelta = iDelta;
+			eBestHandicap = eLoopHandicap;
+		}
+	}
+	FAssert(eBestHandicap != NO_HANDICAP);
+	return (eBestHandicap == NO_HANDICAP ? eSTANDARD_HANDICAP : eBestHandicap);
+}
+
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
 {
 	switch (eCard)
@@ -121,8 +141,7 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 /*	advc: Cut from CvXMLLoadUtility.cpp, renamed
 	from "CreateHotKeyFromDescription"; nothing is "created" here. */
-CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr,
-	bool bShift, bool bAlt, bool bCtrl)
+CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr, bool bShift, bool bAlt, bool bCtrl)
 {
 	// Example: "Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>"
 	CvWString szHotKey;
@@ -298,8 +317,7 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 }*/
 
 // K-Mod: (advc - Where do we move this? Should not be global.)
-int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
-	TeamTypes eDefenseTeam)
+int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam)
 {
 	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
 	if (pPlot == NULL)
@@ -367,8 +385,7 @@ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
 }
 
 
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer += szStart;
@@ -378,8 +395,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 }
 
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer.append(szStart);
@@ -389,8 +405,7 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
 }
 
 // <advc> Based on the above
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer += szStart;
@@ -399,8 +414,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 	iLastListID = iListID; // advc: And deleted this line from every call location
 }
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer.append(szStart);
@@ -744,7 +758,10 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iDummy1, int iDummy2)
 // advc.003j (comment): Unused
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
 {
-	return iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK") + iYieldStack;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK");
+
+	return iNumYieldTypes * iMAX_YIELD_STACK + iYieldStack;
 }
 /*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport;
 	certainly unused since BtS, and doesn't sound too useful. */
@@ -786,26 +803,29 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
 }
 
 
-int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
 			std::max(1, GC.getNumMonthInfos()); // advc: max
 }
 
 
-int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	int iTurnMonth = iStartYear * GC.getNumMonthInfos();
 	switch (eCalendar)
 	{
 	case CALENDAR_DEFAULT:
 	{
+		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate -->
+		// <!-- custom: code/performance optimization: hoist -->
+        const CvGameSpeedInfo& kSpeed = GC.getInfo(eSpeed);
+        int const n = kSpeed.getNumTurnIncrements();
+
 		int iTurnCount = 0;
-		for (int i = 0; i < GC.getInfo(eSpeed).getNumTurnIncrements(); i++)
+		for (int i = 0; i < n; i++)
 		{
-			GameTurnInfo const& kGameTurn = GC.getInfo(eSpeed).getGameTurnInfo(i);
+			GameTurnInfo const& kGameTurn = kSpeed.getGameTurnInfo(i);
 			if (iGameTurn > iTurnCount + kGameTurn.iNumGameTurnsPerIncrement)
 			{
 				iTurnMonth += kGameTurn.iMonthIncrement *
@@ -821,8 +841,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		}
 		if (iGameTurn > iTurnCount)
 		{
-			iTurnMonth += GC.getInfo(eSpeed).getGameTurnInfo(
-					GC.getInfo(eSpeed).getNumTurnIncrements() - 1).
+			iTurnMonth += kSpeed.getGameTurnInfo(
+					n - 1).
 					iMonthIncrement * (iGameTurn - iTurnCount);
 		}
 		break;
@@ -846,9 +866,14 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		break;
 
 	case CALENDAR_WEEKS:
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS");
+
 		iTurnMonth += iGameTurn /
-				std::max(1, GC.getDefineINT("WEEKS_PER_MONTHS")); // advc: max
+				std::max(1, iWEEKS_PER_MONTHS); // advc: max
 		break;
+	}
 
 	default:
 		FAssert(false);
@@ -1053,12 +1078,12 @@ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
 	case UNITAI_CITY_SPECIAL: szString = L"city special"; break;
 	case UNITAI_EXPLORE: szString = L"explore"; break;
 	case UNITAI_MISSIONARY: szString = L"missionary"; break;
-	case UNITAI_PROPHET: szString = L"prophet"; break;
-	case UNITAI_ARTIST: szString = L"artist"; break;
-	case UNITAI_SCIENTIST: szString = L"scientist"; break;
-	case UNITAI_GENERAL: szString = L"general"; break;
-	case UNITAI_MERCHANT: szString = L"merchant"; break;
-	case UNITAI_ENGINEER: szString = L"engineer"; break;
+	case UNITAI_GREAT_PROPHET: szString = L"prophet"; break;
+	case UNITAI_GREAT_ARTIST: szString = L"artist"; break;
+	case UNITAI_GREAT_SCIENTIST: szString = L"scientist"; break;
+	case UNITAI_GREAT_GENERAL: szString = L"general"; break;
+	case UNITAI_GREAT_MERCHANT: szString = L"merchant"; break;
+	case UNITAI_GREAT_ENGINEER: szString = L"engineer"; break;
 	case UNITAI_GREAT_SPY: szString = L"great spy"; break; // K-Mod
 	case UNITAI_SPY: szString = L"spy"; break;
 	case UNITAI_ICBM: szString = L"icbm"; break;

@@ -18,7 +18,7 @@
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
 				<BonusType>BONUS_WHEAT</BonusType>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
 			<HeadquarterCommerces>
@@ -50,7 +50,7 @@
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
 				<BonusType>BONUS_CRAB</BonusType>
-				<BonusType>BONUS_CLAM</BonusType>
+				<BonusType>BONUS_MOLLUSCS</BonusType>
 				<BonusType>BONUS_FISH</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
@@ -87,7 +87,7 @@
 			<!-- advc.200: K-Mod had decreased this to 80 -->
 			<iMaintenance>100</iMaintenance>
 			<PrereqBonuses>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 				<BonusType>BONUS_SUGAR</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
 			</PrereqBonuses>
@@ -233,7 +233,7 @@
 			<PrereqBonuses>
 				<BonusType>BONUS_GOLD</BonusType>
 				<BonusType>BONUS_SILVER</BonusType>
-				<BonusType>BONUS_GEMS</BonusType>
+				<BonusType>BONUS_GEMSTONES</BonusType>
 			</PrereqBonuses>
 			<HeadquarterCommerces>
 				<iHeadquarterCommerce>4</iHeadquarterCommerce>

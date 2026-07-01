@@ -3,6 +3,7 @@
 # advc: Some tweaks; see in-inline comments. Changes tagged with "advc.mxc" were ported from Mixed_Continents.
 
 from CvPythonExtensions import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -42,6 +43,8 @@ def getCustomMapOptionName(argsList):
 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
 		2:	"TXT_KEY_MAP_WORLD_WRAP" # kekm.32
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
 
@@ -73,6 +76,8 @@ def getCustomMapOptionDescAt(argsList):
 			2: "TXT_KEY_MAP_WRAP_TOROID"
 			} # </kekm.32>
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
 
@@ -141,13 +146,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 				iHillGrain = 5 # advc.mxc: was 3
-				self.generatePlotsInRegion(iWater,
-				                           tinyWidth, tinyHeight,
-				                           tinyWestX, tinySouthY,
-				                           4, iHillGrain,
-				                           0, self.iTerrainFlags,
-				                           6, 5,
-				                           True, 3)
+				self.generatePlotsInRegion(iWater, tinyWidth, tinyHeight, tinyWestX, tinySouthY, 4, iHillGrain, 0, self.iTerrainFlags, 6, 5, True, 3)
 		# <K-Mod>
 		zone_types = [0] * iTotalZones
 		i = 0
@@ -184,46 +183,28 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 			if (zone_types[i] == 1):
 				# continent zone </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iContinentsGrain, 4,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iContinentsGrain, 4, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 			# <K-Mod>
 			else:
 				# islands zone # </K-Mod>
-				self.generatePlotsInRegion(iWater,
-										   iWidth, iHeight,
-										   iWestX, iSouthY,
-										   iIslandsGrain, 5,
-										   self.iRoundFlags, self.iTerrainFlags,
-										   xExp, 6,
-										   True, 15,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iIslandsGrain, 5, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 
 		# All regions have been processed. Plot Type generation completed.
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")

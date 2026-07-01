@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugConfig
 import BugDll
@@ -47,20 +54,7 @@ MODIFIER_MAP = {
 	"SHIFT": SHIFT,
 }
 
-MODIFIER_KEYS = (
-	InputTypes.KB_LALT, 
-	InputTypes.KB_LCONTROL, 
-	InputTypes.KB_LSHIFT, 
-	InputTypes.KB_RALT, 
-	InputTypes.KB_RCONTROL, 
-	InputTypes.KB_RSHIFT,
-	int(InputTypes.KB_LALT), 
-	int(InputTypes.KB_LCONTROL), 
-	int(InputTypes.KB_LSHIFT), 
-	int(InputTypes.KB_RALT), 
-	int(InputTypes.KB_RCONTROL), 
-	int(InputTypes.KB_RSHIFT),
-)
+MODIFIER_KEYS = (InputTypes.KB_LALT, InputTypes.KB_LCONTROL, InputTypes.KB_LSHIFT, InputTypes.KB_RALT, InputTypes.KB_RCONTROL, InputTypes.KB_RSHIFT, int(InputTypes.KB_LALT), int(InputTypes.KB_LCONTROL), int(InputTypes.KB_LSHIFT), int(InputTypes.KB_RALT), int(InputTypes.KB_RCONTROL), int(InputTypes.KB_RSHIFT))
 
 KEYS_BY_CODE = {}
 CODES_BY_KEY = {}
@@ -78,13 +72,11 @@ def codeToKey(code):
 def keyToCode(key):
 	return CODES_BY_KEY[key]
 
-
 def stringToKeystroke(key):
-	"""
-	Returns a Keystroke created from the given string.
-	
-	It can contain modifiers (alt, control, shift) separated from the key with spaces.
-	"""
+	# Returns a Keystroke created from the given string.
+	#
+	# It can contain modifiers (alt, control, shift) separated from the key with spaces.
+	#
 	if not isinstance(key, types.StringTypes):
 		raise BugUtil.ConfigError("key must be a string")
 	keys = key.split()
@@ -118,22 +110,20 @@ def stringToKeystroke(key):
 	return Keystroke(input, *modifiers)
 
 def stringToKeystrokes(keys):
-	"""
-	Returns a list of Keystrokes created from the given string.
-	
-	Individual keystrokes must be separated by a vertical bar (|).
-	"""
+	# Returns a list of Keystrokes created from the given string.
+	#
+	# Individual keystrokes must be separated by a vertical bar (|).
+	#
 	result = []
 	for key in keys.split("|"):
 		result.append(stringToKeystroke(key))
 	return result
 
-
 class Keystroke:
-	"""
-	Holds the information necessary to recognize a single keystroke,
-	including modifiers: alt, control, and shift.
-	"""
+	#
+	# Holds the information necessary to recognize a single keystroke,
+	# including modifiers: alt, control, and shift.
+	#
 	def __init__(self, keyOrCode, alt=False, control=False, shift=False):
 		if isinstance(keyOrCode, int):
 			self.code = keyOrCode
@@ -145,7 +135,7 @@ class Keystroke:
 		self.control = control
 		self.shift = shift
 		self.hash = None
-	
+
 	def __str__(self):
 		s = ""
 		if self.alt:
@@ -155,10 +145,10 @@ class Keystroke:
 		if self.shift:
 			s += "SHIFT + "
 		return "%s%s" % (s, codeToKey(self.code))
-	
+
 	def __repr__(self):
 		return "<key %s>" % str(self)
-	
+
 	def __hash__(self):
 		if self.hash is None:
 			self.hash = self.code
@@ -169,19 +159,16 @@ class Keystroke:
 			if self.shift:
 				self.hash ^= SHIFT_HASH
 		return self.hash
-	
+
 	def __eq__(self, other):
 		if not isinstance(other, Keystroke):
 			return NotImplemented
-		return (self.code == other.code and self.alt == other.alt and
-			    self.control == other.control and self.shift == other.shift)
-	
+		return (self.code == other.code and self.alt == other.alt and self.control == other.control and self.shift == other.shift)
+
 	def __ne__(self, other):
 		if not isinstance(other, Keystroke):
 			return NotImplemented
-		return (self.code != other.code or self.alt != other.alt or
-			    self.control != other.control or self.shift != other.shift)
-
+		return (self.code != other.code or self.alt != other.alt or self.control != other.control or self.shift != other.shift)
 
 def init():
 	for k, c in InputTypes.__dict__.iteritems():
@@ -195,13 +182,12 @@ def init():
 # initialize when the module is loaded
 init()
 
-
 ## configuration handler
 
 class ShortcutHandler(BugConfig.HandlerWithArgs):
-	
+
 	TAG = "shortcut"
-	
+
 	def __init__(self):
 		BugConfig.HandlerWithArgs.__init__(self, ShortcutHandler.TAG, "key keys module function dll")
 		self.addExcludedAttribute("key")
@@ -209,14 +195,13 @@ class ShortcutHandler(BugConfig.HandlerWithArgs):
 		self.addAttribute("module", True, True)
 		self.addAttribute("function", True)
 		self.addAttribute("dll")
-	
+
 	def handle(self, element, keys, module, function, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):
 			CvEventInterface.getEventManager().addShortcutHandler(keys, BugUtil.getFunction(module, function, *element.args, **element.kwargs))
 		else:
 			BugUtil.info("InputUtil - ignoring <%s> %s, requires dll version %s", element.tag, keys, self.resolveDll(element, dll))
-
 
 # advc: I've added three keyboard shortcuts and need to put the handlers somewhere. Don't want to create a new BUG module just for this. Tbd.: Nicer to do this through Civ4ControlInfos.xml and the DLL. As I've already done it with CONTROL_UNSELECT_ALL (advc.088).
 

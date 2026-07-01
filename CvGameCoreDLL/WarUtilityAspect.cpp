@@ -195,8 +195,7 @@ void WarUtilityAspect::log(char const* fmt, ...) const
 }
 #endif
 
-scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
-	TeamTypes eOther) const
+scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes eOther) const
 {
 	if (eOther == NO_TEAM)
 		eOther = eTheirTeam;
@@ -205,8 +204,7 @@ scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
 }
 
 
-scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo,
-	scaled* prTotalScore, TeamTypes eIgnoreGains) const
+scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotalScore, TeamTypes eIgnoreGains) const
 {
 	PROFILE_FUNC();
 	scaled rNetLoss;
@@ -380,8 +378,7 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
 }
 
 // advc.035:
-scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim,
-	PlayerTypes eTo) const
+scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo) const
 {
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		return 0;
@@ -1630,9 +1627,7 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 }
 
 
-void MilitaryVictory::addConquestsByPartner(
-	std::map<PlotNumTypes,scaled>& kWeightedConquests,
-	AttitudeTypes eAttitudeThresh, scaled rWeight) const
+void MilitaryVictory::addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const
 {
 	if (kTheirTeam.isHuman()) // Human won't vote for us unless a vassal
 	{
@@ -1972,8 +1967,7 @@ void HiredHand::evaluate()
 }
 
 
-scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility,
-	int iObligationThresh) const
+scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility, int iObligationThresh) const
 {
 	// (These conditions overlap with those under Fidelity)
 	if (eAlly != NO_PLAYER && (kOurTeam.isAtWar(TEAMID(eAlly)) ||
@@ -2089,14 +2083,13 @@ void BorderDisputes::evaluate()
 		// advc.003g: Tbd.: Write a fixed-point logarithm function
 		double dOurCultureMultiplier = iOurPlotCulturePercent / 100.0;
 		/*	E.g. dOurCultureModifier=1 if 0% culture;
-			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.08.
+			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.09.
 			If we already have a lot of culture in the city, then it's probably
 			not the city causing us to lose border tiles. */
 		if (dOurCultureMultiplier > 0.04)
 		{
 			dOurCultureMultiplier = std::max(0.0,
-					1 - 0.25 * std::log(25 * dOurCultureMultiplier) /
-					0.301/*std::log(2.0)*/); // binary log
+					1 - 0.25 * fmath::log2(25 * dOurCultureMultiplier));
 		}
 		else dOurCultureMultiplier = 1;
 		scaled rOurCultureModifier = scaled::fromDouble(dOurCultureMultiplier);
@@ -2375,8 +2368,7 @@ void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) cons
 }
 
 
-bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-	bool bPredict) const
+bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict) const
 {
 	FAssert(iStage == 3 || iStage == 4);
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -2480,8 +2472,7 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 }
 
 
-void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-	bool bPredict) const
+void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict) const
 {
 	CvCity const* pOurCapital = kWe.getCapital();
 	scaled rBestScore = 1;
@@ -2900,6 +2891,37 @@ void Effort::evaluate() {}
 
 int Risk::preEvaluate()
 {
+	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+	// if you want a fixed, super-simple “turns-to-contact" cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter" in turns; you don’t need extra code for roads.
+	// --- SIMPLE HARD REJECT / RPE FILTER ---
+
+	// fixed caps in *turns*; tweak to taste or move to XML
+	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
+	// static const int MAX_LAND_TURNS = 2;
+	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
+	static const int MAX_LAND_TURNS = 3;
+	static const int MAX_SEA_TURNS  = 12;
+
+	const bool bNaval = m_kParams.isNaval();
+
+	int minContact = INT_MAX;
+	for (int i = 0; i < ourCache().numCities(); ++i)
+	{
+		UWAICache::City& c = ourCache().cityAt(i);
+		if (c.city().getTeam() != m_kParams.getTarget()) continue;  // target-specific
+		if (!c.canReach()) continue;                     // unreachable from our pov
+		if (!bNaval && !c.canReachByLand()) continue;    // land war needs land path
+		minContact = std::min(minContact, c.getDistance()); // ~turns incl. roads
+	}
+
+	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
+	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
+
+	if (minContact == INT_MAX || minContact > maxTurns || noLift)
+		return -100000; // kill this (agent,target) war plan
+
+	// --- END RPE FILTER ---
+
 	// Handle potential losses of our vassals here
 	scaled rUtility; // (Positive value, gets subtracted in the end.)
 	for (PlayerIter<ALIVE,VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)

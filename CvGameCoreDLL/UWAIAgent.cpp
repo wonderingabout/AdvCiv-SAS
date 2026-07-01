@@ -73,9 +73,7 @@ void UWAI::Team::addTeam(PlayerTypes eOtherLeader)
 }
 
 
-void UWAI::Team::reportWarEnding(TeamTypes eEnemy,
-	CLinkList<TradeData> const* pWeReceive,
-	CLinkList<TradeData> const* pWeGive)
+void UWAI::Team::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
 	/*  This isn't team-level data b/c each member can have its
 		own interpretation of whether the war was successful. */
@@ -527,6 +525,30 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 			that expects to be paid waits for the other side to sue for peace). */
 		rPeaceThresh += 10;
 	}
+
+	// <!-- custom: we have an issue of hatshepsut ai being the military leader with a strong army at turn 150 and then being badly dogpiled on and dying/been defeated before turn 200. While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well, for now and first i mean here, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully) can only be detrimental to us, code provided by chatgpt 5, check if accurate; see also known issue as of now 65 for details; results of these "emergency peace" changes: great!!! Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say)!! See known issue as of now 65 for details -->
+	// 
+	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
+	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
+	//
+	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
+	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+
+	// Combined enemy power vs us (100 = parity)
+	const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
+
+	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace which would be bit boring too if i may say or waste potential) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd so treat it as an emergency) -->
+	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
+
+	if (bEmergencyPeace)
+	{
+		m_pReport->log("Emergency peace mode: %d simultaneous wars vs majors — forcing negotiation.", iMajorWars);
+		// Make sure the code doesn't early-out on "utility above threshold":
+		// push iU clearly below the threshold so we go to the negotiation block.
+		iU = std::min(iU, rPeaceThresh.uround() - 100);
+	}
+	// keep the existing log (or adjust) after this
+	//
 	m_pReport->log("Threshold for seeking peace: %d", rPeaceThresh.round());
 	if (iU >= rPeaceThresh)
 	{
@@ -637,6 +659,13 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 		FAssert(iU < rPeaceThresh);
 		rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
 	}
+
+	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
+	if (bEmergencyPeace)
+	{
+		rPeaceProb = fixp(1); // 100%
+	}
+
 	if (bOfferPeace)
 	{
 		m_pReport->log("Probability for peace negotiation: %d percent",
@@ -741,8 +770,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
-	int iMasterReluctancePeace)
+bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace)
 {
 	{
 		int const iUtilityThresh = -75;
@@ -1004,8 +1032,7 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
@@ -1068,8 +1095,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -1139,8 +1165,7 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
@@ -1313,8 +1338,7 @@ int UWAI::Team::reluctanceToPeace(TeamTypes eEnemy, bool bNonNegative) const
 }
 
 
-bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
-	bool bCheckDefensivePacts) const
+bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan, bool bCheckDefensivePacts) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
 	if (eTarget == NO_TEAM || eTarget == BARBARIAN_TEAM || eTarget == kAgent.getID())
@@ -2348,9 +2372,11 @@ void UWAI::Team::showWarPlanAbandonedMsg(TeamTypes eTarget)
 
 void UWAI::Team::showWarPlanMsg(TeamTypes eTarget, char const* szKey)
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bUWAI_SPECTATOR_ENABLED = GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED");
 
 	CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-	if (!kActivePlayer.isSpectator() || !GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED"))
+	if (!kActivePlayer.isSpectator() || !bUWAI_SPECTATOR_ENABLED)
 		return;
 	CvWString szBuffer = gDLL->getText(szKey,
 			GET_TEAM(m_eAgent).getName().GetCString(),
@@ -2632,10 +2658,8 @@ bool UWAI::Player::isPeaceDealPossible(PlayerTypes eHuman) const
 }
 
 
-bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
-	int* piAvailableTradeVal,
-	// (advc.ctr: Now unused b/c the AI will always accept cities as payment)
-	bool bIgnoreCities) const
+// (advc.ctr: Now unused b/c the AI will always accept cities as payment) <!-- custom: hoisted from multiline signature between `piAvailableTradeVal` and `bIgnoreCities` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* piAvailableTradeVal, bool bIgnoreCities) const
 {
 	if (piAvailableTradeVal != NULL)
 		*piAvailableTradeVal = iTargetTradeVal;
@@ -2753,8 +2777,7 @@ scaled UWAI::Player::estimateBuildUpRate(PlayerTypes ePlayer, int iTurns) const
 }
 
 
-scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer,
-	PlayerHistoryTypes eDemographic, int iTurns) const
+scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iTurns) const
 {
 	if (GC.getGame().getElapsedGameTurns() < iTurns + 1)
 		return 0;
@@ -2847,8 +2870,7 @@ scaled UWAI::Player::distrustRating() const
 }
 
 
-scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
-	PlayerTypes eTarget) const
+scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal, PlayerTypes eTarget) const
 {
 	/*	AI assumes that human confidence depends on difficulty. NB: This doesn't
 		mean that the AI thinks that humans are good at warfare - this is handled
@@ -2890,8 +2912,7 @@ scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
 }
 
 
-scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget,
-	bool bIgnoreDefOnly) const
+scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget, bool bIgnoreDefOnly) const
 {
 
 	scaled rFromWarSuccess = confidenceFromWarSuccess(TEAMID(eTarget));

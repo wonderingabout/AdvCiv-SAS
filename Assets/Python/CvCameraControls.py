@@ -11,7 +11,7 @@ gc = CyGlobalContext()
 
 class CvCameraControls:
 	' class to handle moving the camera '
-	
+
 	# GLOBALVARS - add any new variables here so that they exist for the __init__ call
 	SINGLE_PLOT_UNITS = 180.0
 	ZOOM_SPEED_DEFAULT = 0.5
@@ -19,7 +19,7 @@ class CvCameraControls:
 	PITCH_SPEED_DEFAULT = 0.5
 	# advc: unused
 	#CAMERA_MIN_DISTANCE_DEFAULT = gc.getDefineFLOAT("CAMERA_MIN_DISTANCE")
-	
+
 	bLookAt = False
 	# advc: 3x unused
 	#originalPositionNiPoint3 = None
@@ -56,43 +56,43 @@ class CvCameraControls:
 	fPitchDestination = 0.0 # degrees
 	pitchDirection = None
 	fPitchSpeed = 0.0
-	
+
 	def __init__( self ):
 		# advc (note): This gets called when the singleton g_CameraControls is instantiated at the end of this file. I think this is really the only thing that gets called. CvAppInterface.py assigns some calls to the function keys when the Python console is up. That macro mechanism still works, but the calls ultimately have no effect because CvCameraControls.onUpdate is not getting called (see comment there).
 		self.resetCameraControls()
-		
+
 	def resetCameraControls( self ):	
 		self.resetRotate()
 		self.resetZoom()
 		self.resetTurn()
 		self.resetPitch()
-		
+
 		# interface values
 		self.bDebugModeState = CyGame().isDebugMode()
 		self.bCityBillboardVisibility = CyEngine().getCityBillboardVisibility()
 		self.bUnitFlagVisibility = CyEngine().getUnitFlagVisibility()
 		self.bSelectionCursorVisibility = CyEngine().getSelectionCursorVisibility()
 		self.InterfaceVisibilityState = CyInterface().getShowInterface()
-	
+
 	def centerCameraByCoords( self, t_Coords ):
 		' center camera based on t_Coords '
 		iX, iY = t_Coords
 		CyCamera().JustLookAtPlot( CyMap().plot( iX, iY ) )
-	
+
 	def centerCamera( self, pPlot ):
 		' center camera by plot '
 		CyCamera().JustLookAt( pPlot.getPoint() )
-	
+
 	def centerCameraByObject( self, pObject ):
 		' center camera on pObject - valid items are cities, units '
 		CyCamera().JustLookAt( pObject.getPlot().getPoint() )
-	
+
 	def moveCameraXPlots( self, iNumPlots ):
 		' moves the camera iNumPlots on the X coord '
 		fRotateUnits = iNumPlots * self.SINGLE_PLOT_UNITS		
 		# advc.001: Was moveCamera, which doesn't exist.
 		self.doMoveCamera( ( fRotateUnits, 0.0, 0.0 ) )
-	
+
 	def moveCameraYPlots( self, iNumPlots ):
 		' moves the camera iNumPlots on the Y coord '
 		fRotateUnits = iNumPlots * self.SINGLE_PLOT_UNITS		
@@ -107,7 +107,7 @@ class CvCameraControls:
 		#CyCamera().SetCameraMovementSpeed(int(CameraMovementSpeeds.CAMERAMOVEMENTSPEED_SLOW))
 		# advc.001: Don't ignore our argument
 		CyCamera().SetCameraMovementSpeed(iCameraMovementSpeed)
-	
+
 	def doMoveCamera( self, t_Coord ):
 		' moves the camera based on the x/y/z values in t_Coord '
 		if len(t_Coord) == 3:
@@ -119,10 +119,10 @@ class CvCameraControls:
 			CyEngine().setCityBillboardVisibility(False)
 		if CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW:
 			CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_HIDE_ALL)
-		
+
 		CyCamera().SetZoom(1.0)
 		self.doRotateCamera( True, -self.SINGLE_PLOT_UNITS )
-	
+
 ######################
 # Rotate Controls
 ######################
@@ -134,21 +134,21 @@ class CvCameraControls:
 		if ( self.fRotateDestination == "Continuous" ):
 			self.bRotateContinuous = True
 			self.rotateDirection = "Continuous"
-			
+
 		if ( self.fRotateDestination < 0.0 ):
 			self.rotateDirection = "Left"
 			self.rotateTracking = -self.fRotateDestination
-		
+
 		if ( self.fRotateDestination > 0.0 ):
 			self.rotateDirection = "Right"
 			self.rotateTracking = self.fRotateDestination
-		
+
 		#self.updateRotate( 1.0 )
-	
+
 	def updateRotate( self, fDeltaTime ):
 		' updates the Rotate based on fDeltaTime and the set Rotate Speed '
 		bAtDestination = False
-		
+
 		if ( self.bRotate and self.rotateDirection ):
 			fRotateModifier = self.fRotateSpeed * fDeltaTime
 			# Left (-)  use -360.0 for fRotateDestination to rotate left
@@ -161,13 +161,13 @@ class CvCameraControls:
 				self.rotateTracking -= fRotateModifier
 				if ( not self.bRotateContinuous and self.rotateTracking <= 0.0 ):
 					bAtDestination = True
-			
+
 			if ( not bAtDestination ):
 				self.doMoveCamera( ( fRotateModifier, 0.0, 0.0 ) )
-		
+
 			if ( bAtDestination ):
 				self.resetRotate()
-	
+
 	def resetRotate( self ):
 		' resets Rotate to default values '
 		self.bRotate = False
@@ -188,40 +188,40 @@ class CvCameraControls:
 				self.fZoomSpeed = fZoomSpeed
 			else:
 				self.fZoomSpeed = self.ZOOM_SPEED_DEFAULT
-			
+
 			self.fZoomDestination = fZoomDestination
-			
+
 			if ( self.fCurrentZoom > self.fZoomDestination ):
 				self.zoomDirection = "ZoomIn"
-			
+
 			elif ( self.fCurrentZoom < self.fZoomDestination ):
 				self.zoomDirection = "ZoomOut"
-			
+
 			else:
 				self.resetZoom()
-		
+
 	def updateZoom( self, fDeltaTime ):
 		' updates the Zoom based on fDeltaTime and the set Zoom Speed '
 		bAtDestination = False
 		fZoomModifier = fDeltaTime * self.fZoomSpeed
-		
+
 		if ( self.zoomDirection):
 			if ( self.zoomDirection == 'ZoomIn' ):
 				fNewZoom = CyCamera().GetZoom() - fZoomModifier			
 			elif ( self.zoomDirection == 'ZoomOut' ):
 				fNewZoom = CyCamera().GetZoom() + fZoomModifier
-			
+
 			# move camera based on whether its zooming in or out
 			CyCamera().SetZoom( fNewZoom )
-			
+
 			if ( self.zoomDirection == 'ZoomIn' and fNewZoom < self.fZoomDestination ):
 				bAtDestination = True
 			if ( self.zoomDirection == 'ZoomOut' and fNewZoom > self.fZoomDestination ):
 				bAtDestination = True
-		
+
 		if ( bAtDestination ):
 			self.resetZoom()
-				
+
 	def resetZoom( self ):
 		' resets Zoom to default values '
 		self.bZoom = False
@@ -235,7 +235,7 @@ class CvCameraControls:
 ######################
 	def isTurn( self ):
 		return self.bTurn
-	
+
 	#def doTurnCamera( self, fTurnDestination, fTurnSpeed = self.TURN_SPEED_DEFAULT ):
 	def doTurnCamera( self, fTurnDestination, fTurnSpeed ):
 		' moves the camera and checks if camera has reached destination '		
@@ -244,7 +244,7 @@ class CvCameraControls:
 			self.bTurn = True
 			self.fTurnDestination = fTurnDestination
 			self.fTurnSpeed = fTurnSpeed
-			
+
 		elif ( self.fTurnDestination > 0.0 ):
 			self.turnDirection = "Right"
 		else:
@@ -253,25 +253,25 @@ class CvCameraControls:
 	def updateTurn( self, fDeltaTime ):
 		' updates the Turn based on fDeltaTime and the set Turn Speed '
 		bAtDestination = False
-		
+
 		if ( self.turnDirection ):
 			fTurnModifer = fDeltaTime * self.fTurnSpeed
-			
+
 			if ( self.turnDirection == "Right" ):
 				fNewTurn = CyCamera().GetBaseTurn() - fTurnModifier
 			if ( self.turnDirection == "Left" ):
 				fNewTurn = CyCamera().GetBaseTurn() - fTurnModifier
-				
+
 			CyCamera().SetBaseTurn( fNewTurn )
-			
+
 			if ( self.zoomDirection == "Right" and fNewTurn < self.fTurnDestination ):
 				bAtDestination = True
 			if ( self.zoomDirection == "Left" and fNewTurn > self.fTurnDestination ):
 				bAtDestination = True
-		
+
 		if ( bAtDestination ):
 			self.resetTurn()
-	
+
 	def resetTurn( self ):
 		' resets Turn to default values '
 		self.bTurn = False
@@ -279,20 +279,20 @@ class CvCameraControls:
 		self.fTurnDestination = 0.0 # degrees
 		self.turnDirection = None
 		self.fTurnSpeed = 0.0
-	
+
 ######################
 # Pitch Controls
 ######################
 	def isPitch( self ):
 		return self.bPitch
-	
+
 	def doPitchCamera( self, fPitchDestination, fPitchSpeed ):
 		' moves the camera and checks if camera has reached destination '
 		self.bPitch = True
 		self.fCurrentPitch = CyCamera().GetBasePitch()
 		self.fPitchDestination = fPitchDestination
 		self.fPitchSpeed = fPitchSpeed
-			
+
 		if ( fPitchDestination > 0 ):
 			self.pitchDirection = "Up"
 		else:
@@ -309,15 +309,15 @@ class CvCameraControls:
 			if ( self.pitchDirection == "Down" ):
 				fNewPitch = CyCamera().GetBasePitch() - fPitchModifier
 			CyCamera().SetBasePitch(fNewPitch)
-			
+
 			if ( self.pitchDirection == "Up" and fNewPitch < self.fPitchDestination ):
 				bAtDestination = True
 			elif ( self.pitchDirection == "Down" and fNewPitch > self.fPitchDestination ):
 				bAtDestination = True
-		
+
 		if ( bAtDestination ):
 			self.resetPitch()
-	
+
 	def resetPitch( self ):
 		' resets Pitch to default values '
 		self.bPitch = False
@@ -333,7 +333,7 @@ class CvCameraControls:
 ######################
 	def setCAMERA_MIN_DISTANCE( self, fVal ):
 		CyGlobalContext().setDefineFLOAT("CAMERA_MIN_DISTANCE", fVal)
-	
+
 	def setDebugMode( self, bState ):
 		if ( self.bSetDebugModeState != bState ):
 			CyGame().toggleDebugMode()
@@ -357,12 +357,10 @@ class CvCameraControls:
 		CyCamera().SetDestinationPosition(ptPosition)
 		CyCamera().SetTargetDestination(ptTarget)
 		CyCamera().SetLookAtSpeed(fSpeed)
-	
+
 #	def updateLookAt(self, fDeltaTime):
 #		if not bCyCamera().GetCurrentPosition() == CyCamera().GetDestinationPosition():
-			
-	
-		
+
 ######################
 # Update / Input Handlers
 ######################
@@ -370,7 +368,7 @@ class CvCameraControls:
 		if ( self.bRotate or self.bZoom or self.bTurn or self.bPitch ):
 			return True
 		return False
-	
+
 	def onUpdate( self, fDeltaTime ):
 		' loops through UpdateMaps and returns a list of all controls that are being updated '
 		# advc (note): This is supposed to get called by CvEventManager.onUpdate, but that function seems to be obsolete. So I don't think this ever gets called. Could call it from onGameUpdate, but we don't have the fDeltaTime parameter there.
@@ -387,7 +385,7 @@ class CvCameraControls:
 				self.updateTurn( fDeltaTime )
 			if self.bPitch:
 				self.updatePitch( fDeltaTime )
-	
+
 	def handleInput( self, theKey ):
 		# advc (note): This gets called by CvEventManager.handleInput (but it seems that BugEventManager blocks that).
 		return

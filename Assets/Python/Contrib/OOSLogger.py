@@ -185,7 +185,7 @@ def writeLog():
 				pFile.write("No Units")
 			else:
 				pLoopUnitTuple = pPlayer.firstUnit(False)
-				while (pLoopUnitTuple[0] != None):
+				while (pLoopUnitTuple[0] is not None):
 					pUnit = pLoopUnitTuple[0]
 					pFile.write("Player %d, Unit ID: %d, %s\n" % (iPlayer, pUnit.getID(), CvUtil.convertToUnicode(pUnit.getName()) ))
 
@@ -227,7 +227,7 @@ def writeLog():
 				# advc: Moved out of the loop - don't print this for each city.
 				pFile.write("(Events that have occurred are also used for the checksum.)\n")
 				pLoopCityTuple = pPlayer.firstCity(False)
-				while (pLoopCityTuple[0] != None):
+				while (pLoopCityTuple[0] is not None):
 					pCity = pLoopCityTuple[0]
 					pFile.write("Player %d, City ID: %d, %s, X: %d, Y: %d\n"% (iPlayer, pCity.getID(), CvUtil.convertToUnicode(pCity.getName()), pCity.getX(), pCity.getY()))
 
@@ -248,7 +248,6 @@ def writeLog():
 
 					pLoopCityTuple = pPlayer.nextCity(pLoopCityTuple[1], False)
 					pFile.write("\n")
-
 
 			# Space at end of player's info
 			pFile.write("\n\n")

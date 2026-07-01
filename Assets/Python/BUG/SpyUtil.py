@@ -13,7 +13,6 @@ import BugData
 
 gc = CyGlobalContext()
 
-
 ## Tracking Values for Previous and Current Turns
 
 g_iTurn = None
@@ -22,13 +21,12 @@ g_values = None
 # gets the total spending over the prior turn by playerOrID
 # limits the spending to players known to 'ActiveplayerOrID' if provided
 def getSpending(playerOrID, ActiveplayerOrID=None):
-	if ActiveplayerOrID != None:
+	if ActiveplayerOrID is not None:
 		pActiveTeam = PlayerUtil.getPlayerTeam(ActiveplayerOrID)
 
 	iTotal = 0
 	for targetTeam in PlayerUtil.teams(True, None, False):
-		if (ActiveplayerOrID == None
-		or pActiveTeam.isHasMet(targetTeam.getID())):
+		if (ActiveplayerOrID is None or pActiveTeam.isHasMet(targetTeam.getID())):
 			iTotal += getDifferenceByTeam(PlayerUtil.getPlayerTeam(playerOrID), targetTeam.getID())
 	return iTotal
 
@@ -72,7 +70,6 @@ def getCurrentValuesByTeam():
 			values.append(team.getEspionagePointsAgainstTeam(targetTeam.getID()))
 	return valuesByTeam
 
-
 ## Storing Values for Previous Turn
 
 STORAGE_VERSION = 1
@@ -115,7 +112,6 @@ def store():
 	}
 	BugData.getTable(SD_MOD_ID).setData(data)
 	BugUtil.debug("SpyUtil - stored: %s", data)
-
 
 ## Event Handlers
 

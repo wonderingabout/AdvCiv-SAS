@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Feature --><Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- -->
+<!-- Feature -->
+<!-- custom: note: be careful when/if renaming some of these features, as one or several of these are now also hardcoded in advciv-sas in the DLL as part of AI settling/founding/planting cities optimization, as well as optimizing AI worker improvement choice, if you want to rename it, rename it there as well and recompile the DLL -->
+<Civ4FeatureInfos xmlns="x-schema:CIV4TerrainSchema.xml">
 	<FeatureInfos>
 		<FeatureInfo>
 			<Type>FEATURE_ICE</Type>
@@ -119,8 +123,9 @@
 			<Description>TXT_KEY_FEATURE_JUNGLE</Description>
 			<Civilopedia>TXT_KEY_FEATURE_JUNGLE_PEDIA</Civilopedia>
 			<ArtDefineTag>ART_DEF_FEATURE_JUNGLE</ArtDefineTag>
+			<!-- custom: some or many websites i looked at or on google or such search say jungle is vegetation and animals rich, so to rebalance it and make it as strong in different ways than forest is, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below, was -1 / 0 / 0 -->
 			<YieldChanges>
-				<iYieldChange>-1</iYieldChange>
+				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
@@ -128,9 +133,11 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>1</iSeeThrough>
-			<iHealthPercent>-25</iHealthPercent>
+			<!-- custom: (now and as of now same as of the forest health positive modifier but negative here), was -25 -->
+			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #27 -->
 			<!-- advc.012: was 50 -->
-			<iDefense>0</iDefense>
+			<iDefense>-25</iDefense>
 			<!-- advc.012 -->
 			<iRivalDefense>25</iRivalDefense>
 			<iAppearance>0</iAppearance>
@@ -368,7 +375,8 @@
 			<HillsYieldChange/>
 			<iMovement>1</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-40</iHealthPercent>
+			<!-- custom: this feature is a bit op so fine to nerf it bit, no reason not to increase the health penalty even outside of this as seems more realistic, was -40 -->
+			<iHealthPercent>-50</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>10000</iAppearance>
 			<iDisappearance>0</iDisappearance>
@@ -609,7 +617,8 @@
 			<HillsYieldChange/>
 			<iMovement>2</iMovement>
 			<iSeeThrough>0</iSeeThrough>
-			<iHealthPercent>-50</iHealthPercent>
+			<!-- custom: increase it so it is higher than jungle, was -50 -->
+			<iHealthPercent>-75</iHealthPercent>
 			<iDefense>0</iDefense>
 			<iAppearance>0</iAppearance>
 			<!-- K-Mod: was 500 -->

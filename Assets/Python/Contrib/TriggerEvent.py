@@ -33,7 +33,7 @@ def triggerRandomEvent(argsList):
 	id = argsList[0]
 	iData1 = argsList[1]
 	BugUtil.debug("args: %r", argsList)
-	
+
 	type = None
 	if id < gc.getNumEventTriggerInfos():
 		type = gc.getEventTriggerInfo(id).getType()

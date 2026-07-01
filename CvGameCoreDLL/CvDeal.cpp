@@ -51,8 +51,7 @@ void CvDeal::reset(int iID, PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
 }
 
 
-void CvDeal::kill(bool bKillTeam, /* advc.130p: */ PlayerTypes eCancelPlayer,
-	bool bNoSound) // advc.002l
+void CvDeal::kill(bool bKillTeam, /* advc.130p: */ PlayerTypes eCancelPlayer, bool bNoSound) // advc.002l
 {
 	if (getLengthFirst() > 0 || getLengthSecond() > 0)
 	{	// <advc.106j>
@@ -100,9 +99,8 @@ void CvDeal::kill(bool bKillTeam, /* advc.130p: */ PlayerTypes eCancelPlayer,
 	killSilent(bKillTeam, /* advc.130p: */ true, eCancelPlayer);
 }
 // advc: Cut from 'kill' above
-void CvDeal::announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther,
-	bool bForce, // advc.106j
-	bool bNoSound) const // advc.002l
+// advc.106j <!-- custom: hoisted from multiline signature between `bForce` and `bNoSound` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvDeal::announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, bool bForce, bool bNoSound) const // advc.002l
 {
 	CvWString szString;
 	CvWStringBuffer szDealString;
@@ -119,8 +117,8 @@ void CvDeal::announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther,
 			GET_PLAYER(eOther).getCapitalY(eMsgTarget)); // </advc.127b>
 }
 
-void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude, // </advc.036>
-	PlayerTypes eCancelPlayer) // advc.130p
+// </advc.036> <!-- custom: hoisted from multiline signature between `bUpdateAttitude` and `eCancelPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
 {
 	FOR_EACH_TRADE_ITEM(getFirstList())
 	{
@@ -138,10 +136,8 @@ void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude, // </advc.036>
 }
 
 // advc: renamed from "addTrades"
-void CvDeal::addTradeItems(
-	// advc (note): Not const b/c bHidden status of items can be changed
-	CLinkList<TradeData>& kFirstList, CLinkList<TradeData>& kSecondList,
-	bool bCheckAllowed)
+// advc (note): Not const b/c bHidden status of items can be changed <!-- custom: hoisted from multiline signature before `kFirstList` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData>& kSecondList, bool bCheckAllowed)
 {
 	if (isVassalTrade(kFirstList) && isVassalTrade(kSecondList))
 		return;
@@ -511,7 +507,7 @@ bool CvDeal::isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReaso
 		// Voluntary vassal can always cancel
 		if (pItem->m_eItemType != TRADE_SURRENDER)
 			return false;
-	
+
 		if (!GET_TEAM(eVassal).canVassalRevolt(eMaster))
 		{
 			if (pszReason)
@@ -718,8 +714,7 @@ void CvDeal::read(FDataStreamBase* pStream)
 }
 
 // Returns true if the trade should be saved...
-bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
-	bool bPeace, bool& bPeaceTreatyImplied) // advc.ctr
+bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bPeace, bool& bPeaceTreatyImplied) // advc.ctr
 {
 	PROFILE_FUNC();
 	CvPlayerAI& kFromPlayer = GET_PLAYER(eFromPlayer);
@@ -987,8 +982,7 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 // advc.130p: Cut from CvDeal::endTrade
 namespace
 {
-	void addEndTradeMemory(PlayerTypes eEndingPlayer, PlayerTypes eRememberingPlayer,
-		TradeableItems eItemType, /* advc.130j: */ bool bHalve = false)
+	void addEndTradeMemory(PlayerTypes eEndingPlayer, PlayerTypes eRememberingPlayer, TradeableItems eItemType, /* advc.130j: */ bool bHalve = false)
 	{
 		for (MemberAIIter itRememberingMember(TEAMID(eRememberingPlayer));
 			itRememberingMember.hasNext(); ++itRememberingMember)
@@ -1011,9 +1005,7 @@ namespace
 }
 
 
-void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
-	PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
-	PlayerTypes eCancelPlayer) // advc.130p
+void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
 {
 	bool bTeamTradeEnded = false; // advc.133
 	/*	<advc> Skip some steps when a trade ends through the defeat of one party -

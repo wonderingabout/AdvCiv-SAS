@@ -9,7 +9,7 @@
 	 Civ4NewConceptInfos.xml. -->
 <Civ4TraitInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
 	<TraitInfos>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_PHILOSOPHICAL (useful for VS Code upper tree view while scrolling) -->
 			<Type>TRAIT_PHILOSOPHICAL</Type>
 			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_PHILOSOPHICAL_SHORT</ShortDescription>
@@ -19,8 +19,9 @@
 			<iMaxAnarchy>-1</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
+			<!-- custom: was 80 -->
 			<!-- advc.908c: was 100 -->
-			<iGreatPeopleRateModifier>80</iGreatPeopleRateModifier>
+			<iGreatPeopleRateModifier>100</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
@@ -33,7 +34,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_AGGRESSIVE -->
 			<Type>TRAIT_AGGRESSIVE</Type>
 			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_AGGRESSIVE_SHORT</ShortDescription>
@@ -53,15 +54,28 @@
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
 			<CommerceModifiers/>
+			<!-- custom: was PROMOTION_COMBAT1 -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
 			<FreePromotionUnitCombats>
 				<FreePromotionUnitCombat>
-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
 				<FreePromotionUnitCombat>
@@ -70,7 +84,7 @@
 				</FreePromotionUnitCombat>
 			</FreePromotionUnitCombats>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_SPIRITUAL -->
 			<Type>TRAIT_SPIRITUAL</Type>
 			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_SPIRITUAL_SHORT</ShortDescription>
@@ -80,7 +94,8 @@
 			<iMaxAnarchy>0</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
@@ -93,30 +108,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
-			<Type>TRAIT_EXPANSIVE</Type>
-			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
-			<ShortDescription>TXT_KEY_TRAIT_EXPANSIVE_SHORT</ShortDescription>
-			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
-			<iHealth>2</iHealth>
-			<iHappiness>0</iHappiness>
-			<iMaxAnarchy>-1</iMaxAnarchy>
-			<iUpkeepModifier>0</iUpkeepModifier>
-			<iLevelExperienceModifier>0</iLevelExperienceModifier>
-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
-			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
-			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
-			<ExtraYieldThresholds/>
-			<TradeYieldModifiers/>
-			<CommerceChanges/>
-			<CommerceModifiers/>
-			<FreePromotions/>
-			<FreePromotionUnitCombats/>
-		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_INDUSTRIOUS -->
 			<Type>TRAIT_INDUSTRIOUS</Type>
 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
 			<ShortDescription>TXT_KEY_TRAIT_INDUSTRIOUS_SHORT</ShortDescription>
@@ -129,17 +121,19 @@
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
-			<iMaxGlobalBuildingProductionModifier>50</iMaxGlobalBuildingProductionModifier>
-			<iMaxTeamBuildingProductionModifier>50</iMaxTeamBuildingProductionModifier>
-			<iMaxPlayerBuildingProductionModifier>50</iMaxPlayerBuildingProductionModifier>
+			<!-- custom: was 50 50 50 which was ridiculous, give another effect to this trait rather in unit info xml, was 50 50 50 -->
+			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
+			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
+			<ExtraYieldNaturalThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
 			<CommerceModifiers/>
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_CREATIVE -->
 			<Type>TRAIT_CREATIVE</Type>
 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_CREATIVE_SHORT</ShortDescription>
@@ -169,7 +163,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_FINANCIAL -->
 			<Type>TRAIT_FINANCIAL</Type>
 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
 			<ShortDescription>TXT_KEY_TRAIT_FINANCIAL_SHORT</ShortDescription>
@@ -187,7 +181,7 @@
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<!-- advc.908a: Replace the original extra commerce threshold of 2
 				 with a "natural" (see comment in schema file or see manual
-				 or game text) commerce threshold of 3.  -->
+				 or game text) commerce threshold of 3. -->
 			<ExtraYieldThresholds/>
 			<ExtraYieldNaturalThresholds>
 				<iExtraYieldNaturalThreshold>0</iExtraYieldNaturalThreshold>
@@ -200,7 +194,7 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_ORGANIZED -->
 			<Type>TRAIT_ORGANIZED</Type>
 			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
 			<ShortDescription>TXT_KEY_TRAIT_ORGANIZED_SHORT</ShortDescription>
@@ -208,7 +202,8 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iMaxAnarchy>-1</iMaxAnarchy>
-			<iUpkeepModifier>-50</iUpkeepModifier>
+			<!-- custom: was -50 -->
+			<iUpkeepModifier>-75</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
@@ -223,18 +218,21 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_CHARISMATIC -->
 			<Type>TRAIT_CHARISMATIC</Type>
 			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
 			<ShortDescription>TXT_KEY_TRAIT_CHARISMATIC_SHORT</ShortDescription>
 			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
 			<iHealth>0</iHealth>
 			<iHappiness>1</iHappiness>
-			<iMaxAnarchy>-1</iMaxAnarchy>
+			<!-- custom: was -1 -->
+			<iMaxAnarchy>0</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
-			<iLevelExperienceModifier>-25</iLevelExperienceModifier>
+			<!-- custom: was -25 -->
+			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+			<!-- custom: was 0 -->
+			<iGreatGeneralRateModifier>100</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
@@ -246,14 +244,14 @@
 			<FreePromotions/>
 			<FreePromotionUnitCombats/>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_PROTECTIVE -->
 			<Type>TRAIT_PROTECTIVE</Type>
 			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
 			<ShortDescription>TXT_KEY_TRAIT_PROTECTIVE_SHORT</ShortDescription>
 			<Civilopedia>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Civilopedia>
-			<iHealth>0</iHealth>
+			<iHealth>1</iHealth>
 			<iHappiness>0</iHappiness>
-			<iMaxAnarchy>-1</iMaxAnarchy>
+			<iMaxAnarchy>0</iMaxAnarchy>
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
@@ -265,29 +263,43 @@
 			<ExtraYieldThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
-			<CommerceModifiers/>
+			<!-- custom: based on (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4traitinfos/#commercemodifiers and adjusted or not for advciv-sas, was empty -->
+			<CommerceModifiers>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>0</iCommerce>
+				<iCommerce>25</iCommerce>
+			</CommerceModifiers>
 			<FreePromotions>
 				<FreePromotion>
 					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
-				<FreePromotion>
-					<PromotionType>PROMOTION_DRILL1</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
 			</FreePromotions>
 			<FreePromotionUnitCombats>
 				<FreePromotionUnitCombat>
-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
 				<FreePromotionUnitCombat>
 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
 				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
+				<FreePromotionUnitCombat>
+					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+				</FreePromotionUnitCombat>
 			</FreePromotionUnitCombats>
 		</TraitInfo>
-		<TraitInfo>
+		<TraitInfo> <!-- custom: TRAIT_IMPERIALIST -->
 			<Type>TRAIT_IMPERIALIST</Type>
 			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
 			<ShortDescription>TXT_KEY_TRAIT_IMPERIALIST_SHORT</ShortDescription>
@@ -298,13 +310,19 @@
 			<iUpkeepModifier>0</iUpkeepModifier>
 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
-			<iGreatGeneralRateModifier>100</iGreatGeneralRateModifier>
+			<!-- custom: was 100 -->
+			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
 			<ExtraYieldThresholds/>
-			<TradeYieldModifiers/>
+			<!-- custom: Long_Comments_XML.txt #353, was empty -->
+			<TradeYieldModifiers>
+				<iYield>10</iYield>
+				<iYield>20</iYield>
+				<iYield>30</iYield>
+			</TradeYieldModifiers>
 			<CommerceChanges/>
 			<CommerceModifiers/>
 			<FreePromotions/>

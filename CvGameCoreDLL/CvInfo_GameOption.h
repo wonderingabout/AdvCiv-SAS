@@ -91,14 +91,8 @@ public:
 		AllGoodyTechs, // advc.314
 		NUM_BOOL_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
-	int get(BoolElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::BoolElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
+	int get(BoolElementTypes e) const { return base_t::get(static_cast<base_t::BoolElementTypes>(e)); } // </advc.tag>
 
 	// All the const functions are exposed to Python except those added by mods
 	CvEraInfo();
@@ -127,6 +121,9 @@ public:
 	int getEventChancePerTurn() const;
 	int getSoundtrackSpace() const;
 	int getNumSoundtracks() const;
+	// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+	const TCHAR* getSoundtrackScriptName(int i) const;
+	// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 	const TCHAR* getAudioUnitVictoryScript() const;
 	const TCHAR* getAudioUnitDefeatScript() const;
 
@@ -135,6 +132,18 @@ public:
 	bool isNoBarbUnits() const;
 	bool isNoBarbCities() const;
 	bool isFirstSoundtrackFirst() const;
+	// <!-- custom: expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
+	bool isAllGoodyTechs() const { return (get(AllGoodyTechs) != 0); }
+	int getAIMaxGroundbreakingPenalty() const { return get(AIMaxGroundbreakingPenalty); }
+	int getHumanMaxGroundbreakingPenalty() const { return get(HumanMaxGroundbreakingPenalty); }
+	bool isAIAgeOfExploration() const { return (get(AIAgeOfExploration) != 0); }
+	bool isAIAgeOfPestilence() const { return (get(AIAgeOfPestilence) != 0); }
+	bool isAIAgeOfPollution() const { return (get(AIAgeOfPollution) != 0); }
+	bool isAIAgeOfFertility() const { return (get(AIAgeOfFertility) != 0); }
+	bool isAIAgeOfGuns() const { return (get(AIAgeOfGuns) != 0); }
+	bool isAIAtomicAge() const { return (get(AIAtomicAge) != 0); }
+	bool isAIAgeOfProduction() const { return (get(AIAgeOfProduction) != 0); }
+	// <!-- custom: end - expose additional era getters for Sevopedia Era chart (GPT-5.2-Codex) -->
 
 	int getSoundtracks(int i) const;
 	int getCitySoundscapeScriptId(int i) const;
@@ -145,34 +154,13 @@ public:
 	/*	NB: The "age" functions return ERA_NEVER instead of NO_ERA.
 		Not MAX_INT b/c we don't want callers to get in trouble with overflow. */
 	#define ERA_NEVER ((EraTypes)100)
-	static EraTypes AI_getAgeOfExploration()
-	{
-		return m_eAIAgeOfExploration;
-	}
-	static EraTypes AI_getAgeOfPestilence()
-	{
-		return m_eAIAgeOfPestilence;
-	}
-	static EraTypes AI_getAgeOfPollution()
-	{
-		return m_eAIAgeOfPollution;
-	}
-	static EraTypes AI_getAgeOfFertility()
-	{
-		return m_eAIAgeOfFertility;
-	}
-	static EraTypes AI_getAgeOfGuns()
-	{
-		return m_eAIAgeOfGuns;
-	}
-	static EraTypes AI_getAtomicAge()
-	{
-		return m_eAIAtomicAge;
-	}
-	static EraTypes AI_getAgeOfProduction()
-	{
-		return m_eAIAgeOfProduction;
-	}
+	static EraTypes AI_getAgeOfExploration() { return m_eAIAgeOfExploration; }
+	static EraTypes AI_getAgeOfPestilence() { return m_eAIAgeOfPestilence; }
+	static EraTypes AI_getAgeOfPollution() { return m_eAIAgeOfPollution; }
+	static EraTypes AI_getAgeOfFertility() { return m_eAIAgeOfFertility; }
+	static EraTypes AI_getAgeOfGuns() { return m_eAIAgeOfGuns; }
+	static EraTypes AI_getAtomicAge() { return m_eAIAtomicAge; }
+	static EraTypes AI_getAgeOfProduction() { return m_eAIAgeOfProduction; }
 	// Akin to normalizeEraFactor in Kek-Mod (CvGameCoreUtils)
 	static scaled normalizeEraNum(int iEra)
 	{
@@ -232,6 +220,9 @@ protected:
 	bool m_bFirstSoundtrackFirst;
 
 	int* m_paiSoundtracks;
+	// <!-- custom: expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
+	CvString* m_paszSoundtracks;
+	// <!-- custom: End - expose additional era getters for Sevopedia Music Era tracks' name chart (GPT-5.2-Codex) -->
 	int* m_paiCitySoundscapeScriptIds;
 };
 
@@ -260,7 +251,11 @@ protected:
 		kElements.addInt(EventRollSidesPercent, "EventRollSidesPercent", 100);
 		kElements.addInt(VoteIntervalPercent, "VoteIntervalPercent", 100);
 		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100);
-		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 100);
+
+		// <!-- custom: ExtraFreeOutsideUnits is a UNIT COUNT (added to INITIAL_FREE_OUTSIDE_UNITS in CvPlayer::calculateUnitSupply), not a percent. The XML schema allows the tag to be omitted (minOccurs=0), so the default matters.
+		// It was previously defaulted to 100 (copied from percent-style fields), which effectively means "+100 free outside units" on any game speed missing <iExtraFreeOutsideUnits>, causing confusing mismatches (spotted via the SevoPedia Game Speed Chart). Defaulting to 0 makes "tag missing" behave like "no extra", which matches intent and avoids accidental huge free allowances. (ChatGPT 5.2 Thinking). See known issue as of now 92 for details. -->
+		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 0);
+
 		// </advc.252>
 	}
 public:
@@ -279,10 +274,7 @@ public:
 		ExtraFreeOutsideUnits, // </advc.252>
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	// All the const functions are exposed to Python except those added by mods
 	CvGameSpeedInfo();
@@ -296,6 +288,11 @@ public:
 	int getBuildPercent() const { return m_iBuildPercent; }
 	int getImprovementPercent() const { return m_iImprovementPercent; }
 	int getGreatPeoplePercent() const { return m_iGreatPeoplePercent; }
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int getCulturePercent() const { return m_iCulturePercent; }
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int getAnarchyPercent() const { return m_iAnarchyPercent; }
 	int getBarbPercent() const;
 	int getFeatureProductionPercent() const;
@@ -309,6 +306,20 @@ public:
 	int getInflationOffset() const;
 	int getInflationPercent() const;
 	int getVictoryDelayPercent() const { return m_iVictoryDelayPercent; }
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int getAIMemoryRandPercent() const { return get(AIMemoryRandPercent); }
+	int getAIContactRandPercent() const { return get(AIContactRandPercent); }
+	int getAIContactDelayPercent() const { return get(AIContactDelayPercent); }
+	int getFullTradeCreditPercent() const { return get(FullTradeCreditPercent); }
+	int getRevoltDivPercent() const { return get(RevoltDivPercent); }
+	int getReligionSpreadDivPercent() const { return get(ReligionSpreadDivPercent); }
+	int getEventRollSidesPercent() const { return get(EventRollSidesPercent); }
+	int getVoteIntervalPercent() const { return get(VoteIntervalPercent); }
+	int getUnitCostPercent() const { return get(UnitCostPercent); }
+	int getExtraFreeOutsideUnits() const { return get(ExtraFreeOutsideUnits); }
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int getNumTurnIncrements() const;
 
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
@@ -324,6 +335,11 @@ protected:
 	int m_iBuildPercent;
 	int m_iImprovementPercent;
 	int m_iGreatPeoplePercent;
+
+	// <!-- custom: expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+	int m_iCulturePercent;
+	// <!-- custom: End - expose getters so we can display the values in the new Sevopedia GameSpeedChart, with the help of GPT-5.2-Codex thanks. -->
+
 	int m_iAnarchyPercent;
 	int m_iBarbPercent;
 	int m_iFeatureProductionPercent;
@@ -388,10 +404,7 @@ public:
 		LandPercentLead = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.254
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	CvVictoryInfo();
 	// The const functions are exposed to Python ...
@@ -460,10 +473,7 @@ public:
 		BarbarianCityAttackBonus, SeaBarbarianBonus, SeaBarbarianExtraMoves, // advc.313
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	CvHandicapInfo();
 	~CvHandicapInfo();
@@ -488,6 +498,14 @@ public:
 	int getConstructPercent() const { return m_iConstructPercent; }
 	int getCreatePercent() const { return m_iCreatePercent; }
 	// </advc.251>
+
+	// <!-- custom: expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
+	int getForeignCultureStrength() const { return get(ForeignCultureStrength); }
+	int getBarbarianCityAttackBonus() const { return get(BarbarianCityAttackBonus); }
+	int getSeaBarbarianBonus() const { return get(SeaBarbarianBonus); }
+	int getSeaBarbarianExtraMoves() const { return get(SeaBarbarianExtraMoves); }
+	// <!-- custom: End - expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
+
 	int getDistanceMaintenancePercent() const;
 	int getNumCitiesMaintenancePercent() const;
 	int getMaxNumCitiesMaintenance() const;
@@ -662,11 +680,8 @@ public:
 		UnitCostPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.252
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
- 
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
+
 	CvWorldInfo();
 	// All the const functions are exposed to Python ...
 	DllExport int getDefaultPlayers() const { return m_iDefaultPlayers; }
@@ -687,6 +702,11 @@ public:
 	int getColonyMaintenancePercent() const;
 	int getCorporationMaintenancePercent() const;
 	int getNumCitiesAnarchyPercent() const;
+
+	// <!-- custom: expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+	int getUnitCostPercent() const { return get(UnitCostPercent); }
+	// <!-- custom: End - expose getters for Sevopedia World Sizes Chart. Credit: GPT-5.2-Codex -->
+
 	int getAdvancedStartPointsMod() const;
 
 	bool read(CvXMLLoadUtility* pXML);

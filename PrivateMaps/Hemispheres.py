@@ -10,6 +10,7 @@
 #
 
 from CvPythonExtensions import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -37,12 +38,12 @@ def getDescription():
 	return "TXT_KEY_MAP_SCRIPT_LEFT_AND_RIGHT_DESCR"
 
 def isAdvancedMap():
-	"This map should not show up in simple mode"
-	return 0
+	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
+	return 1
 
 def getNumCustomMapOptions():
 	return 3
-	
+
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
 	option_names = {
@@ -50,9 +51,11 @@ def getCustomMapOptionName(argsList):
 		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
 		2:	"TXT_KEY_MAP_SCRIPT_NUMBER_OF_CONTINENTS"
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-	
+
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
 	option_values = {
@@ -61,7 +64,7 @@ def getNumCustomMapOptionValues(argsList):
 		2:	5
 		}
 	return option_values[iOption]
-	
+
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
 	selection_names = {
@@ -84,6 +87,8 @@ def getCustomMapOptionDescAt(argsList):
 			}
 		}
 	if (iOption < 3):
+		if not selection_names.has_key(iOption):
+			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 		translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	else:
 		translated_text = selection_names[iOption][iSelection]
@@ -115,7 +120,7 @@ def beforeGeneration():
 	yShiftRoll = dice.get(2, "Region Shift, Vertical - Left and Right PYTHON")
 	ySplitRoll = dice.get(2, "Region Split, Vertical - Left and Right PYTHON")
 	yPortionRoll = dice.get(2, "Region Portioning, Vertical - Left and Right PYTHON")
-	print xShiftRoll
+	print(xShiftRoll)
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generateIslandRegion(self, minTinies, extraTinies, iWestX, iSouthY, iWidth, iHeight, iGrain):
@@ -131,29 +136,11 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestX = iWestX + self.dice.get(iWidth - tinyWidth, "Tiny Longitude - Custom Continents PYTHON")
 				tinySouthY = iSouthY + self.dice.get(iHeight - tinyHeight, "Tiny Latitude - Custom Continents PYTHON")
 
-				self.generatePlotsInRegion(80,
-										   tinyWidth, tinyHeight,
-										   tinyWestX, tinySouthY,
-										   iGrain, 3,
-										   0, self.iTerrainFlags,
-										   6, 5,
-										   True, 3,
-										   -1, False,
-										   False
-										   )
+				self.generatePlotsInRegion(80, tinyWidth, tinyHeight, tinyWestX, tinySouthY, iGrain, 3, 0, self.iTerrainFlags, 6, 5, True, 3, -1, False, False)
 		return 0
 
 	def generateContinentRegion(self, iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, xExp):
-		self.generatePlotsInRegion(iWater,
-								   iWidth, iHeight,
-								   iWestX, iSouthY,
-								   iGrain, 4,
-								   self.iRoundFlags, self.iTerrainFlags,
-								   xExp, 6,
-								   True, 15,
-								   -1, False,
-								   False
-								   )
+		self.generatePlotsInRegion(iWater, iWidth, iHeight, iWestX, iSouthY, iGrain, 4, self.iRoundFlags, self.iTerrainFlags, xExp, 6, True, 15, -1, False, False)
 		return 0
 
 	def generatePlotsByRegion(self):
@@ -262,7 +249,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			else:
 				westShift = 0
 				eastShift = int(0.5 * self.iW)
-		
+
 		iWestX = westShift
 		iEastX = self.iW - eastShift
 		iWidth = iEastX - iWestX
@@ -430,7 +417,7 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 			# (This will choose one side or the other for this region then fit it properly in its space).
 			westShift = int(0.66 * self.iW)
 			eastShift = 0
-			
+
 			iWestX = westShift
 			iEastX = self.iW - eastShift
 			iWidth = iEastX - iWestX
@@ -499,22 +486,22 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					self.generateIslandRegion(3, 4, iWestX, iSouthY, iWidth, iHeight, iIslandsGrain)
 
 		# All regions have been processed. Plot Type generation completed.
-		print "Done"
+		print("Done")
 		return self.wholeworldPlotTypes
 
-'''
-Regional Variables Key:
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")

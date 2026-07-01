@@ -960,7 +960,8 @@ bool CvVoteSourceInfo::read(CvXMLLoadUtility* pXML)
 		m_aszExtraXMLforPass3.push_back(szTextVal);
 	}
 	pXML->SetYieldList(ReligionYield(), "ReligionYields");
-	pXML->SetCommerceList(ReligionYield(), "ReligionCommerces");
+	// <!-- custom: fix base AdvCiv/Civ4 XML parse bug: ReligionCommerces must populate the commerce array, not the yield array; otherwise VoteSourceInfo.getReligionCommerce(...) stays 0 and Sevopedia/Vote-source displays show "None" despite non-zero XML values. See KI#121. (GPT-5.4?) -->
+	pXML->SetCommerceList(ReligionCommerce(), "ReligionCommerces");
 
 	return true;
 }

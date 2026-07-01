@@ -1,14 +1,16 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
 import CvMainInterface
 import CvTechChooser
 import CvForeignAdvisor
-import CvExoticForeignAdvisor
-import CvReligionScreen
-import CvCorporationScreen
-import CvCivicsScreen
+import CvForeignDiplomacyAdvisor
+import CvPolicyAdvisorScreen
 import CvVictoryScreen
-import CvEspionageAdvisor
 
 import CvOptionsScreen
 import CvReplayScreen
@@ -20,6 +22,7 @@ import CvDawnOfMan
 import CvTechSplashScreen
 import CvTopCivs
 import CvInfoScreen
+import CvWorldAdvisorScreen
 
 import CvIntroMovieScreen
 import CvVictoryMovieScreen
@@ -45,6 +48,7 @@ import CvScreenUtilsInterface
 import ScreenInput as PyScreenInput
 from CvScreenEnums import *
 from CvPythonExtensions import *
+import SASDefineGuard
 # K-Mod
 import BugOptionsScreen
 def showBugOptionsScreen(argsList=None):
@@ -55,26 +59,25 @@ g_bIsScreenActive = -1
 
 def toggleSetNoScreens():
 	global g_bIsScreenActive
-	print "SCREEN OFF"
+	print("SCREEN OFF")
 	g_bIsScreenActive = -1
 
 def toggleSetScreenOn(argsList):
 	global g_bIsScreenActive
-	print "%s SCREEN TURNED ON" %(argsList[0],)
+	print("%s SCREEN TURNED ON" %(argsList[0],))
 	g_bIsScreenActive = argsList[0]
 
 # BUG - Options - start
 # advc.009b: Renamed from "init"; now called via BugScreenInit.py.
 def initBugAdvisors():
 	createDomesticAdvisor()
-	createFinanceAdvisor()
 	createMilitaryAdvisor()
 	createCivilopedia()
 	createTechSplash()
 # BUG - Options - end
 
 #diplomacyScreen = CvDiplomacy.CvDiplomacy()
-	
+
 mainInterface = CvMainInterface.CvMainInterface()
 def showMainInterface():
 	mainInterface.interfaceScreen()
@@ -97,103 +100,112 @@ hallOfFameScreen = CvHallOfFameScreen.CvHallOfFameScreen(HALL_OF_FAME)
 def showHallOfFame(argsList):
 	hallOfFameScreen.interfaceScreen(argsList[0])
 
-civicScreen = CvCivicsScreen.CvCivicsScreen()
-def showCivicsScreen():
+policyAdvisorScreen = CvPolicyAdvisorScreen.CvPolicyAdvisorScreen()
+# <!-- custom: canonical policy advisor screen entrypoint. (GPT-5.3-Codex) -->
+def showPolicyAdvisorScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		civicScreen.interfaceScreen()
+		# <!-- custom: preserve last visited Policy tab on reopen, matching tabbed-advisor behavior used elsewhere. (GPT-5.3-Codex) -->
+		policyAdvisorScreen.interfaceScreen()
 
-religionScreen = CvReligionScreen.CvReligionScreen()
+# <!-- custom: Religion advisor is integrated as a native Policy advisor tab; open Policy tab index for Religion instead of standalone CvReligionScreen. (GPT-5.3-Codex) -->
 def showReligionScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		religionScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_RELIGION])
 
-corporationScreen = CvCorporationScreen.CvCorporationScreen()
+# <!-- custom: Corporation advisor is integrated as a native Policy advisor tab; open Policy tab index for Corporation instead of standalone CvCorporationScreen. (GPT-5.3-Codex) -->
 def showCorporationScreen():
 	if (-1 != CyGame().getActivePlayer()):
-		corporationScreen.interfaceScreen()
+		policyAdvisorScreen.interfaceScreen([policyAdvisorScreen.PAGE_CORPORATION])
 
 optionsScreen = CvOptionsScreen.CvOptionsScreen()
 def showOptionsScreen():
 	optionsScreen.interfaceScreen()
 
-#foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
-foreignAdvisor = CvExoticForeignAdvisor.CvExoticForeignAdvisor()
+# <!-- custom: split Foreign advisors: canonical Foreign (F4) is the trade cluster, while diplomacy/intel is the derivative F3 slot shell. (GPT-5.3-Codex) -->
+foreignAdvisor = CvForeignAdvisor.CvForeignAdvisor()
+foreignDiplomacyAdvisor = CvForeignDiplomacyAdvisor.CvForeignDiplomacyAdvisor()
+FOREIGN_DIPLOMACY_TABS = (foreignDiplomacyAdvisor.SCREEN_DICT["RELATIONS"], foreignDiplomacyAdvisor.SCREEN_DICT["GLANCE"], foreignDiplomacyAdvisor.SCREEN_DICT["INFO"], foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
 def showForeignAdvisorScreen(argsList):
 	if (-1 != CyGame().getActivePlayer()):
-		foreignAdvisor.interfaceScreen(argsList[0])
+		iScreen = -1
+		if type(argsList) in [list, tuple]:
+			if len(argsList) > 0:
+				iScreen = argsList[0]
+		else:
+			iScreen = argsList
+		# <!-- custom: tab clicks from both Foreign shells are routed by the DLL through showForeignAdvisorScreen(iTab) using WIDGET_FOREIGN_ADVISOR.
+		# Keep canonical Foreign defaulting to trade (F4); only diplomacy/intel tab ids route to the F3 shell. (GPT-5.3-Codex) -->
+		if iScreen in FOREIGN_DIPLOMACY_TABS:
+			foreignDiplomacyAdvisor.interfaceScreen(iScreen)
+		else:
+			foreignAdvisor.interfaceScreen(iScreen)
 
-# BUG - Finance Advisor - start
-##	
-# K-Mod, 18/dec/10, karadoc
-# I've disabled this option. We always use the 'economics advisor' now.	
-# (but the way I've done it is a kludge)
-##
-financeAdvisor = None
-def createFinanceAdvisor():
-	"""Creates the correct Finance Advisor based on an option."""
-	global financeAdvisor
-	if financeAdvisor is None:
-		import EconomicsAdvisor
-		financeAdvisor = EconomicsAdvisor.EconomicsAdvisor()
-#		if (AdvisorOpt.isBugFinanceAdvisor()):
-#			import BugFinanceAdvisor
-#			financeAdvisor = BugFinanceAdvisor.BugFinanceAdvisor()
-#		else:
-#			import CvFinanceAdvisor
-#			financeAdvisor = CvFinanceAdvisor.CvFinanceAdvisor()
-		HandleInputMap[FINANCE_ADVISOR] = financeAdvisor
-# BUG - Finance Advisor - end
-			
-def showFinanceAdvisor():
+def showForeignDiplomacyAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		financeAdvisor.interfaceScreen()
+		# <!-- custom: open F3 with the advisor's persisted tab state (same behavior as F4): -1 reuses last visited tab, and falls back to default only on first open. (GPT-5.4) -->
+		foreignDiplomacyAdvisor.interfaceScreen(-1)
 
 # BUG - CustDomAdv - start
 domesticAdvisor = None
+domesticAdvisorUsesBUG = None
 def createDomesticAdvisor():
-	"""Creates the correct Domestic Advisor based on an option."""
 	global domesticAdvisor
-	if domesticAdvisor is None:
-		if (CustDomAdvOpt.isEnabled()):
-			import CvCustomizableDomesticAdvisor
-			domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
-		else:
-			import CvDomesticAdvisor
-			domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
-		HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
+	global domesticAdvisorUsesBUG
+	bUseBUG = CustDomAdvOpt.isEnabled()
+	# <!-- custom: Fix: Domestic and Military advisor variant options are live BUG settings, but cached screen objects
+	# previously kept using the old variant until restarting Civ4. Rebuild on option changes so F1/F5 switch immediately.
+	# Religion did not need this path after moving into Policy Advisor. See KI#123. (GPT-5.5) -->
+	if domesticAdvisor is not None and domesticAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvCustomizableDomesticAdvisor
+		# <!-- custom: Fix KI#123 follow-up Python error: CDA stores its position-cache flag at module level, so the rebuilt advisor object skipped createPositions and raised missing nScreenX. See KI#123. (GPT-5.5) -->
+		CvCustomizableDomesticAdvisor.forcePositionCalc()
+		domesticAdvisor = CvCustomizableDomesticAdvisor.CvCustomizableDomesticAdvisor()
+	else:
+		import CvDomesticAdvisor
+		domesticAdvisor = CvDomesticAdvisor.CvDomesticAdvisor()
+	domesticAdvisorUsesBUG = bUseBUG
+	HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
 # BUG - CustDomAdv - end
 
 # advc.003y: Default value for unused param added to simplify calls from the DLL
 def showDomesticAdvisor(argsList=None):
 	if (-1 != CyGame().getActivePlayer()):
+		createDomesticAdvisor()
 		domesticAdvisor.interfaceScreen()
 
 # BUG - Military Advisor - start
 militaryAdvisor = None
+militaryAdvisorUsesBUG = None
 def createMilitaryAdvisor():
-	"""Creates the correct Military Advisor based on an option."""
 	global militaryAdvisor
-	if militaryAdvisor is None:
-		if (AdvisorOpt.isBUG_MA()):
-			import CvBUGMilitaryAdvisor
-			militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		else:
-			import CvMilitaryAdvisor
-			militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
-		HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
+	global militaryAdvisorUsesBUG
+	bUseBUG = AdvisorOpt.isBUG_MA()
+	if militaryAdvisor is not None and militaryAdvisorUsesBUG == bUseBUG:
+		return
+	if (bUseBUG):
+		import CvBUGMilitaryAdvisor
+		militaryAdvisor = CvBUGMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	else:
+		import CvMilitaryAdvisor
+		militaryAdvisor = CvMilitaryAdvisor.CvMilitaryAdvisor(MILITARY_ADVISOR)
+	militaryAdvisorUsesBUG = bUseBUG
+	HandleInputMap[MILITARY_ADVISOR] = militaryAdvisor
 
 def showMilitaryAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
+		createMilitaryAdvisor()
 		if (AdvisorOpt.isBUG_MA()):
 			# TODO: move to CvBUGMilitaryAdvisor.interfaceScreen()
 			militaryAdvisor.IconGridActive = False
 		militaryAdvisor.interfaceScreen()
 # BUG - Military Advisor - end
 
-espionageAdvisor = CvEspionageAdvisor.CvEspionageAdvisor()
 def showEspionageAdvisor():
 	if (-1 != CyGame().getActivePlayer()):
-		espionageAdvisor.interfaceScreen()
+		# <!-- custom: Espionage screen is integrated into CvForeignAdvisor; open its Espionage tab instead of a separate advisor instance. (GPT-5.3-Codex) -->
+		foreignDiplomacyAdvisor.interfaceScreen(foreignDiplomacyAdvisor.SCREEN_DICT["ESPIONAGE"])
 
 dawnOfMan = CvDawnOfMan.CvDawnOfMan(DAWN_OF_MAN)
 def showDawnOfMan(argsList):
@@ -202,11 +214,11 @@ def showDawnOfMan(argsList):
 introMovie = CvIntroMovieScreen.CvIntroMovieScreen()
 def showIntroMovie(argsList):
 	introMovie.interfaceScreen()
-	
+
 victoryMovie = CvVictoryMovieScreen.CvVictoryMovieScreen()
 def showVictoryMovie(argsList):
 	victoryMovie.interfaceScreen(argsList[0])
-	
+
 wonderMovie = CvWonderMovieScreen.CvWonderMovieScreen()
 def showWonderMovie(argsList):
 	wonderMovie.interfaceScreen(argsList[0], argsList[1], argsList[2])
@@ -214,12 +226,12 @@ def showWonderMovie(argsList):
 eraMovie = CvEraMovieScreen.CvEraMovieScreen()
 def showEraMovie(argsList):
 	eraMovie.interfaceScreen(argsList[0])
-	
+
 spaceShip = CvSpaceShipScreen.CvSpaceShipScreen()
 def showSpaceShip(argsList):
 	if (-1 != CyGame().getActivePlayer()):
 		spaceShip.interfaceScreen(argsList[0])
-	
+
 replayScreen = CvReplayScreen.CvReplayScreen(REPLAY_SCREEN)
 def showReplay(argsList):
 	if argsList[0] > -1:
@@ -245,6 +257,13 @@ def showInfoScreen(argsList):
 		iEndGame = argsList[1]
 		infoScreen.showScreen(-1, iTabID, iEndGame)
 
+# <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+worldAdvisorScreen = CvWorldAdvisorScreen.CvWorldAdvisorScreen(WORLD_ADVISOR)
+# <!-- custom: argsList=None because the engine invokes this both bare (keyboard hotkey) and with an argsList (e.g. on screen close/reopen); without the default, the latter raises "takes no arguments (1 given)". (Claude code Opus 4.7) -->
+def showWorldAdvisorScreen(argsList=None):
+	if (-1 != CyGame().getActivePlayer()):
+		worldAdvisorScreen.showScreen()
+
 debugInfoScreen = CvDebugInfoScreen.CvDebugInfoScreen()
 def showDebugInfoScreen():
 	debugInfoScreen.interfaceScreen()
@@ -252,7 +271,8 @@ def showDebugInfoScreen():
 # BUG - Tech Splash Screen - start
 techSplashScreen = None
 def createTechSplash():
-	"""Creates the correct Tech Splash Screen based on an option."""
+	# Creates the correct Tech Splash Screen based on an option.
+	#
 	global techSplashScreen
 	if techSplashScreen is None:
 		if (TechWindowOpt.isDetailedView()):
@@ -288,7 +308,9 @@ def showVictoryScreen():
 pediaMainScreen = None
 bUsingSevopedia = False
 def createCivilopedia():
-	"""Creates the correct Civilopedia based on an option."""
+	# Creates the correct Civilopedia based on an option.
+	#
+	SASDefineGuard.verify_or_raise("CvScreensInterface.createCivilopedia")
 	global pediaMainScreen
 	global bUsingSevopedia
 	if pediaMainScreen is None:
@@ -322,7 +344,7 @@ def createCivilopedia():
 								PEDIA_RELIGION : pediaMainScreen,
 								PEDIA_CORPORATION : pediaMainScreen,
 								PEDIA_HISTORY : pediaMainScreen,
-								
+
 								SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
@@ -332,13 +354,14 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-								SevoScreenEnums.PEDIA_GREAT_WONDERS	: pediaMainScreen,
+								SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+								SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_CIVS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 								# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -349,6 +372,8 @@ def createCivilopedia():
 								SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 								SevoScreenEnums.PEDIA_HINTS		: pediaMainScreen,
 								SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MOVIES		: pediaMainScreen,
+								SevoScreenEnums.PEDIA_MUSIC		: pediaMainScreen,
 							})
 		global HandleNavigationMap
 		HandleNavigationMap = {
@@ -370,7 +395,7 @@ def createCivilopedia():
 							PEDIA_HISTORY : pediaMainScreen,
 							PEDIA_RELIGION : pediaMainScreen,
 							PEDIA_CORPORATION : pediaMainScreen,
-							
+
 							SevoScreenEnums.PEDIA_MAIN		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_TECHS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_UNITS		: pediaMainScreen,
@@ -380,13 +405,14 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_PROMOTION_TREE	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BUILDINGS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_NATIONAL_WONDERS	: pediaMainScreen,
-							SevoScreenEnums.PEDIA_GREAT_WONDERS	: pediaMainScreen,
+							SevoScreenEnums.PEDIA_WORLD_WONDERS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_PROJECTS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_SPECIALISTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_TERRAINS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_FEATURES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_BONUSES		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_IMPROVEMENTS	: pediaMainScreen,
+							SevoScreenEnums.PEDIA_BUILDS		: pediaMainScreen,
 							SevoScreenEnums.PEDIA_CIVS		 	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_LEADERS		: pediaMainScreen,
 							# SevoScreenEnums.PEDIA_TRAITS		: pediaMainScreen,
@@ -397,6 +423,8 @@ def createCivilopedia():
 							SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
 							SevoScreenEnums.PEDIA_HINTS			: pediaMainScreen,
 							SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MOVIES			: pediaMainScreen,
+							SevoScreenEnums.PEDIA_MUSIC			: pediaMainScreen,
 						}
 
 def linkToPedia(argsList):
@@ -481,6 +509,12 @@ def pediaJumpToBonus(argsList):
 def pediaJumpToImprovement(argsList):
 	if (bUsingSevopedia):
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_IMPROVEMENTS, argsList[0], True, False)
+	else:
+		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
+
+def pediaJumpToBuild(argsList):
+	if (bUsingSevopedia):
+		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_BUILDS, argsList[0], True, False)
 	else:
 		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
 
@@ -602,13 +636,13 @@ def WorldBuilderHandleAllPlotsCB( argsList ):
 
 def WorldBuilderHandleUnitEditExperienceCB( argsList ):
 	worldBuilderScreen.handleUnitEditExperienceCB(argsList)
-	
+
 def WorldBuilderHandleUnitEditLevelCB( argsList ):
 	worldBuilderScreen.handleUnitEditLevelCB(argsList)
-	
+
 def WorldBuilderHandleUnitEditNameCB( argsList ):
 	worldBuilderScreen.handleUnitEditNameCB(argsList)
-	
+
 def WorldBuilderHandleCityEditPopulationCB( argsList ):
 	worldBuilderScreen.handleCityEditPopulationCB(argsList)
 
@@ -676,27 +710,27 @@ def WorldBuilderGetHighlightPlot(argsList):
 	return worldBuilderScreen.getHighlightPlot(argsList)
 
 def WorldBuilderOnAdvancedStartBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	print("WB Advanced Start brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
 	if (iTab == worldBuilderScreen.m_iASTechTabID):
 		showTechChooser()
 	elif (iTab == worldBuilderScreen.m_iASCityTabID and iList == worldBuilderScreen.m_iASAutomateListID):
 		CyMessageControl().sendAdvancedStartAction(AdvancedStartActionTypes.ADVANCEDSTARTACTION_AUTOMATE, worldBuilderScreen.m_iCurrentPlayer, -1, -1, -1, true)
-		
+
 	if (worldBuilderScreen.setCurrentAdvancedStartIndex(iIndex)):
 		if (worldBuilderScreen.setCurrentAdvancedStartList(iList)):
 			return 1
 	return 0
 
 def WorldBuilderOnNormalPlayerBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	print("WB brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
 	if (worldBuilderScreen.setCurrentNormalPlayerIndex(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnNormalMapBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	print("WB brush selected, iList=%d, iIndex=%d, type=%d" %(iList,iIndex,iTab))	
 	if (worldBuilderScreen.setCurrentNormalMapIndex(iIndex)):
 		if (worldBuilderScreen.setCurrentNormalMapList(iList)):
@@ -704,31 +738,31 @@ def WorldBuilderOnNormalMapBrushSelected(argsList):
 	return 0
 
 def WorldBuilderOnWBEditBrushSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditButtonClicked(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditReligionSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditReligionSelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditHolyCitySelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditHolyCitySelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditCorporationSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditCorporationSelected(iIndex)):
 		return 1
 	return 0
 
 def WorldBuilderOnWBEditHeadquartersSelected(argsList):
-	iList,iIndex,iTab = argsList;
+	iList,iIndex,iTab = argsList
 	if (worldBuilderScreen.setEditHeadquartersSelected(iIndex)):
 		return 1
 	return 0
@@ -840,7 +874,7 @@ def WorldBuilderHasHeadquarters(argsList):
 
 def WorldBuilderHandleDiploPlayerDropdownCB( argsList ):
 	worldBuilderScreen.handleDiploPlayerDropdownCB(argsList)
-	
+
 ##### WORLDBUILDER DIPLOMACY SCREEN #####
 
 worldBuilderDiplomacyScreen = CvWorldBuilderDiplomacyScreen.CvWorldBuilderDiplomacyScreen()
@@ -876,7 +910,7 @@ def movieDone(argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().movieDone(argsList)):
 		return
-	
+
 	if (argsList[0] == INTRO_MOVIE_SCREEN):
 		introMovie.hideScreen()
 
@@ -887,17 +921,17 @@ def leftMouseDown (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().leftMouseDown(argsList)):
 		return
-	
+
 	if ( argsList[0] == WORLDBUILDER_SCREEN ):
 		worldBuilderScreen.leftMouseDown(argsList[1:])
 		return 1
 	return 0
-		
+
 def rightMouseDown (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().rightMouseDown(argsList)):
 		return
-	
+
 	if ( argsList[0] == WORLDBUILDER_SCREEN ):
 		worldBuilderScreen.rightMouseDown(argsList)
 		return 1
@@ -907,20 +941,21 @@ def mouseOverPlot (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().mouseOverPlot(argsList)):
 		return
-	
+
 	if (WORLDBUILDER_SCREEN == argsList[0]):
 		worldBuilderScreen.mouseOverPlot(argsList)
 
 def handleInput (argsList):
-	' handle input is called when a screen is up '
+	# handle input is called when a screen is up
+	#
 	inputClass = PyScreenInput.ScreenInput(argsList)
-	
+
 	# allows overides for mods
 	ret = CvScreenUtilsInterface.getScreenUtils().handleInput( (inputClass.getPythonFile(),inputClass) )
 
 	# get the screen that is active from the HandleInputMap Dictionary
 	screen = HandleInputMap.get( inputClass.getPythonFile() )
-	
+
 	# call handle input on that screen
 	if ( screen and not ret):
 		return screen.handleInput(inputClass)
@@ -930,7 +965,7 @@ def update (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().update(argsList)):
 		return
-	
+
 	if (HandleInputMap.has_key(argsList[0])):
 		screen = HandleInputMap.get(argsList[0])
 		screen.update(argsList[1])
@@ -943,13 +978,13 @@ def onClose (argsList):
 	if (HandleCloseMap.has_key(argsList[0])):
 		screen = HandleCloseMap.get(argsList[0])
 		screen.onClose()
-		
+
 # Forced screen update
 def forceScreenUpdate (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().forceScreenUpdate(argsList)):
 		return
-		
+
 	# Tech chooser update (forced from net message)
 	if ( argsList[0] == TECH_CHOOSER ):
 		techChooser.updateTechRecords(false)
@@ -968,7 +1003,7 @@ def forceScreenRedraw (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().forceScreenRedraw(argsList)):
 		return
-	
+
 	# Main Interface Screen
 	if ( argsList[0] == MAIN_INTERFACE ):
 		mainInterface.redraw()
@@ -979,12 +1014,11 @@ def forceScreenRedraw (argsList):
 	elif ( argsList[0] == TECH_CHOOSER ):
 		techChooser.updateTechRecords(true)
 
-
 def minimapClicked (argsList):
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().minimapClicked(argsList)):
 		return
-	
+
 	if (MILITARY_ADVISOR == argsList[0]):
 		militaryAdvisor.minimapClicked()
 	return
@@ -998,7 +1032,7 @@ def handleBack(screens):
 		if (HandleNavigationMap.has_key(iScreen)):
 			screen = HandleNavigationMap.get( iScreen )
 			screen.back()
-	print "Mouse BACK"
+	print("Mouse BACK")
 	return 0
 
 def handleForward(screens):
@@ -1006,7 +1040,7 @@ def handleForward(screens):
 		if (HandleNavigationMap.has_key(iScreen)):
 			screen = HandleNavigationMap.get( iScreen )
 			screen.forward()
-	print "Mouse FWD"
+	print("Mouse FWD")
 	return 0
 
 def refreshMilitaryAdvisor (argsList):
@@ -1018,7 +1052,7 @@ def refreshMilitaryAdvisor (argsList):
 		militaryAdvisor.drawCombatExperience()
 	elif (argsList[0] <= 0):
 		militaryAdvisor.refreshSelectedUnit(-argsList[0], argsList[1])
-	
+
 def updateMusicPath (argsList):
     szPathName = argsList[0]
     optionsScreen.updateMusicPath(szPathName)
@@ -1034,7 +1068,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
 	gc = CyGlobalContext()
 	if choice == 0:
 		gc.updateCameraStartDistance(False)
-	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG Main Interface Options.xml).
+	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG_Main_Interface_Options.xml).
 	elif choice == 1:
 		newVal = 2200
 	elif choice == 2:
@@ -1112,14 +1146,20 @@ def featAccomplishedOnClickedCallback(argsList):
 	szText = argsList[5]
 	bOption1 = argsList[6]
 	bOption2 = argsList[7]
-	
+
 	if (iButtonId == 1):
 		if (iData1 == FeatTypes.FEAT_TRADE_ROUTE):
 			showDomesticAdvisor(())
-		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+		# <!-- custom: new unit combat types -->
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+			showMilitaryAdvisor()
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
+			showMilitaryAdvisor()
+		elif ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) and (iData1 <= FeatTypes.FEAT_UNIT_SPY)):
 			showMilitaryAdvisor()
 		elif ((iData1 >= FeatTypes.FEAT_COPPER_CONNECTED) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
-			showForeignAdvisorScreen([0])
+			# <!-- custom: resource-connected feat now belongs to the Foreign Trade cluster; open Bonuses tab there. (GPT-5.3-Codex) -->
+			showForeignAdvisorScreen([foreignAdvisor.SCREEN_DICT["BONUS"]])
 		elif ((iData1 == FeatTypes.FEAT_NATIONAL_WONDER)):
 			# 2 is for the wonder tab...
 			showInfoScreen([2, 0])
@@ -1137,13 +1177,15 @@ def featAccomplishedOnFocusCallback(argsList):
 	szText = argsList[4]
 	bOption1 = argsList[5]
 	bOption2 = argsList[6]
-	
-	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
-	if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
-		CyInterface().lookAtCityOffset(iData2)
-		
-	return 0
 
+	CyInterface().playGeneralSound("AS2D_FEAT_ACCOMPLISHED")
+	# <!-- custom: implementing our new unit combat types, for example archery units: archers bow short, archers bow long, archers crossbow
+	# i am not sure exactly what this code does except play a sound and why it does to some unit combat types and not others, but for now for simplicity and such i am just going to change the combat type here too. Adding the crossbows too, i don't know if this is safe considering they were not added before, but testing to see what happens, maybe it works. (?) -->
+	#if ((iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+	#	CyInterface().lookAtCityOffset(iData2)
+	if (( (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG) or (iData1 >= FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW) ) and (iData1 <= FeatTypes.FEAT_FOOD_CONNECTED)):
+		CyInterface().lookAtCityOffset(iData2)
+	return 0
 
 #######################################################################################
 ## Handle Close Map
@@ -1159,12 +1201,14 @@ HandleCloseMap = {  DAWN_OF_MAN : dawnOfMan,
 #######################################################################################
 HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 #					DOMESTIC_ADVISOR : domesticAdvisor,
-					RELIGION_SCREEN : religionScreen,
-					CORPORATION_SCREEN : corporationScreen,
-					CIVICS_SCREEN : civicScreen,
+					# <!-- custom: route RELIGION_SCREEN input to Policy advisor because Religion is now a native Policy tab. (GPT-5.3-Codex) -->
+					RELIGION_SCREEN : policyAdvisorScreen,
+					# <!-- custom: route CORPORATION_SCREEN input to Policy advisor because Corporation is now a native Policy tab. (GPT-5.3-Codex) -->
+					CORPORATION_SCREEN : policyAdvisorScreen,
+					POLICY_ADVISOR_SCREEN : policyAdvisorScreen,
 					TECH_CHOOSER : techChooser,
 					FOREIGN_ADVISOR : foreignAdvisor,
-#					FINANCE_ADVISOR : financeAdvisor,
+					FOREIGN_DIPLOMACY_ADVISOR : foreignDiplomacyAdvisor,
 #					MILITARY_ADVISOR : militaryAdvisor,
 					DAWN_OF_MAN : dawnOfMan,
 					WONDER_MOVIE_SCREEN : wonderMovie,
@@ -1173,19 +1217,21 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
 					INTRO_MOVIE_SCREEN : introMovie,
 					OPTIONS_SCREEN : optionsScreen,
 					INFO_SCREEN : infoScreen,
+					WORLD_ADVISOR : worldAdvisorScreen,
 					REPLAY_SCREEN : replayScreen,
 					VICTORY_SCREEN : victoryScreen,
 					TOP_CIVS : topCivs,
 					HALL_OF_FAME : hallOfFameScreen,
 					VICTORY_MOVIE_SCREEN : victoryMovie,
-					ESPIONAGE_ADVISOR : espionageAdvisor,
+					# <!-- custom: route Espionage advisor input to diplomacy shell because Espionage is now a native Foreign Diplomacy tab. (GPT-5.3-Codex) -->
+					ESPIONAGE_ADVISOR : foreignDiplomacyAdvisor,
 					DAN_QUAYLE_SCREEN : danQuayleScreen,
 					WORLDBUILDER_SCREEN : worldBuilderScreen,
 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,
 					DEBUG_INFO_SCREEN : debugInfoScreen,
 					# advc.gfd:
 					GAMEFONT_DISPLAY_SCREEN : GameFontDisplay.GameFontDisplay(),
-				
+
 				# add new screens here
 				}
 
@@ -1201,3 +1247,4 @@ AdvisorOpt = BugCore.game.Advisors
 CustDomAdvOpt = BugCore.game.CustDomAdv
 TechWindowOpt = BugCore.game.TechWindow
 # BUG - Options - end
+

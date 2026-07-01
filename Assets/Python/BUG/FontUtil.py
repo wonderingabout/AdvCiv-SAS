@@ -31,6 +31,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugConfig
 import BugDll
@@ -77,15 +84,11 @@ def init():
 	# add the FontSymbols that aren't in CvUtil
 #	for symbol, name in symbolNames:
 #		addBuiltinSymbol()
-	
-	for count, getInfo in (
-		(YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo),
-		(CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo),
-	):
+
+	for count, getInfo in ((YieldTypes.NUM_YIELD_TYPES, gc.getYieldInfo), (CommerceTypes.NUM_COMMERCE_TYPES, gc.getCommerceInfo)):
 		for enum in range(count):
 			info = getInfo(enum)
-			addSymbol(info.getType().lower().replace("_", " "), 
-					info.getChar(), info.getType())
+			addSymbol(info.getType().lower().replace("_", " "), info.getChar(), info.getType())
 
 def addBuiltinSymbol(key, symbol):
 	registerSymbol(key, symbol, gc.getGame().getSymbolID(symbol))
@@ -131,14 +134,13 @@ def registerSymbol(key, symbol, ordinal):
 	symbolPrimaryKeys[symbol] = key
 	symbolOrdinals[symbol] = ordinal
 	symbolChars[symbol] = u"%c" % ordinal
-	
+
 def registerSymbolSynonym(key, symbol, synonym):
 	if synonym in keySymbols:
 		BugUtil.warn("FontUtil - ignoring duplicate synonym '%s' for key '%s'", synonym, key)
 	else:
 		BugUtil.debug("FontUtil - registering synonym '%s'", synonym)
 		keySymbols[synonym] = symbol
-
 
 ## symbol lookup
 
@@ -165,7 +167,6 @@ def getChar(symbolOrKey):
 	except KeyError:
 		raise BugUtil.ConfigError("unknown font symbol or key '%s'" % str(symbolOrKey))
 
-
 ## message processing
 
 def replaceSymbols(text, unknownReplacement=""):
@@ -176,13 +177,12 @@ def replaceSymbols(text, unknownReplacement=""):
 			return unknownReplacement
 	return SYMBOL_REGEXP.sub(replace, text)
 
-
 ## configuration handler
 
 class SymbolHandler(BugConfig.Handler):
-	
+
 	TAG = "symbol"
-	
+
 	def __init__(self):
 		BugConfig.Handler.__init__(self, SymbolHandler.TAG, "id name from offset dll")
 		self.addAttribute("id", True)
@@ -191,7 +191,7 @@ class SymbolHandler(BugConfig.Handler):
 		self.addAttribute("offset")
 		self.addAttribute("dll")
 		self.lastSymbol = None
-	
+
 	def handle(self, element, id, name, fromKey, offset, dll):
 		dll = BugDll.decode(dll)
 		if self.isDllOkay(element, dll):

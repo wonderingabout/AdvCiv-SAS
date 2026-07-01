@@ -5,8 +5,15 @@
 ## Copyright (c) 2007-2009 The BUG Mod.
 ##
 ## Author: Ruff_Hi
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 import MonkeyTools as mt
 import BugUtil
 
@@ -15,17 +22,12 @@ gc = CyGlobalContext()
 ArtFileMgr = CyArtFileMgr()
 localText = CyTranslator()
 
-iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
+iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
 sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPath()
 #screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
 
 # constants
-(sUpdateShow,
- sUpdateShowIf,
- sUpdateHide,
- sUpdateNothing,
-) = range(4)
-
+(sUpdateShow, sUpdateShowIf, sUpdateHide, sUpdateNothing,) = range(4)
 
 sBupStringBase = "BUGUnitPlotString"
 cUplSize = 34
@@ -80,7 +82,6 @@ class UnitList:
 	def _getIndex(self, x, y):
 		return (iRows - y) * iCols + x - 1
 
-
 #	def getMaxCol(self):
 #		return ((self.xResolution - (iMultiListXL+iMultiListXR) - 68) / 34)
 #		
@@ -102,15 +103,8 @@ class UnitList:
 #	def getI(self, nRow, nCol):
 #		return ( nRow * self.getMaxCol() ) + ( nCol % self.getMaxCol() )
 
-
-
-
-
-
 ## - xPixel is the number of horizontal pixels from the top left of the BUG unit plot list panel
 ## - yPixel is the number of vertically pixels from the top left of the BUG unit plot list panel
-
-
 
 class UnitPlot:
 	def __init__(self, vBupPanel, iIndex, x, y):
@@ -122,7 +116,6 @@ class UnitPlot:
 		screen.addDDSGFCAt(_getPromoString(), vBupPanel, sFileNamePromo, xPixel + 2, yPixel + 2, 32, 32, WidgetTypes.WIDGET_PLOT_LIST, iIndex, -1, False )
 		screen.hide(_getPromoString())
 
-
 	def _getxPixel(self, x):
 		return x * cUplSize + cUplSpacing
 
@@ -133,17 +126,7 @@ class UnitPlot:
 #cUplSize = 34
 #cUplSpacing = 3
 
-
-
 #				szStringPromoFrame  = szString + "PromoFrame"
-
-
-
-
-
-
-
-
 
 #		for i in range( self.iMaxPlotListIcons ):
 #			szString = self.PLOT_LIST_BUTTON_NAME + str(i)
@@ -155,8 +138,6 @@ class UnitPlot:
 #			screen.hide( szString + "ActionIcon" )
 #			screen.hide( szString + "Upgrade" )
 
-
-
 	def reset(self):
 		pCurrUnit = None
 
@@ -165,29 +146,20 @@ class UnitPlot:
 		self.pCurrUnit = UnitDisplay(pUnit)
 
 		# Unit Plot
-		if self.pCurrUnit == None:
-			if self.pPrevUnit != None:
+		if self.pCurrUnit is None:
+			if self.pPrevUnit is not None:
 				# current unit is blank, previous unit was not blank
 				_erasePromo()
 			#else:
 				# current unit is blank, previous unit was blank
 				# nothing to do
 		else:
-			if self.pPrevUnit != None:
+			if self.pPrevUnit is not None:
 				# current unit is not blank, previous unit was not blank
 				_updatePromo()
 			else:
 				# current unit is not blank, previous unit was blank
 				_drawPromo()
-
-
-
-
-
-
-
-
-
 
 	def _updatePromo():
 		if not self.pPrevUnit.bPromo:
@@ -197,22 +169,20 @@ class UnitPlot:
 
 	def _drawPromo():
 		# test if you really want to show it
-		if self.pPrevUnit == None:
+		if self.pPrevUnit is None:
 			if self.pCurrUnit.bPromo:
 				_showPromo()
 		else:
-			if (self.pCurrUnit.bPromo
-			and not self.pPrevUnit.bPromo):
+			if (self.pCurrUnit.bPromo and not self.pPrevUnit.bPromo):
 				_showPromo()
 
 	def _erasePromo():
 		# test if you really want to hide it
-		if self.pCurrUnit == None:
+		if self.pCurrUnit is None:
 			if self.pPrevUnit.bPromo:
 				_hidePromo()
 		else:
-			if (self.pPrevUnit.bPromo
-			and not self.pCurrUnit.bPromo):
+			if (self.pPrevUnit.bPromo and not self.pCurrUnit.bPromo):
 				_hidePromo()
 
 	def _hidePromo():
@@ -223,16 +193,8 @@ class UnitPlot:
 		# just show the stupid thing
 		self.screen.show(_getPromoString())
 
-
-
-
-
 	def _getPromoString():
 		return self.sBupString + "PromoFrame"
-
-
-
-
 
 class UnitDisplay:
 	def __init__(self, pUnit):

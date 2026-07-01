@@ -9,12 +9,12 @@
 #
 # No other modules should import this
 
-
 # **********************************
 # GJD modifications start here
 # **********************************
 
 import BugEventManager
+import SASDefineGuard
 
 eventManager = BugEventManager.BugEventManager()
 
@@ -26,7 +26,11 @@ def getEventManager():
 # **********************************
 
 def onEvent(argsList):
-	"""Called when a game event happens - return 1 if the event was consumed."""
+	# Called when a game event happens - return 1 if the event was consumed.
+	#
+	tag = argsList[0]
+	if (tag == "OnLoad" or tag == "GameStart"):
+		SASDefineGuard.verify_or_raise("CvEventInterface.onEvent[%s]" % tag)
 	return getEventManager().handleEvent(argsList)
 
 def applyEvent(argsList):
@@ -37,13 +41,10 @@ def beginEvent(context, argsList = -1):
 	return getEventManager().beginEvent(context, argsList)
 
 def initAfterReload():
-	"""
-	Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
-	
-	The first time this module is loaded after the game launches, the global context is not yet ready,
-	and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however,
-	this will reinitialize BUG and the main interface.
-	"""
+	# Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
+	#
+	# The first time this module is loaded after the game launches, the global context is not yet ready, and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however, this will reinitialize BUG and the main interface.
+	#
 	import BugInit
 	import BugPath
 	if not BugPath.isMac() and BugInit.init():

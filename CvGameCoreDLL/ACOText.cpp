@@ -12,9 +12,7 @@
 using namespace combat_odds;
 
 // advc: Cut from setCombatPlotHelp
-void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
-	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
-	int iView, /* advc.048: */ bool bBestOddsHelp)
+void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView, /* advc.048: */ bool bBestOddsHelp)
 {
 	CvWString szTempBuffer;
 	CvWString szTempBuffer2;
@@ -140,8 +138,11 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 	{
 		if (kDefender.isAnimal())
 		{
-			int iMaxExtraXP = std::max(0,
-				GC.getDefineINT("ANIMAL_MAX_XP_VALUE") - kAttacker.getExperience());
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iMaxExtraXPAnimal = GC.getDefineINT("ANIMAL_MAX_XP_VALUE");
+			// <!-- custom: make const when we can. -->
+			const int iMaxExtraXP = std::max(0,
+				iMaxExtraXPAnimal - kAttacker.getExperience());
 			iExperience = range(iExperience, 0, iMaxExtraXP);
 			iWithdrawXP = range(iWithdrawXP, 0, iMaxExtraXP);
 			iBonusAttackerXP = range(iBonusAttackerXP, 0, iMaxExtraXP + iExperience);
@@ -149,8 +150,11 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 		}
 		else
 		{
-			int iMaxExtraXP = std::max(0,
-				GC.getDefineINT("BARBARIAN_MAX_XP_VALUE") - kAttacker.getExperience());
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iMaxExtraXPBarbarian = GC.getDefineINT("BARBARIAN_MAX_XP_VALUE");
+			// <!-- custom: make const when we can. -->
+			const int iMaxExtraXP = std::max(0,
+				iMaxExtraXPBarbarian - kAttacker.getExperience());
 			iExperience = range(iExperience, 0, iMaxExtraXP);
 			iWithdrawXP = range(iWithdrawXP, 0, iMaxExtraXP);
 			iBonusAttackerXP = range(iBonusAttackerXP, 0, iMaxExtraXP + iExperience);
@@ -1228,9 +1232,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
 }
 
 // advc: Cut from setCombatPlotHelp
-void CvGameTextMgr::setACOModifiersPlotHelp(CvWStringBuffer &szString,
-	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
-	int iView)
+void CvGameTextMgr::setACOModifiersPlotHelp(CvWStringBuffer &szString, CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender, int iView)
 {
 	if (!szString.isEmpty()) // advc.001: for right click hover with air unit
 		szString.append(NEWLINE);

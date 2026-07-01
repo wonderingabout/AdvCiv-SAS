@@ -152,11 +152,61 @@ bool CvSelectionGroupAI::AI_update()
 		/*  <advc.001y> Moved out of the block below so I can see what the loop does
 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
 			startMission and in CvUnitAI::AI_update have been helpful to me. */
+
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
+		// 1) Snapshot state at the start of each loop iteration
+		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:
+		// --- SAS no-progress snapshot (begin) ---
+		CvUnitAI const* sas_u0 = AI_getHeadUnit();
+		int sas_x0 = (sas_u0 ? sas_u0->getX() : -1);
+		int sas_y0 = (sas_u0 ? sas_u0->getY() : -1);
+		int sas_m0 = (sas_u0 ? sas_u0->movesLeft() : -1);
+		int sas_q0 = getLengthMissionQueue();
+		// --- SAS no-progress snapshot (end) ---
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
-		FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
+		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it, done with the help of chatgpt 5, check if accurate -->
+		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
+		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
 	#ifdef _DEBUG
+		// Do it lazily and safely like this (drop-in):
+		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these -->
+		const bool bAssertCondition = (iAttempts != iMaxAttempts);
+		if (!bAssertCondition)
+		{
+			CvUnitAI const* u = AI_getHeadUnit();
+			int x = -1, y = -1, moves = -1, uid = -1, uai = -1, dom = -1;
+			const wchar* udesc = L"NONE";
+			if (u)
+			{
+				x    = u->getX(); 
+				y    = u->getY();
+				moves= u->movesLeft();
+				uid  = u->getID();
+				uai  = u->AI_getUnitAIType();
+				dom  = u->getDomainType();
+				udesc= GC.getUnitInfo(u->getUnitType()).getDescription();
+			}
+			FAssertMsg(bAssertCondition, CvString::format(
+				"Unit stuck in a loop | grp=%d owner=%d at=(%d,%d) unit=%S id=%d AI=%d dom=%d "
+				"moves=%d ready=%d busy=%d queue=%d forceUpd=%d grpAtk=%d forceSep=%d attempts=%d max=%d",
+				getID(), getOwner(), x, y, udesc, uid, uai, dom, moves,
+				(int)readyToMove(), (int)isBusy(), getLengthMissionQueue(),
+				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
+				iAttempts, iMaxAttempts
+			).c_str());
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well -->
+			// Assert Failed
+			// File:  ..\.\CvSelectionGroupAI.cpp
+			// Line:  180
+			// Func:  CvSelectionGroupAI::AI_update
+			// Expression:  iAttempts != iMaxAttempts
+			// Message:  Unit stuck in a loop | grp=73732 owner=8 at=(61,28) unit=Scout id=57348 AI=13 dom=2 moves=120 ready=1 busy=0 queue=0 forceUpd=0 grpAtk=0 forceSep=0 attempts=16 max=16
+			//
+			// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
+			//
+		}
 		iMaxAttempts += 4; // Restore extra iterations
 	#endif
 		if (iAttempts >= iMaxAttempts) // was > 100 </advc.001y>
@@ -195,6 +245,25 @@ bool CvSelectionGroupAI::AI_update()
 				break;
 			}
 		}
+
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
+		// 2) Tripwire right after the action block
+		// insert the no-progress check before the existing if (doDelayedDeath()):
+		// --- SAS no-progress tripwire (begin) ---
+		// If this iteration didn't move, push, or get busy, consume the turn to avoid spin.
+		CvUnitAI const* sas_u1 = AI_getHeadUnit();
+		if (!isBusy() && readyToMove(true) && sas_u1 &&
+			sas_u1->getX() == sas_x0 && sas_u1->getY() == sas_y0 &&
+			sas_u1->movesLeft() == sas_m0 && getLengthMissionQueue() == sas_q0)
+		{
+			pushMission(MISSION_SKIP); // finishes moves cleanly
+			break;
+		}
+		// --- SAS no-progress tripwire (end) ---
+		// That’s it.
+		// Why this fixes your scout spins
+		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change" iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
+		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
 
 		if (doDelayedDeath())
 		{
@@ -356,10 +425,8 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
-	bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
-	// <advc.048>
-	bool bSacrifice, bool bMaxSurvival) const
+// <advc.048> <!-- custom: hoisted from multiline signature between `bNoBlitz` and `bSacrifice` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz, bool bSacrifice, bool bMaxSurvival, bool bPreferLowPower) const
 {
 	int const iOddsThresh = 68; // Should this be lower if bHuman?
 	FAssert(!bMaxSurvival || !bSacrifice); // </advc.048>
@@ -367,10 +434,21 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 	int iBestValue = 0;
 	int iBestOdds = 0;
+	int iBestXP = 0;
+	int iBestHealthRank = 0;
 	CvUnitAI* pBestUnit = NULL;
 	CLLNode<IDInfo> const* pUnitNode = headUnitNode();
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
+	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
+	bool const bUseLowPower = (bPreferLowPower && !bHuman &&
+			bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
+	if (bUseLowPower)
+	{
+		iBestValue = 1 << 30;
+		iBestXP = 1 << 30;
+		iBestHealthRank = 1 << 30;
+	}
 	FAssert(!bMaxSurvival || bHuman); // advc.048
 	while (pUnitNode != NULL)
 	{
@@ -397,6 +475,41 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 		if (!bForce && !kLoopUnit.canMoveInto(*pPlot, true, bPotentialEnemy))
 			continue;
+
+		// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+		// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+		// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+		// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+		// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+		if (bUseLowPower)
+		{
+			int const iOdds = kLoopUnit.AI_attackOdds(pPlot, bPotentialEnemy);
+			bool const bCollateral = (kLoopUnit.collateralDamage() > 0);
+			int iBaseCollateral = (bCollateral ? estimateCollateralWeight(pPlot, getTeam()) : 0);
+			int const iEffectiveStr = kLoopUnit.AI_currEffectiveStr(pPlot, &kLoopUnit,
+					bCollateral, iBaseCollateral, true);
+			int iValue = iEffectiveStr;
+			if (kLoopUnit.bombardRate() > 0 || bCollateral)
+				iValue -= 1000000;
+			int const iXP = kLoopUnit.getExperience();
+			int const iMaxHP = std::max(1, kLoopUnit.maxHitPoints());
+			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
+			int const iHealthPercent = (100 * (iMaxHP - kLoopUnit.getDamage())) / iMaxHP;
+			int iHealthRank = (iHealthPercent >= iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT
+					? iHealthPercent : 100);
+			if (pBestUnit == NULL || iValue < iBestValue ||
+				(iValue == iBestValue && iXP < iBestXP) ||
+				(iValue == iBestValue && iXP == iBestXP && iHealthRank < iBestHealthRank))
+			{
+				iBestValue = iValue;
+				iBestOdds = iOdds;
+				iBestXP = iXP;
+				iBestHealthRank = iHealthRank;
+				pBestUnit = &kLoopUnit;
+			}
+			continue;
+		}
 
 		// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
 		if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
@@ -460,8 +573,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
-	bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
 {
 	int iBestValue = -1; // advc.048: was 0
 	CvUnitAI* pBestUnit = NULL;
@@ -521,8 +633,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
 /*	Returns ratio of strengths of stacks times 100
 	(so 100 is an even ratio, numbers over 100 mean that
 	this group is more powerful than the stack on a plot) */
-int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack,
-	bool bConstCache) const // advc.001n
+int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack, bool bConstCache) const // advc.001n
 {
 	FAssert(pPlot != NULL);
 
@@ -575,8 +686,7 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
 	for moves, and for hasAlreadyAttacked / blitz */
 /*  advc.159: No longer simply a sum of combat strength values; see the comment
 	above CvPlayerAI::AI_localDefenceStrength. */
-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
-	DomainTypes eDomainType, bool bCheckCanAttack) const
+int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
 {
 	FAssert(eDomainType != DOMAIN_AIR && eDomainType != DOMAIN_IMMOBILE); // advc: Air combat strength isn't counted
 	// <K-Mod>
@@ -649,8 +759,7 @@ namespace
 /*	advc.004c: (Not const b/c it needs to return a non-const unit.
 	Ideally, there would be a const version returning a const unit,
 	but that would lead to a lot of duplicate code.) */
-CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
-	CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
+CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
 {
 	PROFILE_FUNC(); // advc (neither frequently called nor expensive)
 	CvPlot const& kAt = getPlot();
@@ -828,8 +937,7 @@ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
 }
 
 
-bool CvSelectionGroupAI::AI_isDeclareWar(
-	CvPlot const& kPlot) const // advc: param no longer optional
+bool CvSelectionGroupAI::AI_isDeclareWar(CvPlot const& kPlot) const // advc: param no longer optional
 {
 	FAssert(getHeadUnit() != NULL);
 
@@ -876,12 +984,12 @@ bool CvSelectionGroupAI::AI_isDeclareWar(
 	case UNITAI_CITY_SPECIAL:
 	case UNITAI_EXPLORE:
 	case UNITAI_MISSIONARY:
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 	case UNITAI_SPY:
 	case UNITAI_ICBM:
@@ -951,8 +1059,7 @@ int CvSelectionGroupAI::AI_getBombardTurns(CvCity const* pCity) const
 }
 
 // advc: Param renamed from bIgnoreMinors b/c it also causes Barbarians to be ignored
-bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	//int iPass = 0; // advc: unused
@@ -970,8 +1077,7 @@ bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
 }
 
 
-bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	// <advc> Instead of relying on the area checks to fail when the group has no area
@@ -1018,8 +1124,7 @@ bool CvSelectionGroupAI::AI_isForceSeparate() const
 }
 
 
-void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI,
-	CvPlot const* pNewPlot, CvUnit const* pNewUnit)
+void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot const* pNewPlot, CvUnit const* pNewUnit)
 {
 	//PROFILE_FUNC();
 

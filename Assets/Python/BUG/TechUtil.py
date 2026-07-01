@@ -32,22 +32,24 @@ def init():
 	NUM_OR_PREREQS = gc.getNUM_OR_TECH_PREREQS()
 
 def getPlayer(ePlayer):
-	"Returns the CyPlayer for the given player ID."
+	# Returns the CyPlayer for the given player ID
+	#
 	return gc.getPlayer(ePlayer)
 
 def getTeam(ePlayer):
-	"Returns the CyTeam for the given player ID."
+	# Returns the CyTeam for the given player ID.
+	#
 	return gc.getTeam(getPlayer(ePlayer).getTeam())
 
 def getPlayerAndTeam(ePlayer):
-	"Returns the CyPlayer and CyTeam for the given player ID."
+	# Returns the CyPlayer and CyTeam for the given player ID.
+	#
 	player = getPlayer(ePlayer)
 	return player, gc.getTeam(player.getTeam())
 
 def getKnownTechs(ePlayer):
-	"""
-	Returns a set of tech IDs that ePlayer knows.
-	"""
+	# Returns a set of tech IDs that ePlayer knows.
+	#
 	knowingTeam = getTeam(ePlayer)
 	techs = set()
 	for eTech in range(NUM_TECHS):
@@ -56,12 +58,11 @@ def getKnownTechs(ePlayer):
 	return techs
 
 def getVisibleKnownTechs(ePlayer, eAskingPlayer):
-	"""
-	Returns a set of tech IDs that eAskingPlayer knows that ePlayer knows.
-	
-	Any techs that eAskingPlayer doesn't know and cannot research yet are removed
-	from the set of all techs that ePlayer knows.
-	"""
+	# Returns a set of tech IDs that eAskingPlayer knows that ePlayer knows.
+	#
+	# Any techs that eAskingPlayer doesn't know and cannot research yet are removed
+	# from the set of all techs that ePlayer knows.
+	#
 	knowingTeam = getTeam(ePlayer)
 	askingPlayer, askingTeam = getPlayerAndTeam(eAskingPlayer)
 	techs = set()

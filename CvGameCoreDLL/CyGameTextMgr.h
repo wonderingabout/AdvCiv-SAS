@@ -34,6 +34,9 @@ public:
 	// advc.069:
 	std::wstring getBasicUnitHelp(int iUnit, bool bCivilopediaText);
 	std::wstring getSpecificUnitHelp(CyUnit* pUnit, bool bOneLine, bool bShort);
+	// <!-- custom: Expose the existing omit-owner setUnitHelp path to Python for Military Advisor Map-tab unit rows; see KI#130. (GPT-5.5) -->
+	// <!-- custom: Also pass promotion icon size through to avoid hardcoded DLL image sizing when an advisor needs larger inline icons. (GPT-5.5) -->
+	std::wstring getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize);
 	std::wstring getHurtUnitStrength(CyUnit* pUnit); // advc.004
 	std::wstring getBuildingHelp(int iBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CyCity* pCity);
 	std::wstring getProjectHelp(int iProject, bool bCivilopediaText, CyCity* pCity);

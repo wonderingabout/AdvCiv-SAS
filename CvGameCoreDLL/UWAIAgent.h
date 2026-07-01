@@ -22,13 +22,10 @@ public:
 	void write(FDataStreamBase* pStream) const;
 	void read(FDataStreamBase* pStream);
 	void addTeam(PlayerTypes eOtherLeader); // When forming a Permanent Alliance
-	void reportWarEnding(TeamTypes eEnemy,
-			CLinkList<TradeData> const* pWeReceive = NULL,
-			CLinkList<TradeData> const* pWeGive = NULL);
+	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void turnPre();
 	void doWar(); // replacement for CvTeamAI::doWar
-	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
-			bool bCheckDefensivePacts = true) const;
+	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan, bool bCheckDefensivePacts = true) const;
 	// Replacing parts of CvTeamAI::AI_declareWarTrade
 	DenialTypes declareWarTrade(TeamTypes eTeam, TeamTypes eSponsor) const;
 	/*	Replacing CvTeamAI::AI_declareWarTradeVal. However, that function is
@@ -103,8 +100,7 @@ private:
 	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns);
 	// All these return true if the war plan remains unchanged, false otherwise.
 	bool considerPeace(TeamTypes eTarget, int iU);
-	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
-			int iMasterReluctancePeace);
+	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace);
 	bool tryFindingMaster(TeamTypes eEnemy);
 	bool considerPlanTypeChange(TeamTypes eTarget, int iU);
 	bool considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
@@ -115,7 +111,7 @@ private:
 	void alignAreaAI(bool bNaval);
 	int peaceThreshold(TeamTypes eTarget) const;
 	scaled limitedWarWeight() const;
-	
+
 	scaled utilityToTradeVal(scaled rUtility) const;
 	/*	tradeVal should roughly correspond to gold per turn; converted into
 		war utility based on our current commerce rate. */
@@ -161,10 +157,8 @@ public:
 	bool isPeaceDealPossible(PlayerTypes eHuman) const;
 	/*	Can eHuman trade assets to us with a total value of at least
 		iTargetTradeVal? */
-	bool canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
-			/*	If this is not NULL, then it is used to return the trade value of
-				all assets that the human can trade, but only up to targetTradeVal. */
-			int* piAvailableTradeVal = NULL, bool bIgnoreCities = false) const;
+	// If this is not NULL, then it is used to return the trade value of all assets that the human can trade, but only up to targetTradeVal. <!-- custom: hoisted from multiline signature between `eHuman` and `piAvailableTradeVal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* piAvailableTradeVal = NULL, bool bIgnoreCities = false) const;
 	scaled utilityToTradeVal(scaled rUtility) const;
 	scaled tradeValToUtility(scaled rTradeVal) const;
 	scaled tradeValUtilityConversionRate() const;
@@ -173,8 +167,7 @@ public:
 	/*	iTurns: Build-up over how many turns?
 		Will be adjusted to game speed by this function! */
 	scaled estimateBuildUpRate(PlayerTypes ePlayer, int iTurns = 10) const;
-	scaled estimateDemographicGrowthRate(PlayerTypes ePlayer,
-			PlayerHistoryTypes eDemographic, int iTurns = 10) const;
+	scaled estimateDemographicGrowthRate(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iTurns = 10) const;
 	/*	Whether this player can reach any city of eTarget with military units;
 		based on cached info. */
 	bool canReach(PlayerTypes eTarget) const;
@@ -206,14 +199,8 @@ public:
 		0 to 1 means that the leader is rather self-reliant, above means
 		he or she likes dogpile wars. */
 	scaled warConfidenceAllies() const;
-	scaled confidenceAgainstHuman() const
-	{
-		/*  Doesn't seem necessary so far; AI rather too reluctant to attack humans
-			due to human diplomacy, and other special treatment of humans; e.g.
-			can't get a capitulation from human.
-			(I've left an older implementation commented out in the .cpp file.) */
-		return 1;
-	}
+	/* Doesn't seem necessary so far; AI rather too reluctant to attack humans due to human diplomacy, and other special treatment of humans; e.g. can't get a capitulation from human. (I've left an older implementation commented out in the .cpp file.) */
+	scaled confidenceAgainstHuman() const { return 1; }
 	/*	How willing our leader is to go after players that he or she really dislikes.
 		Between 0 (Gandhi) and 10 (Montezuma). */
 	int vengefulness() const;

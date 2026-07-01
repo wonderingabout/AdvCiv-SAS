@@ -27,7 +27,7 @@ For information regarding GFC Commercial License Agreements go to:
 
 with GFC_Control_Progress
 {
-	
+
 	GFC_Control_DefaultProgress_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Progress_Renderer_Control;
@@ -45,29 +45,29 @@ with GFC_Control_Progress
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
-												
+
 		with .Flag								
 		{
 			// Progress control flags												
 			.NoInnerFill						=	0;	//GFlags(GProgressCtrl, GFC_CF_PROGRESS_NOINNERFILL);
-											
+
 			// Progress flag change masks	
 			//.ProgressMask_InvalidateControl	=	GFlags(GProgressCtrl);
 		}												
-											
+
 		with .Color							
 		{								
 			.Inner_Default						= 	GFC_Control_Color_Inner_Select;
 			.Inner_Disable						= 	GFC_Control_Color_Inner_Select;
-			
+
 			.Fill_Default						= 	GFC_Control_Color_Inner_Select;
 			.Fill_Disable						= 	GFC_Control_Color_Inner_Select;
 		}								
-											
+
 		with .Combine						
 		{								
 			.Inner_Default						=	GFC_Control_Combine_Surface;
@@ -76,7 +76,7 @@ with GFC_Control_Progress
 			.Fill_Default						=	GFC_Control_Combine_Surface;
 			.Fill_Disable						=	GFC_Control_Combine_Surface;
 		}
-		
+
 		with .Size
 		{
 			.HMargin							= GRectMargin(0,0,0,0);
@@ -84,10 +84,10 @@ with GFC_Control_Progress
 			.HDefault							= GSize(100,27);
 			.VDefault							= GSize(27,100);
 		}
-	
+
 
 		// ******* Initialize all the Bitmap theme Progress properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Progress_Skin
 		{
 			// Skin used to render the selected skin										
@@ -351,12 +351,12 @@ skin SF_CtrlTheme_Civ4_Control_Progress_HInner_Default
 
 			.HBorder_Default		= SF_CtrlTheme_Civ4_Control_Progress_HBorder_Default;
 			.HBorder_Disable		= SF_CtrlTheme_Civ4_Control_Progress_HBorder_Disable;
-			
+
 			.HBorder_Winoff			=	.HBorder_Default;
 			.HBorder_WinoffDisable	=	.HBorder_Disable;
 
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Progress_Skin
 		{
 			.VInner_Default
@@ -428,7 +428,7 @@ skin SF_CtrlTheme_Civ4_Control_Progress_HInner_Default
 			}
 			.VFillUp_Winoff			=	.VFillUp_Default;
 			.VFillUp_WinoffDisable	=	.VFillUp_Disable;
-			
+
 			.VFillDown_Default
 			{
 				layer 
@@ -476,12 +476,12 @@ skin SF_CtrlTheme_Civ4_Control_Progress_HInner_Default
 
 			.VBorder_Default		=	SF_CtrlTheme_Civ4_Control_Progress_VBorder_Default;
 			.VBorder_Disable		=	SF_CtrlTheme_Civ4_Control_Progress_VBorder_Disable;
-			
+
 			.VBorder_Winoff			=	.VBorder_Default;
 			.VBorder_WinoffDisable	=	.VBorder_Disable;
 
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Progress		= GFC_Control_DefaultProgress_Style;
 		map GFC_Control								= GFC_Control_DefaultProgress_Style;
 	}

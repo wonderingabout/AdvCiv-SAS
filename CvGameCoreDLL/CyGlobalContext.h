@@ -97,6 +97,9 @@ public:
 
 	int getInfoTypeForString(const char* szInfoType) const;
 	int getTypesEnum(const char* szType) const;
+	// <!-- custom: begin - expose 3D audio script ID -> AS3D_... reverse lookup to Python for Sevopedia media previews. See KI#141. (GPT-5.5?) -->
+	const char* getAudio3DScriptName(int iScriptId) const;
+	// <!-- custom: end - See KI#141. (GPT-5.5?) -->
 
 	int getNumPlayerColorInfos() const { return kGlobals.getNumPlayerColorInfos(); }
 	CvPlayerColorInfo* getPlayerColorInfo(int i) const;

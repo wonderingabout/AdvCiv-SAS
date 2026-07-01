@@ -25,11 +25,7 @@ namespace intdiv
 		return (iDividend + iDivisor / 2) / iDivisor;
 	}
 
-	inline int uceil(int iDividend, int iDivisor)
-	{
-		FAssert(iDividend >= 0 && iDivisor > 0);
-		return (iDividend + iDivisor - 1) / iDivisor;
-	}
+	inline int uceil(int iDividend, int iDivisor) { FAssert(iDividend >= 0 && iDivisor > 0); return (iDividend + iDivisor - 1) / iDivisor; }
 
 	inline int umodulo(int iDividend, int iDivisor)
 	{
@@ -45,15 +41,9 @@ namespace intdiv
 	Tbd.: Replace more std::max, std::min calls with this? */
 namespace branchless
 {
-	inline int max(int x, int y)
-	{
-		return x ^ ((x ^ y) & -(x < y));
-	}
+	inline int max(int x, int y) { return x ^ ((x ^ y) & -(x < y)); }
 
-	inline int min(int x, int y)
-	{
-		return y + ((x - y) & -(x < y));
-	}
+	inline int min(int x, int y) { return y + ((x - y) & -(x < y)); }
 }
 
 inline int range(int iNum, int iLow, int iHigh)
@@ -185,21 +175,28 @@ namespace stats // Seems too generic, but what else to name it?
 		return r;
 	}
 	template<typename T> // (see e.g. Wikipedia)
-	T percentileRank(std::vector<T>& kDistribution, T tScore, bool bSorted = false)
-	{
+	T percentileRank(std::vector<T> const& kDistribution, T tScore, bool bSorted = false)
+	{	// int not supported b/c result is in the unit interval
+		BOOST_STATIC_ASSERT(!integer_limits<T>::is_integer);
+		std::vector<T> const* pSorted = &kDistribution;
+		std::vector<T> localCopy;
 		if (!bSorted)
-			std::sort(kDistribution.begin(), kDistribution.end());
+		{
+			localCopy = kDistribution;
+			std::sort(localCopy.begin(), localCopy.end());
+			pSorted = &localCopy;
+		}
 		int iLesserScores = 0;
-		int iSz = (int)kDistribution.size();
+		int iSz = (int)pSorted->size();
 		for (int i = 0; i < iSz; i++)
 		{
-			if (kDistribution[i] < tScore)
+			if ((*pSorted)[i] < tScore)
 				iLesserScores++;
 			else break;
 		}
 		T tDiv = iSz;
 		return iLesserScores / tDiv;
-	} 
+	}
 }
 
 namespace fmath
@@ -209,6 +206,11 @@ namespace fmath
 	{
 		int r = (int)(d + 0.5 * iMultiple);
 		return r - r % iMultiple;
+	}
+	inline double log2(double d) // as in C++11
+	{
+		static const double dLn2 = std::log(2.0);
+		return std::log(d) / dLn2;
 	}
 }
 

@@ -6,6 +6,13 @@
 ##
 ## Author: EmperorFool
 
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+
 from CvPythonExtensions import *
 import BugUtil
 import PlayerUtil
@@ -48,10 +55,9 @@ olderUnits = dict()
 newerUnits = dict()
 
 def init():
-	"""
-	Segregates units into two sets: those that require resources and those that don't.
-	Creates a map of units from ID to the set of tech prerequisites.
-	"""
+	# Segregates units into two sets: those that require resources and those that don't.
+	# Creates a map of units from ID to the set of tech prerequisites.
+	#
 	global NUM_UNITS, NUM_CLASSES
 	NUM_UNITS = gc.getNumUnitInfos()
 	NUM_CLASSES = gc.getNumUnitClassInfos()
@@ -61,7 +67,7 @@ def init():
 	for eUnit in range(NUM_UNITS):
 		unitInfo = gc.getUnitInfo(eUnit)
 		BugUtil.debug("==== %s ====", unitInfo.getDescription())
-		
+
 		# generic unit
 		classInfo = gc.getUnitClassInfo(unitInfo.getUnitClassType())
 		eGenericUnit = classInfo.getDefaultUnitIndex()
@@ -70,9 +76,8 @@ def init():
 			if eUnit == eGenericUnit:
 				genericUnits.add(eUnit)
 			else:
-				BugUtil.debug("  unique of %s",
-						gc.getUnitInfo(eGenericUnit).getDescription())
-		
+				BugUtil.debug("  unique of %s", gc.getUnitInfo(eGenericUnit).getDescription())
+
 		# resource sets
 		found = False
 		eBonus = unitInfo.getPrereqAndBonus()
@@ -90,7 +95,7 @@ def init():
 			unitsWithBonuses.add(eUnit)
 		else:
 			unitsWithoutBonuses.add(eUnit)
-		
+
 		# tech map
 		techs = set()
 		unitTechs[eUnit] = techs
@@ -103,44 +108,46 @@ def init():
 				techs.add(eTech)
 		for eTech in techs:
 			BugUtil.debug("  requires %s", gc.getTechInfo(eTech).getDescription())
-		
+
 	# upgrade maps
 	for eUnit in range(NUM_UNITS):
 		getOlderUnits(eUnit)
 		getNewerUnits(eUnit)
-	
+
 	initOrders()
 
 def unitInfos():
-	"""Iterates through all CvUnitInfos."""
+	# Iterates through all CvUnitInfos.
+	#
 	for eUnit in range(NUM_UNITS):
 		yield gc.getUnitInfo(eUnit)
 
 def unitClassInfos():
-	"""Iterates through all CvUnitClassInfos."""
+	# Iterates through all CvUnitClassInfos.
+	#
 	for eClass in range(NUM_CLASSES):
 		yield gc.getUnitClassInfo(eClass)
 
 def isGeneric(eUnit):
-	"""Returns True if the given unit is generic and valid."""
+	# Returns True if the given unit is generic and valid.
+	#
 	return eUnit in genericUnits
 
 def isUnique(eUnit):
-	"""Returns True if the given unit is unique and valid."""
+	# Returns True if the given unit is unique and valid.
+	#
 	return eUnit not in genericUnits and eUnit != -1
 
 def getGeneric(eUnit):
-	"""
-	Returns the generic unit counterpart to the given unique unit or the same
-	unit if it's not unique.
-	"""
+	# Returns the generic unit counterpart to the given unique unit or the same
+	# unit if it's not unique.
+	#
 	return genericUnitIDs[eUnit]
 
 def getGenerics(units):
-	"""
-	Returns a set of the generic units which are counterparts to the unique units
-	in the given set. Generic units in the set are not returned.
-	"""
+	# Returns a set of the generic units which are counterparts to the unique units
+	# in the given set. Generic units in the set are not returned.
+	#
 	generics = set()
 	for eUnit in units:
 		eGenericUnit = genericUnitIDs[eUnit]
@@ -149,15 +156,18 @@ def getGenerics(units):
 	return generics
 
 def getGenericUpgrades(eUnit):
-	"""Returns the set of all generic units to which eUnit can upgrade."""
+	# Returns the set of all generic units to which eUnit can upgrade.
+	#
 	return genericUpgradeUnits[eUnit]
 
 def getUpgrades(eUnit):
-	"""Returns the set of all units to which eUnit can upgrade."""
+	# Returns the set of all units to which eUnit can upgrade.
+	#
 	return upgradeUnits[eUnit]
 
 def getOlderUnits(eUnit):
-	"""Returns the set of all units from which eUnit can upgrade."""
+	# Returns the set of all units from which eUnit can upgrade.
+	#
 	if eUnit in olderUnits:
 		return olderUnits[eUnit]
 	unitInfo = gc.getUnitInfo(eUnit)
@@ -173,7 +183,7 @@ def getOlderUnits(eUnit):
 	return units
 
 def getNewerUnits(eUnit):
-	"""Returns the set of all units to which eUnit can upgrade."""
+	# Returns the set of all units to which eUnit can upgrade.
 	if eUnit in newerUnits:
 		return newerUnits[eUnit]
 	unitInfo = gc.getUnitInfo(eUnit)
@@ -195,27 +205,24 @@ def getNewerUnits(eUnit):
 	return newer
 
 def isUnitOrUpgradeInSet(eUnit, units):
-	"""
-	Returns True if eUnit is in the given set of units or can be upgraded
-	to at least one unit in it.
-	"""
+	# Returns True if eUnit is in the given set of units or can be upgraded
+	# to at least one unit in it.
+	#
 	return eUnit in units or len(getNewerUnits(eUnit) & units) > 0
 
 def areUpgradesInSet(eUnit, units):
-	"""
-	Returns True if every immediate upgrade of eUnit is in the given set.
-	
-	This ignores transitive upgrades (Warrior doesn't check for Macemen).
-	
-	Need to take UUs into consideration.
-	"""
+	# Returns True if every immediate upgrade of eUnit is in the given set.
+	#
+	# This ignores transitive upgrades (Warrior doesn't check for Macemen).
+	#
+	# Need to take UUs into consideration.
+	#
 	upgrades = getUpgrades(eUnit)
 	return upgrades <= units
 
 def replaceUniqueUnits(units):
-	"""
-	Replaces unique units with their generic counterparts in the given set.
-	"""
+	# Replaces unique units with their generic counterparts in the given set.
+	#
 	uniques = set()
 	generics = set()
 	for eUnit in units:
@@ -226,13 +233,12 @@ def replaceUniqueUnits(units):
 	units += generics
 
 def findObsoleteUnits(units):
-	"""
-	Returns a set containing the units whose immediate upgrades are all in the set,
-	taking unique units into consideration.
-	
-	For example, if the set contains Maceman and Redcoat, neither is returned,
-	but if it contains Grenadier as well, Maceman is returned.
-	"""
+	# Returns a set containing the units whose immediate upgrades are all in the set,
+	# taking unique units into consideration.
+	#
+	# For example, if the set contains Maceman and Redcoat, neither is returned,
+	# but if it contains Grenadier as well, Maceman is returned.
+	#
 	#result = units.copy()
 	generics = getGenerics(units)
 	obsoletes = set()
@@ -271,9 +277,8 @@ def getKnowableUnits(playerOrID):
 	return units
 
 def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None):
-	"""
-	Returns the set of all units the player can train, including obsolete ones.
-	"""
+	# Returns the set of all units the player can train, including obsolete ones.
+	#
 	game = CyGame()
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	civInfo = gc.getCivilizationInfo(player.getCivilizationType())
@@ -291,8 +296,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		unitInfo = gc.getUnitInfo(eUnit)
 		# military
 		if military is not None:
-			combat = (unitInfo.getUnitCombatType() > 0 or unitInfo.getNukeRange() != -1
-					or unitInfo.getAirCombat() > 0)
+			combat = (unitInfo.getUnitCombatType() > 0 or unitInfo.getNukeRange() != -1 or unitInfo.getAirCombat() > 0)
 			if military != combat:
 				#BugUtil.debug("  %s -> combat is %s", unitInfo.getDescription(), combat)
 				continue
@@ -303,8 +307,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		# techs
 		for eTech in unitTechs[eUnit]:
 			if not team.isHasTech(eTech):
-				BugUtil.debug("  %s -> doesn't know %s", unitInfo.getDescription(), 
-						gc.getTechInfo(eTech).getDescription())
+				BugUtil.debug("  %s -> doesn't know %s", unitInfo.getDescription(), gc.getTechInfo(eTech).getDescription())
 				missing = True
 				break
 		else:
@@ -323,8 +326,7 @@ def getTrainableUnits(playerOrID, knowableUnits, checkCities=True, military=None
 		# getSpecialUnitType, game.isSpecialUnitValid
 		eSpecialType = unitInfo.getSpecialUnitType()
 		if eSpecialType != -1 and not game.isSpecialUnitValid(eSpecialType):
-			BugUtil.debug("  %s -> special unit type %s invalid", unitInfo.getDescription(),
-					gc.getSpecialUnitInfo(eSpecialType).getDescription())
+			BugUtil.debug("  %s -> special unit type %s invalid", unitInfo.getDescription(), gc.getSpecialUnitInfo(eSpecialType).getDescription())
 			continue
 		# cities
 		if cities and not canAnyCityBuildUnit(eUnit, cities, -1, True):
@@ -356,8 +358,7 @@ def getKnownTrainableUnits(playerOrID, askingPlayerOrID, knowableUnits, bonuses,
 	askingPlayer = PlayerUtil.getPlayer(askingPlayerOrID)
 	eAskingTeam, askingTeam = PlayerUtil.getPlayerTeamAndID(askingPlayer)
 	#trade = player.canTradeNetworkWith(askingPlayer.getID())
-	cities = PlayerUtil.getPlayerCities(player, 
-			lambda city: city.isRevealed(eAskingTeam, False))
+	cities = PlayerUtil.getPlayerCities(player, lambda city: city.isRevealed(eAskingTeam, False))
 	# separate units into two groups: yes and maybe
 	units = getTrainableUnits(playerOrID, knowableUnits, False, military)
 	yesUnits = set()
@@ -474,22 +475,21 @@ def cityHasBonusesForUnit(unitInfo, city):
 	return True
 
 def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
-	"""
-	Returns the set of all units the player can train.
-	
-	Searches all of the player's cities to find which units can be trained.
-	
-	If askingPlayerOrID is given, only cities they have seen are checked, and
-	only units whose prerequisite techs they know or can research are returned.
-	Also, if the two players' trade networks are not connected, units that
-	require resources to train are returned in a second set.
-	
-	If military is provided, only military or civilian units are checked
-	depending on its value, True or False, respectively.
-	
-	*** OBSOLETE ***
-	
-	"""
+	# Returns the set of all units the player can train.
+	#
+	# Searches all of the player's cities to find which units can be trained.
+	#
+	# If askingPlayerOrID is given, only cities they have seen are checked, and
+	# only units whose prerequisite techs they know or can research are returned.
+	# Also, if the two players' trade networks are not connected, units that
+	# require resources to train are returned in a second set.
+	#
+	# If military is provided, only military or civilian units are checked
+	# depending on its value, True or False, respectively.
+	#
+	# *** OBSOLETE ***
+	#
+	#
 	player, team = PlayerUtil.getPlayerAndTeam(playerOrID)
 	askingPlayer = PlayerUtil.getPlayer(askingPlayerOrID)
 	if askingPlayer:
@@ -506,8 +506,7 @@ def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
 			eUnit = classInfo.getDefaultUnitIndex()
 		unitInfo = gc.getUnitInfo(eUnit)
 		if unitInfo:
-			if ((military == True and unitInfo.getUnitCombatType() <= 0)
-			or (military == False and unitInfo.getUnitCombatType() > 0)):
+			if ((military and unitInfo.getUnitCombatType() <= 0) or ((not military) and unitInfo.getUnitCombatType() > 0)):
 				BugUtil.debug("skipping (non-)military %s", unitInfo.getDescription())
 				continue
 			if askingPlayer:
@@ -548,29 +547,8 @@ def getCanTrainUnits(playerOrID, askingPlayerOrID=None, military=None):
 	else:
 		return units
 
-(
-	ORDER_NONE,
-	
-	ORDER_SKIP,
-	ORDER_SLEEP,
-	ORDER_FORTIFY,
-	ORDER_HEAL,
-	
-	ORDER_SENTRY,
-	ORDER_INTERCEPT,
-	ORDER_PATROL,
-	ORDER_PLUNDER,
-	
-	ORDER_BUILD,  # improvement
-	ORDER_CONSTRUCT,  # building
-	ORDER_GOTO,
-	ORDER_EXPLORE,
-	
-	ORDER_AUTO_BUILD,
-	ORDER_AUTO_NETWORK,
-	ORDER_AUTO_CITY,
-	ORDER_AUTO_RELIGION,
-) = range(17)
+# ORDER_BUILD = improvement, ORDER_CONSTRUCT = building
+(ORDER_NONE, ORDER_SKIP, ORDER_SLEEP, ORDER_FORTIFY, ORDER_HEAL, ORDER_SENTRY, ORDER_INTERCEPT, ORDER_PATROL, ORDER_PLUNDER, ORDER_BUILD, ORDER_CONSTRUCT, ORDER_GOTO, ORDER_EXPLORE, ORDER_AUTO_BUILD, ORDER_AUTO_NETWORK, ORDER_AUTO_CITY, ORDER_AUTO_RELIGION) = range(17)
 
 ORDERS_BY_ACTIVITY = {
 	ActivityTypes.ACTIVITY_AWAKE: ORDER_NONE,
@@ -588,10 +566,7 @@ ORDERS_BY_AUTOMATION = {
 	AutomateTypes.AUTOMATE_CITY: ORDER_AUTO_CITY,
 	AutomateTypes.AUTOMATE_RELIGION: ORDER_AUTO_RELIGION,
 }
-MOVE_TO_MISSIONS = [
-	MissionTypes.MISSION_MOVE_TO, 
-	MissionTypes.MISSION_MOVE_TO_UNIT,
-]
+MOVE_TO_MISSIONS = [MissionTypes.MISSION_MOVE_TO, MissionTypes.MISSION_MOVE_TO_UNIT,]
 
 def getOrder(unit):
 	group = unit.getGroup()
@@ -616,9 +591,8 @@ def getOrder(unit):
 	return ORDER_NONE
 
 def initOrders():
-	"""
-	Adds orders added by BULL.
-	"""
+	# Adds orders added by BULL.
+	#
 	try:
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_WHILE_HEAL] = ORDER_HEAL
 		ORDERS_BY_ACTIVITY[ActivityTypes.ACTIVITY_SENTRY_LAND_UNITS] = ORDER_SENTRY

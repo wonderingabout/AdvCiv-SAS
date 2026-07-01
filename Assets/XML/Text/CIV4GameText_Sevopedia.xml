@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Sid Meier's Civilization 4 -->
+<!-- -->
+<!-- Game Text - Unit Upgrades for Civilopedia -->
+
+<Civ4GameText xmlns="http://www.firaxis.com">
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SCREEN_INDEX</Tag>
+		<English>Index</English>
+		<French>Index</French>
+		<German>Index</German>
+		<Italian>Indice</Italian>
+		<Spanish>Índice</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SCREEN_CONTENTS</Tag>
+		<English>Contents</English>
+		<French>Matières</French>
+		<German>Inhalt</German>
+		<Italian>Contenuto</Italian>
+		<Spanish>Contenido</Spanish>
+	</TEXT>
+	<!-- advc.002g: Deleted TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
+		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
+		 it. Concetti di BTS, es. Conceptos BtS)
+		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_FAV_CIVIC_AND_RELIGION</Tag>
+		<English>Favorite Civic and Religion</English>
+		<French>Doctrine et Religion Préférée</French>
+		<German>Bevorzugte Staatsform und Religion</German>
+		<Italian>Forme di governo e Religioni preferite</Italian>
+		<Spanish>Principio y religión favoritos</Spanish>
+	</TEXT>
+	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #76 -->
+	<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
+	parentheses and "Total"; more comprehensible this way. -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY</Tag>
+		<English>[COLOR_WARNING_TEXT]Requires %s1_Name: %d2[COLOR_REVERT]</English>
+		<French>[COLOR_WARNING_TEXT]Requiert : %s1_Name (%d2)[COLOR_REVERT]</French>
+		<German>[COLOR_WARNING_TEXT]Erfordert: %s1_Name (%d2)[COLOR_REVERT]</German>
+		<Italian>[COLOR_WARNING_TEXT]Richiede %s1_Name: %d2[COLOR_REVERT]</Italian>
+		<Spanish>[COLOR_WARNING_TEXT]Requiere %s1_Name: %d2[COLOR_REVERT]</Spanish>
+	</TEXT>
+	<!-- Same with a range. Add "depending on map size"? -->
+	<TEXT> <!-- redefine -->
+		<Tag>TXT_KEY_BUILDING_REQ_BUILDINGS_NOCITY_RANGE</Tag>
+		<English>[COLOR_WARNING_TEXT]Requires %s1_Name: %d2-%d3[COLOR_REVERT]</English>
+		<French>[COLOR_WARNING_TEXT]Requiert : %s1_Name (%d2-%d3)[COLOR_REVERT]</French>
+		<German>[COLOR_WARNING_TEXT]Erfordert: %s1_Name (%d2-%d3)[COLOR_REVERT]</German>
+		<Italian>[COLOR_WARNING_TEXT]Richiede %s1_Name: %d2-%d3[COLOR_REVERT]</Italian>
+		<Spanish>[COLOR_WARNING_TEXT]Requiere %s1_Name: %d2-%d3[COLOR_REVERT]</Spanish>
+	</TEXT>
+	<!-- Based on TXT_KEY_CIVIC_CONSCRIPTION in CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_CIVIC_CONSCRIPTION_RANGE</Tag>
+		<English>[ICON_BULLET]Can [LINK=CONCEPT_DRAFT]Draft[\LINK] %d1_Num-%d2_Num Units per Turn</English>
+		<French>[ICON_BULLET]Peut [LINK=CONCEPT_DRAFT]enr&#244;ler[\LINK] %d1_Num-%d2_Num Unit&#233;s par tour</French>
+		<German>[ICON_BULLET]Kann %d1_Num-%d2_Num Einheiten pro Runde [LINK=CONCEPT_DRAFT]rekrutieren[\LINK]</German>
+		<Italian>[ICON_BULLET]Pu&#242; [LINK=CONCEPT_DRAFT]richiamare[\LINK] alla leva %d1_Num-%d2_Num unit&#224; per turno</Italian>
+		<Spanish>[ICON_BULLET]Puede [LINK=CONCEPT_DRAFT]reclutar[\LINK] %d1_Num-%d2_Num unidades por turno</Spanish>
+	</TEXT>
+	<!-- Based on TXT_KEY_BUILDING_PROVIDES in CIV4GameTextInfos.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PROVIDES_RANGE</Tag>
+		<English>[ICON_BULLET]Provides %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</English>
+		<French>[ICON_BULLET]Fournit %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</French>
+		<German>[ICON_BULLET]Liefert %d1_Num-%d2_Num des Bonusguts [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</German>
+		<Italian>[ICON_BULLET]Fornisce %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Italian>
+		<Spanish>[ICON_BULLET]Da %d1_Num-%d2_Num de [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CIVILOPEDIA_HISTORY</Tag>
+		<English>Background</English>
+		<French>Background</French>
+		<German>Background</German>
+		<Italian>Background</Italian>
+		<Spanish>Background</Spanish>
+	</TEXT>
+	<!-- Based on TXT_KEY_PEDIA_CATEGORY_BUILDING and _PROJECT in
+		 CIV4GameTextInfos_Objects.xml -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT</Tag>
+		<English>Buildings and Projects</English>
+		<French>
+			<Text>B&#226;timents et Projets</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</French>
+		<German>
+			<Text>Geb&#228;ude und Projekte</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</German>
+		<Italian>
+			<Text>Edifici e Progetti</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Italian>
+		<Spanish>
+			<Text>Edificios y Proyectos</Text>
+			<Gender>Male</Gender>
+			<Plural>1</Plural>
+		</Spanish>
+	</TEXT>
+</Civ4GameText>

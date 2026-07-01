@@ -108,8 +108,7 @@ CvUnit::CvUnit() // advc.003u: Body cut from the deleted reset function
 }
 
 // advc.003u: Param eUnitAI moved to CvUnitAI::init
-void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY,
-	DirectionTypes eFacingDirection)
+void CvUnit::init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
 {
 	FAssert(NO_UNIT != eUnit);
 
@@ -257,6 +256,8 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 		}
 	}
 	FAssert(GC.getNumTraitInfos() > 0);
+	// <!-- custom: performance optimizations -->
+	UnitCombatTypes const eUnitCombat = getUnitCombatType();
 	FOR_EACH_ENUM2(Trait, eTrait)
 	{
 		if (!kOwner.hasTrait(eTrait))
@@ -268,8 +269,8 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 			{
 				if (kTrait.isFreePromotion(eLoopPromotion))
 				{
-					if (getUnitCombatType() != NO_UNITCOMBAT &&
-						kTrait.isFreePromotionUnitCombat(getUnitCombatType()))
+					if (eUnitCombat != NO_UNITCOMBAT &&
+						kTrait.isFreePromotionUnitCombat(eUnitCombat))
 					{
 						setHasPromotion(eLoopPromotion, true);
 					}
@@ -277,11 +278,11 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 			}
 		}
 	}
-	if (getUnitCombatType() != NO_UNITCOMBAT)
+	if (eUnitCombat != NO_UNITCOMBAT)
 	{
 		FOR_EACH_ENUM(Promotion)
 		{
-			if (kOwner.isFreePromotion(getUnitCombatType(), eLoopPromotion))
+			if (kOwner.isFreePromotion(eUnitCombat, eLoopPromotion))
 				setHasPromotion(eLoopPromotion, true);
 		}
 	}
@@ -308,6 +309,10 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 
 	if (m_pUnitInfo->isWorldUnit())
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
 			CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
@@ -330,21 +335,21 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
 						kOwner.getNameKey(), getNameKey());
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(),
-						GC.getColorType("UNIT_TEXT"), iFlashX, iFlashY, true, true);
+						eColorUnitText, iFlashX, iFlashY, true, true);
 			}
 			else
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CREATED_UNIT", getNameKey());
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(),
-						GC.getColorType("UNIT_TEXT"));
+						eColorUnitText);
 			}
 		}
 
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CREATED_UNIT",
 				kOwner.getNameKey(), getNameKey()));
 		GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				kOwner.getID(), szBuffer, GC.getColorType("UNIT_TEXT"));
+				kOwner.getID(), szBuffer, eColorUnitText);
 	}
 
 	CvEventReporter::getInstance().unitCreated(this);
@@ -440,13 +445,19 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		only if our FFreeList ID gets assigned to a new unit. Unknown if this
 		ever actually happens. Don't want to loop through all groups just in case. */
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+	static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // advc
 	if (ePlayer != NO_PLAYER)
 	{
 		CvEventReporter::getInstance().unitKilled(this, ePlayer);
 		if (NO_UNIT != getLeaderUnitType() ||
 			// <advc.004u> Treat unattached GP here too
-			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GENERAL ||
+			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL ||
 			isGoldenAge()) // </advc.004u>
 		{
 			CvWString szBuffer;
@@ -463,14 +474,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", getNameKey(),
 								GET_PLAYER(ePlayer).getCivilizationShortDescription());
-					eColor = GC.getColorType("RED");
+					eColor = eColorRed;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitDefeatScript();
 				}
 				else if(kObs.getID() == ePlayer)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", getNameKey(),
 							kOwner.getCivilizationShortDescription());
-					eColor = GC.getColorType("GREEN");
+					eColor = eColorGreen;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitVictoryScript();
 				}
 				else if(GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) || // advc.004u
@@ -479,7 +490,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey(),
 							kOwner.getCivilizationShortDescription(),
 							GET_PLAYER(ePlayer).getCivilizationShortDescription());
-					eColor = GC.getColorType("UNIT_TEXT");
+					eColor = eColorUnitText;
 					// K-Mod (the other sound is not appropriate for most civs receiving the message.)
 					szSound = "AS2D_INTERCEPTED";
 				}
@@ -566,6 +577,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 	kOwner.uwai().getCache().reportUnitDestroyed(getUnitType());
 
 	kOwner.AI_changeNumAIUnits(AI_getUnitAIType(), -1);
+	PlayerTypes const eLostOwner = getOwner();
+	UnitTypes const eLostUnitType = getUnitType();
 	PlayerTypes const eCapturingPlayer = getCapturingPlayer();
 	UnitTypes const eCaptureUnitType = (eCapturingPlayer == NO_PLAYER ? NO_UNIT :
 			getCaptureUnitType(GET_PLAYER(eCapturingPlayer).getCivilizationType()));
@@ -579,20 +592,26 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		eCapturingPlayer != BARBARIAN_PLAYER)
 	{
 		CvPlayerAI& kCaptor = GET_PLAYER(eCapturingPlayer);
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bAI_CAN_DISBAND_UNITS = GC.getDefineBOOL("AI_CAN_DISBAND_UNITS");
+
 		if (kCaptor.isHuman() ||
 			kCaptor.AI_captureUnit(eCaptureUnitType, kPlot) ||
-			!GC.getDefineBOOL("AI_CAN_DISBAND_UNITS"))
+			!bAI_CAN_DISBAND_UNITS)
 		{
 			CvUnit* pCapturedUnit = kCaptor.initUnit(
 					eCaptureUnitType, kPlot.getX(), kPlot.getY());
 			if (pCapturedUnit != NULL)
 			{
+				// <!-- custom: combatResult fires before capture is decided, so report the actual captured unit here after initUnit succeeds; Python patches the matching Military Advisor battle row numerically instead of guessing from unit XML. (GPT-5.5) -->
+				CvEventReporter::getInstance().unitCaptured(eLostOwner, eLostUnitType, pCapturedUnit);
 				CvWString szBuffer;
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CAPTURED_UNIT",
 						GC.getInfo(eCaptureUnitType).getTextKeyWide());
 				gDLL->UI().addMessage(eCapturingPlayer, true, -1, szBuffer,
 						"AS2D_UNITCAPTURE", MESSAGE_TYPE_INFO, pCapturedUnit->getButton(),
-						GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+						eColorGreen, kPlot.getX(), kPlot.getY());
 				// Add a captured mission
 				if (kPlot.isActiveVisible(false)) // K-Mod
 				{
@@ -632,9 +651,12 @@ void CvUnit::doTurn()
 
 	testPromotionReady();
 
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+
 	if (isBlockading())
 	{
-		if(canPlunder(getPlot())) // advc.033
+		if(canPlunder(kPlot)) // advc.033
 			collectBlockadeGold();
 		// <advc.033>
 		else
@@ -648,17 +670,17 @@ void CvUnit::doTurn()
 		getGroup()->setActivityType(ACTIVITY_AWAKE); // </advc.004k>
 	if (isSpy() && isIntruding() && !isCargo())
 	{
-		TeamTypes eTeam = getPlot().getTeam();
+		TeamTypes eTeam = kPlot.getTeam();
 		if (NO_TEAM != eTeam)
 		{
 			if (GET_TEAM(getTeam()).isOpenBorders(eTeam))
 			{
-				testSpyIntercepted(getPlot().getOwner(), false,
+				testSpyIntercepted(kPlot.getOwner(), false,
 						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD));
 			}
 			else
 			{
-				testSpyIntercepted(getPlot().getOwner(), false,
+				testSpyIntercepted(kPlot.getOwner(), false,
 						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD));
 			}
 		}
@@ -666,7 +688,7 @@ void CvUnit::doTurn()
 
 	if (baseCombatStr() > 0)
 	{
-		FeatureTypes eFeature = getPlot().getFeatureType();
+		FeatureTypes eFeature = kPlot.getFeatureType();
 		if (eFeature != NO_FEATURE && GC.getInfo(eFeature).getTurnDamage() != 0)
 		{
 			// (advc, note: Should show an on-screen message here.)
@@ -962,6 +984,10 @@ void CvUnit::updateAirCombat(bool bQuick)
 		if (pInterceptor->getDomainType() != DOMAIN_AIR)
 			pInterceptor->setMadeInterception(true);
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		if (isDead())
 		{
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SHOT_DOWN_ENEMY",
@@ -969,12 +995,12 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
 					getNameKey(), pInterceptor->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 		else if (kAirMission.getDamage(BATTLE_UNIT_ATTACKER) > 0)
@@ -986,13 +1012,13 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_AIR_UNIT_HURT",
 					getNameKey(), pInterceptor->getNameKey(),
 					kAirMission.getDamage(BATTLE_UNIT_ATTACKER)); // advc.004g
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 
@@ -1001,14 +1027,14 @@ void CvUnit::updateAirCombat(bool bQuick)
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SHOT_DOWN_ENEMY",
 					getNameKey(), pInterceptor->getNameKey(), pInterceptor->getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_SHOT_DOWN",
 					pInterceptor->getNameKey(), getNameKey());
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 		else if (kAirMission.getDamage(BATTLE_UNIT_DEFENDER) > 0)
@@ -1018,7 +1044,7 @@ void CvUnit::updateAirCombat(bool bQuick)
 					kAirMission.getDamage(BATTLE_UNIT_DEFENDER), // advc.004g
 					pInterceptor->getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_DAMAGED",
 					pInterceptor->getNameKey(), getNameKey(),
@@ -1026,7 +1052,7 @@ void CvUnit::updateAirCombat(bool bQuick)
 			gDLL->UI().addMessage(pInterceptor->getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 
@@ -1035,14 +1061,14 @@ void CvUnit::updateAirCombat(bool bQuick)
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_ABORTED_ENEMY_AIR",
 					pInterceptor->getNameKey(), getNameKey(), getVisualCivAdjective(getTeam()));
 			gDLL->UI().addMessage(pInterceptor->getOwner(), true, -1, szBuffer, *pPlot,
-					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), GC.getColorType("GREEN"));
+					"AS2D_INTERCEPT", MESSAGE_TYPE_INFO, pInterceptor->getButton(), eColorGreen);
 
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_AIR_UNIT_ABORTED",
 					getNameKey(), pInterceptor->getNameKey());
 			gDLL->UI().addMessage(getOwner(), //false
 					true, // advc.004g
 					-1, szBuffer,
-					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					"AS2D_INTERCEPTED", MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 	}
@@ -1112,6 +1138,18 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 	getDefenderCombatValues(*pDefender, pPlot, iAttackerStrength, iAttackerFirepower,
 			iDefenderOdds, iDefenderStrength, iAttackerDamage, iDefenderDamage,
 			&cdDefenderDetails);
+	// <!-- custom: record attacker/defender combat details for every battle so the Military Advisor Battles tab has full strength/role data when selecting vassals or debug players. Keep this separate from combatLogCalc, which is player-facing and still only fires for active-player combat. (GPT-5.5) -->
+	{
+		CyArgsList pyArgsSASBattleDetails;
+		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
+		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+		// <!-- custom: also pass pre-fight XP and Great-General attachment for Military Advisor Battles; Python CombatDetails exposes strength data but not unit XP/leader state, and reading it after combat would be too late for the winner. (GPT-5.5) -->
+		pyArgsSASBattleDetails.add(getExperience());
+		pyArgsSASBattleDetails.add(pDefender->getExperience());
+		pyArgsSASBattleDetails.add(getLeaderUnitType() != NO_UNIT ? 1 : 0);
+		pyArgsSASBattleDetails.add(pDefender->getLeaderUnitType() != NO_UNIT ? 1 : 0);
+		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatDetails", pyArgsSASBattleDetails.makeFunctionArgs());
+	}
 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
 	// advc.001: Replacing isHuman checks
 	if (isActiveOwned() || pDefender->isActiveOwned())
@@ -1275,6 +1313,20 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 			gDLL->getEntityIFace()->AddMission(&kBattle);
 		}
 	}
+	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
+	if (!isDead() && !pDefender->isDead())
+	{
+		CyArgsList pyArgsSASBattleRetreat;
+		pyArgsSASBattleRetreat.add(getOwner());
+		pyArgsSASBattleRetreat.add(pDefender->getOwner());
+		pyArgsSASBattleRetreat.add(getUnitType());
+		pyArgsSASBattleRetreat.add(pDefender->getUnitType());
+		pyArgsSASBattleRetreat.add(pPlot->getX());
+		pyArgsSASBattleRetreat.add(pPlot->getY());
+		pyArgsSASBattleRetreat.add((cdAttackerDetails.iMaxCombatStr * currHitPoints()) / maxHitPoints());
+		pyArgsSASBattleRetreat.add((cdDefenderDetails.iMaxCombatStr * pDefender->currHitPoints()) / pDefender->maxHitPoints());
+		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatRetreat", pyArgsSASBattleRetreat.makeFunctionArgs());
+	}
 #ifdef LOG_COMBAT_OUTCOMES
 	// (don't log barb battles, because they have special rules.)
 	if (!isBarbarian() && !pDefender->isBarbarian())
@@ -1289,8 +1341,7 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 }
 
 
-void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
-	bool bSeaPatrol) // advc.004k
+void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted, bool bSeaPatrol) // advc.004k
 {
 	if (pbIntercepted != NULL)
 		*pbIntercepted = false; // </advc.004c>
@@ -1412,6 +1463,9 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 			}
 			else
 			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 				PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
 				CvWString szMessage;
 				if (BARBARIAN_PLAYER != eAttacker)
@@ -1423,7 +1477,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 
 				gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szMessage,
 						"AS2D_COMBAT", MESSAGE_TYPE_DISPLAY_ONLY, getButton(),
-						GC.getColorType("RED"), pPlot->getX(), pPlot->getY(), true);
+						eColorRed, pPlot->getX(), pPlot->getY(), true);
 			}
 		}
 
@@ -1502,10 +1556,14 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iWW_UNIT_KILLED_ATTACKING = GC.getDefineINT("WW_UNIT_KILLED_ATTACKING");
+			static const int iWW_KILLED_UNIT_DEFENDING = GC.getDefineINT("WW_KILLED_UNIT_DEFENDING");
+
 			GET_TEAM(getTeam()).changeWarWeariness(pDefender->getTeam(), *pPlot,
-					GC.getDefineINT("WW_UNIT_KILLED_ATTACKING"));
+					iWW_UNIT_KILLED_ATTACKING);
 			GET_TEAM(pDefender->getTeam()).changeWarWeariness(getTeam(), *pPlot,
-					GC.getDefineINT("WW_KILLED_UNIT_DEFENDING"));
+					iWW_KILLED_UNIT_DEFENDING);
 		}
 		// <advc.130m>
 		int const iWS = GC.getDefineINT(CvGlobals::WAR_SUCCESS_DEFENDING);
@@ -1558,10 +1616,14 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 		if (!m_pUnitInfo->isHiddenNationality() &&
 			!pDefender->getUnitInfo().isHiddenNationality())
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iWW_UNIT_KILLED_DEFENDING = GC.getDefineINT("WW_UNIT_KILLED_DEFENDING");
+			static const int iWW_KILLED_UNIT_ATTACKING = GC.getDefineINT("WW_KILLED_UNIT_ATTACKING");
+
 			GET_TEAM(pDefender->getTeam()).changeWarWeariness(getTeam(), *pPlot,
-					GC.getDefineINT("WW_UNIT_KILLED_DEFENDING"));
+					iWW_UNIT_KILLED_DEFENDING);
 			GET_TEAM(getTeam()).changeWarWeariness(pDefender->getTeam(), *pPlot,
-					GC.getDefineINT("WW_KILLED_UNIT_ATTACKING"));
+					iWW_KILLED_UNIT_ATTACKING);
 		}
 		// <advc.130m>
 		int const iWS = GC.getDefineINT(CvGlobals::WAR_SUCCESS_ATTACKING);
@@ -1647,6 +1709,10 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
 // advc.010: Cut from resolveCombat. Used for killed noncombatants with bFought=false.
 void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSound = !suppressStackAttackSound(kDefender); // advc.002l
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY",
 			getNameKey(), /* advc.004u: */ kDefender.getNameKeyNoGG());
@@ -1656,17 +1722,21 @@ void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) con
 			.getCurrentEra()).getAudioUnitVictoryScript()
 			: NULL, // advc.010: No victory sound for killing noncombatant
 			MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+			eColorGreen, kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 1); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(), bFought, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitDefeatScript() /* advc.002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+			MESSAGE_TYPE_INFO, NULL, eColorRed, kPlot.getX(), kPlot.getY());
 }
 
 // <advc> Cut from resolveCombat - just to be consistent with addAttackSuccessMessages.
 void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSound = !suppressStackAttackSound(kDefender);
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING",
 			getNameKeyNoGG(), // advc.004u
@@ -1675,20 +1745,24 @@ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitDefeatScript() /* 002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"),
+			MESSAGE_TYPE_INFO, NULL, eColorRed,
 			kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, -1); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(),
 			true, -1, szBuffer,
 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
 			.getCurrentEra()).getAudioUnitVictoryScript() /* advc.002l: */ : NULL,
-			MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, NULL, eColorGreen,
 			kPlot.getX(), kPlot.getY());
 }
 
 
 void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	bool const bSea = (getDomainType() == DOMAIN_SEA); // advc.002l
 	CvPlot const& kPlot = kDefender.getPlot();
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW",
@@ -1696,19 +1770,18 @@ void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 			bSea ? "AS2D_OUR_SEA_WITHDRAWL" : // advc.002l
 			"AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+			eColorGreen, kPlot.getX(), kPlot.getY());
 	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 0); // advc.048c
 	gDLL->UI().addMessage(kDefender.getOwner(), true, -1, szBuffer,
 			bSea ? "AS2D_THEIR_SEA_WITHDRAWL" : // advc.002l
 			"AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
-			GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+			eColorRed, kPlot.getX(), kPlot.getY());
 } // </advc>
 
 /*	advc.048c: Based on code originally in resolveCombat.
 	iAttackSuccess:
 	1 for defender destroyed, -1 for attacker destroyed, 0 for withdrawal. */
-void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer,
-	CvUnit const& kDefender, int iAttackSuccess) const
+void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer, CvUnit const& kDefender, int iAttackSuccess) const
 {
 	bool const bOdds = (GC.getDefineBOOL(CvGlobals::SHOW_ODDS_IN_COMBAT_MESSAGES) &&
 			m_iAttackOdds >= 0 && kDefender.canDefend());
@@ -2109,8 +2182,7 @@ bool CvUnit::isUnowned() const
 	return false;
 }
 
-bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bTestBusy) /* advc: */ const
+bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bTestBusy) /* advc: */ const
 {
 	if (bTestBusy && getGroup()->isBusy())
 		return false;
@@ -2306,8 +2378,7 @@ CvPlot& CvUnit::getPathEndTurnPlot() const
 }
 
 
-bool CvUnit::generatePath(CvPlot const& kTo, MovementFlags eFlags, bool bReuse,
-	int* piPathTurns, int iMaxPath, /* <advc.128> */ bool bUseTempFinder) const
+bool CvUnit::generatePath(CvPlot const& kTo, MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath, /* <advc.128> */ bool bUseTempFinder) const
 {
 	return getGroup()->generatePath(getPlot(), kTo, eFlags, bReuse, piPathTurns,
 			iMaxPath, bUseTempFinder);
@@ -2320,10 +2391,7 @@ GroupPathFinder& CvUnit::getPathFinder() const
 }
 
 // advc: Wrapper for brevity
-void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags,
-	bool bAppend, bool bManual, MissionAITypes eMissionAI,
-	CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit,
-	bool bModified)
+void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, bool bModified)
 {
 	FAssert(!at(kTo));
 	getGroup()->pushMission(MISSION_MOVE_TO, kTo.getX(), kTo.getY(), eFlags,
@@ -2331,8 +2399,7 @@ void CvUnit::pushGroupMoveTo(CvPlot const& kTo, MovementFlags eFlags,
 }
 
 
-bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage,
-	CvArea const* pArea) const // advc.030
+bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, CvArea const* pArea) const // advc.030
 {
 	// <advc.030> Moved from deleted function "canEnterArea" (that name was confusing)
 	if (pArea != NULL && isBarbarian() && DOMAIN_LAND == getDomainType() &&
@@ -2420,9 +2487,7 @@ bool CvUnit::willRevealAnyPlotFrom(CvPlot const& kFrom) const
 	(advc.opt: reverted a little of that), and added "bAssumeVisible" which
 	signals that we should check for units on the plot regardless of whether we
 	can actually see. */
-bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
-	bool bIgnoreLoad, bool bAssumeVisible,
-	bool bDangerCheck) const // advc.001k
+bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bool bIgnoreLoad, bool bAssumeVisible, bool bDangerCheck) const // advc.001k
 {
 	//PROFILE_FUNC(); // advc.003o
 
@@ -2724,8 +2789,8 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
 }
 
 
-bool CvUnit::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, // advc: 1st param was a pointer
-	bool bDangerCheck) const // advc.001k
+// advc: 1st param was a pointer <!-- custom: hoisted from multiline signature between `bDeclareWar` and `bDangerCheck` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnit::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, bool bDangerCheck) const // advc.001k
 {
 	return (canMoveInto(kPlot, false, bDeclareWar) || canMoveInto(kPlot, true, bDeclareWar,
 			false, true, bDangerCheck)); // advc.001k
@@ -2848,8 +2913,7 @@ bool CvUnit::isInvasionMove(CvPlot const& kFrom, CvPlot const& kTo) const
 }
 
 
-void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted,
-	bool bSeaPatrol) // advc
+void CvUnit::attack(CvPlot* pPlot, bool bQuick, /* advc.004c: */ bool* pbIntercepted, bool bSeaPatrol) // advc
 {
 	FAssert(canMoveInto(*pPlot, true)
 			// K-Mod (note): could fail in certain situations involving sea-patrol
@@ -2866,8 +2930,7 @@ void CvUnit::fightInterceptor(CvPlot const& kPlot, bool bQuick) // advc: was CvP
 	updateAirCombat(bQuick);
 }
 
-void CvUnit::attackForDamage(CvUnit *pDefender,
-	int attackerDamageChange, int defenderDamageChange)
+void CvUnit::attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange)
 {
 	FAssert(getCombatTimer() == 0);
 	FAssert(pDefender != NULL);
@@ -2926,6 +2989,9 @@ void CvUnit::attackForDamage(CvUnit *pDefender,
 		}
 		else
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			PlayerTypes eAttacker = getVisualOwner(pDefender->getTeam());
 			CvWString szMessage;
 			if (BARBARIAN_PLAYER != eAttacker)
@@ -2939,7 +3005,7 @@ void CvUnit::attackForDamage(CvUnit *pDefender,
 			}
 
 			gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szMessage, "AS2D_COMBAT",
-					MESSAGE_TYPE_DISPLAY_ONLY, getButton(), GC.getColorType("RED"),
+					MESSAGE_TYPE_DISPLAY_ONLY, getButton(), eColorRed,
 					pPlot->getX(), pPlot->getY(), true);
 		}
 	}
@@ -3049,8 +3115,7 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 }
 
 // returns false if unit is killed
-bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove,
-	bool bFreeMove) // advc.163
+bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove, bool bFreeMove) // advc.163
 {
 	FAssert(!isAttacking());
 	FAssert(!isFighting());
@@ -3211,8 +3276,371 @@ void CvUnit::automate(AutomateTypes eAutomate)
 }
 
 
+// <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see known issue as of now 52 for details; also code provided with the help of chatgpt 5 thanks -->
+// <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
+// Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
+// <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see known issue as of now 52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentioned here in these code comments for details, and we otherwise kept function the same -->
 bool CvUnit::canScrap() const
 {
+	// <!-- custom: old function was a 3 liner -->
+	// if (getPlot().isFighting())
+	// 	return false;
+	// return true;
+
+	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
+	// <!-- custom: Absolute AI scrap kill switch for experiments and player preference. Scrapping is hammer-inefficient when a produced unit could instead defend, pressure rivals, or be spent in war; war also removes excess units naturally while potentially gaining cities, unit support, economy, and long-term growth. Keep this separate from SAS_CAN_SCRAP_OPTIMIZE so disabling optimization never re-enables broad scrapping. (GPT-5.5 + ChatGPT-5.5) -->
+	if (bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman())
+	{
+		return false;
+	}
+
+	static const bool bSAS_CAN_SCRAP_OPTIMIZE = GC.getDefineBOOL("SAS_CAN_SCRAP_OPTIMIZE");
+
+	if (bSAS_CAN_SCRAP_OPTIMIZE && !isHuman())
+	{
+		// <!-- custom: no disband at all regardless, as well, for land military units (found by our preferred/corresponding unitais as as of now below), they are likely to be valuable one way or another at some point, unlike naval units or perhaps scouts or workers to a lesser extent, but what i mean is do not scrap them at all, hopefully fixes low midgame AI output or enhances it (handicap and such will be adjusted to match these changes as well but see for details or updated info known issue as of now 52 or other related docs)
+		const CvUnitInfo& kUnitInfo = getUnitInfo();
+		// <!-- custom: ObsoleteTech lets us retire obsolete units efficiently; allow a global toggle for no-obsolete-scrap experiments. (GPT-5.2-Codex) -->
+		static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");
+		TechTypes const eObsoleteTech = kUnitInfo.getObsoleteTech();
+		static const bool bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE");
+		if (bSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE)
+		{
+			// <!-- custom: Softer near-absolute AI scrap mode: keep normal units and allow only units with ObsoleteTech that are old enough by obsolete-era delay. Cargo-capable units are kept because an obsolete transport can still be our only practical way to move units. Do not protect units by XP here: a high-XP obsolete unit can still be weaker and less useful than a low-XP current-era replacement, and upgrade preservation belongs to upgrade logic. In one autoplay test, obsolete-only scrapping produced 3324 SCRAP_DECISION lines but only 94 SCRAP_EVENT lines, mostly old units with cargo 0/0, very few veteran scraps (only 1 with XP >= 7), and no obvious weaker-AI result at a glance. (GPT-5.5 + ChatGPT-5.5) -->
+			if (getCargo() > 0 || cargoSpace() > 0)
+			{
+				return false;
+			}
+			if (!bSAS_CAN_SCRAP_OBSOLETE_TECH || eObsoleteTech == NO_TECH || !GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+			{
+				return false;
+			}
+			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE");
+			static const int iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS = GC.getDefineINT("SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS");
+			static const EraTypes eERA_RENAISSANCE = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+			int const iObsoleteEra = GC.getInfo(eObsoleteTech).getEra();
+			int const iObsoleteEraDelay = (iObsoleteEra >= eERA_RENAISSANCE ? iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_RENAISSANCE_PLUS : iSAS_CAN_SCRAP_AI_ONLY_OBSOLETE_MIN_OBSOLETE_ERA_DELAY_BEFORE_RENAISSANCE);
+			if (GET_PLAYER(getOwner()).getCurrentEra() < iObsoleteEra + iObsoleteEraDelay)
+			{
+				return false;
+			}
+			return true;
+		}
+		if (bSAS_CAN_SCRAP_OBSOLETE_TECH && eObsoleteTech != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObsoleteTech))
+		{
+			// <!-- custom: Legacy fallback for experiments with SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE disabled. Keep cargo-capable obsolete units, but otherwise allow obsolete-unit cleanup directly. Normal recommended play keeps SAS_CAN_SCRAP_AI_ONLY_OBSOLETE_ENABLE enabled above. (ChatGPT-5.5) -->
+			if (getCargo() > 0 || cargoSpace() > 0)
+			{
+				return false;
+			}
+			return true;
+		}
+
+		const UnitAITypes eUnitAI = AI_getUnitAIType();
+		const bool bLandMilitaryUnitAIs = (
+			(eUnitAI == UNITAI_ATTACK) ||
+			(eUnitAI == UNITAI_ATTACK_CITY) ||
+			(eUnitAI == UNITAI_ATTACK_CITY_LEMMING) ||
+			(eUnitAI == UNITAI_COUNTER) ||
+			(eUnitAI == UNITAI_CITY_COUNTER) ||
+			// <!-- custom: note: we don't use UNITAI_COLLATERAL, UNITAI_PILLAGE and such so not going the extra long mile to save them either if i may say (in case they are produced which shouldn't happen any way but adding this note for clarity) -->
+			//
+			(eUnitAI == UNITAI_CITY_DEFENSE) ||
+			(eUnitAI == UNITAI_CITY_SPECIAL) ||
+			(eUnitAI == UNITAI_RESERVE) ||
+			//
+			(eUnitAI == UNITAI_PARADROP)
+		);
+		if (bLandMilitaryUnitAIs)
+		{
+			return false;
+		}
+		// <!-- custom: if the former fails, also check canFight -->
+		// prefer explicit AIs, but also OR with canFight() just in case
+		else if (getDomainType() == DOMAIN_LAND && canFight())
+		{
+			return false;
+		}
+
+		// <!-- custom: as for naval units, do not scrap them at all, we had the workboat infinite loop issue in known issue as of now 23 that we fixed, but then in known issue as of now 53 i noticed a privateer loop and AI dying because of it. Since we now handle properly max naval units among other units being produced, we don't fear overproducing them too much, at least not too hard, but we i.e. i xdfear invisible scrapping. There should almost never be good cases where scrapping is worth, and these should be handled as exceptions rather than the main rule. Just in known issue as of now 52, removing scrapping greatly improves AI military efficiency and performance, and it didn't go bankrupt at all (they can't produce that much units anyway, allowing to reduce handicap so they produce less units so they are less likely to be bankrupt and so they also nicely have a bit of buff and buffer (no pun xd). Really, i feel or it seems to me like scrapping should be handled as an exception not as a "i don't know what to do with this weird unit let's just scrap it xd". "No! Don't scrap it xd, figure out what to do with it, most often the risk of loop or such far outweigh having 1 or 2 extra units anyway i think), if fearing financial trouble or such, please implement it in your code, as for me as of now i consider/assume assume AIs develop well and build these formulas based on iNumCities or such for scaling, the benefits seem to far outweigh the risks/costs, and please read known isue as of now 53 for details; also, since we are only adding pre checks and not changing the logic otherwise, should be fine-->
+		// <!-- custom: not sure if we should exclude barbarian (e.g. if we someday add land units rules here (e.g. more defenders if in dangers based on total unitais, on top of what is done in bestunitai (so maybe redundant but to be safe about short circuits or such as well))) but just in case -->
+		CvPlayerAI const& kPlayer = GET_PLAYER(getOwner());
+		const bool bBarbarian = kPlayer.isBarbarian();
+
+		if (!bBarbarian)
+		{
+			// <!-- custom: note: all values here if any are linked to their counterpart/equivalent in the canScrap function e.g. to know which is the max (decisions to scrap or not are not directly symmetrical to what we do here to produce them (e.g. don't produce naval units at war on land, but don't scrap exist ones though), but may often be or not, in all cases please refer to each function to see the link between them -->
+
+			const bool bNavalFrontLineUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_SEA) ||
+				(eUnitAI == UNITAI_RESERVE_SEA) ||
+				(eUnitAI == UNITAI_PIRATE_SEA)
+			);
+
+			const bool bNavalExploreSeaUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE_SEA)
+			);
+
+			const bool bNavalSupportOffenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ASSAULT_SEA)
+			);
+
+			const bool bNavalSupportDefenseFrontUnitAIs = (
+				(eUnitAI == UNITAI_ESCORT_SEA)
+			);
+
+			const bool bNavalAirExtraUnitAIs = (
+				(eUnitAI == UNITAI_CARRIER_SEA) ||
+				(eUnitAI == UNITAI_MISSILE_CARRIER_SEA)
+			);
+
+			const bool bNavalSettlerSeaUnitAIs = (
+				(eUnitAI == UNITAI_SETTLER_SEA)
+			);
+
+			const bool bNavalWorkerSeaUnitAIs = (
+				(eUnitAI == UNITAI_WORKER_SEA)
+			);
+
+			const bool bNavalMissionarySeaUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY_SEA)
+			);
+
+			const bool bNavalSpySeaUnitAIs = (
+				(eUnitAI == UNITAI_SPY_SEA)
+			);
+
+			const bool bAllHandledNavalUnitAIs = (
+				bNavalFrontLineUnitAIs ||
+				bNavalSupportOffenseFrontUnitAIs ||
+				bNavalSupportDefenseFrontUnitAIs ||
+				bNavalExploreSeaUnitAIs ||
+				bNavalAirExtraUnitAIs ||
+				//
+				bNavalSettlerSeaUnitAIs ||
+				bNavalWorkerSeaUnitAIs ||
+				bNavalMissionarySeaUnitAIs ||
+				bNavalSpySeaUnitAIs
+			);
+			// <!-- custom: since we now already handle in CvCityAI::AI_chooseUnit when to produce them and how much, no need to worry too much about scrapping enough units. However, as shown in known issue as of now 53, it seems scrapping still happens for privateers or such, although i am not sure and AI may have just been overproducing and i didn't check too much, still generally scrapping benefits should now far outweigh costs/risks, which include infinite loop of missing a unit we just created or such, and as happened in known issue as of now 23 as well with workboats in the past. It seems much simpler to disable scrapping altogether for most if not all, and see what happens and if we go bankrupt or not. By meeting our quotas sooner, we can then move on to other units or buildings or anything much more efficiently/effectively than scrap reproduce again, and 1-2 lone units are not a big problem vs the global risk of scrapping messing up, so disabling it at least for these units; chatgpt 5 also likes this change if i may say at least it said so so the change seems fine to it at least if not more-->
+			// asymmetric: don’t scrap existing boats
+			if (bAllHandledNavalUnitAIs)
+			{
+				return false;
+			}
+
+			// <!-- custom: as for settlers, see what happens but don't risk a loop of produce destroy again and again, very costly on city growth. Some code comment mentioned settlers confuse AIs; possibly, but we'd need to test to be sure, there is a risk AI overproduces them in the middle game then scrap and repeat. I didn't see it so far although i didn't see too much, but better not risk, disable scrapping and keep 1 lone extra settler and be done, and see what happens ingame if needs adjustment or not (not sure i'd always be here ot make them hehe but i hope the comment helps raise awareness/info about this idea/concern i has) -->
+
+			const bool bLandExploreUnitAIs = (
+				(eUnitAI == UNITAI_EXPLORE)
+			);
+
+			const bool bLandSettlerUnitAIs = (
+				(eUnitAI == UNITAI_SETTLE)
+			);
+
+			const bool bLandMissionaryUnitAIs = (
+				(eUnitAI == UNITAI_MISSIONARY)
+			);
+
+			const bool bLandSpyUnitAIs = (
+				(eUnitAI == UNITAI_SPY)
+			);
+
+			const bool bMostHandledLandCivilianUnitAIs = (
+				bLandExploreUnitAIs ||
+				bLandSettlerUnitAIs ||
+				bLandMissionaryUnitAIs ||
+				bLandSpyUnitAIs
+			);
+			// <!-- custom: similarly, avoid scrapping for these, prefer having a few extra than risking infinite loops of produce scrap -->
+			if (bMostHandledLandCivilianUnitAIs)
+			{
+				return false;
+			}
+
+			const bool bLandWorkerUnitAIs = (
+				(eUnitAI == UNITAI_WORKER)
+			);
+
+			// <!-- custom: for workers, they are numerous and not so needed later in the game, i don't know if they cost maintenance, but since we handle max in a quite advanced way for them in CvCityAI::AI_chooseUnit, let's use it and reduce our workforce if they are unneeded as of now as we reach a certain point in the game and gradually so the later with some threshold-->
+			if (bLandWorkerUnitAIs)
+			{
+				const int iNumCities = kPlayer.getNumCities();
+
+				// <!-- custom: have a good amount early, gradually fade past a certain point/era (as of now before renaissance) -->
+				// base: 2.5 workers per city
+				int iMaxUnits = (2 * iNumCities) + ((iNumCities * 5) / 10);
+				// <!-- custom: be careful to not overproduce them, workers are expensive and block growth, could be 1.5 swordsman instead for example plus the food growth used as slaving if stored in that time, but some amount is needed to grow especially early-->
+
+				const EraTypes eCurrentEra = kPlayer.getCurrentEra();
+				// <!-- custom: as of now eras are (see xml for details or updated version -->
+				// 18,5: 			<Type>ERA_ANCIENT</Type>
+				// 79,5: 			<Type>ERA_CLASSICAL</Type>
+				// 154,5: 			<Type>ERA_MEDIEVAL</Type>
+				// 237,5: 			<Type>ERA_RENAISSANCE</Type>
+				// 320,5: 			<Type>ERA_INDUSTRIAL</Type>
+				// 401,5: 			<Type>ERA_MODERN</Type>
+				// 477,5: 			<Type>ERA_FUTURE</Type>
+				// <!-- custom: note: this pattern of xml lookup and comparison for era types seems safe as it is used in Civ4 Reimagined mod but check to be sure -->
+				// cache once; uses hidden-assert overload if available in your DLL
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const EraTypes eERA_RENAISSANCE  = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE");
+
+				// <!-- custom: added as recommended by chatgpt 5; as of now untested assert -->
+				FAssertMsg((eERA_RENAISSANCE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+
+				const bool bRenaissancePlus    = (eCurrentEra >= eERA_RENAISSANCE);
+
+				// CvGame::getCurrentEra()
+				// It returns an EraTypes (enum), computed as the rounded average of alive players’ eras (barbs excluded) via intdiv::uround.
+				// Your pattern is fine: keep variables as EraTypes for comparisons and cast to int only when doing arithmetic.
+				const int iCurrentEra = static_cast<int>(eCurrentEra);
+				static const int iERA_RENAISSANCE  = static_cast<int>(eERA_RENAISSANCE);
+
+				// <!-- custom: don't scrap before renaissance -->
+				if (!bRenaissancePlus)
+				{
+					return false;
+				}
+				else
+				{
+					// <!-- custom: +1 since we start eras at 0 so renaissance is first era where our decay starts to apply-->
+					// clamp to avoid negative
+					const int iErasSinceRenaissance = std::max(0, (iCurrentEra - iERA_RENAISSANCE) + 1);
+
+					// <!-- custom: as for decay use a very simple and effecive formula: -10% per era -->
+					const int pct = std::max(60, (100 - (10 * iErasSinceRenaissance))); // never below <!-- custom: 40% reduction/decay, so never below 60% of the max value-->
+					const int iMaxWorkersDecayed = (iMaxUnits * pct) / 100;
+					// <!-- custom: keep minimal force of 3+ workers around in case but no need to pay maintenance (if it costs? I don't know but i guess so) for all -->
+					const int iMinWorkersInCase = 3 + ((iNumCities * 3) / 10);
+					iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
+
+					// <!-- custom: don't scrap existing unit just because we won't produce them (e.g. at war with some other conditions as of now), however track our max in all circumstances and scrap excess as game goes on-->
+					int iTotalUnitAIs = 0;
+					iTotalUnitAIs += kPlayer.AI_totalUnitAIs(UNITAI_WORKER);
+
+					// <!-- custom: Keep worker scrapping synchronized with the AdvCiv-SAS production floor, so future max-worker tuning cannot allow unit logic to remove workers below the minimum that city production immediately rebuilds. (GPT-5.5) -->
+					if (kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <= kPlayer.AI_getSASMinimumAreaWorkers(getArea()))
+					{
+						return false;
+					}
+
+					// <!-- custom: inferior or equal, as we don't scrap if just at max as nicely noted by chatgpt 5 thanks (and despite it being superior or equal in the chooseUnit function hehe if i understood it correctly) -->
+					if (iTotalUnitAIs <= iMaxUnits)
+					{
+						return false;
+					}
+					// <!-- custom: else i.e. if we have too much units, go with the code and scrap if all goes as intended later before final order-->
+				}
+			}
+
+			const bool bAirCombatUnitAIs = (
+				(eUnitAI == UNITAI_ATTACK_AIR) ||
+				(eUnitAI == UNITAI_DEFENSE_AIR)
+			);
+			if (bAirCombatUnitAIs)
+			{
+				return false;
+			}
+
+			// <!-- custom: then do not scrap any unit at all before turn 150 (at normal game speed), the surplus is likely to be useful, if we go to war or get invaded, then numbers would dim at that time -->
+			CvGame const& kGame = GC.getGame();
+			const int iCurrentTurn = kGame.getGameTurn();
+
+			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL");
+			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me) -->
+			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
+
+			if (bNoDisbandAtAllPhase)
+			{
+				return false;
+			}
+
+			// <!-- custom: no need for these below, but kept in case as they were bit tedious to make for this cvunit.cpp fileand in case we change our rules here or use them for something else similar-->
+			// else
+			// {
+			// 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			// 	const CvTeamAI&   kTeam  = GET_TEAM(getTeam());
+
+			// 	// <!-- custom: we already return false and never ever scrap land military units so no need to add them here inefficiently and most importantly unneededly -->
+
+			// 	// Situation read
+			// 	const bool bWarPlan = kOwner.AI_isFocusWar();
+			// 	const bool bAtWar = (kTeam.getNumWars() > 0);
+			// 	const int  iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
+			// 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+			// 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+			// 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+			// 	const bool bEnemyWeak   = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+
+			// 	// There is no AI_isDanger() at player scope. Build a bDanger flag by scanning your cities.
+			// 	// Danger heuristic: any unsafe city or any plot danger near a city
+			// 	bool bDanger = false;
+			// 	FOR_EACH_CITYAI(pCityAI, kOwner)
+			// 	{
+			// 		if (!pCityAI->AI_isSafe() ||
+			// 			kOwner.AI_isAnyPlotDanger(*pCityAI->plot(), 2, /*bTestMoves=*/false))
+			// 		{
+			// 			bDanger = true;
+			// 			break;
+			// 		}
+			// 	}
+			// 	// We *disallow scrapping* during any of these conditions.
+			// 	if (canFight())
+			// 	{
+			// 		// newborns: let them live a few turns
+			// 		if (kGame.getGameTurn() - getGameTurnCreated() < 5)
+			// 		{
+			// 			return false;
+			// 		}
+			// 		if (bAtWar || bEnemyStrong || bEnemyWeak || bDanger || bWarPlan)
+			// 		{
+			// 			return false;
+			// 		}
+			// 	}
+			// }
+		}
+
+		// <!-- custom: these below should happen less often, for computation saving put them at the end-->
+
+		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 -->
+		// Never scrap anything carrying cargo
+		// Prevents “oops I deleted a galleon with settlers".
+		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me), and i hope the protection of the cargo itself is enough and most fit -->
+		if (getCargo() > 0)
+		{
+			return false;
+		}
+
+		// <!-- custom: sanity check: do not scrap great persons (hopefully doesn't happen but who knows, don't kill the great prophet or general or scientist or such) -->
+		const bool bGreatPersonUnitAIs = (
+			(eUnitAI == UNITAI_GREAT_PROPHET) ||
+			(eUnitAI == UNITAI_GREAT_ARTIST) ||
+			(eUnitAI == UNITAI_GREAT_SCIENTIST) ||
+			(eUnitAI == UNITAI_GREAT_GENERAL) ||
+			(eUnitAI == UNITAI_GREAT_MERCHANT) ||
+			(eUnitAI == UNITAI_GREAT_ENGINEER) ||
+			(eUnitAI == UNITAI_GREAT_SPY)
+		);
+		if (bGreatPersonUnitAIs)
+		{
+			return false;
+		}
+
+		// <!-- custom: sanity check, do not scrap ICBM (just in case), hopefully doesn't cause issues and helps (maybe solves unknown ones but in all cases) -->
+		const bool bAirMissileUnitAIs = (
+			(eUnitAI == UNITAI_ICBM) ||
+			(eUnitAI == UNITAI_MISSILE_AIR)
+		);
+		if (bAirMissileUnitAIs)
+		{
+			return false;
+		}
+	}
+
+	// <!-- custom: then after our checks, resume from old code below -->
 	if (getPlot().isFighting())
 		return false;
 	return true;
@@ -3223,6 +3651,17 @@ void CvUnit::scrap()
 {
 	if (!canScrap())
 		return;
+	if (gUnitLogLevel > 2 && !isHuman())
+	{
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		CvWString szAITypeString;
+		getUnitAIString(szAITypeString, AI_getUnitAIType());
+		// <!-- custom: Central actual-scrap event log. Caller logs are decision/context lines and can repeat; this line fires once per successful CvUnit::scrap() call before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5) -->
+		logBBAI("    SCRAP_EVENT turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getUnitType(), szAITypeString.GetCString(), getName(0).GetCString(),
+			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
+			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
+	}
 	kill(true);
 }
 
@@ -3387,9 +3826,8 @@ void CvUnit::gift(bool bTestTransport)
 	CvEventReporter::getInstance().unitGifted(pGiftUnit, getOwner(), plot());
 }
 
-// advc: Renamed from canLoadUnit, params changed to references.
-bool CvUnit::canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot,
-	bool bCheckMoves) const // advc.123c
+// advc: Renamed from "canLoadUnit"
+bool CvUnit::canLoadOnto(CvUnit const& kUnit, CvPlot const& kPlot, bool bCheckMoves) const // advc.123c
 {
 	if (&kUnit == this)
 		return false;
@@ -3900,8 +4338,7 @@ bool CvUnit::airlift(int iX, int iY)
 }
 
 // advc (comment): Says whether eTeam is a victim of this (nuke) unit if it nukes pPlot
-bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
-	TeamTypes eObs) const // kekm.7 (advc)
+bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam, TeamTypes eObs) const // kekm.7 (advc)
 {
 	// kekm.7 (advc): Not OK to nuke our own cities or units
 	if (!GET_TEAM(eTeam).isAlive()/* || eTeam == getTeam()*/)
@@ -3923,8 +4360,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
 		// Can't nuke too much non-enemy population
 		if (kLoopPlot.isCity() && !isEnemy(eTeam) &&
 			((eTeam == getTeam() &&
-			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >=
-			GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) ||
+			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >= GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) ||
 			eTeam == TEAMID(kLoopPlot.calculateCulturalOwner(true))))
 		{
 			return true;
@@ -3942,8 +4378,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
 }
 
 
-bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY,
-	TeamTypes eObs) const // kekm.7 (advc)
+bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY, TeamTypes eObs) const // kekm.7 (advc)
 {
 	if (!canNuke(&kFrom))
 		return false;
@@ -4007,6 +4442,10 @@ bool CvUnit::nuke(int iX, int iY)
 	int const iMissionTime = getGroup()->nukeMissionTime();
 	bool const bShortAnimation = (iMissionTime <= 8); // </advc.002m>
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	if (SyncRandSuccess100(iBestInterception))
 	{
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it) // advc.003n: Only major civs
@@ -4023,7 +4462,7 @@ bool CvUnit::nuke(int iX, int iY)
 				gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getOwner() ||
 						!bShortAnimation, // advc.002m
 						-1, szBuffer, kPlot, "AS2D_NUKE_INTERCEPTED",
-						MESSAGE_TYPE_MAJOR_EVENT, getButton(), GC.getColorType("RED"));
+						MESSAGE_TYPE_MAJOR_EVENT, getButton(), eColorRed);
 			}
 		}
 		if (kPlot.isActiveVisible(false))
@@ -4051,6 +4490,12 @@ bool CvUnit::nuke(int iX, int iY)
 		gDLL->getEntityIFace()->AddMission(&kMissionDef);
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iWW_HIT_BY_NUKE = GC.getDefineINT("WW_HIT_BY_NUKE");
+	static const int iWW_ATTACKED_WITH_NUKE = GC.getDefineINT("WW_ATTACKED_WITH_NUKE");
+	static const int iWAR_SUCCESS_NUKE = GC.getDefineINT("WAR_SUCCESS_NUKE");
+
 	setMadeAttack(true);
 	setAttackPlot(&kPlot, false);
 
@@ -4059,11 +4504,11 @@ bool CvUnit::nuke(int iX, int iY)
 		if (!abTeamsAffected.get(it->getID()))
 			continue;
 		it->changeWarWeariness(getTeam(),
-				100 * GC.getDefineINT("WW_HIT_BY_NUKE"));
+				100 * iWW_HIT_BY_NUKE);
 		GET_TEAM(getTeam()).changeWarWeariness(it->getID(),
-				100 * GC.getDefineINT("WW_ATTACKED_WITH_NUKE"));
+				100 * iWW_ATTACKED_WITH_NUKE);
 		GET_TEAM(getTeam()).AI_changeWarSuccess(it->getID(),
-				GC.getDefineINT("WAR_SUCCESS_NUKE"));
+				iWAR_SUCCESS_NUKE);
 	}
 	CvCity const* pReplayCity = NULL; // advc.106
 	// <advc.130q>
@@ -4168,18 +4613,21 @@ bool CvUnit::nuke(int iX, int iY)
 			gDLL->UI().addMessage(kObs.getID(), kObs.getID() == getOwner() ||
 					!bShortAnimation, // advc.002m
 					-1, szBuffer, kPlot, "AS2D_NUKE_EXPLODES",
-					MESSAGE_TYPE_MAJOR_EVENT, getButton(), GC.getColorType("RED"));
+					MESSAGE_TYPE_MAJOR_EVENT, getButton(), eColorRed);
 		}
 	}
 	// <advc.106>
 	if (pReplayCity != NULL)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_NUKED",
 				pReplayCity->getNameKey(), GET_PLAYER(
 				pReplayCity->getOwner()).getNameKey(),
 				GET_PLAYER(getOwner()).getNameKey());
 		GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-				getOwner(), szBuffer, GC.getColorType("WARNING_TEXT"));
+				getOwner(), szBuffer, eColorWarningText);
 	} // </advc.106>
 
 	if (isSuicide())
@@ -4189,10 +4637,9 @@ bool CvUnit::nuke(int iX, int iY)
 }
 
 // advc.650:
-int CvUnit::nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs,
-	TeamTypes* pBestTeam, // Optional out-param
-	// Allow caller to provide set of affected teams (just to save time)
-	EagerEnumMap<TeamTypes,bool> const* pTeamsAffected) const
+// Optional out-param <!-- custom: hoisted from multiline signature between `pBestTeam` and `pTeamsAffected` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// Allow caller to provide set of affected teams (just to save time) <!-- custom: hoisted from multiline signature between `pBestTeam` and `pTeamsAffected` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvUnit::nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs, TeamTypes* pBestTeam, EagerEnumMap<TeamTypes, bool> const* pTeamsAffected) const
 {
 	LOCAL_REF(TeamTypes, eBestTeam, pBestTeam, NO_TEAM);
 	EagerEnumMap<TeamTypes,bool> abTeamsAffected_local;
@@ -4431,9 +4878,7 @@ bool CvUnit::canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom) const
 /*	advc.255: Whether the first structure that this unit could destroy in the
 	target plot would be an improvement, a route or none - assuming that the unit
 	has the ability to pillage or air bomb the plot (not checked). */
-CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget,
-	bool bTestVisibility,
-	bool bForceImprovement) const // advc.111
+CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget, bool bTestVisibility, bool bForceImprovement) const // advc.111
 {
 	ImprovementTypes eImprov = (bTestVisibility ?
 			kTarget.getRevealedImprovementType(getTeam()) :
@@ -4478,8 +4923,7 @@ int CvUnit::airBombDefenseDamage(CvCity const& kCity) const
 }
 
 // advc: Target plot was given as coordinates
-bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
-	bool bForceImprovement) // advc.111
+bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool bForceImprovement) // advc.111
 {	// <advc.004c>
 	if (pbIntercepted != NULL)
 		*pbIntercepted = false; // </advc.004c>
@@ -4496,6 +4940,12 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 			*pbIntercepted = true; // </advc.004c>
 		return true;
 	}
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer;
 
 	CvCity* pCity = kTarget.getPlotCity();
@@ -4508,11 +4958,11 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
 				-1, szBuffer, pCity->getPlot(),
-				"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 		szBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_DEFENSES_REDUCED_TO", getNameKey(),
 				pCity->getNameKey(), pCity->getDefenseModifier(false));
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, pCity->getPlot(),
-				"AS2D_BOMBARD", MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"));
+				"AS2D_BOMBARD", MESSAGE_TYPE_INFO, NULL, eColorGreen);
 	}
 	else
 	{	// <advc.255> 
@@ -4537,7 +4987,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+						MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 						kTarget.getX(), kTarget.getY());
 				if (kTarget.isOwned() &&
 					kTarget.getOwner() != getOwner()) // advc.004c
@@ -4547,7 +4997,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 							getVisualCivAdjective(kTarget.getTeam()));
 					gDLL->UI().addMessage(kTarget.getOwner(), true, // advc.004g: was false
 							-1, szBuffer, kTarget, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
-							getButton(), GC.getColorType("RED"));
+							getButton(), eColorRed);
 				}
 				// <advc.255>
 				if (bRoute)
@@ -4567,7 +5017,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 						"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("RED"), kTarget.getX(), kTarget.getY());
+						eColorRed, kTarget.getX(), kTarget.getY());
 			}
 		}
 		/*	<advc.004c> Can now fail when the improvement only existed in the FoW
@@ -4695,6 +5145,10 @@ bool CvUnit::bombard()
 	setMadeAttack(true);
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DEFENSES_IN_CITY_REDUCED_TO",
 			getNameKey(), // advc.004g: Show unit name (idea from MNAI)
 			pBombardCity->getDefenseModifier(false),
@@ -4703,14 +5157,14 @@ bool CvUnit::bombard()
 	gDLL->UI().addMessage(pBombardCity->getOwner(), /* advc.004g: */ true,
 			-1, szBuffer, pBombardCity->getPlot(),
 			!bFirstBombardment ? NULL : // advc.004g: Don't bombard the owner with sound
-			"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_BOMBARDED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_REDUCE_CITY_DEFENSES",
 			getNameKey(), pBombardCity->getNameKey(),
 			pBombardCity->getDefenseModifier(//false
 			ignoreBuildingDefense())); // advc.004g
 	gDLL->UI().addMessage(getOwner(), true,
 			-1, szBuffer, "AS2D_BOMBARD",
-			MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 			pBombardCity->getX(), pBombardCity->getY());
 
 	if (getPlot().isActiveVisible(false))
@@ -4871,12 +5325,16 @@ bool CvUnit::pillageImprovement()
 		}
 		if (iPillageGold > 0)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			GET_PLAYER(getOwner()).changeGold(iPillageGold);
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP",
 					iPillageGold, GC.getInfo(kPlot.getImprovementType()).getTextKeyWide());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 					"AS2D_PILLAGE", MESSAGE_TYPE_INFO, getButton(),
-					GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+					eColorGreen, kPlot.getX(), kPlot.getY());
 			if (kPlot.isOwned())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_IMP_DESTROYED",
@@ -4884,7 +5342,7 @@ bool CvUnit::pillageImprovement()
 						getNameKey(), getVisualCivAdjective(kPlot.getTeam()));
 				gDLL->UI().addMessage(kPlot.getOwner(), /* advc.106j: */ true,
 						-1, szBuffer, kPlot, "AS2D_PILLAGED",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+						MESSAGE_TYPE_INFO, getButton(), eColorRed);
 			}
 		}
 	}
@@ -5139,17 +5597,21 @@ bool CvUnit::sabotage()
 				kPlot.getOwner(), NO_TEAM, false);
 		if (pNearestCity != NULL)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			szBuffer = gDLL->getText("TXT_KEY_MISC_SPY_SABOTAGED",
 					getNameKey(), pNearestCity->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_SABOTAGE",
-					MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+					MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 					kPlot.getX(), kPlot.getY());
 
 			if (kPlot.isOwned())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_SABOTAGE_NEAR", pNearestCity->getNameKey());
 				gDLL->UI().addMessage(kPlot.getOwner(), false, -1, szBuffer, kPlot,
-						"AS2D_SABOTAGE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+						"AS2D_SABOTAGE", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 			}
 		}
 		if (kPlot.isActiveVisible(false))
@@ -5265,16 +5727,20 @@ bool CvUnit::destroy()
 
 		finishMoves();
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SPY_DESTROYED_PRODUCTION",
 				getNameKey(), pCity->getProductionNameKey(), pCity->getNameKey()));
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_DESTROY",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pCity->getX(), pCity->getY());
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_PRODUCTION_DESTROYED",
 				pCity->getProductionNameKey(), pCity->getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, pCity->getPlot(),
-				"AS2D_DESTROY", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_DESTROY", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_DESTROY);
@@ -5386,14 +5852,18 @@ bool CvUnit::stealPlans()
 
 		finishMoves();
 
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		szBuffer = gDLL->getText("TXT_KEY_MISC_SPY_STOLE_PLANS", getNameKey(), pCity->getNameKey());
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_STEALPLANS",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pCity->getX(), pCity->getY());
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_PLANS_STOLEN", pCity->getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer, getPlot(),
-				"AS2D_STEALPLANS", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+				"AS2D_STEALPLANS", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_STEAL_PLANS);
@@ -5541,7 +6011,10 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			/*	K-Mod. Instead of simply failing, give some chance of
 				removing one of the existing religions. */
 			std::vector<std::pair<int,ReligionTypes> > aieRankedReligions;
-			int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
+
 			FOR_EACH_ENUM(Religion)
 			{
 				if (pCity->isHasReligion(eLoopReligion) || eLoopReligion == eReligion)
@@ -5564,10 +6037,13 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			ReligionTypes eFailedReligion = aieRankedReligions[0].second;
 			if (eFailedReligion == eReligion)
 			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 				CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD",
 						getNameKey(), GC.getInfo(eReligion).getChar(), pCity->getNameKey()));
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
-						MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+						MESSAGE_TYPE_INFO, getButton(), eColorRed,
 						pCity->getX(), pCity->getY());
 				bSuccess = false;
 			}
@@ -5687,10 +6163,13 @@ bool CvUnit::spreadCorporation(CorporationTypes eCorporation)
 			pCity->setHasCorporation(eCorporation, true, true, false);
 		else
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CORPORATION_FAILED_TO_SPREAD",
 					getNameKey(), GC.getInfo(eCorporation).getChar(), pCity->getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
-					MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"),
+					MESSAGE_TYPE_INFO, getButton(), eColorRed,
 					pCity->getX(), pCity->getY());
 		}
 	}
@@ -5941,9 +6420,8 @@ bool CvUnit::trade()
 }
 
 
-int CvUnit::getGreatWorkCulture(const CvPlot* pPlot,
-	// <advc.251> For help text
-	int* piPerEra) const
+// <advc.251> For help text <!-- custom: hoisted from multiline signature between `pPlot` and `piPerEra` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvUnit::getGreatWorkCulture(const CvPlot* pPlot, int* piPerEra) const
 {
 	LOCAL_REF(int, iPerEra, piPerEra, m_pUnitInfo->getGreatWorkCulture());
 	int iCulture = iPerEra; // </advc.251>
@@ -6112,7 +6590,10 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
 
-			if (!testSpyIntercepted(eTargetPlayer, true, GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD")))
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+
+			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD))
 			{
 				setFortifyTurns(0);
 				setMadeAttack(true);
@@ -6181,11 +6662,15 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (pClosestCity != NULL)
 		szCityName = pClosestCity->getName();
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer = gDLL->getText(szFormatReveal.GetCString(),
 			GET_PLAYER(getOwner()).getCivilizationAdjectiveKey(), getNameKey(),
 			kTargetPlayer.getCivilizationAdjectiveKey(), szCityName.GetCString());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, getPlot(),
-			"AS2D_EXPOSED", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_EXPOSED", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 	static int const iESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT = GC.getDefineINT("ESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT"); // advc.opt
 	if (SyncRandSuccess100(iESPIONAGE_SPY_REVEAL_IDENTITY_PERCENT))
@@ -6195,14 +6680,14 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 			GET_PLAYER(eTargetPlayer).AI_rememberEvent(getOwner(), MEMORY_SPY_CAUGHT);
 		}
 		gDLL->UI().addMessage(eTargetPlayer, true, -1, szBuffer, getPlot(),
-				"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+				"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 	}
 	else
 	{
 		szBuffer = gDLL->getText(szFormatNoReveal.GetCString(), getNameKey(),
 				kTargetPlayer.getCivilizationAdjectiveKey(), szCityName.GetCString());
 		gDLL->UI().addMessage(eTargetPlayer, true, -1, szBuffer, getPlot(),
-			"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"));
+			"AS2D_EXPOSE", MESSAGE_TYPE_INFO, getButton(), eColorGreen);
 	}
 
 	if (getPlot().isActiveVisible(false))
@@ -6307,8 +6792,7 @@ bool CvUnit::goldenAge()
 }
 
 
-bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible,
-	bool bIgnoreFoW) const // advc.181
+bool CvUnit::canBuild(CvPlot const& kPlot, BuildTypes eBuild, bool bTestVisible, bool bIgnoreFoW) const // advc.181
 {
 	if (!m_pUnitInfo->getBuilds(eBuild))
 		return false;
@@ -6582,11 +7066,15 @@ bool CvUnit::giveExperience()
 
 int CvUnit::getStackExperienceToGive(int iNumUnits) const
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iWARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT = GC.getDefineINT("WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT");
+	static const int iWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT = GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT");
+
 	return (m_pUnitInfo->getLeaderExperience() * (100 + std::min(
 			//50 // K-Mod: +50% is too low as a maximum.
-			GC.getDefineINT("WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT"),
+			iWARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT,
 			(iNumUnits - 1) *
-			GC.getDefineINT("WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT")))) / 100;
+			iWARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT))) / 100;
 }
 
 int CvUnit::upgradePrice(UnitTypes eUnit) const
@@ -6612,6 +7100,11 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		/*iPrice *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * GET_PLAYER(getOwner()).getCurrentEra()) + 100));
 		iPrice /= 100;*/
 	}
+
+	// <!-- custom: tune unit upgrade costs, as i have found them to be too expensive. This applies to both human and AI players. Note: as of now in advciv-sas iAIUnitUpgradePercent has been increased from 50 to 100 (so AIs and humans have the same upgrade cost, no longer half cheaper to AIs). -->
+	static const int iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT = std::max(0, GC.getDefineINT("SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT"));
+	iPrice = (iPrice * iSAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT) / 100;
+
 	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
 
 	return std::max(0, iPrice); // advc.mnai: max (future-proofing)
@@ -6628,8 +7121,7 @@ int CvUnit::upgradeXPChange(UnitTypes eUnit) const
 }
 
 
-bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass,
-	int iCount) const
+bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount) const
 {
 	if (iCount > GC.getNumUnitClassInfos())
 		return false;
@@ -6666,8 +7158,113 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 
 	if (!bTestVisible)
 	{
-		if (GET_PLAYER(getOwner()).getGold() < upgradePrice(eUnit))
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		int const iPrice = upgradePrice(eUnit);
+
+		if (kOwner.getGold() < iPrice)
 			return false;
+
+		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (ChatGPT 5.2 Thinking) -->
+		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial and may backfire, see for details known issue of as now 88 for details. -->
+		if (!isHuman())
+		{
+			static const int iSAS_CAN_UPGRADE_OPTIMIZE = GC.getDefineINT("SAS_CAN_UPGRADE_OPTIMIZE");
+			if (iSAS_CAN_UPGRADE_OPTIMIZE > 0)
+			{
+				CvUnitInfo const& kFromUnit = GC.getInfo(getUnitType());
+				CvUnitInfo const& kToUnit   = GC.getInfo(eUnit);
+
+				int const iFromStrength = std::max(kFromUnit.getCombat(), kFromUnit.getAirCombat());
+				int const iToStrength   = std::max(kToUnit.getCombat(),   kToUnit.getAirCombat());
+				int const iStrengthGain = (iToStrength - iFromStrength);
+				int iEffectivePrice = iPrice;
+				int iDomainPricePercent = 100;
+				// <!-- custom: The real upgrade price stays unchanged; this only makes off-domain upgrades pass the AI ROI gates less often.
+				// On land-heavy maps, limited AI upgrade gold is usually better spent on land units than ships; on naval-heavy maps, ships are usually
+				// higher leverage than land upgrades. Keep this as an effective-price multiplier instead of a hard domain ban so experienced or
+				// high-impact off-domain upgrades can still pass when they are worth enough. (ChatGPT-5.2 + GPT-5.5) -->
+				{
+					CvGame const& kGame = GC.getGame();
+					if (kGame.isLandHeavyMapnameCached() && getDomainType() == DOMAIN_SEA)
+					{
+						static const int iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT");
+						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_LAND_HEAVY_SEA_UPGRADE_PRICE_PERCENT);
+					}
+					else if (kGame.isNavalHeavyMapnameCached() && getDomainType() == DOMAIN_LAND)
+					{
+						static const int iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT = GC.getDefineINT("SAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT");
+						iDomainPricePercent = std::max(100, iSAS_CAN_UPGRADE_NAVAL_HEAVY_LAND_UPGRADE_PRICE_PERCENT);
+					}
+					if (iDomainPricePercent != 100)
+					{
+						iEffectivePrice = (iPrice * iDomainPricePercent + 50) / 100;
+						// <!-- custom: commented-out as (with a value of 200) it fires ~27k times on a ~T408 pangea large normal game speed autoplay (domain adjustments: 27,310, domain-adjusted blocked upgrades: 26,773, actual upgrades: 1,340, naval upgrades detected: 0) (according to ChatGPT-5.5's analysis of the corresponding BBAI log) -->
+						// if (gUnitLogLevel >= 3)
+						// {
+						// 	logBBAI("    %S AI upgrade domain ROI adjustment: %S -> %S domain=%d price=%d effectivePrice=%d domainPercent=%d",
+						// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), getDomainType(), iPrice, iEffectivePrice, iDomainPricePercent);
+						// }
+					}
+				}
+
+				// If there is no strength gain, do not block the upgrade (upgrades can also be valuable for non-strength reasons).
+				if (iFromStrength > 0 && iStrengthGain > 0)
+				{
+					int const iExp = getExperience();
+
+					// Gate 1: gold per 10% strength gain.
+					{
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP");
+
+						int iMaxGoldPer10Pct = iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP;
+						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP > 0)
+							iMaxGoldPer10Pct = std::min(iMaxGoldPer10Pct, iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP);
+
+						int const iPercentStrengthGain = (iStrengthGain * 100) / iFromStrength;
+						if (iPercentStrengthGain > 0)
+						{
+							// allowed gold = (gold per 10%) * (percent gain / 10%)
+							int const iAllowedGold = (iMaxGoldPer10Pct * iPercentStrengthGain + 5) / 10;
+							if (iEffectivePrice > iAllowedGold)
+							{
+								// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
+								// {
+								// 	logBBAI("    %S AI upgrade blocked by domain-adjusted percent ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
+								// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+								// }
+								return false;
+							}
+						}
+					}
+
+					// Gate 2: gold per +1 flat strength gain.
+					{
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP");
+						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP");
+
+						int iMaxGoldPerFlatStr = iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP;
+						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP > 0)
+							iMaxGoldPerFlatStr = std::min(iMaxGoldPerFlatStr, iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP);
+
+						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
+						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;
+						if (iEffectivePrice > iAllowedGold)
+						{
+							// if (gUnitLogLevel >= 3 && iDomainPricePercent != 100)
+							// {
+							// 	logBBAI("    %S AI upgrade blocked by domain-adjusted flat ROI: %S -> %S price=%d effectivePrice=%d allowedGold=%d strength=%d->%d exp=%d",
+							// 		GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), kToUnit.getDescription(), iPrice, iEffectivePrice, iAllowedGold, iFromStrength, iToStrength, iExp);
+							// }
+							return false;
+						}
+					}
+				}
+			}
+		}
+		// <!-- custom: end AI upgrade economic checks (ChatGPT 5.2 Thinking) -->
 	}
 
 	if (hasUpgrade(eUnit))
@@ -7205,9 +7802,7 @@ void CvUnit::setBaseCombatStr(int iCombat)
 		Note, in this last case, it is expected pCombatDetails == NULL,
 		it does not have to be, but some values may be unexpectedly
 		reversed in this case (iModifierTotal will be the negative sum). */
-int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
-	CombatDetails* pCombatDetails,
-	bool bGarrisonStrength) const // advc.500b
+int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDetails* pCombatDetails, bool bGarrisonStrength) const // advc.500b
 {
 	PROFILE_FUNC(); // advc: This does get called a lot. Not all that slow though.
 	FAssert(pPlot == NULL || pPlot->getTerrainType() != NO_TERRAIN);
@@ -7597,9 +8192,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
 // this nomalizes str by firepower, useful for quick odds calcs
 // the effect is that a damaged unit will have an effective str lowered by firepower/maxFirepower
 // doing the algebra, this means we mulitply by 1/2(1 + currHP)/maxHP = (maxHP + currHP) / (2 * maxHP)
-int CvUnit::currEffectiveStr(CvPlot const* pPlot, CvUnit const* pAttacker,
-	CombatDetails* pCombatDetails,
-	int iCurrentHP) const // advc.139
+int CvUnit::currEffectiveStr(CvPlot const* pPlot, CvUnit const* pAttacker, CombatDetails* pCombatDetails, int iCurrentHP) const // advc.139
 {
 	int iCurrStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
 
@@ -7723,9 +8316,7 @@ bool CvUnit::canDefend(const CvPlot* pPlot) const
 }
 
 // advc: Based on code removed from CvPlot::getBestDefender and CvPlot::hasDefender
-bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
-	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy,
-	/* <advc.028> */ bool bTestVisible, /* </advc.028> */ bool bTestCanAttack) const
+bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer, CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy, /* <advc.028> */ bool bTestVisible, /* </advc.028> */ bool bTestCanAttack) const
 {
 	FAssert(eAttackingPlayer != NO_PLAYER);
 	if (/* advc.028: */ bTestVisible &&
@@ -7766,9 +8357,8 @@ bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
 }
 
 
-bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
-	int* pBestDefenderRank, // Lead From Behind by UncutDragon
-	bool bPreferUnowned) const // advc.061
+// Lead From Behind by UncutDragon <!-- custom: hoisted from multiline signature between `pBestDefenderRank` and `bPreferUnowned` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank, bool bPreferUnowned) const // advc.061
 {
 	TeamTypes eAttackerTeam = NO_TEAM;
 	if (pAttacker != NULL)
@@ -8051,8 +8641,7 @@ int CvUnit::rangeCombatDamage(const CvUnit* pDefender) const
 }
 
 
-CvUnit* CvUnit::bestInterceptor(CvPlot const& kPlot,
-	bool bOdds) const // advc.004c
+CvUnit* CvUnit::bestInterceptor(CvPlot const& kPlot, bool bOdds) const // advc.004c
 {
 	/*	advc: (Could do this through a plot range, or at least go through
 		selection groups before individual units. But seems to be a nonissue.) */
@@ -8190,9 +8779,19 @@ int CvUnit::maxXPValue() const
 {
 	int iMaxValue = MAX_INT;
 	if (isAnimal())
-		iMaxValue = std::min(iMaxValue, GC.getDefineINT("ANIMAL_MAX_XP_VALUE"));
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iANIMAL_MAX_XP_VALUE = GC.getDefineINT("ANIMAL_MAX_XP_VALUE");
+
+		iMaxValue = std::min(iMaxValue, iANIMAL_MAX_XP_VALUE);
+	}
 	if (isBarbarian())
-		iMaxValue = std::min(iMaxValue, GC.getDefineINT("BARBARIAN_MAX_XP_VALUE"));
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iBARBARIAN_MAX_XP_VALUE = GC.getDefineINT("BARBARIAN_MAX_XP_VALUE");
+
+		iMaxValue = std::min(iMaxValue, iBARBARIAN_MAX_XP_VALUE);
+	}
 	return iMaxValue;
 }
 
@@ -8404,8 +9003,7 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 
 /*	advc.030: Renamed from "canCargoEnterArea" to avoid confusion with canEnterArea
 	(wrapper for CvArea::canBeEntered) */
-bool CvUnit::canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage,
-	CvArea const& kArea) const
+bool CvUnit::canCargoEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, CvArea const& kArea) const
 {
 	FAssert(hasCargo()); // advc.opt
 	// advc (note): getCargoUnits would be slower
@@ -8705,6 +9303,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			{
 				oldUnits.insertAtEnd(pNode->m_data);
 			}
+
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
+			static const int iWW_UNIT_CAPTURED = GC.getDefineINT("WW_UNIT_CAPTURED");
+			static const int iWW_CAPTURED_UNIT = GC.getDefineINT("WW_CAPTURED_UNIT");
+			static const int iWAR_SUCCESS_UNIT_CAPTURING = GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING");
+
 			CLLNode<IDInfo>* pUnitNode = oldUnits.head();
 			while (pUnitNode != NULL)
 			{
@@ -8735,11 +9340,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 							!pLoopUnit->getUnitInfo().isHiddenNationality())
 						{
 							kUnitTeam.changeWarWeariness(getTeam(),
-									*pNewPlot, GC.getDefineINT("WW_UNIT_CAPTURED"));
+									*pNewPlot, iWW_UNIT_CAPTURED);
 							GET_TEAM(getTeam()).changeWarWeariness(pLoopUnit->getTeam(),
-									*pNewPlot, GC.getDefineINT("WW_CAPTURED_UNIT"));
+									*pNewPlot, iWW_CAPTURED_UNIT);
 							GET_TEAM(getTeam()).AI_changeWarSuccess(pLoopUnit->getTeam(),
-									GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING"));
+									iWAR_SUCCESS_UNIT_CAPTURING);
 						}
 						if (//!isNoUnitCapture()
 							SyncRandSuccess100(getCaptureOdds(*pLoopUnit))) // advc.010
@@ -8838,8 +9443,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			if (isEnemy(pNewCity->getTeam()) &&
 				!canCoexistWithEnemyUnit(pNewCity->getTeam()) && canFight())
 			{
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const int iWW_CAPTURED_CITY = GC.getDefineINT("WW_CAPTURED_CITY");
+
 				GET_TEAM(getTeam()).changeWarWeariness(pNewCity->getTeam(), *pNewPlot,
-						GC.getDefineINT("WW_CAPTURED_CITY"));
+						iWW_CAPTURED_CITY);
 				/*GET_TEAM(getTeam()).AI_changeWarSuccess(pNewCity->getTeam(), GC.getDefineINT("WAR_SUCCESS_CITY_CAPTURING"));*/ // BtS
 				// BETTER_BTS_AI_MOD, General AI, 06/14/09, jdog5000
 				// Double war success if capturing capital city, always a significant blow to enemy
@@ -9206,8 +9814,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 	}
 }
 
-void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders,
-	int iGlobalPercent) // advc.312: was bUpdateGlobal
+void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, int iGlobalPercent) // advc.312: was bUpdateGlobal
 {
 	int iUnitExperience = iChange;
 	if (bFromCombat)
@@ -9855,6 +10462,11 @@ void CvUnit::setBlockading(bool bNewValue)
 
 void CvUnit::collectBlockadeGold()
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	//if(getPlot().getTeam() == getTeam()) return; // advc.033: Handled by caller
 
 	/*  <advc.033> Rewritten based on the new blockadeRange function.
@@ -9884,12 +10496,12 @@ void CvUnit::collectBlockadeGold()
 						getNameKey(), pCity->getNameKey(), iGold);
 				gDLL->UI().addMessage(getOwner(), false, -1, szBuffer,
 						"AS2D_BUILD_BANK", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("GREEN"), getX(), getY());
+						eColorGreen, getX(), getY());
 				szBuffer = gDLL->getText("TXT_KEY_MISC_TRADE_ROUTE_PLUNDER",
 						getNameKey(), pCity->getNameKey(), iGold);
 				gDLL->UI().addMessage(pCity->getOwner(), false, -1, szBuffer,
 						"AS2D_BUILD_BANK", MESSAGE_TYPE_INFO, getButton(),
-						GC.getColorType("RED"), pCity->getX(), pCity->getY());
+						eColorRed, pCity->getX(), pCity->getY());
 			}
 		}
 	}
@@ -10035,11 +10647,14 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
 // (code copied from setCombatUnit, above)
 bool CvUnit::showSiegeTower(CvUnit* pDefender) const
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER = GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
+
 	return getDomainType() == DOMAIN_LAND &&
 		!m_pUnitInfo->isIgnoreBuildingDefense() &&
 		pDefender->getPlot().getPlotCity() &&
 		pDefender->getPlot().getPlotCity()->getBuildingDefense() > 0 &&
-		cityAttackModifier() >= GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER");
+		cityAttackModifier() >= iMIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER;
 }
 
 CvUnit const* CvUnit::getTransportUnit() const
@@ -10146,7 +10761,7 @@ const wchar* CvUnit::getNameKey() const
 wchar const* CvUnit::getNameKeyNoGG() const
 {
 	if(getLeaderUnitType() == NO_UNIT &&
-		m_pUnitInfo->getDefaultUnitAIType() != UNITAI_GENERAL &&
+		m_pUnitInfo->getDefaultUnitAIType() != UNITAI_GREAT_GENERAL &&
 		!isGoldenAge())
 	{
 		return getNameKey();
@@ -10479,7 +11094,9 @@ int CvUnit::getSubUnitsAlive(int iDamage) const
 
 void CvUnit::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iID);
@@ -10491,13 +11108,10 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iLastMoveTurn);
 	pStream->Read(&m_iReconX);
 	pStream->Read(&m_iReconY);
+
 	// <advc.029>
-	if(uiFlag < 4)
-	{
-		if(m_iReconX != INVALID_PLOT_COORD && m_iReconY != INVALID_PLOT_COORD)
-			m_iLastReconTurn = GC.getGame().getGameTurn();
-	}
-	else pStream->Read(&m_iLastReconTurn); // </advc.029>
+	pStream->Read(&m_iLastReconTurn); // </advc.029>
+
 	pStream->Read(&m_iGameTurnCreated);
 	pStream->Read(&m_iDamage);
 	pStream->Read(&m_iMoves);
@@ -10509,11 +11123,7 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iAttackPlotY);
 	pStream->Read(&m_iCombatTimer);
 	pStream->Read(&m_iCombatFirstStrikes);
-	if (uiFlag < 2)
-	{
-		int iCombatDamage;
-		pStream->Read(&iCombatDamage);
-	}
+
 	pStream->Read(&m_iFortifyTurns);
 	pStream->Read(&m_iBlitzCount);
 	pStream->Read(&m_iAmphibCount);
@@ -10552,18 +11162,13 @@ void CvUnit::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iBaseCombat);
 	pStream->Read((int*)&m_eFacingDirection);
 	pStream->Read(&m_iImmobileTimer);
+
 	//pStream->Read(&m_bMadeAttack);
 	// <advc.164>
-	if(uiFlag >= 5)
-		pStream->Read(&m_iMadeAttacks);
-	else
-	{
-		bool bTmp=false;
-		pStream->Read(&bTmp);
-		if(bTmp)
-			m_iMadeAttacks = 1;
-		else m_iMadeAttacks = 0;
-	} // </advc.164>
+	pStream->Read(&m_iMadeAttacks);
+	// </advc.164>
+
+	// <!-- custom: note: lone bracket left as is as part of / while doing the old uiflag cleanup -->
 	{
 		bool bTmp; // advc.pt: For reading bitfield members
 		pStream->Read(&bTmp);
@@ -10577,25 +11182,21 @@ void CvUnit::read(FDataStreamBase* pStream)
 		// m_bInfoBarDirty not saved...
 		pStream->Read(&bTmp);
 		m_bBlockading = bTmp;
-		if (uiFlag > 0)
-		{
-			pStream->Read(&bTmp);
-			m_bAirCombat = bTmp;
-		}
+
+		pStream->Read(&bTmp);
+		m_bAirCombat = bTmp;
+
 		// <advc.opt>
-		if (uiFlag >= 6)
-		{
-			pStream->Read(&bTmp);
-			m_bFlatMovement = bTmp;
-		} // </advc.opt>
+		pStream->Read(&bTmp);
+		m_bFlatMovement = bTmp;
+		// </advc.opt>
 	}
+
 	pStream->Read((int*)&m_eOwner);
 	pStream->Read((int*)&m_eCapturingPlayer);
 	pStream->Read((int*)&m_eUnitType);
 	m_pUnitInfo = &GC.getInfo(m_eUnitType);
-	// <advc.opt>
-	if (uiFlag <= 6)
-		updateFlatMovement(); // </advc.opt>
+
 	pStream->Read((int*)&m_eLeaderUnitType);
 	pStream->Read((int*)&m_combatUnit.eOwner);
 	pStream->Read(&m_combatUnit.iID);
@@ -10604,47 +11205,23 @@ void CvUnit::read(FDataStreamBase* pStream)
 	// <advc.opt>
 	m_combatUnit.validateOwner();
 	m_transportUnit.validateOwner(); // </advc.opt>
-	if (uiFlag >= 7)
-		m_aiExtraDomainModifier.read(pStream);
-	else m_aiExtraDomainModifier.readArray<int>(pStream);
+
+	m_aiExtraDomainModifier.read(pStream);
 
 	pStream->ReadString(m_szName);
 	pStream->ReadString(m_szScriptData);
 
 	// <advc.313>
-	if (uiFlag >= 8)
-		m_abHasPromotion.read(pStream);
-	else if (uiFlag == 7)
-	{
-		// Skip loading Disorganized promo
-		LegacyArrayEnumMap<PromotionTypes,bool>::convert(m_abHasPromotion, pStream, -1);
-		/*	Promo effects get cached in m_iExtra... members, which get saved.
-			This is good for the extra moves, not good for the strength modifier
-			b/c that gets applied on the fly now. */
-		if (isKnownSeaBarbarian())
-			m_iExtraCombatPercent += 10;
-	}
-	else m_abHasPromotion.readArray<bool>(pStream, -1); // </advc.313>
-	if (uiFlag >= 7)
-	{
-		m_aiTerrainDoubleMoveCount.read(pStream);
-		m_aiFeatureDoubleMoveCount.read(pStream);
-		m_aiExtraTerrainAttackPercent.read(pStream);
-		m_aiExtraTerrainDefensePercent.read(pStream);
-		m_aiExtraFeatureAttackPercent.read(pStream);
-		m_aiExtraFeatureDefensePercent.read(pStream);
-		m_aiExtraUnitCombatModifier.read(pStream);
-	}
-	else
-	{
-		m_aiTerrainDoubleMoveCount.readArray<int>(pStream);
-		m_aiFeatureDoubleMoveCount.readArray<int>(pStream);
-		m_aiExtraTerrainAttackPercent.readArray<int>(pStream);
-		m_aiExtraTerrainDefensePercent.readArray<int>(pStream);
-		m_aiExtraFeatureAttackPercent.readArray<int>(pStream);
-		m_aiExtraFeatureDefensePercent.readArray<int>(pStream);
-		m_aiExtraUnitCombatModifier.readArray<int>(pStream);
-	}
+	m_abHasPromotion.read(pStream);
+	// </advc.313>
+
+	m_aiTerrainDoubleMoveCount.read(pStream);
+	m_aiFeatureDoubleMoveCount.read(pStream);
+	m_aiExtraTerrainAttackPercent.read(pStream);
+	m_aiExtraTerrainDefensePercent.read(pStream);
+	m_aiExtraFeatureAttackPercent.read(pStream);
+	m_aiExtraFeatureDefensePercent.read(pStream);
+	m_aiExtraUnitCombatModifier.read(pStream);
 }
 
 
@@ -10652,14 +11229,10 @@ void CvUnit::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 2; // BtS
-	//uiFlag = 3; // K-Mod
-	//uiFlag = 4; // advc.029
-	//uiFlag = 5; // advc.164
-	//uiFlag = 6; // advc.opt (m_bFlatMovement)
-	//uiFlag = 7; // advc.enum: new enum map save behavior
 	uiFlag = 8; // advc.313: Disorganized promo removed, advc.enum: bugfix.
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Unit(%d,%d,%d)", getID(), getX(), getY()));
 
@@ -10859,22 +11432,24 @@ void CvUnit::collateralCombat(CvPlot const* pPlot, CvUnit const* pSkipUnit)
 
 	if (iDamageCount > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+		static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_SUFFER_COL_DMG", iDamageCount);
 		gDLL->UI().addMessage(pSkipUnit->getOwner(), pSkipUnit->getDomainType() != DOMAIN_AIR, -1,
 				szBuffer, pSkipUnit->getPlot(), "AS2D_COLLATERAL", MESSAGE_TYPE_INFO, getButton(),
-				GC.getColorType("RED"));
+				eColorRed);
 
 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_INFLICT_COL_DMG", getNameKey(), iDamageCount);
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_COLLATERAL",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, getButton(), eColorGreen,
 				pSkipUnit->getX(), pSkipUnit->getY());
 	}
 }
 
 
-void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
-	int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage,
-	CvUnit const* pSkipUnit)
+void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, int iAttackerFirepower, int iDefenderOdds, int iDefenderDamage, CvUnit const* pSkipUnit)
 {
 	//if (pPlot->isCity(true, pSkipUnit->getTeam()))
 	if (GET_TEAM(pSkipUnit->getTeam()).isCityDefense(*pPlot, // advc
@@ -10916,6 +11491,11 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 	int iNumUnitsHit = std::min<int>(aFlankDamagePerUnit.size(),
 			collateralDamageMaxUnits());
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	for (int i = 0; i < iNumUnitsHit; i++)
 	{
 		int iIndexHit = SyncRandNum(aFlankDamagePerUnit.size());
@@ -10930,14 +11510,14 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer,
 				GC.getInfo(/* advc.002l: */ GET_PLAYER(getOwner())
 					.getCurrentEra()).getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL,
-					GC.getColorType("GREEN"), pPlot->getX(), pPlot->getY());
+					eColorGreen, pPlot->getX(), pPlot->getY());
 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_UNIT_DIED_BY_FLANKING",
 					kDamagedUnit.getNameKey(),
 					getNameKey(), getVisualCivAdjective(kDamagedUnit.getTeam()));
 			gDLL->UI().addMessage(kDamagedUnit.getOwner(), false, -1, szBuffer,
 					GC.getInfo(/* advc.002l: */ GET_PLAYER(kDamagedUnit.getOwner())
 					.getCurrentEra()).getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL,
-					GC.getColorType("RED"), pPlot->getX(), pPlot->getY());
+					eColorRed, pPlot->getX(), pPlot->getY());
 
 			kDamagedUnit.kill(false);
 		}
@@ -10953,7 +11533,7 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 				/*GC.getInfo(GET_PLAYER(getOwner())
 				.getCurrentEra()).getAudioUnitVictoryScript()*/ NULL,
-				MESSAGE_TYPE_INFO, NULL, GC.getColorType("GREEN"),
+				MESSAGE_TYPE_INFO, NULL, eColorGreen,
 				pPlot->getX(), pPlot->getY());
 		if (pSkipUnit != NULL)
 		{
@@ -10962,7 +11542,7 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength,
 			gDLL->UI().addMessage(pSkipUnit->getOwner(), true, -1, szBuffer,
 					/*GC.getInfo(GET_PLAYER(pSkipUnit->getOwner())
 					.getCurrentEra()).getAudioUnitDefeatScript()*/ NULL,
-					MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"),
+					MESSAGE_TYPE_INFO, NULL, eColorRed,
 					pPlot->getX(), pPlot->getY());
 		}
 	}
@@ -11047,18 +11627,22 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR",
 			pDefender->getNameKey(), getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints()));
 	gDLL->UI().addMessage(pDefender->getOwner(), false, -1, szBuffer, kPlot,
-			"AS2D_AIR_ATTACK", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_AIR_ATTACK", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 
 	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_ATTACK_BY_AIR", getNameKey(), pDefender->getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_AIR_ATTACKED",
-			MESSAGE_TYPE_INFO, pDefender->getButton(), GC.getColorType("GREEN"),
+			MESSAGE_TYPE_INFO, pDefender->getButton(), eColorGreen,
 			kPlot.getX(), kPlot.getY());
 
 	collateralCombat(&kPlot, pDefender);
@@ -11142,7 +11726,10 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	FAssert(pDefender != NULL);
 	FAssert(pDefender->canDefend());
 
-	if (GC.getDefineINT("RANGED_ATTACKS_USE_MOVES") == 0)
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRANGED_ATTACKS_USE_MOVES = GC.getDefineINT("RANGED_ATTACKS_USE_MOVES");
+
+	if (iRANGED_ATTACKS_USE_MOVES == 0)
 	{
 		setMadeAttack(true);
 	}
@@ -11153,13 +11740,17 @@ bool CvUnit::rangeStrike(int iX, int iY)
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorGreen = (ColorTypes)GC.getColorType("GREEN");
+	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
 	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR",
 			pDefender->getNameKey(), getNameKey(),
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints()));
 	//red icon over attacking unit
 	gDLL->UI().addMessage(pDefender->getOwner(), false, -1, szBuffer, getPlot(),
-			"AS2D_COMBAT", MESSAGE_TYPE_INFO, getButton(), GC.getColorType("RED"));
+			"AS2D_COMBAT", MESSAGE_TYPE_INFO, getButton(), eColorRed);
 	//white icon over defending unit
 	gDLL->UI().addMessage(pDefender->getOwner(), false, 0, L"", pDefender->getPlot(),
 			"AS2D_COMBAT", MESSAGE_TYPE_DISPLAY_ONLY, pDefender->getButton());
@@ -11168,7 +11759,7 @@ bool CvUnit::rangeStrike(int iX, int iY)
 			// advc.004g:
 			((iUnitDamage - pDefender->getDamage()) * 100) / pDefender->maxHitPoints());
 	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, *pPlot,
-			"AS2D_COMBAT", MESSAGE_TYPE_INFO, pDefender->getButton(), GC.getColorType("GREEN"));
+			"AS2D_COMBAT", MESSAGE_TYPE_INFO, pDefender->getButton(), eColorGreen);
 
 	collateralCombat(pPlot, pDefender);
 
@@ -11521,10 +12112,7 @@ bool CvUnit::isSuicide() const
 }
 
 
-void CvUnit::getDefenderCombatValues(CvUnit const& kDefender, CvPlot const* pPlot,
-	int iOurStrength, int iOurFirepower,
-	int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage,
-	CombatDetails* pTheirDetails) const
+void CvUnit::getDefenderCombatValues(CvUnit const& kDefender, CvPlot const* pPlot, int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength, int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails) const
 {
 	iTheirStrength = kDefender.currCombatStr(pPlot, this, pTheirDetails);
 	int iTheirFirepower = kDefender.currFirepower(pPlot, this);
@@ -11657,11 +12245,14 @@ void CvUnit::applyEvent(EventTypes eEvent)
 
 	if (kEvent.getUnitImmobileTurns() > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorUnitText = (ColorTypes)GC.getColorType("UNIT_TEXT");
+
 		changeImmobileTimer(kEvent.getUnitImmobileTurns());
 		CvWString szText = gDLL->getText("TXT_KEY_EVENT_UNIT_IMMOBILE",
 				getNameKey(), kEvent.getUnitImmobileTurns());
 		gDLL->UI().addMessage(getOwner(), false, -1, szText, getPlot(), "AS2D_UNITGIFTED",
-				MESSAGE_TYPE_INFO, getButton(), GC.getColorType("UNIT_TEXT"));
+				MESSAGE_TYPE_INFO, getButton(), eColorUnitText);
 	}
 
 	CvWString szNameKey(kEvent.getUnitNameKey());
@@ -11779,8 +12370,7 @@ bool CvUnit::verifyStackValid()
 }
 
 //check if quick combat (in which case false is returned)
-bool CvUnit::isCombatVisible(CvUnit const* pDefender,
-	bool bSeaPatrol) const // advc.004k
+bool CvUnit::isCombatVisible(CvUnit const* pDefender, bool bSeaPatrol) const // advc.004k
 {
 	bool bVisible = false;
 	if (!m_pUnitInfo->isQuickCombat())
@@ -11859,7 +12449,10 @@ void CvUnit::cheat(bool bCtrl, bool bAlt, bool bShift)
 
 float CvUnit::getHealthBarModifier() const
 {
-	return (GC.getDefineFLOAT("HEALTH_BAR_WIDTH") /
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const float fHEALTH_BAR_WIDTH = GC.getDefineFLOAT("HEALTH_BAR_WIDTH");
+
+	return (fHEALTH_BAR_WIDTH /
 			(GC.getGame().getBestLandUnitCombat() * 2));
 }
 
@@ -11904,8 +12497,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 
 /*	Modified version of best defender code (minus the initial boolean tests,
 	which we still check in the original method) */
-bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
-	int* pBestDefenderRank) const
+bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const
 {
 	/*	We adjust ranking based on ratio of our adjusted strength compared to
 		twice that of attacker. Effect is if we're over twice as strong as attacker,

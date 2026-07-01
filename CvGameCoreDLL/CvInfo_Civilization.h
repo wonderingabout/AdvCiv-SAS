@@ -203,6 +203,10 @@ public: // advc: All the const functions are exposed to Python except those adde
 	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
 
 	const TCHAR* getArtDefineTag() const;
+	// <!-- custom: per-era leader art (optional). Returns "" if nothing set for that era. (Claude code Opus 4.7) -->
+	const TCHAR* getEraArtDefineTag(EraTypes eEra) const;
+	// <!-- custom: Python wrapper (int param) — exposed for Sevopedia leader era art preview buttons; not part of the ingame era-art rendering (that goes through getArtInfo()). (Claude code Sonnet 4.6) -->
+	const TCHAR* py_getEraArtDefineTag(int iEra) const { return getEraArtDefineTag((EraTypes)iEra); }
 
 	// Array access:
 
@@ -322,6 +326,8 @@ protected:
 	ReligionTypes m_eFavoriteReligion;
 
 	CvString m_szArtDefineTag;
+	// <!-- custom: optional per-era leader art tags, indexed by EraTypes (size = NumEraInfos). (Claude code Opus 4.7) -->
+	CvString* m_paszEraArtDefineTags;
 
 	bool* m_pbTraits;
 
@@ -363,10 +369,7 @@ public:
 		FREE_CITY_CULTURE = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.908b
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	} // </advc.tag>
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); } // </advc.tag>
 
 	// advc: All the const functions are exposed to Python except those added by mods
 	CvTraitInfo();

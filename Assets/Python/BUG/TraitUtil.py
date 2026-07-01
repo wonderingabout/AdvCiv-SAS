@@ -8,8 +8,15 @@
 ## Copyright (c) 2008 The BUG Mod.
 ##
 ## Author: EmperorFool
+#
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: AdvCiv-SAS does not actively maintain this third-party BUG library file. Edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
+from SASUtils import getInfoTypeOrFail
 
 GENERIC_ICON = "*"
 TRAIT_ICONS = {}
@@ -24,27 +31,29 @@ def init():
 	game = gc.getGame()
 	global GENERIC_ICON
 	GENERIC_ICON = u"%c" % game.getSymbolID(FontSymbols.MAP_CHAR)
-	
+
 	addTrait("AGGRESSIVE", game.getSymbolID(FontSymbols.STRENGTH_CHAR), "Art/Interface/Buttons/Promotions/Combat1.dds")
 	addTrait("CHARISMATIC", game.getSymbolID(FontSymbols.HAPPY_CHAR), "Art/Interface/Buttons/TechTree/MassMedia.dds")
 	addTrait("CREATIVE", gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(), "Art/Interface/Buttons/TechTree/Music.dds")
-	addTrait("EXPANSIVE", game.getSymbolID(FontSymbols.HEALTHY_CHAR), "Art/Interface/Buttons/Actions/Heal.dds")
+	# <!-- custom: TRAIT_EXPANSIVE removed; keep entry disabled. (GPT-5.2-Codex (summarized)) -->
+	#addTrait("EXPANSIVE", game.getSymbolID(FontSymbols.HEALTHY_CHAR), "Art/Interface/Buttons/Actions/Heal.dds")
 	addTrait("FINANCIAL", gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), "Art/Interface/Buttons/TechTree/Banking.dds")
-	addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
+	# <!-- custom: change trait char (was OCCUPATION_CHAR). (GPT-5.2-Codex (summarized)) -->
+	addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
 	addTrait("INDUSTRIOUS", gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), "Art/Interface/Buttons/TechTree/Industrialism.dds")
-	addTrait("ORGANIZED", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
+	# <!-- custom: change trait char (was TRADE_CHAR). (GPT-5.2-Codex (summarized)) -->
+	addTrait("ORGANIZED", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
 	addTrait("PHILOSOPHICAL", game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), "Art/Interface/Buttons/TechTree/Philosophy.dds")
 	addTrait("PROTECTIVE", game.getSymbolID(FontSymbols.DEFENSE_CHAR), "Art/Interface/Buttons/Promotions/CityGarrison1.dds")
 	addTrait("SPIRITUAL", game.getSymbolID(FontSymbols.RELIGION_CHAR), "Art/Interface/Buttons/TechTree/Meditation.dds")
 
 def addTrait(trait, icon, button):
-	eTrait = gc.getInfoTypeForString("TRAIT_" + trait)
+	eTrait = getInfoTypeOrFail("TRAIT_" + trait)
 	if eTrait != -1:
 		if icon is not None:
 			TRAIT_ICONS[eTrait] = u"%c" % icon
 		if button is not None:
 			TRAIT_BUTTONS[eTrait] = button
-
 
 def getIcon(eTrait):
 	if eTrait in TRAIT_ICONS:
