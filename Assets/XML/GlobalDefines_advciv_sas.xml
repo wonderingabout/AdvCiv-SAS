@@ -1141,6 +1141,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: BBAI logs showed that one city's high Join City culture value could raise the corresponding Great Person weight throughout an empire that was not pursuing cultural victory, including wartime empires assigning many Artists. Outside any cultural-victory stage, preserve this percent of the culture component only when calculating recurring Great Person weights. 100 restores old behavior; 50 halves that culture component; 0 ignores it. Other Join City value, actual Great Person actions, and cultural-victory strategies retain full value. (GPT-5.5 + ChatGPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_JOIN_CITY_CULTURE_NON_VICTORY_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>

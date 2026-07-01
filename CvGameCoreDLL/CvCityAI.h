@@ -23,7 +23,8 @@ public:
 	//bool AI_ignoreGrowth(); // advc.003j: K-Mod's replacement is also no longer used
 	//int AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false) const;
 	int AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool bIgnoreFood = false, int iGrowthValue = -1) const; // K-Mod
-	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const; // K-Mod
+	// <!-- custom: Optional component outputs let log-gated Great Person weight diagnostics explain a winning Join City value without duplicating this valuation. (GPT-5.5 + ChatGPT-5.5) -->
+	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYieldValue = NULL, int* paiCommerceValues = NULL) const; // K-Mod
 	void AI_chooseProduction();
 	bool SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& ePickUnitAI, bool bOffenseDefaultUnitAIsOnly, bool bDefenseDefaultUnitAIsOnly, int iMaxCost, bool bAllowSiege, bool bAllowTrebuchetsLike, int iCapNonTrebuchetsLikeSiegesAll, int iCapTrebsLike, int iSiegesAllNonTrebuchetsLike, int iSiegesAllTrebuchetsLike, UnitTypes eSkipUnit, bool bAllowOverallFallback, bool bAllowCheapestFallback) const;
 

@@ -448,7 +448,8 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool
 
 // K-Mod. The value of a long-term specialist, for use in calculating great person value, and value of free specialists from buildings.
 // value is roughly 4 * 100 * commerce
-int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+// <!-- custom: Add optional piYieldValue and paiCommerceValues for BBAI logging purposes. (GPT-5.5 + ChatGPT-5.5) -->
+int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYieldValue, int* paiCommerceValues) const
 {
 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -457,6 +458,13 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 	const int iFoodValue = 11;
 
 	int iValue = 0;
+	if (piYieldValue != NULL)
+		*piYieldValue = 0;
+	if (paiCommerceValues != NULL)
+	{
+		FOR_EACH_ENUM(Commerce)
+			paiCommerceValues[eLoopCommerce] = 0;
+	}
 
 	// AI_getYieldMultipliers takes a little bit of time, so lets only do it if we need to.
 	bool bHasYield = false;
@@ -474,12 +482,12 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 		int iFoodX, iProdX, iComX, iUnused;
 		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iUnused);
 		// I'm going to dilute the yield value multipliers, because they are ultimately less stable than commerce multipliers.
-		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) *
-				AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
-		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) *
-				AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
-		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) *
-				AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
+		int iYieldValue = iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
+		iYieldValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
+		iYieldValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
+		iValue += iYieldValue;
+		if (piYieldValue != NULL)
+			*piYieldValue = iYieldValue;
 	}
 
 	FOR_EACH_ENUM(Commerce)
@@ -492,6 +500,8 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
 			iTemp *= kPlayer.AI_commerceWeight(eLoopCommerce, this);
 			iTemp /= 100;
 			iValue += iTemp;
+			if (paiCommerceValues != NULL)
+				paiCommerceValues[eLoopCommerce] = iTemp;
 		}
 	}
 
