@@ -13951,8 +13951,8 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs with screenshots there in the google drive) -->
 			// OLD: Only avoid starvation if we're not already starving
 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
-			// NEW: Always check if job change improves/worsens food situation
-			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+			// <!-- custom: Our earlier AdvCiv-SAS change above improved Base AdvCiv by blocking job swaps that worsen an existing food deficit, but became overstrict by also blocking any improvement that did not eliminate the entire deficit immediately. Map-428 BBAI logging showed Bursa keep 4-5 Artists while starving by 5-7 food because working its available 4-food plot would still leave a smaller deficit, despite the full city-aware comparison strongly preferring that plot. Continue blocking food reductions while starving, but allow equal-food swaps and partial recovery. (GPT-5.5) -->
+			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood)
 			{
 				bTakeNewJob = false;
 			}
@@ -14029,7 +14029,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
 						continue;
 
-					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
+					if (iFoodPerTurn + iFoodDelta + iStarvingAllowance < 0 && iFoodDelta < 0)
 						continue;
 					if (std::find(new_jobs.begin(), new_jobs.end(), workedFallback->second) != new_jobs.end())
 						continue;
@@ -14090,7 +14090,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 					bool const bSpecialistToPlot = !unworkedFallback->second.first;
 
 					int const iNextFood = (bSpecialistToSpecialist ? kOwner.specialistYield((SpecialistTypes)unworkedFallback->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedFallback->second.second)->getYield(YIELD_FOOD));
-					if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+					if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood)
 						continue;
 					if (bSpecialistToPlot && getSpecialistPopulation() <= iTotalFreeSpecialists)
 						continue;
@@ -14159,11 +14159,11 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 						{
 							int const iCurrentFood = (workedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)workedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)workedAudit->second.second)->getYield(YIELD_FOOD));
 							int const iNextFood = (unworkedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworkedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second)->getYield(YIELD_FOOD));
-							bool const bWouldStarve = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0);
+							bool const bWouldWorsenStarvation = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood);
 							bool const bWouldRemoveFreeSpecialist = (workedAudit->second.first && !unworkedAudit->second.first && getSpecialistPopulation() <= iTotalFreeSpecialists);
 							bool const bWouldBreakForcedSpecialist = ((bForcedSpecAvailable || (workedAudit->second.first && getForceSpecialistCount((SpecialistTypes)workedAudit->second.second) > 0)) && unworkedAudit->second.first && getForceSpecialistCount((SpecialistTypes)unworkedAudit->second.second) == 0);
 							bool const bWouldUndoJuggleJob = (std::find(new_jobs.begin(), new_jobs.end(), workedAudit->second) != new_jobs.end());
-							if (!bWouldStarve && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
+							if (!bWouldWorsenStarvation && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
 							{
 								iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
 								if (iContextValue > 0)
