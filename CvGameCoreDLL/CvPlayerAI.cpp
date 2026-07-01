@@ -26342,6 +26342,13 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 			return 1;
 		}
 	}
+	// <!-- custom: Map 428 showed Mali enter Culture 3 and set 100% culture with a projected 106-turn cultural bottleneck while its already-launched Space victory had only 4 turns remaining. An active victory countdown is more concrete than a projected cultural finish; when it is shorter, retain Culture 1/local culture but do not divert empire-wide production, specialists, or commerce into Culture 2/3/4. Use the team's lowest countdown so the same protection applies to any victory type with a real countdown. (GPT-5.5) -->
+	int const iOwnVictoryCountdown = kTeam.AI_getLowestVictoryCountdown();
+	if (!isHuman() && iOwnVictoryCountdown >= 0 && iOwnVictoryCountdown < iWinningCountdown)
+	{
+		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=shorterActiveVictoryCountdown activeVictoryCountdown=%d cultureWinningCountdown=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iOwnVictoryCountdown, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
+		return 1;
+	}
 	if (iCloseToLegendaryCount >= iVictoryCities ||
 		//getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2))
 		// K-Mod (note: this matches the above)
