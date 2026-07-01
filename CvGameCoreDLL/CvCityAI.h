@@ -76,6 +76,8 @@ public:
 
 	// advc: Moved from CvCity b/c it's part of the AI
 	int AI_culturePressureFactor() const; // K-Mod
+	// <!-- custom: Return the direct Artist culture percent for clean, secure, non-cultural-victory AI cities while preserving full value for local culture emergencies. (ChatGPT-5.5 + GPT-5.5 review) -->
+	int SAS_AI_directArtistCultureValuePercent() const;
 	int AI_getEmphasizeAvoidGrowthCount() const { return m_iEmphasizeAvoidGrowthCount; }
 	bool AI_isEmphasizeAvoidGrowth() const { return (AI_getEmphasizeAvoidGrowthCount() > 0); }
 

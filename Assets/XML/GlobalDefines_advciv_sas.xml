@@ -1171,6 +1171,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+	<!-- custom: BBAI logs showed a smaller remaining Artist issue after Great Person weight damping: a few clean, fully controlled, non-cultural-victory cities could still assign several Artists because direct Artist culture commerce remained attractive. When local emergency culture conditions are absent, preserve this percent of the Artist specialist's direct culture commerce inside AI_jobChangeValue only. 100 restores old behavior; 50 halves that direct culture value; 0 ignores it. Cultural-victory cities, first-ring expansion, revolt/disorder cases, and cities with unowned, foreign-owned, or culture-contested BFC plots retain full value. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_DIRECT_ARTIST_CULTURE_CLEAN_NON_VICTORY_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 	<!-- custom: Once another victory route reaches at least this AI victory-strategy stage, postpone Culture 2 investment until all required culture cities have credible high-culture countdowns. Stage 3 by default prevents an unready cultural hedge from diverting production, specialists, and commerce from an advanced Space, Conquest, Domination, or Diplomatic pursuit; use 4 for a stricter trigger or 0 to disable this gate. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE</DefineName>

@@ -387,8 +387,60 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 				}
 			}
 			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
-			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d greatPeopleTurnsLeft=%d greatArtistProgress=%d greatArtistRate=%d greatArtistProjectedPercent=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), GPTurnsLeft(), iGreatArtistProgress, iGreatArtistRate, iGreatArtistProjectedPercent, getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
+			int const iDirectArtistCulturePercent = SAS_AI_directArtistCultureValuePercent();
+			// <!-- custom: The remaining high-Artist cases after GP-weight damping appear to come from direct local culturePressure valuation. Add city state, revolt, city-tile culture and BFC-control context so the next pass can distinguish valid border defense from excessive Artist assignment. Diagnostic only. (ChatGPT-5.5) -->
+			int const iCultureLevel = getCultureLevel();
+			int const iNextCultureThreshold = (iCultureLevel + 1 >= GC.getNumCultureLevelInfos() ? -1 : getCultureThreshold((CultureLevelTypes)(iCultureLevel + 1)));
+			int const iCityOwnerCulturePercent = calculateCulturePercent(getOwner());
+			int iCityHighestForeignCulturePercent = 0;
+			int const iPlotOwnerCulturePercent = getPlot().calculateCulturePercent(getOwner());
+			int iPlotHighestForeignCulturePercent = 0;
+			TeamTypes const eOwnerTeam = getTeam();
+			for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eOwnerTeam); it.hasNext(); ++it)
+			{
+				PlayerTypes const eLoopPlayer = it->getID();
+				iCityHighestForeignCulturePercent = std::max(iCityHighestForeignCulturePercent, calculateCulturePercent(eLoopPlayer));
+				iPlotHighestForeignCulturePercent = std::max(iPlotHighestForeignCulturePercent, getPlot().calculateCulturePercent(eLoopPlayer));
+			}
+			int iBFCPlots = 0;
+			int iOwnedBFCPlots = 0;
+			int iForeignOwnedBFCPlots = 0;
+			int iUnownedBFCPlots = 0;
+			int iContestedCultureBFCPlots = 0;
+			int iWorkableBFCPlots = 0;
+			int iWorkedBFCPlots = 0;
+			int iUnworkedWorkableBFCPlots = 0;
+			for (CityPlotIter itPlot(*this, false); itPlot.hasNext(); ++itPlot)
+			{
+				CvPlot const& kPlot = *itPlot;
+				++iBFCPlots;
+				PlayerTypes const ePlotOwner = kPlot.getOwner();
+				if (ePlotOwner == getOwner())
+					++iOwnedBFCPlots;
+				else if (ePlotOwner == NO_PLAYER)
+					++iUnownedBFCPlots;
+				else
+					++iForeignOwnedBFCPlots;
+				int const iOwnPlotCulturePercent = kPlot.calculateCulturePercent(getOwner());
+				int iHighestForeignPlotCulturePercent = 0;
+				for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eOwnerTeam); it.hasNext(); ++it)
+					iHighestForeignPlotCulturePercent = std::max(iHighestForeignPlotCulturePercent, kPlot.calculateCulturePercent(it->getID()));
+				if (iHighestForeignPlotCulturePercent > iOwnPlotCulturePercent)
+					++iContestedCultureBFCPlots;
+				if (canWork(kPlot))
+				{
+					++iWorkableBFCPlots;
+					if (isWorkingPlot(itPlot.currID()))
+						++iWorkedBFCPlots;
+					else
+						++iUnworkedWorkableBFCPlots;
+				}
+			}
+			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d directArtistCulturePercent=%d focusWar=%d occupationTimer=%d disorder=%d culture=%d cultureRate=%d cultureLevel=%d cultureTurnsLeft=%d nextCultureThreshold=%d cityOwnerCulturePercent=%d cityHighestForeignCulturePercent=%d plotOwnerCulturePercent=%d plotHighestForeignCulturePercent=%d revoltPermille=%d revoltIgnoreWarOccupationPermille=%d bfcPlots=%d ownedBFCPlots=%d foreignOwnedBFCPlots=%d unownedBFCPlots=%d contestedCultureBFCPlots=%d workableBFCPlots=%d workedBFCPlots=%d unworkedWorkableBFCPlots=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d greatPeopleTurnsLeft=%d greatArtistProgress=%d greatArtistRate=%d greatArtistProjectedPercent=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), iDirectArtistCulturePercent, kOwner.AI_isFocusWar(),
+					getOccupationTimer(), isDisorder(), getCulture(getOwner()), getCommerceRate(COMMERCE_CULTURE), iCultureLevel, getCultureTurnsLeft(), iNextCultureThreshold, iCityOwnerCulturePercent, iCityHighestForeignCulturePercent, iPlotOwnerCulturePercent, iPlotHighestForeignCulturePercent, revoltProbability(false, false, false).getPermille(), revoltProbability(true, false, true).getPermille(), iBFCPlots, iOwnedBFCPlots, iForeignOwnedBFCPlots, iUnownedBFCPlots, iContestedCultureBFCPlots, iWorkableBFCPlots, iWorkedBFCPlots, iUnworkedWorkableBFCPlots,
+					iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), GPTurnsLeft(), iGreatArtistProgress, iGreatArtistRate, iGreatArtistProjectedPercent, getProductionName(),
+					(pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
 			FOR_EACH_ENUM(Specialist)
 			{
 				int const iAssignedCount = getSpecialistCount(eLoopSpecialist);
@@ -9881,6 +9933,67 @@ int CvCityAI::AI_culturePressureFactor() const
 	return std::min(500, 100 + iAnswer / iDivisor);
 }
 
+// <!-- custom: Direct Artist culture commerce can still over-pull a few clean, fully controlled cities after empire-wide Great Artist GP-weight damping. Keep emergency and cultural-victory cases untouched, and only damp the Artist specialist's culture commerce when there is no revolt/disorder pressure and no unowned, foreign-owned, or culture-contested BFC recovery need. This is intentionally separate from AI_culturePressureFactor itself so valid border-defense Artists, e.g. cities like Cuzco with almost no controlled BFC, keep full culture value. (ChatGPT-5.5 + GPT-5.5 review) -->
+int CvCityAI::SAS_AI_directArtistCultureValuePercent() const
+{
+	static int iCachedTurn = -1;
+	static PlayerTypes eCachedOwner = NO_PLAYER;
+	static int iCachedCityId = -1;
+	static int iCachedPercent = 100;
+	int const iGameTurn = GC.getGame().getGameTurn();
+	PlayerTypes const eOwner = getOwner();
+	if (iCachedTurn == iGameTurn && eCachedOwner == eOwner && iCachedCityId == getID())
+		return iCachedPercent;
+
+	int iAnswer = 100;
+	static int const iCleanNonVictoryPercent = range(GC.getDefineINT("SAS_AI_DIRECT_ARTIST_CULTURE_CLEAN_NON_VICTORY_PERCENT"), 0, 100);
+	if (iCleanNonVictoryPercent < 100 && !isHuman())
+	{
+		CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+		if (!kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1) && AI_getCultureVictoryInvestmentPercent() <= 0 &&
+			getCultureLevel() > 1 && getOccupationTimer() <= 0 && !isDisorder() &&
+			revoltProbability(false, false, false).getPermille() <= 0 &&
+			revoltProbability(true, false, true).getPermille() <= 0)
+		{
+			static int const iEmergencyCulturePressureFactor = GC.getDefineINT("SAS_AI_CULTURE_PROCESS_MIN_PRESSURE_FACTOR");
+			if (AI_culturePressureFactor() < iEmergencyCulturePressureFactor &&
+				calculateCulturePercent(eOwner) >= 90 && getPlot().calculateCulturePercent(eOwner) >= 80)
+			{
+				bool bFullBFCControl = true;
+				TeamTypes const eOwnerTeam = getTeam();
+				for (CityPlotIter itPlot(*this, false); bFullBFCControl && itPlot.hasNext(); ++itPlot)
+				{
+					CvPlot const& kPlot = *itPlot;
+					if (kPlot.getOwner() != eOwner)
+					{
+						bFullBFCControl = false;
+						break;
+					}
+
+					int const iOwnPlotCulturePercent = kPlot.calculateCulturePercent(eOwner);
+					for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eOwnerTeam); it.hasNext(); ++it)
+					{
+						if (kPlot.calculateCulturePercent(it->getID()) > iOwnPlotCulturePercent)
+						{
+							bFullBFCControl = false;
+							break;
+						}
+					}
+				}
+				if (bFullBFCControl)
+					iAnswer = iCleanNonVictoryPercent;
+			}
+		}
+	}
+
+	iCachedTurn = iGameTurn;
+	eCachedOwner = eOwner;
+	iCachedCityId = getID();
+	iCachedPercent = iAnswer;
+	return iAnswer;
+}
+
+
 
 CvCityAI* CvCityAI::AI_getRouteToCity() const // advc.003u: return type was CvCity*
 {
@@ -15404,6 +15517,11 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 		// Raw commerce value (plots don't give raw commerce)
 		int aiCommerceGained[NUM_COMMERCE_TYPES] = {};
 		int aiCommerceLost[NUM_COMMERCE_TYPES] = {};
+		// <!-- custom: In clean, secure, non-cultural-victory AI cities, direct Artist culture value could keep 5-7 Artists while strong plots remained unworked (e.g. wartime Mediolanum left a 0F / 7H / 3C plot unused). Apply the tunable culture percent symmetrically when adding or removing an Artist so job comparisons remain consistent; the helper returns 100 for humans and local culture emergencies. (ChatGPT-5.5 + GPT-5.5 review) -->
+		static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+		bool const bNewArtist = (eArtist != NO_SPECIALIST && new_job.second >= 0 && new_job.first && new_job.second == eArtist);
+		bool const bOldArtist = (eArtist != NO_SPECIALIST && old_job.second >= 0 && old_job.first && old_job.second == eArtist);
+		int const iDirectArtistCulturePercent = (bNewArtist || bOldArtist ? SAS_AI_directArtistCultureValuePercent() : 100);
 
 		FOR_EACH_ENUM(Commerce)
 		{
@@ -15411,13 +15529,19 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
 
 			if (new_job.second >= 0 && new_job.first)
 			{
-				iCommerce += kOwner.specialistCommerce((SpecialistTypes)
+				int iSpecialistCommerce = kOwner.specialistCommerce((SpecialistTypes)
 						new_job.second, eLoopCommerce);
+				if (bNewArtist && eLoopCommerce == COMMERCE_CULTURE && iDirectArtistCulturePercent < 100)
+					iSpecialistCommerce = (iSpecialistCommerce * iDirectArtistCulturePercent) / 100;
+				iCommerce += iSpecialistCommerce;
 			}
 			if (old_job.second >= 0 && old_job.first)
 			{
-				iCommerce -= kOwner.specialistCommerce((SpecialistTypes)
+				int iSpecialistCommerce = kOwner.specialistCommerce((SpecialistTypes)
 						old_job.second, eLoopCommerce);
+				if (bOldArtist && eLoopCommerce == COMMERCE_CULTURE && iDirectArtistCulturePercent < 100)
+					iSpecialistCommerce = (iSpecialistCommerce * iDirectArtistCulturePercent) / 100;
+				iCommerce -= iSpecialistCommerce;
 			}
 			if (iCommerce >= 0)
 				aiCommerceGained[eLoopCommerce] = iCommerce;
