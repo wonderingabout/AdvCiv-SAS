@@ -13995,8 +13995,9 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 
 		// <!-- custom: If K-Mod's fast approximate prefilter gives up, try one guarded direct plot-to-plot fallback.
 		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
-		// Only plot pairs that are strict yield upgrades, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
+		// Only plot pairs that are strict yield upgrades, modest food gains with tightly limited production/commerce losses, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
 		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
+		// <!-- custom: Map 428 still logged 3,702 plot-to-plot contextual-miss records; recurring high-value cases worked 2F/1H/1C instead of 3F/0H/1C or 3F/1H/1C instead of 4F/0H/1C because the approximate prefilter undervalued one additional food. Test the narrow at-least +1F for at most -1H/-2C pattern here, but require the full city-aware comparison below to approve it. (GPT-5.5) -->
 		// <!-- custom: Human cities reach AI_juggleCitizens only while citizen automation is enabled; optionally share this safe fallback without changing manual citizen assignments. (GPT-5.5) -->
 		static bool const bHumanCitizenPlotFallback = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE");
 		if (!bTakeNewJob && (!isHuman() || bHumanCitizenPlotFallback))
@@ -14022,9 +14023,10 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 					int const iCommerceDelta = kUnworkedPlot.getYield(YIELD_COMMERCE) - kWorkedPlot.getYield(YIELD_COMMERCE);
 					bool const bStrictYieldUpgrade = (iFoodDelta >= 0 && iProductionDelta >= 0 && iCommerceDelta >= 0 && (iFoodDelta > 0 || iProductionDelta > 0 || iCommerceDelta > 0));
 					int const iRaw321Delta = 3 * iFoodDelta + 2 * iProductionDelta + iCommerceDelta;
+					bool const bModestFoodTrade = (iFoodDelta >= 1 && iProductionDelta >= -1 && iCommerceDelta >= -2);
 					bool const bLargeFoodCommerceGain = (iFoodDelta >= 2 && iCommerceDelta >= 3 && iProductionDelta >= -3);
 					bool const bLargeRawGainWithoutFoodLoss = (iFoodDelta >= 0 && iProductionDelta >= -2 && iRaw321Delta >= 4);
-					if (!bStrictYieldUpgrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
+					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
 						continue;
 
 					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
@@ -14039,7 +14041,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 						if (bLogCitizenFallback)
 						{
 							iBestFallbackRaw321Delta = iRaw321Delta;
-							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS"));
+							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bModestFoodTrade ? "MODEST_FOOD_TRADE" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS")));
 						}
 						bestFallbackWorked = workedFallback;
 						bestFallbackUnworked = unworkedFallback;
