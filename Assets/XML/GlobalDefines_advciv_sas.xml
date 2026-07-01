@@ -2601,6 +2601,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_CITIZEN_SPECIALIST</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Enable (recommended) to let human cities using automated citizens share the guarded AI fallback that reassigns worked plots to safe, clearly better unworked plots. Manual citizen assignments never call this fallback and remain untouched. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Long_Comments_XML.txt #202 -->
 	<Define>
 		<DefineName>SAS_CONVENIENCE_HUMAN_NO_AUTO_SCIENTIST_SPECIALIST</DefineName>

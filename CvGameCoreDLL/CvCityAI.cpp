@@ -13851,7 +13851,9 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
 		// Only plot pairs that are strict yield upgrades, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
 		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
-		if (!bTakeNewJob && !isHuman())
+		// <!-- custom: Human cities reach AI_juggleCitizens only while citizen automation is enabled; optionally share this safe fallback without changing manual citizen assignments. (GPT-5.5) -->
+		static bool const bHumanCitizenPlotFallback = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE");
+		if (!bTakeNewJob && (!isHuman() || bHumanCitizenPlotFallback))
 		{
 			bool const bLogCitizenFallback = (gCitizenLogLevel >= 2);
 			std::vector<PotentialJob_t>::iterator bestFallbackWorked = worked_jobs.end();
@@ -13911,6 +13913,70 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), szBestFallbackReason, iBestFallbackRaw321Delta, iBestFallbackValue, unworked_it->first - worked_it->first,
 							kWorkedPlot.getX(), kWorkedPlot.getY(), kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE),
 							kUnworkedPlot.getX(), kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION), kUnworkedPlot.getYield(YIELD_COMMERCE));
+				}
+			}
+		}
+
+		// <!-- custom: After the guarded plot-to-plot fallback, try one AI-only specialist fallback for specialist-to-plot and specialist-to-specialist swaps that K-Mod's approximate prefilter still hides.
+		// This deliberately avoids plot-to-specialist hires, because those are more likely to revive the excessive-specialist issues that the growth-first rules are meant to suppress.
+		// Free specialists can switch type but cannot be reassigned to work a city plot.
+		// As with the plot fallback, the direct contextual AI_jobChangeValue check still decides and at most one swap is applied before recalculation. (ChatGPT-5.5 + GPT-5.5 review) -->
+		if (!bTakeNewJob && !isHuman())
+		{
+			bool const bLogSpecialistFallback = (gCitizenLogLevel >= 2);
+			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			std::vector<PotentialJob_t>::iterator bestSpecialistFallbackWorked = worked_jobs.end();
+			std::vector<PotentialJob_t>::iterator bestSpecialistFallbackUnworked = unworked_jobs.end();
+			int iBestSpecialistFallbackValue = 0;
+			char const* szBestSpecialistFallbackType = NULL;
+			for (std::vector<PotentialJob_t>::iterator workedFallback = worked_jobs.begin(); workedFallback != worked_jobs.end(); ++workedFallback)
+			{
+				if (!workedFallback->second.first)
+					continue;
+				int const iCurrentFood = kOwner.specialistYield((SpecialistTypes)workedFallback->second.second, YIELD_FOOD);
+				for (std::vector<PotentialJob_t>::iterator unworkedFallback = unworked_jobs.begin(); unworkedFallback != unworked_jobs.end(); ++unworkedFallback)
+				{
+					if (unworkedFallback->second == workedFallback->second || unworkedFallback->first > workedFallback->first)
+						continue;
+					bool const bSpecialistToSpecialist = unworkedFallback->second.first;
+					bool const bSpecialistToPlot = !unworkedFallback->second.first;
+
+					int const iNextFood = (bSpecialistToSpecialist ? kOwner.specialistYield((SpecialistTypes)unworkedFallback->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedFallback->second.second)->getYield(YIELD_FOOD));
+					if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+						continue;
+					if (bSpecialistToPlot && getSpecialistPopulation() <= iTotalFreeSpecialists)
+						continue;
+					if (bSpecialistToSpecialist && (bForcedSpecAvailable || getForceSpecialistCount((SpecialistTypes)workedFallback->second.second) > 0) && getForceSpecialistCount((SpecialistTypes)unworkedFallback->second.second) == 0)
+						continue;
+					if (std::find(new_jobs.begin(), new_jobs.end(), workedFallback->second) != new_jobs.end())
+						continue;
+
+					int const iContextValue = AI_jobChangeValue(unworkedFallback->second, workedFallback->second, false, false, iGrowthValue);
+					if (iContextValue > iBestSpecialistFallbackValue)
+					{
+						iBestSpecialistFallbackValue = iContextValue;
+						bestSpecialistFallbackWorked = workedFallback;
+						bestSpecialistFallbackUnworked = unworkedFallback;
+						if (bLogSpecialistFallback)
+							szBestSpecialistFallbackType = (bSpecialistToSpecialist ? "SPECIALIST_TO_SPECIALIST" : "SPECIALIST_TO_PLOT");
+					}
+				}
+			}
+			if (bestSpecialistFallbackWorked != worked_jobs.end())
+			{
+				worked_it = bestSpecialistFallbackWorked;
+				unworked_it = bestSpecialistFallbackUnworked;
+				bTakeNewJob = true;
+				if (bLogSpecialistFallback)
+				{
+					bool const bUnworkedSpecialist = unworked_it->second.first;
+					SpecialistTypes const eWorkedSpecialist = (SpecialistTypes)worked_it->second.second;
+					SpecialistTypes const eUnworkedSpecialist = (bUnworkedSpecialist ? (SpecialistTypes)unworked_it->second.second : NO_SPECIALIST);
+					CvPlot const* pUnworkedPlot = (bUnworkedSpecialist ? NULL : getCityIndexPlot((CityPlotTypes)unworked_it->second.second));
+					logBBAI("CITIZEN_SPECIALIST_FALLBACK_TAKE turn=%d player=%d %S city=%S cityId=%d fallbackType=%s contextValue=%d approximateDelta=%d oldJob=%s oldIndex=%d oldFood=%d oldProduction=%d oldCommerce=%d newJob=%s newIndex=%d newX=%d newY=%d newFood=%d newProduction=%d newCommerce=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), szBestSpecialistFallbackType, iBestSpecialistFallbackValue, unworked_it->first - worked_it->first,
+							GC.getInfo(eWorkedSpecialist).getType(), worked_it->second.second, kOwner.specialistYield(eWorkedSpecialist, YIELD_FOOD), kOwner.specialistYield(eWorkedSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eWorkedSpecialist, YIELD_COMMERCE),
+							(bUnworkedSpecialist ? GC.getInfo(eUnworkedSpecialist).getType() : "PLOT"), unworked_it->second.second, (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getX()), (pUnworkedPlot == NULL ? -1 : pUnworkedPlot->getY()), (bUnworkedSpecialist ? kOwner.specialistYield(eUnworkedSpecialist, YIELD_FOOD) : pUnworkedPlot->getYield(YIELD_FOOD)), (bUnworkedSpecialist ? kOwner.specialistYield(eUnworkedSpecialist, YIELD_PRODUCTION) : pUnworkedPlot->getYield(YIELD_PRODUCTION)), (bUnworkedSpecialist ? kOwner.specialistYield(eUnworkedSpecialist, YIELD_COMMERCE) : pUnworkedPlot->getYield(YIELD_COMMERCE)));
 				}
 			}
 		}
