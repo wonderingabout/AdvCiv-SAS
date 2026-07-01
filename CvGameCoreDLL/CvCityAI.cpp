@@ -386,7 +386,9 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 					}
 				}
 			}
-			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+			// <!-- custom: BBAI logging reported 223 impossible positive Artist-to-plot opportunities because every assigned specialist fit within free-specialist capacity and therefore consumed no population that could work the plot (including Nuremberg's misleading value of 120,114). The confirming run removed those but exposed another 146 impossible records where every Artist was forced.
+			// Match the real reassignment guards and omit this comparison unless at least one specialist consumes population and at least one Artist is not forced. (GPT-5.5) -->
+			int const iArtistToBestPlotValue = (iArtistCount <= getForceSpecialistCount(eArtist) || pBestUnworkedPlot == NULL || getSpecialistPopulation() <= totalFreeSpecialists() ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
 			int const iDirectArtistCulturePercent = SAS_AI_directArtistCultureValuePercent();
 			// <!-- custom: The remaining high-Artist cases after GP-weight damping appear to come from direct local culturePressure valuation. Add city state, revolt, city-tile culture and BFC-control context so the next pass can distinguish valid border defense from excessive Artist assignment. Diagnostic only. (ChatGPT-5.5) -->
 			int const iCultureLevel = getCultureLevel();
@@ -450,9 +452,10 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 				CvSpecialistInfo const& kSpecialist = GC.getInfo(eLoopSpecialist);
 				UnitClassTypes const eGreatPersonClass = (UnitClassTypes)kSpecialist.getGreatPeopleUnitClass();
 				int const iGreatPersonWeight = (eGreatPersonClass == NO_UNITCLASS ? -1 : kOwner.AI_getGreatPersonWeight(eGreatPersonClass));
-				int const iArtistSwitchValue = (iAssignedCount <= 0 || eLoopSpecialist == eArtist ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eArtist), std::make_pair(true, (int)eLoopSpecialist), false, false, iGrowthValue));
-				logBBAI("CULTURE_ARTIST_ALTERNATIVE turn=%d player=%d cityId=%d specialist=%s assigned=%d forced=%d max=%d unlimited=%d canAdd=%d value=%d artistSwitchValue=%d food=%d production=%d commerceYield=%d research=%d gold=%d culture=%d espionage=%d greatPeopleRate=%d greatPersonWeight=%d",
-						GC.getGame().getGameTurn(), getOwner(), getID(), kSpecialist.getType(), iAssignedCount, getForceSpecialistCount(eLoopSpecialist), getMaxSpecialistCount(eLoopSpecialist), kOwner.isSpecialistValid(eLoopSpecialist), bCanAdd, AI_specialistValue(eLoopSpecialist, false, false, iGrowthValue), (iArtistSwitchValue == MIN_INT ? -1 : iArtistSwitchValue), kOwner.specialistYield(eLoopSpecialist, YIELD_FOOD), kOwner.specialistYield(eLoopSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eLoopSpecialist, YIELD_COMMERCE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE), kSpecialist.getGreatPeopleRateChange(), iGreatPersonWeight);
+				// <!-- custom: This diagnostic originally passed AI_jobChangeValue's new/old jobs backwards, so positive values meant replacing the listed specialist with another Artist instead of testing whether an existing Artist should use the listed alternative. Evaluate only a removable non-forced Artist and an assignable non-Artist alternative, and name the field for its actual direction. Diagnostic only. (GPT-5.5) -->
+				int const iArtistToAlternativeValue = (iArtistCount <= getForceSpecialistCount(eArtist) || eLoopSpecialist == eArtist || !bCanAdd ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eLoopSpecialist), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+				logBBAI("CULTURE_ARTIST_ALTERNATIVE turn=%d player=%d cityId=%d specialist=%s assigned=%d forced=%d max=%d unlimited=%d canAdd=%d value=%d artistToAlternativeValue=%d food=%d production=%d commerceYield=%d research=%d gold=%d culture=%d espionage=%d greatPeopleRate=%d greatPersonWeight=%d",
+						GC.getGame().getGameTurn(), getOwner(), getID(), kSpecialist.getType(), iAssignedCount, getForceSpecialistCount(eLoopSpecialist), getMaxSpecialistCount(eLoopSpecialist), kOwner.isSpecialistValid(eLoopSpecialist), bCanAdd, AI_specialistValue(eLoopSpecialist, false, false, iGrowthValue), (iArtistToAlternativeValue == MIN_INT ? -1 : iArtistToAlternativeValue), kOwner.specialistYield(eLoopSpecialist, YIELD_FOOD), kOwner.specialistYield(eLoopSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eLoopSpecialist, YIELD_COMMERCE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE), kSpecialist.getGreatPeopleRateChange(), iGreatPersonWeight);
 			}
 		}
 	}
@@ -13995,9 +13998,10 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 
 		// <!-- custom: If K-Mod's fast approximate prefilter gives up, try one guarded direct plot-to-plot fallback.
 		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
-		// Only plot pairs that are strict yield upgrades, modest food gains with tightly limited production/commerce losses, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
+		// Only plot pairs that are strict yield upgrades, modest or nonnegative-raw food gains, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
 		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
 		// <!-- custom: Map 428 still logged 3,702 plot-to-plot contextual-miss records; recurring high-value cases worked 2F/1H/1C instead of 3F/0H/1C or 3F/1H/1C instead of 4F/0H/1C because the approximate prefilter undervalued one additional food. Test the narrow at-least +1F for at most -1H/-2C pattern here, but require the full city-aware comparison below to approve it. (GPT-5.5) -->
+		// <!-- custom: The subsequent full 500-turn map-428 run still logged 524 food-positive misses that were nonnegative under the diagnostic 3F + 2H + 1C score; 135 had a contextual gain above 1,000, and the most common uncovered pattern was 140 +1F/0H/-3C records. Use that raw score only to expose candidates, then continue requiring the full city-aware comparison below to approve the swap. (GPT-5.5) -->
 		// <!-- custom: Human cities reach AI_juggleCitizens only while citizen automation is enabled; optionally share this safe fallback without changing manual citizen assignments. (GPT-5.5) -->
 		static bool const bHumanCitizenPlotFallback = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE");
 		if (!bTakeNewJob && (!isHuman() || bHumanCitizenPlotFallback))
@@ -14024,9 +14028,10 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 					bool const bStrictYieldUpgrade = (iFoodDelta >= 0 && iProductionDelta >= 0 && iCommerceDelta >= 0 && (iFoodDelta > 0 || iProductionDelta > 0 || iCommerceDelta > 0));
 					int const iRaw321Delta = 3 * iFoodDelta + 2 * iProductionDelta + iCommerceDelta;
 					bool const bModestFoodTrade = (iFoodDelta >= 1 && iProductionDelta >= -1 && iCommerceDelta >= -2);
+					bool const bNonnegativeRawFoodTrade = (iFoodDelta >= 1 && iRaw321Delta >= 0);
 					bool const bLargeFoodCommerceGain = (iFoodDelta >= 2 && iCommerceDelta >= 3 && iProductionDelta >= -3);
 					bool const bLargeRawGainWithoutFoodLoss = (iFoodDelta >= 0 && iProductionDelta >= -2 && iRaw321Delta >= 4);
-					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
+					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bNonnegativeRawFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
 						continue;
 
 					if (iFoodPerTurn + iFoodDelta + iStarvingAllowance < 0 && iFoodDelta < 0)
@@ -14041,7 +14046,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 						if (bLogCitizenFallback)
 						{
 							iBestFallbackRaw321Delta = iRaw321Delta;
-							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bModestFoodTrade ? "MODEST_FOOD_TRADE" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS")));
+							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bModestFoodTrade ? "MODEST_FOOD_TRADE" : (bNonnegativeRawFoodTrade ? "NONNEGATIVE_RAW_FOOD_TRADE" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS"))));
 						}
 						bestFallbackWorked = workedFallback;
 						bestFallbackUnworked = unworkedFallback;
