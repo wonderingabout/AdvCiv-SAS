@@ -203,6 +203,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
 [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
 [166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
+[167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#167---fixed-incorrect-bbai-logging-argument-check-of-missionai_trade-instead-of-missionai_great_work-near-if-ai_dogreatworkpbestcultureplot-and-gate-the-old-eoldmission-behind-a-logging-guard-for-per-opt)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6159,3 +6160,22 @@ Rather than adding a full remapping layer for a compatibility mode that is not n
 - Opening AdvCiv-SAS replay/save data in vanilla BtS, or vanilla BtS data in AdvCiv-SAS, is not a supported goal.
 
 Fixed/documented with the help of ChatGPT-5.5 after a Codex review pointed out that the old `getWorldSize() > 5` BtS replay guard had become stale once `WORLDSIZE_HUGE` moved to XML index `6`.
+
+## 167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)
+
+Found and fixed:
+
+```cpp
+					if (gUnitLogLevel > 2) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
+```
+
+to:
+
+```cpp
+					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
+					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
+```
+
+Also gated the old `eOldMission`'s `AI_getGroup()->AI_getMissionAIType()` behind a logging guard so it is not computed needlessly if BBAI logging is disabled.
+
+Done with the help of GPT-5.5 (on codex) and reviewed OK with the help of ChatGPT-5.5 thanks.

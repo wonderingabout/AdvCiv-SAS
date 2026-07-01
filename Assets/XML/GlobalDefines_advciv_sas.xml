@@ -1136,6 +1136,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
 		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
+	<!-- custom: Corporation-founding buildings can be extremely valuable as one-shot Great Person actions, but feeding the full building value into recurring Great Person point weights can make ordinary citizens overproduce that Great Person type for many turns. This keeps the full settled-specialist baseline, then preserves this percent of only the corporation-founder excess above that baseline when calculating Great Person weights. 100 restores old behavior; 50 halves only the excess; 0 caps corporation-founder building value at the settled-specialist baseline. Actual Great Person action choice is unchanged. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<Define>
+		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>

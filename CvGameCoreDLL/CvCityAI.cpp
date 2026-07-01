@@ -343,6 +343,29 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 		if (iArtistCount > 0 || AI_getCultureVictoryInvestmentPercent() > 0)
 		{
 			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			// <!-- custom: Many assigned Artists can still produce another Great Person when earlier mixed GPP dominate the pool. Log the projected Great Artist share and its accumulated/current rate before deciding whether corporation-founder specialist pressure is excessive. (GPT-5.5) -->
+			UnitClassTypes const eGreatArtistClass = (UnitClassTypes)GC.getInfo(eArtist).getGreatPeopleUnitClass();
+			UnitTypes const eGreatArtist = (eGreatArtistClass == NO_UNITCLASS ? NO_UNIT : kOwner.getCivilization().getUnit(eGreatArtistClass));
+			FAssert(eGreatArtist != NO_UNIT);
+			int iGreatArtistProgress = -1;
+			int iGreatArtistRate = -1;
+			int iGreatArtistProjectedPercent = -1;
+			if (eGreatArtist != NO_UNIT)
+			{
+				iGreatArtistProgress = getGreatPeopleUnitProgress(eGreatArtist);
+				iGreatArtistRate = getGreatPeopleUnitRate(eGreatArtist);
+				iGreatArtistProjectedPercent = 0;
+				std::vector<std::pair<UnitTypes, int> > aeGreatPersonProjection;
+				GPProjection(aeGreatPersonProjection);
+				for (std::vector<std::pair<UnitTypes, int> >::const_iterator it = aeGreatPersonProjection.begin(); it != aeGreatPersonProjection.end(); ++it)
+				{
+					if (it->first == eGreatArtist)
+					{
+						iGreatArtistProjectedPercent = it->second;
+						break;
+					}
+				}
+			}
 			int const iGrowthValue = AI_growthValuePerFood();
 			int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
 			int iForcedSpecialistCount = 0;
@@ -364,8 +387,8 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 				}
 			}
 			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
-			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
+			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d greatPeopleTurnsLeft=%d greatArtistProgress=%d greatArtistRate=%d greatArtistProjectedPercent=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), GPTurnsLeft(), iGreatArtistProgress, iGreatArtistRate, iGreatArtistProjectedPercent, getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
 			FOR_EACH_ENUM(Specialist)
 			{
 				int const iAssignedCount = getSpecialistCount(eLoopSpecialist);

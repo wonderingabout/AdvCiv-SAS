@@ -28166,6 +28166,18 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	if (isHuman())
 		return; // Humans can use their own reasoning for choosing specialists
 
+	// <!-- custom: BBAI culture diagnostics found high Artist counts outside cultural-victory plans, but the final Great Person weight did not show whether K-Mod derived it from settling the Great Person or constructing a special building.
+	// At culture log level 3, retain those intermediate values and their winning sources for diagnosis; this logging itself does not change the weights. (ChatGPT-5.5 + GPT-5.5) -->
+	bool const bLogCultureGreatPersonWeights = (gCultureLogLevel >= 3);
+	// <!-- custom: Corporation-founding buildings are one-shot Great Person actions, but K-Mod feeds their full building value into recurring Great Person point weights.
+	// Keep the corporation founder preference, but damp only the excess above the best settled-specialist value so ordinary specialist assignment is not dominated by one future corporation founder. (ChatGPT-5.5 + GPT-5.5 review) -->
+	static int const iSASCorporationFounderExcessPercent = range(GC.getDefineINT("SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT"), 0, 100);
+	std::map<UnitClassTypes, int> sasSettledGreatPersonValues;
+	std::map<UnitClassTypes, int> sasBuildingGreatPersonOriginalValues;
+	std::map<UnitClassTypes, int> sasBuildingGreatPersonValues;
+	std::map<UnitClassTypes, SpecialistTypes> sasSettledGreatPersonSources;
+	std::map<UnitClassTypes, BuildingTypes> sasBuildingGreatPersonSources;
+
 	// // <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// // <!-- custom: code/performance optimization: hoist -->
 	// static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
@@ -28203,6 +28215,8 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 			continue; // don't try to evaluate combat units.
 
 		int iValue = 0;
+		int iBestSettledValue = 0;
+		SpecialistTypes eBestSettledSpecialist = NO_SPECIALIST;
 		// value of joining a city as a super-specialist
 		FOR_EACH_ENUM2(Specialist, eSuperSpecialist)
 		{
@@ -28213,12 +28227,21 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 				/*	Note, specialistValue is roughly 400x the commerce it provides.
 					So /= 4 to make it 100x. */
 				int iTempValue = pLoopCity->AI_permanentSpecialistValue(eSuperSpecialist) / 4;
+				if (iTempValue > iBestSettledValue)
+				{
+					iBestSettledValue = iTempValue;
+					if (bLogCultureGreatPersonWeights)
+						eBestSettledSpecialist = eSuperSpecialist;
+				}
 				iValue = std::max(iValue, iTempValue);
 			}
 		} // <advc.opt>
 		int const iCurrentEra = getCurrentEra();
 		int const iCurrentGP = AI_totalUnitAIs(kGP.getDefaultUnitAIType());
 		// </advc.opt>
+		int iBestBuildingOriginalValue = 0;
+		int iBestBuildingValue = 0;
+		BuildingTypes eBestBuilding = NO_BUILDING;
 		// value of building something.
 		if (kGP.isAnyBuildings()) // advc.003t
 		{
@@ -28253,7 +28276,16 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 
 						// reduce the value if we already have great people of this type
 						iTempValue /= 1 + iCurrentGP;
+						int const iOriginalTempValue = iTempValue;
+						if (GC.getInfo(eBuilding).getFoundsCorporation() != NO_CORPORATION && iSASCorporationFounderExcessPercent < 100 && iTempValue > iBestSettledValue)
+							iTempValue = iBestSettledValue + (iTempValue - iBestSettledValue) * iSASCorporationFounderExcessPercent / 100;
 
+						if (bLogCultureGreatPersonWeights && iTempValue > iBestBuildingValue)
+						{
+							iBestBuildingOriginalValue = iOriginalTempValue;
+							iBestBuildingValue = iTempValue;
+							eBestBuilding = eBuilding;
+						}
 						iValue = std::max(iValue, iTempValue);
 					}
 				}
@@ -28264,6 +28296,14 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 		// store the value in the weights map - but remember, this isn't yet the actual weight.
 		FAssert(iValue >= 0);
 		m_GreatPersonWeights[eGreatPersonClass] = iValue;
+		if (bLogCultureGreatPersonWeights)
+		{
+			sasSettledGreatPersonValues[eGreatPersonClass] = iBestSettledValue;
+			sasBuildingGreatPersonOriginalValues[eGreatPersonClass] = iBestBuildingOriginalValue;
+			sasBuildingGreatPersonValues[eGreatPersonClass] = iBestBuildingValue;
+			sasSettledGreatPersonSources[eGreatPersonClass] = eBestSettledSpecialist;
+			sasBuildingGreatPersonSources[eGreatPersonClass] = eBestBuilding;
+		}
 	}
 
 	// find the mean value.
@@ -28283,14 +28323,43 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	int const iMin = (AI_getFlavorValue(FLAVOR_SCIENCE) == 0 ? 50 :
 			35 - AI_getFlavorValue(FLAVOR_SCIENCE));
 	FAssert(iMin > 10 && iMin < 95);
+	int iCultureStage = -1;
+	int iSpaceStage = -1;
+	int iConquestStage = -1;
+	int iDominationStage = -1;
+	int iDiplomacyStage = -1;
+	if (bLogCultureGreatPersonWeights)
+	{
+		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+		iCultureStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4);
+		iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
+		iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
+		iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
+		iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+	}
 	// (smaller iMin means more focus on high-value specialists)
 	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
 	{
-		int iValue = it->second;
+		int const iRawValue = it->second;
+		int iValue = iRawValue;
 		iValue = 100 * iValue / std::max(1, iMean);
 		//iValue = (40000 + 500 * iValue) / (800 + iValue);
 		iValue = (800*iMin + (9*100-8*iMin) * iValue) / (800 + iValue);
 		it->second = iValue;
+		if (bLogCultureGreatPersonWeights)
+		{
+			UnitClassTypes const eGreatPersonClass = it->first;
+			UnitTypes const eGreatPerson = getCivilization().getUnit(eGreatPersonClass);
+			CvUnitInfo const& kGreatPerson = GC.getInfo(eGreatPerson);
+			SpecialistTypes const eSettledSpecialist = sasSettledGreatPersonSources[eGreatPersonClass];
+			BuildingTypes const eBuilding = sasBuildingGreatPersonSources[eGreatPersonClass];
+			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
+					GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(), kGreatPerson.getType(),
+					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), sasSettledGreatPersonValues[eGreatPersonClass],
+					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), sasBuildingGreatPersonOriginalValues[eGreatPersonClass], sasBuildingGreatPersonValues[eGreatPersonClass],
+					iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
+					iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
+		}
 	}
 }
 
