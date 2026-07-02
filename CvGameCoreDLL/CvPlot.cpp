@@ -8503,8 +8503,15 @@ bool CvPlot::checkLateEra() const
 	PlayerTypes eBestPlayer = getOwner();
 	if (eBestPlayer == NO_PLAYER)
 	{
-		eBestPlayer = getActivePlayer();
-		int iBestCulture = getCulture(eBestPlayer);
+		// <!-- custom: A T281 crash dump pointed to the CvPlot::setLayoutDirty/checkLateEra export region, but later runs did not reproduce the crash and its cause remains unknown.
+		// During review, we found that getCulture was called with getActivePlayer even when it returned NO_PLAYER, and GET_PLAYER could also receive NO_PLAYER below. Fix that bug by using the active player only when valid and otherwise selecting from alive players; we do not know whether this caused the crash. See KI#171. (GPT-5.5) -->
+		int iBestCulture = -1;
+		PlayerTypes const eActivePlayer = getActivePlayer();
+		if (eActivePlayer != NO_PLAYER)
+		{
+			eBestPlayer = eActivePlayer;
+			iBestCulture = getCulture(eActivePlayer);
+		}
 		// advc: ALIVE - shouldn't rely on era of dead players
 		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
 		{
@@ -8516,6 +8523,9 @@ bool CvPlot::checkLateEra() const
 			}
 		}
 	}
+	// <!-- custom: If no valid player exists, report not-late-era rather than indexing NO_PLAYER below. See KI#171. (GPT-5.5) -->
+	if (eBestPlayer == NO_PLAYER)
+		return false;
 	return (GET_PLAYER(eBestPlayer).getCurrentEra() * 2 > GC.getNumEraInfos());
 }
 

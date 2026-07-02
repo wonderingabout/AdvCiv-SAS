@@ -12512,6 +12512,15 @@ bool CvCity::getFoodBarPercentages(std::vector<float>& afPercentages) const
 
 bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) const
 {
+	// <!-- custom: Two consecutive (but not reproduced besides these two) T281 crash dumps pointed to CvCity::getProductionBarPercentages; the crash and its cause remains unknown.
+	// As tentative hardening, require a valid owner/id and confirm that this is still the city registered in that owner's container before reading production state. We do not know whether an unregistered city caused either crash. See KI#162.2. (GPT-5.5) -->
+	PlayerTypes const eOwner = getOwner();
+	int const iCityID = getID();
+	if (eOwner < 0 || eOwner >= MAX_PLAYERS || iCityID < 0 || GET_PLAYER(eOwner).getCity(iCityID) != this)
+	{
+		FAssertMsg(false, "Production-bar callback received an unregistered city");
+		return false;
+	}
 	if (!canBeSelected())
 		return false;
 

@@ -198,7 +198,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)  
 [161 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#161---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crashes-related-to-cvcitycheat0x15c3-sharing-the-city-name-text-lookup-crash-signature)  
 [161.2 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1612---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-city-name-crash-related-to-cvcitycheat0x15c3-around-city-acquisition-aachen-city-ownership-transfer-from-holy-rome-to-mali-and-uncovered-during-bbai-culture-logging-investigation)  
+[161.3 - (Open/Unresolved) Two rare, intermittent T126 city-name/heap crashes related to `CvCity::cheat+0x15c3`/`+0x15c6`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1613---openunresolved-two-rare-intermittent-t126-city-nameheap-crashes-related-to-cvcitycheat0x15c30x15c6)  
 [162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#162---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-in-cvcitygetproductionbarpercentages)  
+[162.2 - (Tentatively Addressed and Hardened) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1622---tentatively-addressed-and-hardened-two-consecutive-but-rare-and-not-consistently-reproducible-t281-crashes-related-to-cvcitygetproductionbarpercentages)  
 [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
 [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
 [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
@@ -207,6 +209,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#168---fixed-k-mod-bug-great-person-join-and-direct-construct-target-selection-did-not-preserve-the-nearest-path-tie-breaker-bug-found-during-bbai-logging-investigationcode-review)  
 [169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#169---fixed-base-advciv-bug-slow-great-person-movement-omitted-the-intended-final-city-from-mission-ai-target-metadata-mission-stateai-coordination-bug-exposed-by-bbai-logging)  
 [170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#170---fixed-base-advciv-bug-inferred-great-person-construct-versus-hurry-from-the-end-turn-waypoint-instead-of-the-selected-final-city-action-mission-classificationai-coordination-bug-exposed-by-bbai-logging)  
+[171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#171---tentatively-addressed-and-hardened-rare-t281-crash-related-to-cvplotsetlayoutdirty0x12f3-and-cvplotchecklateera0x877)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6059,6 +6062,16 @@ The BBAI logging coincidence was still useful enough to document: it turned a va
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 thanks.
 
+## 161.3 - (Open/Unresolved) Two rare, intermittent T126 city-name/heap crashes related to `CvCity::cheat+0x15c3`/`+0x15c6`
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1vat9KtO8WsidxXWhkvcqd4-Micb0EGQ6?usp=sharing).
+
+Two rare T126 crash reports, separated by several runs and not reproducible on demand, showed nearby `CvGameCoreDLL` offsets reported as `CvCity::cheat+0x15c3` and `+0x15c6`. One attempted to read a distant invalid address and one attempted to read `000001b8`; both surfaced next to heap allocation, and one raw stack contained wide-character fragments of `TXT_KEY_CITY_NAME_SEOUL`.
+
+These crashes occurred after the KI#161/KI#161.2 city-name and BBAI buffer hardening. The city-name text on the stack remains a useful clue, but it does not prove that city-name lookup caused the corruption; without the matching DLL line-symbol PDB, `CvCity::cheat` is only the nearest exported symbol. No additional code change has been made for this folder because the available evidence does not identify a safe root cause.
+
+This issue remains open. Its rarity makes prolonged brute-force reruns unlikely to be an efficient investigation method. If it recurs naturally, preserve the exact DLL, matching PDB/map file, dump, save, and reproduction steps so the faulting instruction can be resolved to a real source line.
+
 ## 162 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages`
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sf0TZF1uSYlPds8bFjtoYwv7cA6hQ06u?usp=sharing).
@@ -6078,6 +6091,18 @@ Conservative hardening was added:
 This should not alter normal production or city UI behavior. It only prevents city production-bar display math when the active-player/UI state or production denominator is abnormal. Because the crash was rare and not reproducible, this should be treated as a hardening / likely mitigation rather than a fully proven fix.
 
 Tentatively addressed with the very nice help of ChatGPT-5.5 + GPT-5.5 for quick review of the solution thanks.
+
+## 162.2 - (Tentatively Addressed and Hardened) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GpGrjHgFlaKZPrfxfABoCuVahD0cJW6e?usp=sharing).
+
+Two consecutive runs from the same T281 situation crashed at `CvCity::getProductionBarPercentages+0x4e2` after KI#162's active-player, order-data, and denominator guards were already present. Both BBAI logs stopped immediately after the same Roman `CULTURE_STAGE_RESULT` transition, but the invalid read addresses differed. Most other autoplay runs reached T500 without this crash, and the available dumps do not prove its exact cause.
+
+To harden this callback, `getProductionBarPercentages` now verifies that the city has a valid owner/id and is still the exact city registered in that owner's city container before reading production state. This does not suppress production bars during autoplay or change valid normal/autoplay callbacks. A debug DLL still asserts on an unregistered callback so that invalid state remains visible if it occurs.
+
+This is safe strengthening rather than a confirmed fix because the evidence does not show that an unregistered city caused either crash. If the T281 situation recurs at the same location, this hardening should be reconsidered rather than expanded speculatively.
+
+Tentatively hardened with the help of GPT-5.5 (on Codex) thanks.
 
 ## 163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`
 
@@ -6212,3 +6237,15 @@ This was a real mission-classification/coordination bug rather than a logging ty
 This issue was directly exposed by the follow-up BBAI log after KI#169: the Artist traveled as Hurry, then performed direct Construct, and the mismatched mission type left `previousValue=-1`.
 
 Fixed with the help of GPT-5.5 (on Codex) thanks.
+
+## 171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1TsGx1m6ebI_BPdhG_h5TgBusmVVORWFU?usp=sharing).
+
+A separate T281 run stopping after the same Roman culture-stage transition crashed with `CvPlot::setLayoutDirty+0x12f3` above `CvPlot::checkLateEra+0x877` in the export-only stack instead of the production-bar signature. Most other autoplay runs reached T500 without this crash. The stack cannot prove its exact source line or whether it was genuinely unrelated to the production-bar crashes rather than sharing earlier corruption.
+
+Reviewing that region found a Base AdvCiv bug in `CvPlot::checkLateEra`: for an unowned plot it assigned `getActivePlayer()` and immediately called `getCulture(eBestPlayer)`, then eventually `GET_PLAYER(eBestPlayer)`, without handling `NO_PLAYER`. The callback now uses the active player only when valid, otherwise selects the highest-culture alive player, and returns false if no valid player exists.
+
+This safely fixes the `NO_PLAYER` bug, but the available evidence does not prove that the bug caused this T281 crash.
+
+Tentatively addressed and hardened with the help of GPT-5.5 (on Codex) thanks.
