@@ -204,6 +204,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
 [166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
 [167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#167---fixed-incorrect-bbai-logging-argument-check-of-missionai_trade-instead-of-missionai_great_work-near-if-ai_dogreatworkpbestcultureplot-and-gate-the-old-eoldmission-behind-a-logging-guard-for-per-opt)  
+[168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#168---fixed-k-mod-bug-great-person-join-and-direct-construct-target-selection-did-not-preserve-the-nearest-path-tie-breaker-bug-found-during-bbai-logging-investigationcode-review)  
+[169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#169---fixed-base-advciv-bug-slow-great-person-movement-omitted-the-intended-final-city-from-mission-ai-target-metadata-mission-stateai-coordination-bug-exposed-by-bbai-logging)  
+[170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#170---fixed-base-advciv-bug-inferred-great-person-construct-versus-hurry-from-the-end-turn-waypoint-instead-of-the-selected-final-city-action-mission-classificationai-coordination-bug-exposed-by-bbai-logging)  
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6179,3 +6182,33 @@ to:
 Also gated the old `eOldMission`'s `AI_getGroup()->AI_getMissionAIType()` behind a logging guard so it is not computed needlessly if BBAI logging is disabled.
 
 Done with the help of GPT-5.5 (on codex) and reviewed OK with the help of ChatGPT-5.5 thanks.
+
+## 168 - (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review)
+
+K-Mod initialized `iBestPathTurns` for slow Great Person actions, but updated it only when selecting a Hurry candidate. Join and direct Construct candidates left the value at `MAX_INT`, so a later equally valuable candidate could replace the selected target even when farther away. Base AdvCiv inherited this behavior.
+
+This is a real but narrow gameplay-selection bug, not a logging-only issue: the fix updates `iBestPathTurns` whenever Join, direct Construct, or Hurry selects a new best candidate, so equal-value candidates now retain the nearer target. Great Artist diagnostics also record the chosen path length.
+
+The BBAI log prompted the target/path investigation, but did not directly demonstrate this exact equal-value case. The bug was found while reviewing and patching the source, and it was not the cause of the map-428 Walata/Kumbi Saleh reversal because those target values differed.
+
+Fixed with the help of GPT-5.5 (on Codex) thanks.
+
+## 169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)
+
+Base AdvCiv passed the end-turn movement waypoint and mission type for Great Person Join/Construct/Hurry travel, but omitted `pMissionAIPlot`. Multi-turn movement therefore stored no final city, and map-428 logging repeatedly showed `previousMissionPlot=(-1,-1)`.
+
+This was not merely missing log output. It was real mission-state metadata used by AI target-continuity/coordination systems. The fix keeps the end-turn waypoint as the movement destination while passing the intended final city separately as the mission-AI plot; the route itself is unchanged. The next autoplay confirmed that Join and Construct targets persisted across turns and could be valued again.
+
+This issue was directly exposed by the new BBAI diagnostics: `previousMissionPlot` remained `(-1,-1)` on every slow Great Artist movement turn.
+
+Fixed with the help of GPT-5.5 (on Codex) thanks.
+
+## 170 - (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging)
+
+Base AdvCiv chose `MISSIONAI_CONSTRUCT` or `MISSIONAI_HURRY` by calling `canConstruct` on `pBestPlot`, which is only the end-turn waypoint during multi-turn travel. In map 428, a Great Artist selected direct corporation construction in Walata but traveled as `MISSIONAI_HURRY`; the next turn could not compare it as the previous Construct target.
+
+This was a real mission-classification/coordination bug rather than a logging typo. The fix retains the actual mission type when the best Join, Construct, or Hurry candidate is selected and reuses it during movement. The tested route and final corporation construction were unchanged, but AI systems now see the correct travelling intent. The next autoplay correctly logged Walata as `MISSIONAI_CONSTRUCT` and produced real previous-target values.
+
+This issue was directly exposed by the follow-up BBAI log after KI#169: the Artist traveled as Hurry, then performed direct Construct, and the mismatched mission type left `previousValue=-1`.
+
+Fixed with the help of GPT-5.5 (on Codex) thanks.

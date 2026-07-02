@@ -857,10 +857,9 @@ class CvDomesticAdvisor:
 		screen.setTableText( self.TABLE_OVERVIEW1, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
 
 		# <advc.193>
-		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update), but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
-		iCellFontSize = getSASUIFontLabel()
+		# <!-- custom: preserve base AdvCiv per-row font-tag reuse, but use shared LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
 		# (Uses of these tags in the code below aren't tagged w/ comments)
-		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
+		szFontTagOpen = sasFontTagLabel
 		szFontTagClose = SAS_FONT_TAG_CLOSE
 		# </advc.193>
 

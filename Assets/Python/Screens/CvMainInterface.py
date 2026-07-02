@@ -4939,13 +4939,13 @@ class CvMainInterface:
 		# This means that the city screen uses size 1 only for the BUG yield breakdowns ("Raw Yields").
 		if self.bScaleHUD and gRect("Top").height() > 900:
 			# <!-- custom: use LABEL (not BODY) for city building/trade tables so label-font upscaling applies consistently when SAS_UI_FONT_LABEL is raised. (GPT-5.4) -->
-			self.iBldgFontSize = getSASUIFontLabel()
-			self.iTRFontSize = getSASUIFontLabel()
+			self.bldgFontTag = sasFontTagLabel
+			self.trFontTag = sasFontTagLabel
 			# Table rows don't or barely get higher, so the button size shouldn't be increased here.
 			iBldgBtnSize = None
 		else: # </advc.092>
-			self.iBldgFontSize = getSASUIFontTiny()
-			self.iTRFontSize = getSASUIFontTiny()
+			self.bldgFontTag = sasFontTagTiny
+			self.trFontTag = sasFontTagTiny
 			iBldgBtnSize = None
 		self.addTable("BuildingListTable", 3, "Table_City_Style", iBldgBtnSize)
 # BUG - Raw Yields - start
@@ -5149,7 +5149,7 @@ class CvMainInterface:
 				else:
 					szIcon = gc.getBuildingInfo(iBuilding).getButton() # from BAT mod
 				# </advc.097>
-				szFontStart = "<font="+ str(self.iBldgFontSize) + ">" # advc.092
+				szFontStart = self.bldgFontTag # advc.092
 				screen.setTableText("BuildingListTable", 0, iNumBuildings, szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, szIcon, WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_LEFT_JUSTIFY)
 				screen.setTableText("BuildingListTable", 1, iNumBuildings, szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_BUILDING, iBuilding, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 				iNumBuildings = iNumBuildings + 1
@@ -5198,7 +5198,7 @@ class CvMainInterface:
 # K-Mod: Trade culture end
 				if not bShowRawYields:
 					screen.appendTableRow("TradeRouteTable")
-					szFontStart = "<font=" + str(self.iTRFontSize) + ">" # advc.092
+					szFontStart = self.trFontTag # advc.092
 					screen.setTableText("TradeRouteTable", 0, iNumTradeRoutes, szFontStart + szLeftBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					screen.setTableText("TradeRouteTable", 1, iNumTradeRoutes, szFontStart + szRightBuffer + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_HELP_TRADE_ROUTE_CITY, i, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 # BUG - Raw Yields - end
@@ -5241,10 +5241,9 @@ class CvMainInterface:
 		# <advc.092>
 		# <!-- custom: The old button fallback used total XML bonus count, which made AdvCiv-SAS fall back to small font icons even when the selected city's actual bonus rows fit. Check the selected city's per-column row counts instead; use the preferred 40px-ish buttons when they fit, shrink in explicit 5px-ish DDS steps only for real selected-city overflow, and keep text glyphs as legacy/debug mode or last-resort overflow fallback. Mode 0 forces at least label-size text so bonus glyphs are not tinier than nearby UI, but does not hardcode font=4 because that also enlarges amount/effect text; testing showed even font=4 text glyphs remain much smaller than image-button rendering, so larger bonus icons need mode 1 or 2. (GPT-5.5) -->
 		if (bUseCityBonusButtons or gRect("Top").height() > 900 + max(0, gc.getNumBonusInfos() - 35) * 12) or self.SAS_CV_MAIN_INTERFACE_CITY_BONUS_ICON_MODE == 0:
-			iFontSize = getSASUIFontLabel()
+			szFontStart = sasFontTagLabel
 		else:
-			iFontSize = getSASUIFontTiny() # (2 doesn't really increase the size of icons)
-		szFontStart = u"<font=" + str(iFontSize) + u">"
+			szFontStart = sasFontTagTiny # (2 doesn't really increase the size of icons)
 		# </advc.092>
 		iLeftCount = 0
 		iCenterCount = 0
