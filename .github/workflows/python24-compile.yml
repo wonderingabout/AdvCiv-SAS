@@ -8,7 +8,7 @@ on:
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python24_compile.py"
   pull_request:
-    # <!-- custom: PR #13 is a long-lived reference compare from tech-rework to 1.12.
+    # <!-- custom: PR #34 is a long-lived reference compare from main to 1.12.
     # Keep it open so GitHub tracks the diff, but do not run duplicate PR checks for it. (ChatGPT-5.5 + GPT-5.5) -->
     branches-ignore:
       - "1.12"

@@ -42,7 +42,7 @@ You can download the latest stable version from:
 
 ### Development version
 
-If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/)).
+If you want the latest functionnalities even if it might be buggy (generally not, but saying this just in case it might be), consider also testing the development version! It should be further enhanced with possibly a stronger AI or other changes if any (if you want to see the list of changes, see the [git commit history, as of now here](https://github.com/wonderingabout/AdvCiv-SAS/commits/main/)).
 
 To download the development version, go to the [mod's github main page](https://github.com/wonderingabout/AdvCiv-SAS), and click on the green rectangle on the top right, then click "download zip".
 
@@ -60,7 +60,7 @@ With github you can actually download the mod at any version/commit if i'm not m
 
 ## Extract the mod to your civ4 BTS/BTS/Mods folder
 
-Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-5030" or any name like "-tech-rework" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
+Extract the archive in the Mods folder of your civ4 BTS/BTS folder (be careful twice BTS (i.e. "Beyond The Sword")), for example, using Steam the path of AdvCiv-SAS should be **(remove version name such as "-5860" or any name like "-main" (git branch name, remove when extracting to your civ4 mods folder)** or similar or anything else xd in your folder destination name so it is **strictly "AdvCiv-SAS"**):
 
 ```C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\```
 

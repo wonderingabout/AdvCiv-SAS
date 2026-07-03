@@ -42,7 +42,7 @@ The bot ignores its own refresh branches and skips runs by `github-actions[bot]`
 
 Validated behavior, tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31):
 
-- current `tech-rework` predump already current -> no PR;
+- current `main` predump already current -> no PR;
 - leader XML comment-only change (Test 0) -> no PR;
 - real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MOCTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
 - shared AIP label/display change (e.g., Temporary test 2: "Build Unit %" -> "Build Unit Prob") -> predump refresh PR.
