@@ -1791,7 +1791,7 @@ class ConfigObj(Section):
             start = self._a_to_u(' ' * NUM_INDENT_SPACES)
         if not comment.startswith('#') and not comment.startswith(';'):
             # <!-- custom: Ruff surfaced this real runtime bug after the earlier configobj parser error was fixed: the correct pattern is self._a_to_u(...), while the unqualified _a_to_u name was undefined. See KI#143. (GPT-5.5) -->
-            start += self._a_to_u('# ')
+            start += self._a_to_u('# ') # advc.sas: was missing "self"
         return (start + comment)
 
     def _compute_indent_string(self, depth):

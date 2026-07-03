@@ -2385,9 +2385,11 @@ void CvTeam::updateLeaderID()
 		}
 	}
 	// <advc.104t>
-	if (m_eLeader != eFormerLeader && getUWAI().isEnabled())
+	if (m_eLeader != eFormerLeader && getUWAI().isEnabled() &&
+		GET_PLAYER(m_eLeader).isAlive())
+	{
 		GET_PLAYER(m_eLeader).uwai().getCache().onTeamLeaderChanged(eFormerLeader);
-	// </advc.104t>
+	} // </advc.104t>
 	if (m_eLeader == NO_PLAYER)
 	{
 		FAssert(m_eLeader != NO_PLAYER);

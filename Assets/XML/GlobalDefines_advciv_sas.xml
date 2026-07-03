@@ -2871,6 +2871,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Preserve both old (SAS define disabled) and and new (SAS define enabled) Base AdvCiv paths instead of merging only the new one and deleting the old as as of now in Base AdvCiv, so players can choose between them: 0 restores the older population rule that keeps New World Barbarians relatively peaceful within their area until civilization population exceeds Barbarian population; 1 uses the newer city/population presence score, which ends that grace period earlier, especially on large maps. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: disable to restore old base advciv evacuate logic (recommended to be enabled instead though as disabling this to restore base advciv logic should be weaker than the advciv-sas' always evacuate doomed cities logic but left for player customization) -->
 	<Define>
 		<DefineName>SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES</DefineName>

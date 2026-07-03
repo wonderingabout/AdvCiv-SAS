@@ -7243,8 +7243,8 @@ void CvCity::updateCultureLevel(bool bUpdatePlotGroups)
 	setCultureLevel(eCultureLevel, bUpdatePlotGroups);
 }
 
-/*	advc: Cut from updateCultureLevel. Unlike getCulture(PlayerTypes), this function
-	will always recalculate the culture level. */
+/*	advc: Cut from updateCultureLevel. Unlike getCultureLevel(PlayerTypes),
+	this function is guaranteed to recalculate the culture level. */
 CultureLevelTypes CvCity::calculateCultureLevel(PlayerTypes ePlayer) const
 {
 	int const iCultureTimes100 = getCultureTimes100(ePlayer);
