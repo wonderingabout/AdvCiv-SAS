@@ -200,7 +200,7 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed 
 
 ### `build/bbai_log.py`
 
-Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
+Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
 
 ### `build/fonts.py`
 

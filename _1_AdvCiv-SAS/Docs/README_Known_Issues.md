@@ -6249,3 +6249,15 @@ Reviewing that region found a Base AdvCiv bug in `CvPlot::checkLateEra`: for an 
 This safely fixes the `NO_PLAYER` bug, but the available evidence does not prove that the bug caused this T281 crash.
 
 Tentatively addressed and hardened with the help of GPT-5.5 (on Codex) thanks.
+
+## 172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities
+
+Base AdvCiv ranks each city by `AI_assetVal`, then uses that rank in `CvCityAI::AI_updateSafety` to raise the evacuation threshold for important cities. However, `CvPlayerAI::AI_updateCacheData` stored `1 - percentileRank`, so higher-value cities received lower percentages and low-value cities received the intended protection instead.
+
+This contradicted both the nearby Base AdvCiv comment, "Higher threshold for important cities," and the AdvCiv manual statement that the AI is less willing to abandon major cities than unimportant ones.
+
+The fix stores the direct asset-value percentile. The existing `AI_updateSafety` logic can therefore raise the doom threshold for cities in the more valuable half as intended; its separate extra protection for a capital when the player has at most two cities remains unchanged.
+
+Found while clarifying the doomed-city evacuation threshold and fixed with the help of GPT-5.5 (on Codex) thanks.
+
+Note: this may be related to the very problematic Base AdvCiv 1.12 issue i encountered ingame and that i mentioned in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made back then, of an AI stack defending the capital leaving it and thus being exposed without city defense modifiers to the attacker stack, leaving the strong capital almost defenseless, and the former defending stack open to ambushes (in other variants it left to go to weaker cities iirc too) numbered example 37.

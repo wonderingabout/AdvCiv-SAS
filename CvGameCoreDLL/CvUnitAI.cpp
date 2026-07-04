@@ -33,11 +33,43 @@ CvUnitAI::~CvUnitAI()
 	//AI_uninit(); // Delete member pointers right here (but there are none)
 }
 
-// <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
+// <!-- custom: Log retreat outcomes, notably for doomed cities, workers, and naval units, without broad unit logging for analysis/logging purposes. No behavior change. (GPT-5.5) -->
+static void logSASRetreatUnitResult(char const* szAction, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
+		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation, (pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()),
+		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger, (pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
+}
+
+// <!-- custom: Log local-safety outcomes through the evacuation/retreat category. No behavior change. (GPT-5.5) -->
+static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, CvPlot const* pTargetPlot, bool bIgnoredDanger, int iValue)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logBBAI("    SAFETY_UNIT_RESULT action=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
+		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
+}
+
+// <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
+static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	CvCityAI const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->AI_getPlotCity());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	logBBAI("    EVACUATION_UNIT_DECISION turn=%d player=%d %S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
+		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(),
+		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionCity == NULL ? L"-" : pMissionCity->getName().GetCString()), (pMissionCity == NULL ? -1 : pMissionCity->getID()), (pMissionCity == NULL ? 0 : pMissionCity->AI_isEvacuating()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? 0 : pGroup->isForceUpdate()),
+		kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), kUnit.getFortifyTurns(), kUnit.getMoves(), kUnit.movesLeft(), kUnit.hasMoved(), kUnit.isMadeAttack(), szMode, iEvacProbPercent, bSelected);
+}
+
+// <!-- custom: Work Boat movement diagnostics; retreat/safety uses the evacuation category, while other tasks use worker-sea logging. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
 {
-	if (gWorkerSeaLogLevel < 2)
-		return;
 	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
 	CvPlot const& kPlot = kUnit.getPlot();
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
@@ -8678,7 +8710,7 @@ void CvUnitAI::AI_workerSeaMove()
 		{
 			if (AI_retreatToCity())
 			{
-				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+				if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
 				return;
 			}
 		}
@@ -8750,13 +8782,13 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_retreatToCity())
 	{
-		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("retreat to city", *this);
 		return;
 	}
 
 	if (AI_safety())
 	{
-		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("safety", *this);
 		return;
 	}
 
@@ -13500,10 +13532,12 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			bool const bMoreNeeded = (iDefendersNeeded > iDefendersHave); // advc.300
 			if (iDefendersWant <= 0) // No functional change from BtS
 				continue;
-			if (pLoopCity->AI_isEvacuating() &&
-				iDefendersWant > fixp(0.75) * getGroup()->getNumUnits())
+			if (pLoopCity->AI_isEvacuating())
 			{
-				continue;
+				bool const bRejectEvacuatingCity = (iDefendersWant > fixp(0.75) * getGroup()->getNumUnits());
+				if (gEvacuationLogLevel >= 3) logBBAI("    EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d", (bRejectEvacuatingCity ? "reject" : "allow"), GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(), getGroup()->getNumUnits(), iDefendersNeeded, iDefendersHave, iDefendersWant, iExtraDefenders);
+				if (bRejectEvacuatingCity)
+					continue;
 			} // </advc.139>
 			/*if (pLoopCity->getPlot().isVisibleEnemyUnit(this)) // advc.opt: It's our city
 				continue;*/
@@ -13544,6 +13578,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 	if (pEndTurnPlot == NULL || pBestGuardPlot == NULL)
 		return false;
 
+	CvCityAI const* pBestGuardCityForEvacuationLog = pBestGuardPlot->AI_getPlotCity();
+	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestGuardCityForEvacuationLog->getName().GetCString(), pBestGuardCityForEvacuationLog->getID(), pBestGuardCityForEvacuationLog->getX(), pBestGuardCityForEvacuationLog->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(), getGroup()->getID(), getGroup()->getNumUnits());
 	CvSelectionGroup* pOldGroup = getGroup();
 	CvUnit* pEjectedUnit = AI_getGroup()->AI_ejectBestDefender(plot());
 	if (pEjectedUnit == NULL)
@@ -13616,6 +13652,8 @@ bool CvUnitAI::AI_guardCityAirlift()
 
 	if (pBestPlot != NULL)
 	{
+		CvCityAI const* pBestAirliftCityForEvacuationLog = pBestPlot->AI_getPlotCity();
+		if (gEvacuationLogLevel >= 3 && pBestAirliftCityForEvacuationLog != NULL && pBestAirliftCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_AIRLIFT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d sourceCity=%S sourceCityId=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), pBestAirliftCityForEvacuationLog->getName().GetCString(), pBestAirliftCityForEvacuationLog->getID(), pBestAirliftCityForEvacuationLog->getX(), pBestAirliftCityForEvacuationLog->getY(), currHitPoints(), maxHitPoints());
 		getGroup()->pushMission(MISSION_AIRLIFT, pBestPlot->getX(), pBestPlot->getY());
 		return true;
 	}
@@ -16048,6 +16086,7 @@ bool CvUnitAI::AI_safety()
 
 	if (pBestPlot != NULL)
 	{
+		if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult(at(*pBestPlot) ? "wait" : "move", *this, pBestPlot, bIgnoreDanger, iBestValue);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP);
@@ -16061,6 +16100,7 @@ bool CvUnitAI::AI_safety()
 		}
 	}
 
+	if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult("fail-no-plot", *this, NULL, bIgnoreDanger, iBestValue);
 	return false;
 }
 
@@ -17497,14 +17537,16 @@ bool CvUnitAI::AI_defensiveCollateral(int iThreshold, int iSearchRange)
 // advc.139:
 bool CvUnitAI::AI_evacuateCity()
 {
-	if(!getPlot().AI_getPlotCity()->AI_isEvacuating())
+	CvCityAI const& kCity = *getPlot().AI_getPlotCity();
+	if(!kCity.AI_isEvacuating())
 		return false;
 
-	static const bool bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES");
-	if (bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES)
+	static const bool bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
+	if (bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE)
 	{
 		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
 		// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
+		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("always", *this, kCity, 100, true);
 		return AI_retreatToCity();
 	}
 	// <!-- custom: not recommended as should be weaker for the AI, kept for legacy or player customization choice -->
@@ -17545,7 +17587,9 @@ bool CvUnitAI::AI_evacuateCity()
 		}
 		/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
 			Hopefully sufficient most of the time. */
-		if (SyncRandSuccess(rEvacProb))
+		bool const bEvacuate = SyncRandSuccess(rEvacProb);
+		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, rEvacProb.getPercent(), bEvacuate);
+		if (bEvacuate)
 			return AI_retreatToCity();
 	}
 	return false;
@@ -21990,6 +22034,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 			GET_PLAYER(getOwner()).AI_getPlotDanger(getPlot())); 
 
 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
+	bool const bEvac = (pCity != NULL && pCity->AI_isEvacuating());
+	int const iEvacuationLogLevel = gEvacuationLogLevel;
+	bool const bLogRetreatResult = (iEvacuationLogLevel >= 3 || (bEvac && iEvacuationLogLevel >= 2));
 	if (iCurrentDanger <= 0 && pCity != NULL &&
 		pCity->getOwner() == getOwner())
 	{
@@ -21997,6 +22044,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 		{
 			if (!bPrioritiseAirlift || pCity->getMaxAirlift() > 0)
 			{	//if (!pCity->getPlot().isVisibleEnemyUnit(this)) {
+				if (bLogRetreatResult) logSASRetreatUnitResult("wait-safe-city", *this, pCity, pCity, &getPlot(), 0, iCurrentDanger, bEvac);
 				getGroup()->pushMission(MISSION_SKIP);
 				return true;
 			}
@@ -22015,9 +22063,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 	CvPlot* pBestPlot = NULL;
 	int iShortestPath = MAX_INT;
 	// <advc.139>
-	bool bEvac = (pCity != NULL && pCity->AI_isEvacuating());
 	bool bSafe = (pCity != NULL && pCity->AI_isSafe());
 	// </advc.139>
+	CvCityAI const* pBestRetreatCityForLog = NULL;
 	// <advc>
 	int iPass = 0; // Used after the loop
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // </advc>
@@ -22081,6 +22129,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					{
 						iShortestPath = iPathTurns;
 						pBestPlot = &getPathEndTurnPlot();
+						if (bLogRetreatResult) pBestRetreatCityForLog = pLoopCity;
 					}
 				}
 			}
@@ -22095,6 +22144,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 
 	if (pBestPlot != NULL)
 	{
+		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? "wait" : "retreat", *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
@@ -22129,15 +22179,18 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					per100(GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent());
 			if (SyncRandSuccess(rScrapOdds))
 			{
+				if (bLogRetreatResult) logSASRetreatUnitResult("scrap", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 				scrap();
 				return true;
 			}
 		} // </advc.010>
+		if (bLogRetreatResult) logSASRetreatUnitResult("stay-no-safe-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_RETREAT);
 		return true;
 	}
 
+	if (bLogRetreatResult) logSASRetreatUnitResult("fail-no-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 	return false;
 }
 
@@ -25329,6 +25382,8 @@ bool CvUnitAI::AI_moveIntoCity(int iRange)
 
 	if (pBestPlot != NULL)
 	{
+		CvCityAI const* pBestCityForEvacuationLog = pBestPlot->AI_getPlotCity();
+		if (gEvacuationLogLevel >= 3 && pBestCityForEvacuationLog != NULL && pBestCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_HEAL_CITY turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestCityForEvacuationLog->getName().GetCString(), pBestCityForEvacuationLog->getID(), pBestCityForEvacuationLog->getX(), pBestCityForEvacuationLog->getY(), getGroup()->getID(), getGroup()->getNumUnits(), currHitPoints(), maxHitPoints());
 		pushGroupMoveTo(*pBestPlot);
 		return true;
 	}

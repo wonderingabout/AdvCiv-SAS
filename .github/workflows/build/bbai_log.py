@@ -6,28 +6,40 @@
 # Build check: BBAI logging must be disabled by default.
 
 from pathlib import Path
+import argparse
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 
-from xml_defines import main_from_expected_values
+from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
 
 
-EXPECTED_DISABLED_BBAI_DEFINES = {
-	"SAS_BBAI_LOG_ENABLE": 0,
-	"SAS_BBAI_PLAYER_LOG_LEVEL": 0,
-	"SAS_BBAI_TEAM_LOG_LEVEL": 0,
-	"SAS_BBAI_CITY_LOG_LEVEL": 0,
-	"SAS_BBAI_UNIT_LOG_LEVEL": 0,
-	# <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
-	"SAS_BBAI_WORKER_LOG_LEVEL": 0,
-	# <!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
-	"SAS_BBAI_WORKER_SEA_LOG_LEVEL": 0,
-	"SAS_BBAI_MAP_LOG_LEVEL": 0,
-	"SAS_BBAI_FOUND_LOG_LEVEL": 0,
-	"SAS_BBAI_DEAL_CANCEL_LOG_LEVEL": 0,
+EXPECTED_NONZERO_BBAI_DEFAULTS = {
+	# These configure enabled logging but do not enable it themselves.
+	"SAS_BBAI_SCORE_LOG_INTERVAL": 100,
+	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
 }
 
 
+def main() -> int:
+	parser = argparse.ArgumentParser(description="Check that every SAS_BBAI_* define is disabled by default unless explicitly listed as non-enabling configuration.")
+	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+	args = parser.parse_args()
+
+	defines = read_global_define_ints(args.repo_root)
+	# <!-- custom: The old manual list missed Citizen and Culture logging. Require every integer SAS_BBAI_* define to be 0 automatically, with explicit exceptions only for settings that configure enabled logging without enabling it. This also covers future BBAI categories without another manual checker update. (GPT-5.5) -->
+	expected = {name: 0 for name in defines if name.startswith("SAS_BBAI_")}
+	expected.update(EXPECTED_NONZERO_BBAI_DEFAULTS)
+	expected["SAS_BBAI_LOG_ENABLE"] = 0
+	failures = require_int_values(defines, expected)
+	if failures:
+		print("FAIL BBAI logging disabled by default")
+		for failure in failures:
+			print(f"  - {failure}")
+		return 1
+	print(f"PASS BBAI logging disabled by default: checked {len(expected)} SAS_BBAI_* define(s)")
+	return 0
+
+
 if __name__ == "__main__":
-	main_from_expected_values("BBAI logging disabled by default", EXPECTED_DISABLED_BBAI_DEFINES, "Check that AdvCiv-SAS BBAI logging is disabled by default.")
+	sys.exit(main())

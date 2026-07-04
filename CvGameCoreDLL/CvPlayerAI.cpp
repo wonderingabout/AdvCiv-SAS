@@ -408,9 +408,9 @@ void CvPlayerAI::AI_updateCacheData()
 	int i = 0;
 	FOR_EACH_CITYAI_VAR(pCity, *this)
 	{
-		pCity->AI_setCityValPercent(
-				(1 - stats::percentileRank(
-				rCityValues, rCityValues[i] + scaled::epsilon())).getPercent());
+		// <!-- custom: Base AdvCiv inverted this percentile, so low-value cities received the intended important-city evacuation protection while major cities did not.
+		// Keep the direct asset-value percentile so higher means more valuable, matching AI_updateSafety and the AdvCiv manual. See KI#172. (GPT-5.5) -->
+		pCity->AI_setCityValPercent(stats::percentileRank(rCityValues, rCityValues[i] + scaled::epsilon()).getPercent());
 		pCity->AI_updateSafety();
 		i++;
 	} // </advc.139>

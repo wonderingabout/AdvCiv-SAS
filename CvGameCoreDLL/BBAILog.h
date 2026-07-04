@@ -20,6 +20,7 @@ int getSASBBAITeamLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
+int getSASBBAIEvacuationLogLevel();
 int getSASBBAIWorkerLogLevel();
 int getSASBBAIWorkerSeaLogLevel();
 int getSASBBAIMapLogLevel();
@@ -35,6 +36,7 @@ int getSASBBAIScoreLogInterval();
 #define gCityLogLevel getSASBBAICityLogLevel()
 #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Citizen-assignment and plot-allocation diagnostics. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
+#define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Evacuation/retreat diagnostics. (GPT-5.5) -->
 #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod

@@ -2,8 +2,10 @@
 #include "CvCityAI.h"
 #include "CoreAI.h"
 #include "CvSelectionGroupAI.h"
+#include "CvUnitAI.h" // <!-- custom: Evacuation diagnostics inspect nearby CvUnitAI details. (GPT-5.5) -->
 #include "UWAIAgent.h" // advc.031b (for trait checks)
 #include "CityPlotIterator.h"
+#include "PlotRange.h" // <!-- custom: Evacuation diagnostics use SquareIter for nearby attackers. (GPT-5.5) -->
 #include "CvUnit.h"
 #include "CvArea.h"
 #include "CvInfo_City.h"
@@ -9805,6 +9807,7 @@ bool CvCityAI::AI_isDanger() /* advc: */ const
 void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 {
 	PROFILE_FUNC();
+	CitySafetyTypes const ePreviousSafety = m_eSafety;
 	m_eSafety = CITYSAFETY_SAFE;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	if(kOwner.getNumCities() <= 1)
@@ -9874,6 +9877,46 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
 		if (kOwner.getNumCities() <= 2 && isCapital())
 			rThresh *= 2;
 		bEvac = (scaled(iAttStrength, iDefStrength + 1) > rThresh);
+		// <!-- custom: Log doomed-city thresholds and nearby attack context for analysis/logging purposes. (GPT-5.5) -->
+		if (bEvac && gEvacuationLogLevel > 0 && (gEvacuationLogLevel >= 2 || ePreviousSafety != CITYSAFETY_EVACUATING))
+		{
+			TeamTypes eStrongestEnemy = NO_TEAM;
+			int iStrongestEnemyAttack = 0;
+			for (TeamIter<ALIVE,ENEMY_OF> itEnemy(getTeam()); itEnemy.hasNext(); ++itEnemy)
+			{
+				int const iEnemyAttack = kOwner.AI_localAttackStrength(plot(), itEnemy->getID(), DOMAIN_LAND, 1, true, false, false);
+				if (iEnemyAttack > iStrongestEnemyAttack)
+				{
+					iStrongestEnemyAttack = iEnemyAttack;
+					eStrongestEnemy = itEnemy->getID();
+				}
+			}
+			int iOwnedLandUnits = 0;
+			FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
+			{
+				if (pLoopUnit->getOwner() == getOwner() && pLoopUnit->getDomainType() == DOMAIN_LAND)
+					iOwnedLandUnits++;
+			}
+			static bool const bAllLandUnitsWhenDoomed = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
+			logBBAI("    EVACUATION_CITY_DECISION turn=%d player=%d %S city=%S cityId=%d city=(%d,%d) cityAcquiredTurn=%d cityOwnerTurns=%d pop=%d capital=%d totalCities=%d previousSafety=%d allLandUnitsWhenDoomed=%d attackers=%d defenders=%d ownedLandUnits=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d strongestEnemyTeam=%d strongestEnemy=%S strongestEnemyAttack=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), getX(), getY(), getGameTurnAcquired(), GC.getGame().getGameTurn() - getGameTurnAcquired(), getPopulation(), isCapital(), kOwner.getNumCities(), ePreviousSafety, bAllLandUnitsWhenDoomed, iAttackers, iDefenders, iOwnedLandUnits, iAttStrength, iDefStrength, scaled(iAttStrength, iDefStrength + 1).getPercent(), iAIEvacuationThresh, rThresh.getPercent(), AI_getCityValPercent(), eStrongestEnemy, (eStrongestEnemy == NO_TEAM ? L"-" : GET_TEAM(eStrongestEnemy).getName().GetCString()), iStrongestEnemyAttack);
+			if (gEvacuationLogLevel >= 3 && ePreviousSafety != CITYSAFETY_EVACUATING)
+			{
+				for (SquareIter itPlot(getPlot(), 1); itPlot.hasNext(); ++itPlot)
+				{
+					CvPlot const& kEnemyPlot = *itPlot;
+					if (!kEnemyPlot.isVisible(getTeam()))
+						continue;
+					FOR_EACH_UNITAI_IN(pEnemyUnit, kEnemyPlot)
+					{
+						if (!kTeam.isAtWar(pEnemyUnit->getTeam()) || pEnemyUnit->getDomainType() != DOMAIN_LAND || !pEnemyUnit->canAttack() || pEnemyUnit->getUnitInfo().isMostlyDefensive())
+							continue;
+						logBBAI("      EVACUATION_ENEMY_UNIT turn=%d cityOwner=%d city=%S enemyPlayer=%d %S enemyTeam=%d unitId=%d unit=%S unitAI=%d plot=(%d,%d) hp=%d/%d baseCombat=%d level=%d experience=%d canMove=%d movesLeft=%d",
+							GC.getGame().getGameTurn(), getOwner(), getName().GetCString(), pEnemyUnit->getOwner(), GET_PLAYER(pEnemyUnit->getOwner()).getCivilizationDescription(0), pEnemyUnit->getTeam(), pEnemyUnit->getID(), pEnemyUnit->getName(0).GetCString(), pEnemyUnit->AI_getUnitAIType(), pEnemyUnit->getX(), pEnemyUnit->getY(), pEnemyUnit->currHitPoints(), pEnemyUnit->maxHitPoints(), pEnemyUnit->baseCombatStr(), pEnemyUnit->getLevel(), pEnemyUnit->getExperience(), pEnemyUnit->canMove(), pEnemyUnit->movesLeft());
+					}
+				}
+			}
+		}
 	}
 	if (bEvac)
 		m_eSafety = CITYSAFETY_EVACUATING;

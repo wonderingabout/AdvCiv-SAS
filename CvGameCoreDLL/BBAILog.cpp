@@ -21,7 +21,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 // <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
 bool isSASBBAILogEnabled()
 {
-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
 	return bEnabled;
 }
 
@@ -59,6 +59,13 @@ int getSASBBAICitizenLogLevel()
 int getSASBBAIUnitLogLevel()
 {
 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_UNIT_LOG_LEVEL") : 0);
+	return iLevel;
+}
+
+// <!-- custom: Separate evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
+int getSASBBAIEvacuationLogLevel()
+{
+	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_EVACUATION_LOG_LEVEL") : 0);
 	return iLevel;
 }
 
