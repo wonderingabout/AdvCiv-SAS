@@ -21,6 +21,8 @@ public:
 	// <!-- custom: found-value path uses int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
 	int evaluate(CvPlot const& kPlot) const;
 	int evaluate(int iX, int iY) const;
+	// <!-- custom: Opt-in diagnostic entry point: return the same found value while filling an exact stage-by-stage summary. Callers guard its use behind logging so normal city-site evaluation does no string formatting. (GPT-5.5) -->
+	int evaluateWithBreakdown(CvPlot const& kPlot, CvString& szBreakdown) const;
 	int evaluateWithLogging(CvPlot const& kPlot) const; // advc.031c
 	scaled evaluateWorkablePlot(CvPlot const& kPlot) const; // advc.027
 	CvPlayerAI const& getPlayer() const { return m_kPlayer; }
@@ -48,6 +50,8 @@ public:
 	/*	doesn't need vision of a plot to know what's there
 		[But doesn't necessarily reveal resources; see AIFoundValue::getBonus.] */
 	bool isAllSeeing() const { return m_bAllSeeing; }
+	// <!-- custom: First-settler roaming needs starting-capital weights without map-generation omniscience. (GPT-5.5) -->
+	void setAllSeeing(bool b) { m_bAllSeeing = b; }
 	// some trait information that will influence where we settle ...
 	// easy for us to pop the culture to the 2nd border
 	bool isEasyCulture() const { return m_bEasyCulture; }
@@ -92,7 +96,8 @@ private:
 class AIFoundValue
 {
 public:
-	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings);
+	// <!-- custom: A non-null breakdown output enables diagnostic accounting; normal evaluation passes NULL and keeps that work disabled. (GPT-5.5) -->
+	AIFoundValue(CvPlot const& kPlot, CitySiteEvaluator const& kSettings, CvString* pszBreakdown = NULL);
 	int get() const { return m_iResult; }
 	scaled evaluateWorkablePlot(CvPlot const& p) const; // advc.027
 
@@ -102,6 +107,7 @@ public:
 
 private:
 	int m_iResult;
+	CvString* m_pszBreakdown;
 	/*  The rest aren't prefixed with "m_"; too awkward. Note that the order of
 		the reference members needs to match their order in the ctor initalizer list. */
 	CvPlot const& kPlot;
@@ -163,7 +169,8 @@ private:
 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
 	int sumUpPlotValues(std::vector<int>& aiPlotValues) const;
-	int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
+	// <!-- custom: Disabled after XML-tunable SAS bonus-improvement yield valuation made this obscure hardcoded path redundant and retaining both overscored bonus-heavy sites in KI#173 follow-up testing. Kept commented with its implementation for reference. (GPT-5.5) -->
+	// int evaluateSpecialYields(int const* aiSpecialYield, int iSpecialYieldTiles, int iSpecialFoodPlus, int iSpecialFoodMinus) const;
 	// <!-- custom: simplify logic and attempt to spread cities more, currently they are way too crowded which is inefficient -->
 	// bool isTooManyTakenTiles(int iTaken, int iResourceValue, bool bLowValue) const;
 	bool isTooManyTakenTiles(int iTaken, int iResourceValue) const;

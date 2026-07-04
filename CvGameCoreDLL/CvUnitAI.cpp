@@ -14,6 +14,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
 #include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
+#include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 //#define FOUND_RANGE (7) // advc: unused
@@ -111,6 +112,16 @@ static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI cons
 			(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()), (eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), (eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
 }
 
+// <!-- custom: First-settler movement needs starting-capital weights, but AI_foundValue(..., true) also enables the all-seeing map-generation mode. Keep the weights while disabling omniscience so fogged BFC plots remain neutral; optionally collect a compact breakdown only from guarded level-3 diagnostics. (GPT-5.5) -->
+static int SAS_evaluateFirstCityFoundValue(CvPlayerAI const& kOwner, CvPlot const& kCityPlot, CvString* pszBreakdown = NULL)
+{
+	CitySiteEvaluator kEvaluator(kOwner, -1, true);
+	kEvaluator.setAllSeeing(false);
+	if (pszBreakdown != NULL)
+		return kEvaluator.evaluateWithBreakdown(kCityPlot, *pszBreakdown);
+	return kEvaluator.evaluate(kCityPlot);
+}
+
 // <!-- custom: Evaluate a first-city candidate's revealed non-home BFC with the shared potential-food score. Bonus-specific improvements count because unlike a generic Farm/Cottage choice they are the resource plot's intended development; water-bonus improvement food follows the shared Work Boat-access check (the candidate or another owned city borders the connected water area, or a connecting improvement already exists), and ocean-coastal candidates additionally assume the configured Harbor-class food building. Add one extra point for each citizen-unworkable plot: peaks and ice are not merely 0F but dead BFC slots, whereas an Oasis is citizen-workable and rich despite being worker-unimprovable. (GPT-5.5 + ChatGPT 5.5) -->
 static void SAS_evaluateFirstCityBFCFoodEnvironment(CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int& iFoodBonuses, int& iFoodEnvironmentScore, int* piCitizenUnworkablePlots = NULL)
 {
@@ -183,6 +194,9 @@ static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlo
 	}
 	logBBAI("      %s first-city candidate player=%d %d,%d value=%d adjusted=%d pathTurns=%d canFound=%d freshWater=%d river=%d foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d revealedNonHomeBFC=%d unrevealedNonHomeBFC=%d",
 			szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), iFoundValue, iAdjustedValue, iPathTurns, kCityPlot.canFound(false, eTeam), kCityPlot.isFreshWater(), kCityPlot.isRiver(), iFoodBonuses, iFoodEnvironmentScore, iCitizenUnworkablePlots, iRevealedNonHomeBFC, iUnrevealedNonHomeBFC);
+	CvString szBreakdown;
+	const int iBreakdownValue = SAS_evaluateFirstCityFoundValue(GET_PLAYER(ePlayer), kCityPlot, &szBreakdown);
+	logBBAI("        FOUND_VALUE_BREAKDOWN selectionValue=%d recomputedValue=%d %s", iFoundValue, iBreakdownValue, szBreakdown.GetCString());
 	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
 	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
 	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
@@ -3445,6 +3459,9 @@ bool CvUnitAI::AI_foundFirstCity()
 	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND");
 	const bool bLogUnitAILevel2 = (gUnitLogLevel >= 2);
 	const bool bLogUnitAILevel3 = (gUnitLogLevel >= 3);
+	CvPlot* pFirstCityScoutOrigin = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_EXPLORE ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
+	const bool bContinuingFirstCityScout = (pFirstCityScoutOrigin != NULL && pFirstCityScoutOrigin != plot());
+	const int iFirstCityScoutOriginValue = (bContinuingFirstCityScout ? SAS_evaluateFirstCityFoundValue(kOwner, *pFirstCityScoutOrigin) : -MAX_INT);
 
 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
 		canMove() &&
@@ -3475,8 +3492,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 
 			//int iPlotValue = kOwner.AI_foundValue(pCitySite->getX(), pCitySite->getY());
-			// <!-- custom: First-city roaming/recheck uses fresh AI_foundValue(..., true), but the cached city-site value could disagree massively after scouting. China and London were pulled back to old cached winners despite nearby first-city scoring, so compare first-city sites with the same fresh first-city scoring used by the new branches. (GPT-5.5) -->
-			int const iPlotValue = kOwner.AI_foundValue(kSite.getX(), kSite.getY(), -1, true);
+			// <!-- custom: First-city roaming/recheck uses fresh starting-weight evaluation without all-seeing, but the cached city-site value could disagree massively after scouting. China and London were pulled back to old cached winners despite nearby first-city scoring, so compare first-city sites with the same fresh scoring used by the new branches. (GPT-5.5) -->
+			int const iPlotValue = SAS_evaluateFirstCityFoundValue(kOwner, kSite);
 
 			// (Optional, nice speed-up) Add an upper-bound prune before pathfinding: if even with weight=100 a site can’t beat the current best, skip generatePath:
 			if (iPlotValue * 100 <= iBestWeightedValue)  // max weight is 100
@@ -3586,7 +3603,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				CvPlot& kLoopPlot = *itPlot;
 				if (!kLoopPlot.isRevealed(getTeam()))
 					continue;
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
 				if (iLoopValue <= 0)
 					continue;
 				int iLoopFoundTurn = -1;
@@ -3623,7 +3640,7 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 		}
 
-		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? kOwner.AI_foundValue(getX(), getY(), -1, true) : iBestValue);
+		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? SAS_evaluateFirstCityFoundValue(kOwner, getPlot()) : iBestValue);
 		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
 		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE");
 		int iCurrentFoodBonuses = 0;
@@ -3642,9 +3659,10 @@ bool CvUnitAI::AI_foundFirstCity()
 		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadFoodEnvironmentScoreThreshold > 0 && iCurrentFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bCurrentFirstCityStrongFood);
 		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadFoodEnvironmentScoreThreshold > 0 && iBestPlotFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bBestKnownFirstCityStrongFood);
 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
-		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
+		const bool bCurrentImprovesScoutOrigin = (bContinuingFirstCityScout && canFound(plot()) && SAS_evaluateFirstCityFoundValue(kOwner, getPlot()) > iFirstCityScoutOriginValue);
+		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming && (!bContinuingFirstCityScout || bCurrentImprovesScoutOrigin))
 		{
-			const int iCurrentFirstCityValue = kOwner.AI_foundValue(getX(), getY(), -1, true);
+			const int iCurrentFirstCityValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
 			CvPlot* pBetterGoodEnoughFirstCityPlot = NULL;
 			int iBetterGoodEnoughFirstCityValue = iCurrentFirstCityValue;
 			int iBetterGoodEnoughFirstCityTurn = -1;
@@ -3658,23 +3676,9 @@ bool CvUnitAI::AI_foundFirstCity()
 				int iLoopPathTurns = 0;
 				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iGoodEnoughRecheckRange) || iLoopPathTurns > iGoodEnoughRecheckRange))
 					continue;
-				int iLoopFoodBonuses = 0;
-				int iLoopFoodEnvironmentScore = 0;
-				SAS_evaluateFirstCityBFCFoodEnvironment(kLoopPlot, getOwner(), getTeam(), iLoopFoodBonuses, iLoopFoodEnvironmentScore);
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
-				const bool bBadLoopFirstCity = (iBadFoodEnvironmentScoreThreshold > 0 && iLoopFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && iLoopValue < iCurrentFirstCityValue);
-				if (bBadLoopFirstCity)
-					continue;
-				int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
-				const bool bPostRoamOneStepRecheck = (kGame.getElapsedGameTurns() > 0 && !kOwner.AI_isPlotCitySite(getPlot()) && iLoopPathTurns == 1);
-				const int iCurrentWaterScore = (getPlot().isFreshWater() ? 1 : 0) + (getPlot().isRiver() ? 1 : 0);
-				const int iLoopWaterScore = (kLoopPlot.isFreshWater() ? 1 : 0) + (kLoopPlot.isRiver() ? 1 : 0);
-				const bool bStructurallyBetterNearby = (bPostRoamOneStepRecheck && iLoopValue >= iCurrentFirstCityValue &&
-						(iLoopFoodBonuses > iCurrentFoodBonuses || iLoopFoodEnvironmentScore + 1 < iCurrentFoodEnvironmentScore ||
-						(iLoopWaterScore > iCurrentWaterScore && iLoopFoodEnvironmentScore <= iCurrentFoodEnvironmentScore)));
-				// <!-- custom: After a settler has already roamed away from a clearly bad first-city start, the normal one-step penalty could make it found the first acceptable recovery tile even when a raw-competitive adjacent tile is structurally better. Karakorum stopped at a no-fresh-water tile despite seeing a one-step fresh-water/river alternative with fewer bad BFC plots; refund the one-step penalty only for that narrow post-roam structural improvement. Credit: ChatGPT 5.5 review. (GPT-5.5) -->
-				if (bStructurallyBetterNearby)
-					iLoopAdjustedValue += 75;
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+				// <!-- custom: Food environment and bonus counts temporarily decide whether more scouting is warranted, but no longer veto or rerank candidates after Berlin's higher-value (33,13) site was excluded in the Berlin test (save file 442). Rank sites only by complete found value and the existing movement cost; that value already includes yields, resources, fresh water, and BFC quality. (GPT-5.5) -->
+				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
 				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
 				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
 				{
@@ -3689,7 +3693,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (bLogUnitAILevel2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				if (bLogUnitAILevel3)
 				{
-					const int iBetterRawValue = kOwner.AI_foundValue(pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), -1, true);
+					const int iBetterRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pBetterGoodEnoughFirstCityPlot);
 					SAS_logFirstCityCandidateBFCDiagnostics("chosen-good-enough-recheck", *pBetterGoodEnoughFirstCityPlot, getOwner(), getTeam(), iBetterRawValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
 				}
 				pushGroupMoveTo(*pBetterGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBetterGoodEnoughFirstCityPlot);
@@ -3702,7 +3706,7 @@ bool CvUnitAI::AI_foundFirstCity()
 			return true;
 		}
 		// <!-- custom: AdvCiv-SAS adds a first-city information-gathering path: when the current plot or cached best plot is clearly bad by BFC shape, use the bounded early window to seek visible good-enough sites, scout safely, or wait if no safe scouting step exists. Karakorum's cached best plot stayed the bad tundra/plains site after one scouting step, so blocking scouting whenever pBestPlot was elsewhere made the settler return there. London, by contrast, is not low-food-heavy, so it now settles normally instead of scouting from a decent site. (GPT-5.5) -->
-		const bool bWaitForBetterCapitalInformation = ((bBadCurrentFirstCity || bBadBestKnownFirstCity) && kGame.getElapsedGameTurns() < iMaxTurnsToFound);
+		const bool bWaitForBetterCapitalInformation = ((bBadCurrentFirstCity || bBadBestKnownFirstCity || (bContinuingFirstCityScout && !bCurrentImprovesScoutOrigin)) && kGame.getElapsedGameTurns() < iMaxTurnsToFound);
 		if (bWaitForBetterCapitalInformation)
 		{
 			// <!-- custom: Karakorum founded in place after only two waits because a worse second city-site candidate appeared, disabling the earlier sole-candidate gate. Then, after one scouting step, the normal first-city code sent the settler back to the old still-bad candidate. This new branch spends the bounded roam window on visible good-enough sites or safe adjacent scouting steps; after the window expires, found normally instead of waiting forever. (GPT-5.5) -->
@@ -3718,13 +3722,9 @@ bool CvUnitAI::AI_foundFirstCity()
 				int iLoopPathTurns = 0;
 				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, std::max(1, iRemainingFirstCityTurns)) || iLoopPathTurns > iRemainingFirstCityTurns))
 					continue;
-				int iLoopFoodBonuses = 0;
-				int iLoopFoodEnvironmentScore = 0;
-				SAS_evaluateFirstCityBFCFoodEnvironment(kLoopPlot, getOwner(), getTeam(), iLoopFoodBonuses, iLoopFoodEnvironmentScore);
-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
-				// <!-- custom: While roaming away from a clearly bad first-city BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
-				const bool bBadLoopFirstCity = (iBadFoodEnvironmentScoreThreshold > 0 && iLoopFoodEnvironmentScore > iBadFoodEnvironmentScoreThreshold && iLoopValue <= iBestKnownFirstCityValue);
-				if (bBadLoopFirstCity)
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+				// <!-- custom: Scouting is an information-gathering state, not a second food/bonus ranking system. Require every recovery target to have a fully revealed BFC; during an ongoing scout, also require its complete found value to beat the remembered origin. Karakorum otherwise committed to partially fogged 49,43 before its scout mission began, then explored southeast while the stronger river-grass area around 52,40 remained unrevealed (save file 360). Berlin's fully revealed 33,13 correctly beat its 35,11 scouting origin through normal found value (save file 442). (GPT-5.5) -->
+				if (SAS_countUnrevealedNonHomeBFCPlots(kLoopPlot, getTeam()) > 0 || (bContinuingFirstCityScout && iLoopValue <= iFirstCityScoutOriginValue))
 					continue;
 				if (iLoopValue <= 0)
 					continue;
@@ -3740,13 +3740,13 @@ bool CvUnitAI::AI_foundFirstCity()
 			if (pGoodEnoughFirstCityPlot != NULL && at(*pGoodEnoughFirstCityPlot) && iRemainingFirstCityTurns > 0)
 			{
 				const int iGoodEnoughUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pGoodEnoughFirstCityPlot, getTeam());
-				if (iGoodEnoughUnrevealedBFC > 0)
+				if (((!bContinuingFirstCityScout || !bCurrentImprovesScoutOrigin) && bBadCurrentFirstCity) || iGoodEnoughUnrevealedBFC > 0)
 				{
-					// <!-- custom: Do not found the current visible-good-enough recovery tile while part of its BFC is still fogged during the bounded first-city roam window. In the Karakorum test, 49,43 looked best from known tiles and immediately founded, blocking the existing scout-step branch from revealing the stronger pig/river area toward 51,41/52,41. Fully revealed Cuzco at 42,44 still founds immediately.
+					// <!-- custom: Do not found the current recovery tile while it remains classified as bad or part of its BFC is still fogged during the bounded first-city roam window. In the Berlin test (save file 442), the fully revealed (35,11) site otherwise founded immediately while the stronger (33,13) candidate remained undervalued by six unrevealed plots. In the Karakorum test, 49,43 looked best from known tiles and immediately founded, blocking the existing scout-step branch from revealing the stronger pig/river area toward 51,41/52,41. Fully revealed non-bad Cuzco at 42,44 still founds immediately.
 					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
 					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
-					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5) -->
-					if (bLogUnitAILevel2) logBBAI("    Settler delaying current visible-good-enough first-city site for %S player %d at %d,%d to scout remaining fog; value=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5 + GPT-5.5) -->
+					if (bLogUnitAILevel2) logBBAI("    Settler delaying current first-city site for %S player %d at %d,%d to scout; value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pGoodEnoughFirstCityPlot = NULL;
 				}
 			}
@@ -3757,7 +3757,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (bLogUnitAILevel2) logBBAI("    Settler founding visible good-enough first-city site for %S player %d at %d,%d during roam; value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					if (bLogUnitAILevel3)
 					{
-						const int iGoodEnoughRawValue = kOwner.AI_foundValue(pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), -1, true);
+						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
 						SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, 0);
 					}
 					getGroup()->pushMission(MISSION_FOUND);
@@ -3767,7 +3767,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (bLogUnitAILevel2) logBBAI("    Settler moving to visible good-enough first-city site for %S player %d from %d,%d to %d,%d during roam; value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					if (bLogUnitAILevel3)
 					{
-						const int iGoodEnoughRawValue = kOwner.AI_foundValue(pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), -1, true);
+						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
 						SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
 					}
 					pushGroupMoveTo(*pGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pGoodEnoughFirstCityPlot);
@@ -3796,7 +3796,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					if (!(*itReveal).isRevealed(getTeam()))
 						iExploreValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
 				}
-				const int iEndTurnFoundValue = kOwner.AI_foundValue(kEndTurnPlot.getX(), kEndTurnPlot.getY(), -1, true);
+				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, kEndTurnPlot);
 				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
 				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
 				if (iExploreValue > iBestExploreValue)
@@ -3807,8 +3807,9 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 			if (pBestExploreStep != NULL)
 			{
-				if (bLogUnitAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pBestExploreStep);
+				if (bLogUnitAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()), (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()), (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kOwner, getPlot())), iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				CvPlot* pScoutOrigin = (bContinuingFirstCityScout ? pFirstCityScoutOrigin : &getPlot());
+				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pScoutOrigin);
 				return true;
 			}
 			if (bLogUnitAILevel2) logBBAI("    Settler waiting before food-poor first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
@@ -3830,7 +3831,7 @@ bool CvUnitAI::AI_foundFirstCity()
 
 		if (canFound(plot()) && !bBadCurrentFirstCity && pBestPlot != NULL && pBestPlot != plot())
 		{
-			const int iCurrentFirstCityValue = kOwner.AI_foundValue(getX(), getY(), -1, true);
+			const int iCurrentFirstCityValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
 			const int iBestPathTurnsFromNow = std::max(0, iBestTurnToFound - kGame.getElapsedGameTurns());
 			// <!-- custom: A first-city local recheck can move to a good nearby plot that is not in the cached city-site list. On the next update, the cached city-site branch could pull the settler back, making China/London-style starts spend extra turns orbiting acceptable nearby sites. If the current foundable plot is not bad and is competitive after the same small movement penalty used by nearby rechecks, found instead of bouncing. (GPT-5.5 + ChatGPT 5.5) -->
 			if (iCurrentFirstCityValue >= iBestValue - 75 * iBestPathTurnsFromNow)
@@ -3858,12 +3859,46 @@ bool CvUnitAI::AI_foundFirstCity()
 		}
 	}
 	// Afforess & Fuyu: END
+	// <!-- custom: Safety fallback after the bounded scouting window: if an active first-city scout still has not founded, rescan revealed reachable sites and return to the best travel-adjusted one instead of founding blindly under the settler. This fixed the save file 360 Karakorum scout ending on weak (52,45) while a much stronger revealed site remained behind it. (GPT-5.5) -->
+	if (!kGame.isScenario() && canMove() && bContinuingFirstCityScout && kGame.getElapsedGameTurns() >= iMaxTurnsToFound)
+	{
+		CvPlot* pBestPostScoutPlot = NULL;
+		int iBestPostScoutRawValue = -MAX_INT;
+		int iBestPostScoutAdjustedValue = -MAX_INT;
+		int iBestPostScoutPathTurns = -1;
+		for (SquareIter itPlot(*this, iMaxTurnsToFound, false); itPlot.hasNext(); ++itPlot)
+		{
+			CvPlot& kLoopPlot = *itPlot;
+			if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
+				continue;
+			int iLoopPathTurns = 0;
+			if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iMaxTurnsToFound) || iLoopPathTurns > iMaxTurnsToFound))
+				continue;
+			const int iLoopRawValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+			const int iLoopAdjustedValue = iLoopRawValue - 75 * iLoopPathTurns;
+			if (iLoopAdjustedValue > iBestPostScoutAdjustedValue)
+			{
+				pBestPostScoutPlot = &kLoopPlot;
+				iBestPostScoutRawValue = iLoopRawValue;
+				iBestPostScoutAdjustedValue = iLoopAdjustedValue;
+				iBestPostScoutPathTurns = iLoopPathTurns;
+			}
+		}
+		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the existing small travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
+		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
+		{
+			if (bLogUnitAILevel2) logBBAI("    Settler finished first-city scouting for %S player %d at %d,%d and is returning to best known site %d,%d; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+			pushGroupMoveTo(*pBestPostScoutPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPostScoutPlot);
+			return true;
+		}
+	}
 	if (canFound(plot()))
 	{
 		if (bLogUnitAILevel2) logBBAI("    Settler founding in place for %S player %d at %d,%d; scenario=%d canMove=%d current plot city site=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kGame.isScenario(), canMove(), kOwner.AI_isPlotCitySite(getPlot()), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 		if (bLogUnitAILevel3)
 		{
-			const int iFinalFoundValue = kOwner.AI_foundValue(getX(), getY(), -1, true);
+			const int iFinalFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
 			SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-fallback", getPlot(), getOwner(), getTeam(), iFinalFoundValue, iFinalFoundValue, 0);
 		}
 		getGroup()->pushMission(MISSION_FOUND);

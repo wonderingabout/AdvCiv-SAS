@@ -733,13 +733,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 	<!-- custom: Long_Comments_XML.txt #211 -->
+	<!-- custom: A strong first-city site can justify up to four permanently bad BFC slots when its remaining land is valuable; penalties apply only beyond this allowance. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
-		<iDefineIntVal>3</iDefineIntVal>
+		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
 	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (ChatGPT-5.5) -->
 	<Define>
@@ -885,7 +886,7 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>-400</iDefineIntVal>
 	</Define>
 
-	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food resource value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-resource starts, without changing later strategic/resource city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield resource-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
+	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food bonus value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-bonus starts, without changing later strategic/bonus city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield bonus-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
 		<iDefineIntVal>140</iDefineIntVal>
@@ -902,6 +903,59 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
+	<!-- custom: Value per actual Food/Production/Commerce yield added by a bonus-specific BFC improvement. Formula: added Food * FOOD_VALUE + added Production * PRODUCTION_VALUE + added Commerce * COMMERCE_VALUE. For example, an improvement adding +2 Food and +1 Production contributes 2 * 100 + 1 * 75 = 275 with the defaults below. Replaces AdvCiv's hardcoded nonlinear special-yield aggregation so bonus-tile yields are counted once and can be tuned without recompiling; separate health, happiness, strategic, duplicate, and trade values remain unchanged. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_FOOD_VALUE</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_PRODUCTION_VALUE</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_COMMERCE_VALUE</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv weights now tunable: every plot starts with its natural XML yields: terrain, retained feature, and any revealed bonus's intrinsic yield, but not improvement yield handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code then selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5) -->
+	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot with at least the 2 Food consumed by one citizen. E.g. 2F1P contributes the fixed 10-point self-sustaining bonus + 2 * 40 + 1 * 30 = 120 before other plot adjustments. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_FOOD_VALUE</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_PRODUCTION_VALUE</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_SELF_SUSTAINING_COMMERCE_VALUE</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: ONE_FOOD_SHORT applies to any plot with exactly 1 Food. E.g. 1F2P is worth 1 * 30 + 2 * 25 = 80 before other plot adjustments. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_FOOD_VALUE</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_PRODUCTION_VALUE</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_ONE_FOOD_SHORT_COMMERCE_VALUE</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<!-- custom: DEFAULT covers everything else, notably 0-Food land and most water plots. E.g. 0F2P is worth 2 * 15 = 30 before other plot adjustments. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_DEFAULT_FOOD_VALUE</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_DEFAULT_PRODUCTION_VALUE</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NATURE_YIELD_DEFAULT_COMMERCE_VALUE</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
 	<!-- custom: flat coastal found-value bonus applied in CitySiteEvaluator on naval-heavy maps. This nudge toward coastal access, work boat scouting/contact, trade, and galleys, Moai or other key water buildings, etc.. Set to 0 to disable. (ChatGPT-5.5) -->
 	<!-- custom: Empirically Cuzco needed 1800 (1700 was not enough to make it stop prefer the central 4 sugar river grass site, instead of pig + banana + 2 sugar river coast), so prefer a fairly high value to mitigate these. See KI#146. -->
 	<Define>
@@ -913,7 +967,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
-	<!-- custom: Flat city-site extra value for each distinct bonus in a candidate BFC that the AI does not already own from its own empire. Local tile yields are already valued normally; this only nudges empire resource diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab. Trade imports do not count as owned here because they are not permanent. Applied once per bonus type and only after the first city. Set to 0 to disable. See KI#147. (ChatGPT-5.5) -->
+	<!-- custom: Flat city-site extra value for each distinct bonus in a candidate BFC that the AI does not already own from its own empire. Local tile yields are already valued normally; this only nudges empire bonus diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab. Trade imports do not count as owned here because they are not permanent. Applied once per bonus type and only after the first city. Set to 0 to disable. See KI#147. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE</DefineName>
 		<iDefineIntVal>250</iDefineIntVal>
@@ -1000,7 +1054,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Discourage non-coastal sites whose summed non-home BFC potential-food score exceeds this threshold. Each plot contributes food required per citizen minus natural food, visible bonus food, food from its bonus-specific improvement, and eligible Harbor-class food; productive Grass Hills remain neutral while peaks and ice remain +2. This replaces terrain-name counting so XML yield changes and bonuses are reflected automatically; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
+	<!-- custom: Discourage non-coastal sites whose summed usable non-home BFC potential-food score exceeds this threshold. Each non-very-bad plot contributes food required per citizen minus natural food, visible bonus food, food from its bonus-specific improvement, and eligible Harbor-class food; productive Grass Hills remain neutral. Very-bad plots are excluded because their dead BFC capacity is handled separately. This replaces terrain-name counting so XML yield changes and bonuses are reflected automatically; also now that food from bonuses offsets bad food count, making low food requirement harsher, and this maybe also helps increase food pressure on ai settlers which is maybe good too (as GPT-5.5 seems to agree too thanks) (was 7) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_COASTAL_LOW_FOOD_SCORE</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
@@ -1110,6 +1164,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
+	</Define>
+	<!-- custom: In the Berlin test (save file 442), the live first settler preferred fresh-water (35,11), although grass bonus-rich (33,13) site's valuation was higher (4569 vs 3934 before final modifiers), because the old map-generation surroundings adjustment penalized it by -1482 (so 4569 - 1482 < 3934 - 480). Disabling this (0, recommended) fixes this by ranking revealed candidate value without range-6 hidden terrain or other civilizations' assigned starts. Map generation and normalization still use the adjustment to spread assigned starts; but once play begins, whichever best sites AI settlers choose should be their own choice regardless how close or far from rivals. Set to 1 to restore the old base AdvCiv runtime adjustment. See KI#173. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: during first-city roaming, stop wandering once the current foundable plot has this many revealed food bonuses in its BFC. This prevents the settler from walking through an already strong pig+corn/fresh-water-style capital while chasing more unknown information. Set to 0 to disable. (GPT-5.5) -->
 	<Define>
@@ -1256,14 +1315,14 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
-	<Define>
-		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
 	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
