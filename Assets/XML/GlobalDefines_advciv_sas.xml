@@ -1338,7 +1338,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: If BBAI logging is enabled, write each new game and loaded save to a new UTC-timestamped file instead of repeatedly appending to BBAI.log. Filenames use a shared chronological sequence such as BBAI_20260608T065231Z_new1.log followed by BBAI_20260608T065415Z_load2.log, and begin with the currently active BBAI log settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each run easier to identify or upload. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log behavior. (GPT-5.5) -->
+	<!-- custom: If BBAI logging is enabled, write each new game and loaded save to a new UTC-timestamped file instead of repeatedly appending to BBAI.log. Filenames use a shared chronological sequence such as BBAI_20260608T065231Z_new1.log followed by BBAI_20260608T065415Z_load2.log, and begin with the currently active BBAI log settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each run easier to identify or upload. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log behavior. (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1351,6 +1351,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum highest-ever capital population before a one-city empire may need more than 1 land Worker. BBAI logs showed several production paths repeatedly choosing a second Worker at population 1, halting early growth. Centralizing the limit in AI_neededWorkers lets the minimum floor, normal demand logic, and stagnant-city Worker substitutions share the same answer instead of duplicating the gate. Highest-ever population keeps the limit stable after whipping or starvation. Set to 0 to disable this early one-Worker limit. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
 	<Define>

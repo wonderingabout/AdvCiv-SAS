@@ -16117,16 +16117,23 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 	iCount = std::min(iCount, (iCities <= 1 && getCurrentEra() > 0) ? 3 :
 			(fixp(2.15) * iCities).round());
 	// Lower bound was 1 flat. Allow small islands to require 0 workers.
-	return std::max(kArea.getNumRevealedTiles(getTeam()) > 3 ? 1 : 0, iCount);
+	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 ? 1 : 0, iCount);
+	// <!-- custom: Several independent production paths deferred to AI_neededWorkers but could still choose a second Worker while the one-city capital was population 1, halting growth. Keep this as the shared source of truth: until the capital has ever reached the tunable population, the empire needs at most 1 land Worker; normal demand resumes afterward, and losing that Worker still creates a deficit. (GPT-5.5) -->
+	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
+	CvCity const* pCapital = getCapital();
+	if (getNumCities() == 1 && pCapital != NULL && pCapital->isArea(kArea) && pCapital->getHighestPopulation() < iAdditionalWorkerMinHighestPopulation)
+		iNeededWorkers = std::min(iNeededWorkers, 1);
+	return iNeededWorkers;
 	// </advc.113>
 }
 
 
 int CvPlayerAI::AI_getSASMinimumAreaWorkers(CvArea const& kArea) const
 {
-	// <!-- custom: Shared AdvCiv-SAS worker floor used by worker production and worker-scrap guards so future tuning cannot make cities rebuild fewer workers than unit logic is allowed to remove. Keep the floor area-local: 1 worker per city in the land area, plus 1 extra if the capital is in that area. (GPT-5.5) -->
+	// <!-- custom: Shared AdvCiv-SAS Worker floor used by production and scrap guards so cities do not rebuild fewer Workers than unit logic may retain. Bound the area-local 1-per-city plus capital reserve by AI_neededWorkers, our shared demand source, rather than forcing Workers beyond calculated need. (GPT-5.5) -->
 	CvCity const* pCapital = getCapital();
-	return kArea.getCitiesPerPlayer(getID()) + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
+	const int iAreaLocalFloor = kArea.getCitiesPerPlayer(getID()) + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
+	return std::min(iAreaLocalFloor, AI_neededWorkers(kArea));
 }
 
 

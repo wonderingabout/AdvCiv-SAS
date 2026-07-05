@@ -1080,6 +1080,12 @@ void CvCityAI::AI_chooseProduction()
 	const CvWString& kCityName = getName();      // bound to the city's internal name
 	const wchar* sCityName    = kCityName.GetCString();
 
+	// <!-- custom: Initial-production logs showed many capitals selecting an Ancient Maceman through the no-defenders branch before reaching normal Worker/Work Boat logic. Record economic need, queued workers, and actual safety context before changing that priority. (GPT-5.5) -->
+	if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && getGameTurnFounded() == kGame.getGameTurn())
+	{
+		logBBAI("FIRST_PRODUCTION_CONTEXT turn=%d player=%d %S city=%S cityId=%d city=(%d,%d) pop=%d defenders=%d playerMilitary=%d danger=%d waterDanger=%d defenseWar=%d financialTrouble=%d turtle=%d workersQueuedInCity=%d workersExisting=%d workersNeeded=%d workersMissing=%d areaBestBuildValue=%d improvableBonusesNow=%d goodTiles=%d seaWorkersQueuedInCity=%d seaWorkersAvailable=%d seaWorkersNeeded=%d foodSurplus=%d baseProduction=%d",
+				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), getX(), getY(), iCityPopulation, kPlot.getNumDefenders(getOwner()), kPlayer.getNumMilitaryUnits(), bDanger, bWaterDanger, bDefenseWar, bFinancialTrouble, kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), getNumTrainUnitAI(UNITAI_WORKER), iExistingWorkers, iNeededWorkers, iMissingWorkers, AI_totalBestBuildValue(kArea), AI_countNumImprovableBonuses(true, NO_TECH), AI_countGoodTiles(true, false), getNumTrainUnitAI(UNITAI_WORKER_SEA), iAvailableSeaWorkers, iNeededSeaWorkers, foodDifference(true, true), getBaseYieldRate(YIELD_PRODUCTION));
+	}
 
 	if (gCityLogLevel >= 3) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d%s, iBestBuildingValue %d", sCityName, iCityPopulation, iProductionRank, iBuildUnitProb, bUnitExempt?"*":"", iBestBuildingValue);
 
@@ -2096,8 +2102,8 @@ void CvCityAI::AI_chooseProduction()
 		bool const bOffenseMode = ((bAnyRealWar && iEnemyPowerPercent <= iOffenseModeThreshold) || bWarPlan || bAnyPlannedWar || bAnyRealWar || bAssault || (!bDefense && bLandWar) /* && !bPeaceAloneLikely */);
 
 		// int const iNumCities = kOwner.getNumCities();
-		// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and but check to be sure; each city needs maximum 2 workers before it's too much -->
-		bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
+		// <!-- custom: A blocked early Settler used to be replaced with a second Worker because this check independently allowed 2 Workers per city. Defer to the shared SAS area minimum; ordinary Worker-demand logic can still choose Workers beyond that floor. (GPT-5.5) -->
+		bool const bHasMinimumAreaWorkers = (iExistingWorkers >= iMinimumAreaWorkers);
 
 		// <!-- custom: try our luck expanding blindly in the early game (then later we'll consider if we go expansion mode or on guard mode no settler we'll consider it after this delay); 75 turns allow for a few cities but from a more delayed start and stornger cities, less barbarian captures too due to being less thin before expanding based on autoplay results -->
 		const int iBaseFreeTurns = 75; // @NORMAL speed
@@ -2116,7 +2122,7 @@ void CvCityAI::AI_chooseProduction()
 			// <!-- custom: small city stagnant (and not food is production that would alter the calculation to 0 or some other value), build a worker rather (but be careful of the chain loop endless worker though) -->
 			else 
 			{
-				if (iCityPopulation <= 2 && !bTooMuchWorkers)
+				if (iCityPopulation <= 2 && !bHasMinimumAreaWorkers)
 				{
 					bNoSettler = true;
 					bWorkerReplacesSettler = true;
@@ -4145,10 +4151,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			// <!-- custom: if this small city is stagnant (indirectly also check excessive unhealthiness, without the risk of worker loop maybe, and more flexible as well to cover other causes of stagnation, as well as allowing city to stop producing workers sooner even if some unhealthiness remains (e.g. we have a lot of excess food maybe which is core concern to fix)), a worker would be of great use, perhaps to chop jungle or such or grow the city in some other way maybe -->
 			// <!-- custom: make pop requirement quite a bit tighter if i may say in this casepop check to avoid worker spam / loop trap, as chatgpt noted that could happen so i had the idea to add this-->
 			bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
-			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and but check to be sure; each city needs maximum 2 workers before it's too much -->
-			bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
+			// <!-- custom: Use the shared SAS area minimum instead of independently allowing 2 Workers per city, which could reintroduce early Worker chains through generic unit weighting. Ordinary demand logic remains responsible for Workers beyond the floor. (GPT-5.5) -->
+			bool const bHasMinimumAreaWorkers = (kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) >= kOwner.AI_getSASMinimumAreaWorkers(getArea()));
 
-			if (bStagnant && iCityPopulation <= 2 && !bTooMuchWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe(if not worker would still be useful otherwise for the whole empire maybe so favour this as well, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such; this is just a guess but mabe it is effective in most cases and perhaps also helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well) so build workers); we are not using the food anyway so better use food as production. -->
+			if (bStagnant && iCityPopulation <= 2 && !bHasMinimumAreaWorkers) // <!-- custom: stagnant or about to be, which would be unusual at such a small size so try to find how/why and if tiles could be fixed or enhanced maybe(if not worker would still be useful otherwise for the whole empire maybe so favour this as well, even if this city would grow slower individually as a result, in most cases i hope it will help AI a lot switch to workers sooner when needed in small or stagnating cities, on top of having an uneeded settler, if it doesn't cause issues with unitai selection otherwise in other parts of the code like it being pruned if AI thinks it has too much workers or such; this is just a guess but mabe it is effective in most cases and perhaps also helpful to the AI cities stagnating in jungle which is now a rich potential feature to exploit (and remove unhealthiness while doing so too as well) so build workers); we are not using the food anyway so better use food as production. -->
 			{
 				aiUnitAIVal[UNITAI_WORKER] += 20000;
 			}
