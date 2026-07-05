@@ -1165,6 +1165,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
+	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
 	<!-- custom: In the Berlin test (save file 442), the live first settler preferred fresh-water (35,11), although grass bonus-rich (33,13) site's valuation was higher (4569 vs 3934 before final modifiers), because the old map-generation surroundings adjustment penalized it by -1482 (so 4569 - 1482 < 3934 - 480). Disabling this (0, recommended) fixes this by ranking revealed candidate value without range-6 hidden terrain or other civilizations' assigned starts. Map generation and normalization still use the adjustment to spread assigned starts; but once play begins, whichever best sites AI settlers choose should be their own choice regardless how close or far from rivals. Set to 1 to restore the old base AdvCiv runtime adjustment. See KI#173. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_RUNTIME_STARTING_SURROUNDINGS_ADJUSTMENT_ENABLE</DefineName>

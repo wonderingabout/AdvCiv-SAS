@@ -168,6 +168,34 @@ static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes
 	return iUnrevealedPlots;
 }
 
+// <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking. Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
+static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerAI const& kOwner, int iSearchRange, int iTravelValuePerTurn, int& iRawValue, int& iAdjustedValue, int& iPathTurns)
+{
+	CvPlot* pBestPlot = NULL;
+	iRawValue = -MAX_INT;
+	iAdjustedValue = -MAX_INT;
+	iPathTurns = -1;
+	for (SquareIter itPlot(kSettler.getPlot(), iSearchRange); itPlot.hasNext(); ++itPlot)
+	{
+		CvPlot& kLoopPlot = *itPlot;
+		if (!kLoopPlot.isRevealed(kSettler.getTeam()) || !kSettler.canFound(&kLoopPlot))
+			continue;
+		int iLoopPathTurns = 0;
+		if (!kSettler.at(kLoopPlot) && (!kSettler.generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, false, &iLoopPathTurns, iSearchRange, true) || iLoopPathTurns > iSearchRange))
+			continue;
+		const int iLoopRawValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+		const int iLoopAdjustedValue = iLoopRawValue - iTravelValuePerTurn * iLoopPathTurns;
+		if (iLoopAdjustedValue > iAdjustedValue)
+		{
+			pBestPlot = &kLoopPlot;
+			iRawValue = iLoopRawValue;
+			iAdjustedValue = iLoopAdjustedValue;
+			iPathTurns = iLoopPathTurns;
+		}
+	}
+	return pBestPlot;
+}
+
 // <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic,
 // but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the
 // roam/scout/found context that chose the candidate. At BBAI unit log level 3, log the evaluated city plot plus every
@@ -3774,6 +3802,28 @@ bool CvUnitAI::AI_foundFirstCity()
 				}
 				return true;
 			}
+			static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
+			int iBestEarlyReturnRawValue = -MAX_INT;
+			int iBestEarlyReturnAdjustedValue = -MAX_INT;
+			int iBestEarlyReturnPathTurns = -1;
+			CvPlot* pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
+			// <!-- custom: The configured maximum should bound the whole capital search, not only outbound exploration. In save file 431, Cuzco previously scouted through turn 7 and then spent three more turns returning to (38,44); in save file 360, Karakorum similarly returned four turns to (50,40). Commit when one more scouting turn plus the best known return would exceed the deadline. At exact equality, commit only when already at the best site: this lets Aztec found strong (34,24) in save file 431 instead of taking a pointless last step, while still letting Cuzco reveal (38,44) rather than returning prematurely to (41,46). Queue FOUND behind a return move so arrival cannot restart scouting as happened in an earlier attempted return guard. (GPT-5.5) -->
+			const int iFirstCityScoutAndReturnTurn = kGame.getElapsedGameTurns() + 1 + iBestEarlyReturnPathTurns;
+			if (pBestEarlyReturnPlot != NULL && (iFirstCityScoutAndReturnTurn > iMaxTurnsToFound || (iFirstCityScoutAndReturnTurn == iMaxTurnsToFound && at(*pBestEarlyReturnPlot))))
+			{
+				if (at(*pBestEarlyReturnPlot))
+				{
+					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best travel-adjusted site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					getGroup()->pushMission(MISSION_FOUND);
+				}
+				else
+				{
+					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best travel-adjusted site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+					getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+				}
+				return true;
+			}
 			CvPlot* pBestExploreStep = NULL;
 			int iBestExploreValue = 0;
 			MovementFlags const eFirstCityExploreFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
@@ -3862,34 +3912,18 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <!-- custom: Safety fallback after the bounded scouting window: if an active first-city scout still has not founded, rescan revealed reachable sites and return to the best travel-adjusted one instead of founding blindly under the settler. This fixed the save file 360 Karakorum scout ending on weak (52,45) while a much stronger revealed site remained behind it. (GPT-5.5) -->
 	if (!kGame.isScenario() && canMove() && bContinuingFirstCityScout && kGame.getElapsedGameTurns() >= iMaxTurnsToFound)
 	{
-		CvPlot* pBestPostScoutPlot = NULL;
+		static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
 		int iBestPostScoutRawValue = -MAX_INT;
 		int iBestPostScoutAdjustedValue = -MAX_INT;
 		int iBestPostScoutPathTurns = -1;
-		for (SquareIter itPlot(*this, iMaxTurnsToFound, false); itPlot.hasNext(); ++itPlot)
-		{
-			CvPlot& kLoopPlot = *itPlot;
-			if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
-				continue;
-			int iLoopPathTurns = 0;
-			if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iMaxTurnsToFound) || iLoopPathTurns > iMaxTurnsToFound))
-				continue;
-			const int iLoopRawValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
-			const int iLoopAdjustedValue = iLoopRawValue - 75 * iLoopPathTurns;
-			if (iLoopAdjustedValue > iBestPostScoutAdjustedValue)
-			{
-				pBestPostScoutPlot = &kLoopPlot;
-				iBestPostScoutRawValue = iLoopRawValue;
-				iBestPostScoutAdjustedValue = iLoopAdjustedValue;
-				iBestPostScoutPathTurns = iLoopPathTurns;
-			}
-		}
-		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the existing small travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
+		CvPlot* pBestPostScoutPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the tunable return-travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
 		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
 		{
 			if (bLogUnitAILevel2) logBBAI("    Settler finished first-city scouting for %S player %d at %d,%d and is returning to best known site %d,%d; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
 			pushGroupMoveTo(*pBestPostScoutPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPostScoutPlot);
+			getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestPostScoutPlot);
 			return true;
 		}
 	}

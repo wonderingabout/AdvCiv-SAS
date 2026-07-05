@@ -5418,6 +5418,15 @@ Files changed:
 - [CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp)
 - [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
 
+Update following KI#173 changes:
+
+First-city scouting efficiency follow-up:
+
+- The correct sites still took too long to found because the seven-turn window bounded only outbound scouting. In save file 431, Cuzco scouted through turn 7, then returned three turns to `(38,44)` and founded around turn 10; in save file 360, Karakorum similarly ended far from `(50,40)`.
+- Candidate-directed scouting toward the currently highest-valued incomplete BFC was tested and reverted: Cuzco prematurely chose `(41,46)`, while Karakorum oscillated and chose `(43,42)`. Exact immediate line-of-sight scoring was also tested and reverted because it made Berlin miss `(33,13)`, Karakorum choose `(49,41)`, and Cuzco return to `(41,46)`. The existing generic fog direction was therefore retained.
+- Before each further generic scouting step, the settler now compares its current plot and other revealed reachable sites by complete found value minus `SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN` for each return-path turn. If another step would make the best return exceed the search window, it commits to that site; movement and founding are queued together so the settler cannot restart scouting on arrival. The current plot is included so a strong site such as Aztec `(34,24)` is not abandoned for a weaker return target.
+- Final regression testing preserved Berlin `(33,13)` on turn 6 in save file 442. Karakorum committed on turn 5 to `(50,40)` two turns away in save file 360, and Cuzco committed on turn 5 to `(38,44)` two turns away instead of founding around turn 10 in save file 431. The same save file 431 test kept the Aztec capital at `(34,24)` and founded it on turn 6; no return/restart loops occurred.
+
 ## 145 - (Implemented / needs in-game test) Military Advisor Map tab lost selected leaders after tab switch or close/reopen
 
 In the Military Advisor Map tab, selecting another leader was not preserved when switching to another Military Advisor tab, returning to the Map tab, or closing and reopening the advisor. The Map tab leader selection was reset to the active player each time.
@@ -6292,6 +6301,6 @@ Continued BBAI testing exposed additional overlapping first-city filters and sco
 
 - Recovery candidates now require a fully revealed BFC before interrupting bounded scouting, and when the scouting window ends the settler rechecks revealed reachable sites instead of blindly founding wherever scouting stopped. Candidate ranking uses complete first-city found value rather than separate food-bonus or food-environment filters; those diagnostics still decide whether a poor start warrants scouting.
 - Karakorum follow-up testing then exposed a broader bonus overvaluation: older SAS logic weighted bonus-improvement Food x3 and Production x2 before AdvCiv's obscure hardcoded nonlinear `evaluateSpecialYields` path weighted the aggregated yields again. Six resources contributed 5015 points to the low-food `(49,43)` candidate, overwhelming stronger river/grass alternatives. The redundant AdvCiv path is now disabled for reference, and actual bonus-improvement Food/Production/Commerce changes are valued once through simple XML tunables. Natural-yield weights were also externalized, while unsupported small Barbarian and first-era Commerce exceptions were disabled for one consistent valuation.
-- After these follow-up changes, Berlin naturally ranks fully revealed `(33,13)` above `(35,11)` by `4027` to `3957` and founds there in the save file 442 regression test. Save file 360 improved from tundra/resource-heavy `(49,43)` to river Grassland `(50,40)` with Pig and Maize; save file 431 selected reasonable river Grassland `(38,44)` in a generally poor starting region. Generic fog exploration can still delay founding or leave another promising BFC partly unrevealed, so targeted scouting remains a separate refinement.
+- After these follow-up changes, Berlin naturally ranks fully revealed `(33,13)` above `(35,11)` by `4027` to `3957` and founds there in the save file 442 regression test. Save file 360 improved from tundra/resource-heavy `(49,43)` to river Grassland `(50,40)` with Pig and Maize; save file 431 selected reasonable river Grassland `(38,44)` in a generally poor starting region.
 
 Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
