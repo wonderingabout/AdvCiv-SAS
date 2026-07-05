@@ -1160,7 +1160,22 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
-	// <!-- custom: Rebuild a minimum worker force before normal project/building/unit priorities can keep winning forever. In the 2039 Ciaco Canyon test save, the stuck last city already had a long production queue so this did not directly fix that city, but BBAI logs showed the floor firing often elsewhere. This guarantees more early workers after losses or underproduction; workers are high-value relative to cost, especially when larger cities convert food + hammers into them, and stronger early worker coverage makes AI development much stronger. Do not force only the capital/high-pop cities to rebuild workers: weaker or stagnant cities can sometimes produce one without interrupting the growth or key builds of stronger cities. AI_totalAreaUnitAIs includes workers already being trained, so this area-local floor gives 2 workers for the capital area and 1 per other city without making every city queue one at once. (GPT-5.5) -->
+	// <!-- custom: BBAI logs showed Seoul had safe, buildable BFC Molluscs from turn 0, but the land-Worker minimum ran first and delayed its Work Boat until about turn 17. Move the existing Work Boat priority before the land-Worker minimum: seafood improves growth without stopping it, accelerating the following Worker, while the no-defender branch above still preserves immediate city safety.
+	// Confirming save-file-443 tests first made Seoul choose defender -> Work Boat at turn 5. Mutal correctly kept Worker first because Maya lacked Fishing, then its Molluscs/Fish became improvable and it chose a Work Boat at turn 12.
+	// Note: similarly, Whale does not trigger this priority before it can be improved.
+	// Apply this to every safe city rather than only early capitals or low-population cities: Seoul reached population 3 and switched to its Worker before completing the Work Boat when this retained the old population limit. See KI#174. (GPT-5.5) -->
+	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
+	const bool bEarlyCapitalWorkerWindow = (isCapital() && kGame.getElapsedGameTurns() * 100 < 30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() && bSafeEconomicWorkerProduction);
+	if (bSafeEconomicWorkerProduction && !bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
+	{
+		if (AI_chooseUnit(UNITAI_WORKER_SEA))
+		{
+			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+			return;
+		}
+	}
+
+	// <!-- custom: Rebuild the shared area Worker minimum before normal priorities can leave the AI short indefinitely. In the 2039 Ciaco Canyon test save, the stuck last city already had a long queue so this did not directly fix it, but BBAI logs showed the minimum firing often elsewhere. Any suitable city may contribute, and AI_totalAreaUnitAIs includes queued Workers. The centralized demand/minimum now preserves reliable availability without forcing the old early second Worker. (GPT-5.5) -->
 	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
 	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
 	{
@@ -1275,21 +1290,8 @@ void CvCityAI::AI_chooseProduction()
 
 	bool bChooseWorker = false;
 
-	if (isCapital() &&
-		kGame.getElapsedGameTurns() * 100 <
-		30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() &&
-		!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
+	if (bEarlyCapitalWorkerWindow)
 	{
-		if (!bWaterDanger && iCityPopulation < 3 &&
-			iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
-		{
-			// Build Work Boat first since it doesn't stop growth
-			if (AI_chooseUnit(UNITAI_WORKER_SEA))
-			{
-				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea 1a", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
-				return;
-			}
-		}
 		if (iExistingWorkers == 0 && /* advc.113: */ iMissingWorkers > 0 &&
 			//AI_totalBestBuildValue(kArea) > 10
 			AI_totalBestBuildValue(kArea) + 50 * iLandBonuses > 100) // K-Mod

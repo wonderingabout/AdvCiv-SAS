@@ -212,6 +212,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#171---tentatively-addressed-and-hardened-rare-t281-crash-related-to-cvplotsetlayoutdirty0x12f3-and-cvplotchecklateera0x877)\
 [172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities)\
 [173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings)\
+[174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6306,5 +6307,19 @@ Continued BBAI testing exposed additional overlapping first-city filters and sco
 - Recovery candidates now require a fully revealed BFC before interrupting bounded scouting, and when the scouting window ends the settler rechecks revealed reachable sites instead of blindly founding wherever scouting stopped. Candidate ranking uses complete first-city found value rather than separate food-bonus or food-environment filters; those diagnostics still decide whether a poor start warrants scouting.
 - Karakorum follow-up testing then exposed a broader bonus overvaluation: older SAS logic weighted bonus-improvement Food x3 and Production x2 before AdvCiv's obscure hardcoded nonlinear `evaluateSpecialYields` path weighted the aggregated yields again. Six resources contributed 5015 points to the low-food `(49,43)` candidate, overwhelming stronger river/grass alternatives. The redundant AdvCiv path is now disabled for reference, and actual bonus-improvement Food/Production/Commerce changes are valued once through simple XML tunables. Natural-yield weights were also externalized, while unsupported small Barbarian and first-era Commerce exceptions were disabled for one consistent valuation.
 - After these follow-up changes, Berlin naturally ranks fully revealed `(33,13)` above `(35,11)` by `4027` to `3957` and founds there in the save file 442 regression test. Save file 360 improved from tundra/resource-heavy `(49,43)` to river Grassland `(50,40)` with Pig and Maize; save file 431 selected reasonable river Grassland `(38,44)` in a generally poor starting region.
+
+Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
+
+## 174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1F-DdmpQDPttnb9lwsLrttUFCJdHdTjNk?usp=sharing).
+
+Base AdvCiv's early Worker logic considered a Work Boat only while the city population was below 3. In the original save file 443 run (`BBAI_20260705T095326Z_load4.log`), BBAI logging showed Seoul had safe, currently improvable BFC Molluscs from turn 0, but the land-Worker priority delayed its Work Boat until about turn 17. After moving the useful Work Boat choice before the land-Worker minimum, the intermediate run (`BBAI_20260705T104621Z_load4.log`) made Seoul select it on turn 5, but Seoul reached population 3 on turn 12 and switched to a Worker before completing it; Lisbon similarly switched at population 3 on turn 13 in `BBAI_20260705T104459Z_load1.log`.
+
+The Work Boat priority now has no population cutoff. After producing an immediate defender when needed, any safe city with currently improvable seafood and no available Work Boat can complete that economic improvement before the land-Worker minimum. Danger, water danger, and the Turtle strategy still prevent this priority.
+
+This does not produce unusable Work Boats. `AI_neededSeaWorkers` uses no technology lookahead, so only seafood that is currently buildable and reachable counts. Maya starts with Hunting and Pottery rather than Fishing, so Mutal correctly built its Worker first; its Molluscs and Fish became buildable when it acquired Fishing on turn 12, and it then selected a Work Boat. Whale remains excluded until Seafaring makes Whaling Boats available.
+
+In the confirming save file 443 run (`BBAI_20260705T105644Z_load4.log`), Seoul continued choosing its Work Boat at populations 3 and 4, completed it, then started its Worker. The separate Lisbon test (`BBAI_20260705T105453Z_load1.log`) also completed its Work Boat before starting its Worker.
 
 Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
