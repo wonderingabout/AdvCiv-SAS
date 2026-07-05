@@ -5463,9 +5463,13 @@ Observed example: Inca/Cuzco preferred a central 4-Sugar river grass site over a
 
 Fixed/enhanced in `AIFoundValue::evaluate()` by adding tunable flat coastal found-value bonuses on naval-heavy maps.
 
-The first-city value is intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value is intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site, so the default was kept more moderate.
+The initial first-city value was intentionally much higher because capital coastal access can define the whole opening on naval-heavy maps. The other-cities value was intentionally much lower: testing showed that a value of 200 could make Japan prefer tundra coast over a stronger grass/floodplains site.
 
-Note: it seems they often would settle coastal anyway even without this fix/enhancement, but it doesn't seem to have been enforced or strengthened somewhere in the code at a glance before our fix and based on ChatGPT-5.5's review/solution.
+Update following the KI#173 and related city-site scoring changes:
+
+- Save file 420 now chooses the strong coastal Cuzco site at `(11,35)` with the first-city coastal extra value disabled: it scores `4874` against the strongest nearby alternative's `4394`. Restoring the old `1800` merely raises the same chosen site to `6674`.
+- A turn-100 Japan retest with both coastal extra values disabled founded Kyoto at `(71,18)`, Osaka at `(73,15)`, and Tokyo at `(67,16)`. Attractive `(73,23)` was still valued strongly at `5344` before normal distance shaping, while the old tundra-heavy candidate areas around `(74,11)` and `(79,12)` were no longer top candidates. The strongest northern alternative was the defensible `(77,14)` river/Grass site with Copper, Sheep, and Silver.
+- The extra biases were therefore reduced heavily, to keep a small strategic pressure for naval settling only as this may generally be strategically better in naval-heavy maps. Normal coastal valuation remains active, and the defines remain available if a fairly small additional naval-map preference is wanted; the old large values are no longer recommended.
 
 ## 147 - (Fixed/Enhanced) Base AdvCiv issue of AI settlers not adding extra valuation to unowned bonuses in city-site scoring
 

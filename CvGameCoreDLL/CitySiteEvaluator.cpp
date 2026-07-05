@@ -1556,11 +1556,10 @@ int AIFoundValue::evaluate()
 		iValue += iBreakdownGoodies; // </advc.031>
 	}
 
-	// <!-- custom: On naval-heavy maps, give coastal city sites a small flat value bonus in the central
-	// CitySiteEvaluator path. This affects both cached found values and direct AI_foundValue calls, including first-city
-	// rechecks, without duplicating the adjustment in CvPlot::getFoundValue or CvUnitAI::AI_foundFirstCity. Use a flat
-	// bonus rather than a percent so this is a modest strategic nudge toward coastal access for work boat scouting, naval
-	// contact, trade, and galleys, not a multiplier that can over-amplify already-strong sites. See KI#146. (ChatGPT-5.5) -->
+	// <!-- custom: Optionally give coastal sites a flat naval-heavy-map bias in the central CitySiteEvaluator path, affecting cached found values and direct AI_foundValue calls without duplicating it elsewhere.
+	// Following the KI#173 scoring changes, save file 420 still chose the strong Cuzco coastal site with both biases set to 0, while Japan no longer favored
+	// the old tundra-heavy candidates.
+	// Keep this disabled or small if an extra strategic preference for coastal access, work boats, contact, trade, and galleys is wanted. See KI#146 (Update). (GPT-5.5) -->
 	if (!kPlayer.isHuman() && !kSet.isNormalizing() && bCoastal &&
 			kGame.isNavalHeavyMapnameCached() && !kGame.isLandHeavyMapnameCached())
 	{
