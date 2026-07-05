@@ -3,6 +3,7 @@
 #include "CvGame.h"
 #include "CvPlayer.h"
 #include "CvDLLPythonIFaceBase.h" // advc
+#include "BBAILog.h" // <!-- custom: Needed to complete the new-game BBAI identity header from gameStart. (GPT-5.5) -->
 
 //
 // static, singleton accessor
@@ -87,6 +88,8 @@ void CvEventReporter::unInit()
 
 void CvEventReporter::gameStart()
 {
+	// <!-- custom: Complete the new-game BBAI identity header after map generation and player initialization. (GPT-5.5) -->
+	logSASBBAINewGameStarted();
 	m_kPythonEventMgr.reportGameStart();
 }
 

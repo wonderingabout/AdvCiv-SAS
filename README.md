@@ -16,7 +16,7 @@ New mechanics as well, including but not only new Game Speeds (`Nitro`, `Turbo`,
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: now optionally default written as a new file with a time stamp (e.g., `BBAI_20260608T065231Z.log` instead of expanding launch/session the existing `BBAI.log` which was very tedious to cleanup everytime or identify/store/read/review/upload).
+Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with lines showing the new/load time, currently active BBAI log levels, and some game settings to help doing that.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
@@ -77,6 +77,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Long Comments Archive](/README.md#long-comments-archive)  
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Python scripts](/README.md#python-scripts)  
+[BBAI logging head example](/README.md#bbai-logging-head-example)  
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
 [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)  
 ["Temporary" crashes](/README.md#temporary-crashes)  
@@ -898,6 +899,17 @@ The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24
 <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
+
+## BBAI logging head example
+
+For example, following AdvCiv-SAS changes, BBAI head of a log looks like this (from `"C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI_20260705T081853Z_load1.log"`):
+
+```log
+BBAI_SAVE_LOADED utc=20260705T081853Z logFile=BBAI_20260705T081853Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_MAYA activeHandicap=HANDICAP_MONARCH playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_MONARCH options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+BBAI_GAME_RNG mapRandState=1166186091 syncRandState=1475793926
+BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=3 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
+```
 
 ## CuCuGS
 

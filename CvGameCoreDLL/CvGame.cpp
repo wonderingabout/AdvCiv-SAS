@@ -61,6 +61,8 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvInitCore& ic = GC.getInitCore();
 
 	reset(eHandicap); // Reset serialized data
+	// <!-- custom: Start a distinct BBAI file before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save log. (GPT-5.5) -->
+	startSASBBAILogForNewGame();
 
 	// Init containers ...
 
@@ -9361,6 +9363,8 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
 	read functions have been called. */
 void CvGame::onAllGameDataRead()
 {
+	// <!-- custom: Start a distinct timestamped BBAI log now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics. (GPT-5.5) -->
+	startSASBBAILogForLoadedSave();
 	// <advc.opt> Savegame compatibility (uiFlag<4)
 	if (m_iCivPlayersEverAlive == 0)
 		m_iCivPlayersEverAlive = countCivPlayersEverAlive();

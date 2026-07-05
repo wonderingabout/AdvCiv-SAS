@@ -3,6 +3,8 @@
 // <advc.133>
 #include "CvGameTextMgr.h"
 #include "CvGamePlay.h" // </advc.133>
+#include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+#include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 // <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
 #include <time.h>
 
@@ -115,31 +117,45 @@ int getSASBBAIScoreLogInterval()
 	return iInterval;
 }
 
-static CvString getSASBBAILogSessionTimestamp()
+static CvString createSASBBAILogTimestamp()
 {
-	static CvString szTimestamp;
-	if (szTimestamp.empty())
+	CvString szTimestamp;
+	char szBuffer[32];
+	time_t kNow;
+	time(&kNow);
+	struct tm* pUtcTime = gmtime(&kNow);
+	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
 	{
-		char szBuffer[32];
-		time_t kNow;
-		time(&kNow);
-		struct tm* pUtcTime = gmtime(&kNow);
-		if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
-		{
-			szTimestamp = szBuffer;
-		}
-		else
-		{
-			szTimestamp = "unknown_time";
-		}
+		szTimestamp = szBuffer;
+	}
+	else
+	{
+		szTimestamp = "unknown_time";
 	}
 	return szTimestamp;
 }
 
+static CvString g_szSASBBAILogTimestamp;
+static int g_iSASBBAILogSequence = 0;
+static CvString g_szSASBBAILogContext;
+
+static CvString getSASBBAILogTimestamp()
+{
+	if (g_szSASBBAILogTimestamp.empty())
+		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
+	return g_szSASBBAILogTimestamp;
+}
+
+static bool isSASBBAILogTimestampedFilenameEnabled()
+{
+	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME") > 0);
+	return bUseTimestampedFilename;
+}
+
 static CvString getSASBBAILogName()
 {
-	// <!-- custom: This function is only reached after BBAI logging is enabled. If enabled, each Civ4 launch/session writes to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. (ChatGPT-5.5) -->
-	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME") > 0);
+	// <!-- custom: When timestamped filenames are enabled, use a new file for every new game and loaded save. The new/load context and shared chronological sequence keep files distinct and show their order even when multiple new/load actions occur within the same UTC second. (GPT-5.5) -->
+	const bool bUseTimestampedFilename = isSASBBAILogTimestampedFilenameEnabled();
 	CvString szLogName;
 	// <advc.007>
 	if (GC.getGame().isNetworkMultiPlayer())
@@ -147,7 +163,9 @@ static CvString getSASBBAILogName()
 		// For OOS debugging on one PC
 		if (bUseTimestampedFilename)
 		{
-			szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogSessionTimestamp().GetCString());
+			if (!g_szSASBBAILogContext.empty())
+				szLogName.Format("BBAI%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
+			else szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString());
 		}
 		else
 		{
@@ -158,7 +176,9 @@ static CvString getSASBBAILogName()
 	{
 		if (bUseTimestampedFilename)
 		{
-			szLogName.Format("BBAI_%s.log", getSASBBAILogSessionTimestamp().GetCString());
+			if (!g_szSASBBAILogContext.empty())
+				szLogName.Format("BBAI_%s_%s.log", getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
+			else szLogName.Format("BBAI_%s.log", getSASBBAILogTimestamp().GetCString());
 		}
 		else
 		{
@@ -166,6 +186,83 @@ static CvString getSASBBAILogName()
 		}
 	} // </advc.007>
 	return szLogName;
+}
+
+static void rollSASBBAILog(const char* szContext)
+{
+	if (isSASBBAILogTimestampedFilenameEnabled())
+	{
+		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
+		g_iSASBBAILogSequence++;
+		g_szSASBBAILogContext.Format("%s%d", szContext, g_iSASBBAILogSequence);
+	}
+}
+
+static void logSASBBAIGameState(const char* szEvent)
+{
+	CvGame& kGame = GC.getGame();
+	CvInitCore const& kInitCore = GC.getInitCore();
+	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
+	const char* szActiveCivilization = "-";
+	const char* szActiveHandicap = "-";
+	if (eActivePlayer != NO_PLAYER)
+	{
+		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
+		if (kActivePlayer.getCivilizationType() != NO_CIVILIZATION)
+			szActiveCivilization = GC.getInfo(kActivePlayer.getCivilizationType()).getType();
+		if (kActivePlayer.getHandicapType() != NO_HANDICAP)
+			szActiveHandicap = GC.getInfo(kActivePlayer.getHandicapType()).getType();
+	}
+	CvString szGameOptions;
+	FOR_EACH_ENUM(GameOption)
+	{
+		if (!kGame.isOption(eLoopGameOption))
+			continue;
+		if (!szGameOptions.empty())
+			szGameOptions += ",";
+		szGameOptions += GC.getInfo(eLoopGameOption).getType();
+	}
+	if (szGameOptions.empty())
+		szGameOptions = "-";
+	const CvString szLogName = getSASBBAILogName();
+	logBBAI("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szEvent, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
+			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
+	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
+}
+
+// <!-- custom: Record the effective logging profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+static void logSASBBAILogSettings()
+{
+	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+}
+
+// <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
+void startSASBBAILogForNewGame()
+{
+	if (!isSASBBAILogEnabled())
+		return;
+	rollSASBBAILog("new");
+	logBBAI("BBAI_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
+	logSASBBAILogSettings();
+}
+
+void logSASBBAINewGameStarted()
+{
+	if (isSASBBAILogEnabled())
+		logSASBBAIGameState("BBAI_NEW_GAME_STARTED");
+}
+
+// <!-- custom: Civ4 does not expose the source save filename to the DLL or Python OnLoad event. Start a distinct BBAI file after all save data is read and identify the loaded state through UTC, turn/year, map/game settings, player counts, and read-only RNG states instead. This removes the need to restart Civ4 between repeated save-file tests. (GPT-5.5) -->
+void startSASBBAILogForLoadedSave()
+{
+	if (!isSASBBAILogEnabled())
+		return;
+	rollSASBBAILog("load");
+	logSASBBAIGameState("BBAI_SAVE_LOADED");
+	logSASBBAILogSettings();
 }
 
 void logBBAI(TCHAR* format, ... )
