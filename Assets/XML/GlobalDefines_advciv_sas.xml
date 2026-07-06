@@ -1357,6 +1357,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
+	<!-- custom: Allow the first and only capital, when not in danger, to produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This accelerates the first improvement and growth, but can be exploited by an unusually early rush. After this one economic unit, the unchanged Base AdvCiv no-defender priority resumes. Set to 0 to always produce the defender first. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>

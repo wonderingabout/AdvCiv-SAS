@@ -1128,7 +1128,45 @@ void CvCityAI::AI_chooseProduction()
 		} // </advc.192>
 	}
 
-	if (kPlot.getNumDefenders(getOwner()) == 0) // XXX check for other team's units?
+	// <!-- custom: Hoisted from the existing early Worker/Work Boat logic below so the new first-capital priority can share the same safety context. (GPT-5.5) -->
+	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
+	// <!-- custom: Base AdvCiv immediately filled an empty first-capital garrison even without danger, delaying the first Worker or useful Work Boat and the growth/resources it unlocks. The tunable exception tries exactly one such economic unit first, then falls through to the unchanged no-defender priority below. (GPT-5.5) -->
+	static const bool bFirstCityEconomicUnitBeforeDefender = GC.getDefineBOOL("SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE");
+	const int iCityDefenders = kPlot.getNumDefenders(getOwner());
+	const int iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
+	const bool bFirstEconomicUnitContext = (bFirstCityEconomicUnitBeforeDefender && isCapital() && iNumCities == 1 && iCityDefenders == 0 && !bDanger && iExistingWorkers == 0 && iAvailableSeaWorkers <= 0);
+	// <!-- custom: iNeededSeaWorkers says whether useful unimproved seafood remains, not whether this exception already produced a Work Boat. iAvailableSeaWorkers detects a queued, produced, or travelling boat; once consumed, scan its completed BFC sea improvement instead of adding persistent savegame state. (GPT-5.5) -->
+	bool bHasImprovedSeaBonus = false;
+	if (bFirstEconomicUnitContext)
+	{
+		for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS && !bHasImprovedSeaBonus; ++iCityPlot)
+		{
+			CvPlot const* pCityPlot = plotCity(getX(), getY(), static_cast<CityPlotTypes>(iCityPlot));
+			if (pCityPlot == NULL || !pCityPlot->isWater() || pCityPlot->getOwner() != getOwner())
+				continue;
+			const BonusTypes eBonus = pCityPlot->getBonusType(getTeam());
+			const ImprovementTypes eImprovement = pCityPlot->getImprovementType();
+			bHasImprovedSeaBonus = (eBonus != NO_BONUS && eImprovement != NO_IMPROVEMENT && kPlayer.doesImprovementConnectBonus(eImprovement, eBonus));
+		}
+	}
+	const bool bTryEconomicUnitBeforeDefender = (bFirstEconomicUnitContext && !bHasImprovedSeaBonus);
+	if (bTryEconomicUnitBeforeDefender)
+	{
+		if (!bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0 && AI_chooseUnit(UNITAI_WORKER_SEA))
+		{
+			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Work Boat", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
+			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before first defender", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
+			return;
+		}
+		if (iExistingWorkers < iMinimumAreaWorkers && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
+		{
+			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Worker", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
+			if (gWorkerLogLevel >= 2) logBBAI("      City %S chooses first Worker before first defender %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
+			return;
+		}
+	}
+
+	if (iCityDefenders == 0) // XXX check for other team's units?
 	{
 		if (gCityLogLevel >= 2) logBBAI("      City %S uses no defenders", sCityName);
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
@@ -1164,7 +1202,6 @@ void CvCityAI::AI_chooseProduction()
 	// Confirming save-file-443 tests first made Seoul choose defender -> Work Boat at turn 5. Mutal correctly kept Worker first because Maya lacked Fishing, then its Molluscs/Fish became improvable and it chose a Work Boat at turn 12.
 	// Note: similarly, Whale does not trigger this priority before it can be improved.
 	// Apply this to every safe city rather than only early capitals or low-population cities: Seoul reached population 3 and switched to its Worker before completing the Work Boat when this retained the old population limit. See KI#174. (GPT-5.5) -->
-	const bool bSafeEconomicWorkerProduction = (!bDanger && !kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE));
 	const bool bEarlyCapitalWorkerWindow = (isCapital() && kGame.getElapsedGameTurns() * 100 < 30 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() && bSafeEconomicWorkerProduction);
 	if (bSafeEconomicWorkerProduction && !bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0)
 	{
@@ -1176,7 +1213,6 @@ void CvCityAI::AI_chooseProduction()
 	}
 
 	// <!-- custom: Rebuild the shared area Worker minimum before normal priorities can leave the AI short indefinitely. In the 2039 Ciaco Canyon test save, the stuck last city already had a long queue so this did not directly fix it, but BBAI logs showed the minimum firing often elsewhere. Any suitable city may contribute, and AI_totalAreaUnitAIs includes queued Workers. The centralized demand/minimum now preserves reliable availability without forcing the old early second Worker. (GPT-5.5) -->
-	int const iMinimumAreaWorkers = kPlayer.AI_getSASMinimumAreaWorkers(kArea);
 	if (!bDanger && iExistingWorkers < iMinimumAreaWorkers)
 	{
 		if (AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
