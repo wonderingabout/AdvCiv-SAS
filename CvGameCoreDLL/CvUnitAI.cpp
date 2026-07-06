@@ -2539,6 +2539,18 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 				continue;
 			ImprovementTypes const eCurrentImprovement = pCandidatePlot->getImprovementType();
 			ImprovementTypes const eCandidateImprovement = GC.getInfo(eCandidateBuild).getImprovement();
+			// <!-- custom: A worker chopped a worked Grass Hill near Cologne and then left without improving it. Log every unimproved BFC candidate in large cities so testing can show whether the follow-up Mine was generated and how its value compared with competing work. No behavior change. (GPT-5.5) -->
+			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT)
+			{
+				TerrainTypes const eCandidateTerrain = pCandidatePlot->getTerrainType();
+				FeatureTypes const eCandidateFeature = pCandidatePlot->getFeatureType();
+				wchar const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eCandidateTerrain).getDescription());
+				wchar const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? L"-" : GC.getInfo(eCandidateFeature).getDescription());
+				wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
+				logBBAI("    WORKER_CITY_BUILD_CANDIDATE player=%d %S city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%S feature=%S hills=%d yields=(%d,%d,%d) build=%S improvement=%S value=%d",
+					getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), iCityPopulation, pCandidatePlot->getX(), pCandidatePlot->getY(), candidatePlots[i].ePlot, kCity.isWorkingPlot(*pCandidatePlot), szCandidateTerrain, szCandidateFeature, pCandidatePlot->isHills(),
+					pCandidatePlot->getYield(YIELD_FOOD), pCandidatePlot->getYield(YIELD_PRODUCTION), pCandidatePlot->getYield(YIELD_COMMERCE), GC.getInfo(eCandidateBuild).getDescription(), szCandidateImprovement, candidatePlots[i].iValue);
+			}
 			if (pCandidatePlot->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
 				iBonusCandidates++;
 			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT && eCandidateImprovement != NO_IMPROVEMENT)
@@ -4023,6 +4035,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	bool bNextCity = false;
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	// <!-- custom: Worker assignments appeared repeatedly in BBAI logging without the worker reaching the selected plot. Record the worker's existing mission and movement state when its AI is called so mission cancellation, danger, and reassignment can be correlated by unit ID. No behavior change. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
+	{
+		CvSelectionGroupAI const* pGroup = AI_getGroup();
+		CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+		logBBAI("    WORKER_MOVE_ENTRY turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d movesSpent=%d movesLeft=%d currentDanger=%d threatened=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), getMoves(), movesLeft(), kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1));
+	}
 
 	// <!-- custom: cache this since we seem to check it many times, -->
 	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
@@ -20960,6 +20982,12 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution. No behavior change. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
+	{
+		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%d build=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), eMission, GC.getInfo(eBestBuild).getDescription(), AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
+	}
 	return true;
 }
 

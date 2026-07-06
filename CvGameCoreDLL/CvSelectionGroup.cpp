@@ -1273,6 +1273,23 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 	CvPlot* pFromPlot = plot(); // advc.102
 	bool bDone = false;
 	bool bAction = false;
+	// <!-- custom: Worker city jobs were selected repeatedly without reaching their target. At Worker log level 3, trace the queued MISSIONAI_BUILD movement/build through execution so path failure can be separated from scoring or reassignment. No behavior change. (GPT-5.5) -->
+	CvUnit const* pSASWorker = NULL;
+	bool bLogSASWorkerMission = false;
+	if (gWorkerLogLevel >= 3 && AI().AI_getMissionAIType() == MISSIONAI_BUILD)
+	{
+		pSASWorker = getHeadUnit();
+		bLogSASWorkerMission = (pSASWorker != NULL && pSASWorker->AI_getUnitAIType() == UNITAI_WORKER);
+	}
+	char const* szSASWorkerMissionOutcome = NULL;
+	if (bLogSASWorkerMission)
+	{
+		szSASWorkerMissionOutcome = "pending";
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d %S workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
+	}
 
 	if (!(missionData.eFlags & MOVE_NO_ATTACK) && // K-Mod
 		(missionData.iPushTurn == kGame.getGameTurn() ||
@@ -1339,6 +1356,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			else if (groupPathTo(missionData.iData1, missionData.iData2, missionData.eFlags))
 			{
 				bAction = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-step";
 				/*  advc: Not sure if groupPathTo can pop the head mission;
 					safer to update pHeadMission. */
 				pHeadMission = headMissionQueueNode();
@@ -1356,6 +1374,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			else
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-no-path";
 				/*	<advc.pf> Failure to find a path here can be normal if the move
 					was scheduled on an earlier turn; it's probably also normal for
 					units ready to defend. If the unit doesn't get stuck in a loop
@@ -1387,8 +1406,15 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 
 		case MISSION_ROUTE_TO:
 			if (groupRoadTo(missionData.iData1, missionData.iData2, missionData.eFlags))
+			{
 				bAction = true;
-			else bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-step";
+			}
+			else
+			{
+				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-failed";
+			}
 			break;
 
 		case MISSION_MOVE_TO_UNIT:
@@ -1504,6 +1530,11 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 				!missionData.bModified)) // advc.011b
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-finished-or-invalid";
+			}
+			else
+			{
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-step";
 			}
 			break;
 
@@ -1525,6 +1556,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			if (at(missionData.iData1, missionData.iData2))
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-reached-target";
 				handleBoarded(); // advc.075
 			}
 			break;
@@ -1533,7 +1565,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			if (at(missionData.iData1, missionData.iData2))
 			{
 				if (getBestBuildRoute(getPlot()) == NO_ROUTE)
+				{
 					bDone = true;
+					if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-reached-target";
+				}
 			}
 			break;
 
@@ -1634,6 +1669,14 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 				}
 			}
 		}
+	}
+
+	if (bLogSASWorkerMission)
+	{
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_MISSION_EXECUTION phase=result turn=%d player=%d %S workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction, readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
 	}
 
 	if (bDone)
