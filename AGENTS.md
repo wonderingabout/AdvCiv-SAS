@@ -112,15 +112,13 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the 
 - Do NOT commit changes without explicit user approval - wait for review at the end.
 - Preserve problem descriptions, observed behaviors, empirical results (e.g., "city C fully improved at turn 105"), and intended fixes while removing verbosity
 - Pattern: Keep technical details and "why" verbose, remove conversational filler
+- If sentences in comments are long, make a few natural/logical sentence(s) lines rather than wrapping at a certain character count awkwardly mid-sentence, so it reads and is easier to maintain for agents and perhaps users too, while still being compact enough.
 
 ## Comment Style Example
 
 ```cpp
-// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
-// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
-// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
-// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
-// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers. This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
 // Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.3-Codex) -->
 ```
 
