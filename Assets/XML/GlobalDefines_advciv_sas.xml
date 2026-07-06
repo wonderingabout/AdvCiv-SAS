@@ -1303,7 +1303,12 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
+	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions and Settler movement, scouting, returns, and founding; FOUND separately controls detailed city-site scoring calculations. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Dedicated evacuation/retreat diagnostics, separated from CITY and UNIT so city-side evacuation decisions and affected units can be inspected together without broad logging. This notably covers doomed cities, workers, and naval units. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_EVACUATION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

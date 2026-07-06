@@ -200,7 +200,7 @@ static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerA
 }
 
 // <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic, but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the roam/scout/found context that chose the candidate.
-// At BBAI unit log level 3, log the evaluated city plot plus every revealed BFC tile with coordinates, yields, terrain/feature, bonus, and fresh-water/river state, so Karakorum/Beijing-style first-city decisions are reviewable from BBAI.log without guessing from screenshots. (GPT-5.5) -->
+// At BBAI Settler log level 3, log the evaluated city plot plus every revealed BFC tile with coordinates, yields, terrain/feature, bonus, and fresh-water/river state, so Karakorum/Beijing-style first-city decisions are reviewable from BBAI.log without guessing from screenshots. (GPT-5.5) -->
 static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int iFoundValue, int iAdjustedValue, int iPathTurns)
 {
 	int iFoodBonuses = 0;
@@ -3291,7 +3291,7 @@ void CvUnitAI::AI_settleMove()
 		{
 			if (at(kSite) && canFound(plot()))
 			{
-				if (gUnitLogLevel >= 2) logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
+				if (gSettlerLogLevel >= 2) logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
 				getGroup()->pushMission(MISSION_FOUND);
 				return;
 			}
@@ -3302,7 +3302,7 @@ void CvUnitAI::AI_settleMove()
 				if (pMissionPlot == pCitySitePlot && getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND) {
 					// safety check. (cf. conditions in AI_found)
 					if (getGroup()->canDefend() || kOwner.AI_plotTargetMissionAIs(pMissionPlot, MISSIONAI_GUARD_CITY) > 0) {
-						if (gUnitLogLevel >= 2) logBBAI("    Settler continuing mission to %d, %d", pCitySitePlot->getX(), pCitySitePlot->getY());
+						if (gSettlerLogLevel >= 2) logBBAI("    Settler continuing mission to %d, %d", pCitySitePlot->getX(), pCitySitePlot->getY());
 						CvPlot& kEndTurnPlot = getPathEndTurnPlot();
 						pushGroupMoveTo(kEndTurnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pCitySitePlot);
 						return;
@@ -3372,7 +3372,7 @@ void CvUnitAI::AI_settleMove()
 
 	/*if ((iAreaBestFoundValue > 0) && getPlot().isBestAdjacentFound(getOwner())) {
 		if (canFound(plot())) {
-			if (gUnitLogLevel >= 2) logBBAI("    Settler founding in place due to best adjacent found");
+			if (gSettlerLogLevel >= 2) logBBAI("    Settler founding in place due to best adjacent found");
 			getGroup()->pushMission(MISSION_FOUND);
 			return;
 		}
@@ -3485,8 +3485,8 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <!-- custom: give AIs more time to pick best capital spot. Sometimes they start in bad spots when much better ones are available; no hurry to settle immediately. Lower quality starts may be fine for 3rd city but not for capital, which is key to winning. Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
 	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND");
-	const bool bLogUnitAILevel2 = (gUnitLogLevel >= 2);
-	const bool bLogUnitAILevel3 = (gUnitLogLevel >= 3);
+	const bool bLogSettlerAILevel2 = (gSettlerLogLevel >= 2);
+	const bool bLogSettlerAILevel3 = (gSettlerLogLevel >= 3);
 	CvPlot* pFirstCityScoutOrigin = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_EXPLORE ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
 	const bool bContinuingFirstCityScout = (pFirstCityScoutOrigin != NULL && pFirstCityScoutOrigin != plot());
 	const int iFirstCityScoutOriginValue = (bContinuingFirstCityScout ? SAS_evaluateFirstCityFoundValue(kOwner, *pFirstCityScoutOrigin) : -MAX_INT);
@@ -3570,9 +3570,9 @@ bool CvUnitAI::AI_foundFirstCity()
 
 				// <!-- custom: note: no division here, the whole point of weighting is not doing a divison, just at the end remember to store the raw value and not weighted one and should be all good -->
 				int const iWeightedPlotValue = (iTurnWeight * iPlotValue);
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("city-site", kSite, getOwner(), getTeam(), iPlotValue, iWeightedPlotValue, pathTurnsFromNow);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("city-site", kSite, getOwner(), getTeam(), iPlotValue, iWeightedPlotValue, pathTurnsFromNow);
 
-				if (bLogUnitAILevel2)
+				if (bLogSettlerAILevel2)
 				{
 					for (int iTop = 0; iTop < 3; ++iTop)
 					{
@@ -3611,7 +3611,7 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 		}
 
-		if (bLogUnitAILevel2)
+		if (bLogSettlerAILevel2)
 		{
 			logBBAI("    First-city candidates for %S player %d settler at %d,%d; citySites=%d, best weighted %d, current plot city site=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kOwner.AI_getNumCitySites(), iBestWeightedValue, kOwner.AI_isPlotCitySite(getPlot()));
 			for (int iTop = 0; iTop < 3; ++iTop)
@@ -3639,7 +3639,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				{
 					iLoopFoundTurn = kGame.getElapsedGameTurns() + getPathFinder().getPathTurns() - (getPathFinder().getFinalMoves() > 0 ? 1 : 0);
 				}
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("nearby-raw", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopValue, iLoopFoundTurn < 0 ? -1 : iLoopFoundTurn - kGame.getElapsedGameTurns());
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("nearby-raw", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopValue, iLoopFoundTurn < 0 ? -1 : iLoopFoundTurn - kGame.getElapsedGameTurns());
 				for (int iTop = 0; iTop < 3; ++iTop)
 				{
 					if (iLoopValue > aiLocalValue[iTop])
@@ -3707,7 +3707,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
 				// <!-- custom: Food environment and bonus counts temporarily decide whether more scouting is warranted, but no longer veto or rerank candidates after Berlin's higher-value (33,13) site was excluded in the Berlin test (save file 442). Rank sites only by complete found value and the existing movement cost; that value already includes yields, resources, fresh water, and BFC quality. (GPT-5.5) -->
 				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
 				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
 				{
 					pBetterGoodEnoughFirstCityPlot = &kLoopPlot;
@@ -3718,8 +3718,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			if (pBetterGoodEnoughFirstCityPlot != NULL && !at(*pBetterGoodEnoughFirstCityPlot))
 			{
 				// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. But if the current plot is heuristic-good-enough, still re-run first-city found-value scoring on nearby visible candidates before founding; this keeps the gate situational and lets one-tile Karakorum/Beijing-style improvements win without hard-requiring food bonuses or fresh water. (GPT-5.5) -->
-				if (bLogUnitAILevel2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-				if (bLogUnitAILevel3)
+				if (bLogSettlerAILevel2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSettlerAILevel3)
 				{
 					const int iBetterRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pBetterGoodEnoughFirstCityPlot);
 					SAS_logFirstCityCandidateBFCDiagnostics("chosen-good-enough-recheck", *pBetterGoodEnoughFirstCityPlot, getOwner(), getTeam(), iBetterRawValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
@@ -3728,8 +3728,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				return true;
 			}
 			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
-			if (bLogUnitAILevel2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-good-enough", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
+			if (bLogSettlerAILevel2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-good-enough", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
 			getGroup()->pushMission(MISSION_FOUND);
 			return true;
 		}
@@ -3757,7 +3757,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				if (iLoopValue <= 0)
 					continue;
 				const int iLoopGoodEnoughValue = 100 * iLoopValue - iLoopPathTurns;
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("visible-good-enough", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopGoodEnoughValue, iLoopPathTurns);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("visible-good-enough", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopGoodEnoughValue, iLoopPathTurns);
 				if (pGoodEnoughFirstCityPlot == NULL || iLoopGoodEnoughValue > iGoodEnoughFirstCityValue)
 				{
 					pGoodEnoughFirstCityPlot = &kLoopPlot;
@@ -3774,7 +3774,7 @@ bool CvUnitAI::AI_foundFirstCity()
 					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
 					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
 					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5 + GPT-5.5) -->
-					if (bLogUnitAILevel2) logBBAI("    Settler delaying current first-city site for %S player %d at %d,%d to scout; value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel2) logBBAI("    Settler delaying current first-city site for %S player %d at %d,%d to scout; value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pGoodEnoughFirstCityPlot = NULL;
 				}
 			}
@@ -3782,8 +3782,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			{
 				if (at(*pGoodEnoughFirstCityPlot))
 				{
-					if (bLogUnitAILevel2) logBBAI("    Settler founding visible good-enough first-city site for %S player %d at %d,%d during roam; value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-					if (bLogUnitAILevel3)
+					if (bLogSettlerAILevel2) logBBAI("    Settler founding visible good-enough first-city site for %S player %d at %d,%d during roam; value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel3)
 					{
 						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
 						SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, 0);
@@ -3792,8 +3792,8 @@ bool CvUnitAI::AI_foundFirstCity()
 				}
 				else
 				{
-					if (bLogUnitAILevel2) logBBAI("    Settler moving to visible good-enough first-city site for %S player %d from %d,%d to %d,%d during roam; value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-					if (bLogUnitAILevel3)
+					if (bLogSettlerAILevel2) logBBAI("    Settler moving to visible good-enough first-city site for %S player %d from %d,%d to %d,%d during roam; value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel3)
 					{
 						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
 						SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
@@ -3819,12 +3819,12 @@ bool CvUnitAI::AI_foundFirstCity()
 			{
 				if (at(*pBestEarlyReturnPlot))
 				{
-					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					getGroup()->pushMission(MISSION_FOUND);
 				}
 				else
 				{
-					if (bLogUnitAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
 					getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
 				}
@@ -3854,7 +3854,7 @@ bool CvUnitAI::AI_foundFirstCity()
 				}
 				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, kEndTurnPlot);
 				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
 				if (iExploreValue > iBestExploreValue)
 				{
 					iBestExploreValue = iExploreValue;
@@ -3863,12 +3863,12 @@ bool CvUnitAI::AI_foundFirstCity()
 			}
 			if (pBestExploreStep != NULL)
 			{
-				if (bLogUnitAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()), (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()), (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kOwner, getPlot())), iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSettlerAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()), (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()), (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kOwner, getPlot())), iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 				CvPlot* pScoutOrigin = (bContinuingFirstCityScout ? pFirstCityScoutOrigin : &getPlot());
 				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pScoutOrigin);
 				return true;
 			}
-			if (bLogUnitAILevel2) logBBAI("    Settler waiting before food-poor first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogSettlerAILevel2) logBBAI("    Settler waiting before food-poor first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
 			getGroup()->pushMission(MISSION_SKIP);
 			return true;
 		}
@@ -3892,8 +3892,8 @@ bool CvUnitAI::AI_foundFirstCity()
 			// <!-- custom: A first-city local recheck can move to a good nearby plot that is not in the cached city-site list. On the next update, the cached city-site branch could pull the settler back, making China/London-style starts spend extra turns orbiting acceptable nearby sites. If the current foundable plot is not bad and is competitive after the same small movement penalty used by nearby rechecks, found instead of bouncing. (GPT-5.5 + ChatGPT 5.5) -->
 			if (iCurrentFirstCityValue >= iBestValue - 75 * iBestPathTurnsFromNow)
 			{
-				if (bLogUnitAILevel2) logBBAI("    Settler founding current competitive first-city site for %S player %d at %d,%d instead of returning to cached site %d,%d; currentValue=%d bestValue=%d bestPathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPlot->getX(), pBestPlot->getY(), iCurrentFirstCityValue, iBestValue, iBestPathTurnsFromNow, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-				if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-current-over-cached", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
+				if (bLogSettlerAILevel2) logBBAI("    Settler founding current competitive first-city site for %S player %d at %d,%d instead of returning to cached site %d,%d; currentValue=%d bestValue=%d bestPathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPlot->getX(), pBestPlot->getY(), iCurrentFirstCityValue, iBestValue, iBestPathTurnsFromNow, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-current-over-cached", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
 				getGroup()->pushMission(MISSION_FOUND);
 				return true;
 			}
@@ -3903,13 +3903,13 @@ bool CvUnitAI::AI_foundFirstCity()
 		{
 			// CLAUDE: iBestValue is already set correctly above, no need to reassign
 
-			if (bLogUnitAILevel2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestTurnToFound, iBestValue);
-			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-best", *pBestPlot, getOwner(), getTeam(), iBestValue, iBestValue, iBestTurnToFound - kGame.getElapsedGameTurns());
+			if (bLogSettlerAILevel2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestTurnToFound, iBestValue);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-best", *pBestPlot, getOwner(), getTeam(), iBestValue, iBestValue, iBestTurnToFound - kGame.getElapsedGameTurns());
 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY, false, false,
 					MISSIONAI_FOUND, pBestPlot);
 			return true;
 		}
-		else if (bLogUnitAILevel2 && pBestPlot == plot())
+		else if (bLogSettlerAILevel2 && pBestPlot == plot())
 		{
 			logBBAI("    Settler current plot remains best first-city candidate for %S player %d at %d,%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY());
 		}
@@ -3926,8 +3926,8 @@ bool CvUnitAI::AI_foundFirstCity()
 		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the tunable return-travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
 		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
 		{
-			if (bLogUnitAILevel2) logBBAI("    Settler finished first-city scouting for %S player %d at %d,%d and is returning to best known site %d,%d; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-			if (bLogUnitAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+			if (bLogSettlerAILevel2) logBBAI("    Settler finished first-city scouting for %S player %d at %d,%d and is returning to best known site %d,%d; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
 			pushGroupMoveTo(*pBestPostScoutPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPostScoutPlot);
 			getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestPostScoutPlot);
 			return true;
@@ -3935,8 +3935,8 @@ bool CvUnitAI::AI_foundFirstCity()
 	}
 	if (canFound(plot()))
 	{
-		if (bLogUnitAILevel2) logBBAI("    Settler founding in place for %S player %d at %d,%d; scenario=%d canMove=%d current plot city site=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kGame.isScenario(), canMove(), kOwner.AI_isPlotCitySite(getPlot()), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
-		if (bLogUnitAILevel3)
+		if (bLogSettlerAILevel2) logBBAI("    Settler founding in place for %S player %d at %d,%d; scenario=%d canMove=%d current plot city site=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kGame.isScenario(), canMove(), kOwner.AI_isPlotCitySite(getPlot()), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+		if (bLogSettlerAILevel3)
 		{
 			const int iFinalFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
 			SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-fallback", getPlot(), getOwner(), getTeam(), iFinalFoundValue, iFinalFoundValue, 0);
@@ -18634,14 +18634,14 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 		return false;
 	if (at(*pBestFoundPlot))
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
 		getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
 	}
 	else
 	{
-		if (gUnitLogLevel >= 2)logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2) logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
 				MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
@@ -18662,7 +18662,7 @@ bool CvUnitAI::AI_foundFollow()
 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
 		getGroup()->pushMission(MISSION_FOUND);
 		return true;
 	}

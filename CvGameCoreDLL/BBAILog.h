@@ -20,6 +20,7 @@ int getSASBBAITeamLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
+int getSASBBAISettlerLogLevel();
 int getSASBBAIEvacuationLogLevel();
 int getSASBBAIWorkerLogLevel();
 int getSASBBAIWorkerSeaLogLevel();
@@ -37,15 +38,16 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gScoreLogInterval getSASBBAIScoreLogInterval() // advc.007: was hardcoded to 25 in CvPlayer::onTurnLogging
 #define gTeamLogLevel getSASBBAITeamLogLevel()
 #define gCityLogLevel getSASBBAICityLogLevel()
-#define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Citizen-assignment and plot-allocation diagnostics. (GPT-5.5) -->
+#define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
-#define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Evacuation/retreat diagnostics. (GPT-5.5) -->
-#define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
-#define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+#define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
+#define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
+#define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+#define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: Separate Work Boat / WORKER_SEA diagnostics from general UNIT and land-Worker logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
 #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
-#define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Culture-victory BBAI diagnostics. (ChatGPT-5.5) -->
+#define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Separate culture-victory diagnostics from general PLAYER and CITY logging. (ChatGPT-5.5) -->
 
 void logBBAI(TCHAR* format, ... );
 // <advc.133>
