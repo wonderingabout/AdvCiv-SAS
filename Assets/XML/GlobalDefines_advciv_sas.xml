@@ -1367,6 +1367,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Value subtracted for each estimated travel turn when workers compare the best available jobs across cities. For example, 25 makes a Mine valued at 1650 and 3 turns away score 1575 before other adjustments, still well above a nearby unused tundra Workshop valued at 260. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
 	<!-- custom: maximum city population where workers may leave a city early just because it already has population + buffer improved BFC tiles. This keeps the original anti-overimprove behavior for small/early cities, but prevents medium and large cities from being declared "done" while useful blank BFC plots remain available for food/hammer/commerce flexibility. Set to 0 to disable this early-leave shortcut. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION</DefineName>
@@ -1524,11 +1529,11 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 
 	<!-- custom: Grass Hills with enough food:
-	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production.
-	- CvUnitAI adds the old population adjustment: roughly pop 1=1540, pop 2=1590, pop 3+=1640, so early low-pop cities still prefer key 1600-value Cottages before Mines become competitive. (GPT-5.5 + ChatGPT-5.5) -->
+	- BUILD_MINE: strong early production while still having enough natural food to be workable; helps avoid overprioritizing flat Grass Cottages and neglecting production; considering a city usually has a food source early or some excess, it seems reasonable to capitalize on it for high early hammer yield and small food cost.
+	- CvUnitAI adds the old population adjustment. BBAI testing showed value 1650 still left Beijing's bare Grass Hill at (27,13) unimproved until turn 101 because repeated 1710-value jobs won; 1700 makes strong Mine production competitive without changing the low-food or poor-terrain branches. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL</DefineName>
-		<DefineTextVal>BUILD_MINE:1590</DefineTextVal>
+		<DefineTextVal>BUILD_MINE:1700</DefineTextVal>
 	</Define>
 	<!-- custom: Low-food Grass Hills:
 	- BUILD_WINDMILL: acceptable lower-yield fallback when food pressure matters; helps the city keep growing or stop stagnating.
@@ -1554,10 +1559,10 @@ Created as part of AdvCiv-SAS improvements
 		<DefineTextVal>BUILD_FARM:1460,BUILD_COTTAGE:1300,BUILD_WORKSHOP:600</DefineTextVal>
 	</Define>
 	<!-- custom: Plains Hills with enough food:
-	- BUILD_MINE: straightforward hammer tile when the city can afford the food cost. (GPT-5.5 + ChatGPT-5.5) -->
+	- BUILD_MINE: strong production when the city can afford the food cost. The sufficient-food branch already handles that cost, so do not penalize it again far below Grass Hill Mines; 1500 moved tested Mines from about turns 184-195 into the 140s, but Cologne's (30,10) still repeatedly lost to ordinary 1535-1585 jobs, so 1600 makes it properly competitive. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL</DefineName>
-		<DefineTextVal>BUILD_MINE:800</DefineTextVal>
+		<DefineTextVal>BUILD_MINE:1600</DefineTextVal>
 	</Define>
 	<!-- custom: Low-food Plains Hills:
 	- BUILD_WINDMILL: preferred because the tile costs food to work.
@@ -1666,6 +1671,11 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum adjusted value of an ordinary no-bonus improvement for a worker to continue directly from explicit Forest/Jungle/Fallout removal into that improvement. The separate removal pays feature production sooner than a combined build, while preserving a sufficiently valuable AI_bestCityBuild choice avoids delayed yields and a second trip; lower-value Tundra/Snow/Desert work normally stops after removal and is reevaluated. Bonus-specific improvements are not subject to this minimum. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE</DefineName>
+		<iDefineIntVal>800</iDefineIntVal>
 	</Define>
 	<!-- custom: Master switch for the empirically tuned non-bonus food-support Farm value in CvUnitAI. The heuristic is still computed from Farm/irrigation-chain context, but the generic picker applies its resulting pressure to the buildable candidate with the best food outcome on the exact plot. This keeps the formula coherent for now instead of exposing every internal term; set to 0 for quick A/B testing if the support-food logic overfarms. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>

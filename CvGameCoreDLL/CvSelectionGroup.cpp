@@ -1735,9 +1735,13 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			}
 			else deleteMissionQueueNode(pHeadMission);
 
-			// start the next mission
+			// <!-- custom: Explicit Chop/Clear followed by an evaluator-selected improvement was queued correctly, but completing the removal consumed all worker moves. Immediate activation deleted the follow-up; merely delaying activation left the group AWAKE, so AI turn-start cleanup still cleared it. Berlin (32,12), Beijing (28,12), and Cologne (29,11) therefore lost queued Mines and workers left their newly cleared Hills. Keep a waiting follow-up in MISSION activity until the next turn; invalid builds that consume no moves can continue immediately. (GPT-5.5) -->
 			if (headMissionQueueNode() != NULL)
-				activateHeadMission();
+			{
+				if (missionData.eMissionType != MISSION_BUILD || readyForMission())
+					activateHeadMission();
+				else setActivityType(ACTIVITY_MISSION);
+			}
 			// <advc.153>
 			else if (!isAIControlled() &&
 				(missionData.eMissionType == MISSION_BUILD ||

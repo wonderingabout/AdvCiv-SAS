@@ -31,7 +31,7 @@ public:
 	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
 	int AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const; // advc
 
-	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, CvPlot* pIgnorePlot = NULL, CvUnit* pUnit = NULL) const;
+	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, CvPlot* pIgnorePlot = NULL, CvUnit* pUnit = NULL, int* piBestValue = NULL, BuildTypes* peFollowupBuild = NULL) const;
 	bool AI_isCityAIType() const;
 	// <advc>
 	bool AI_mayAttack(TeamTypes eTeam, CvPlot const& kPlot) const; // Renamed from AI_potentialEnemy
