@@ -24,6 +24,18 @@ def _isAdvisorVassalPerspectiveEnabled():
 		_IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE = (gc.getDefineINT("SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE") > 0)
 	return _IS_SAS_ADVISOR_ALLOW_VASSAL_PERSPECTIVE
 
+# <advc.077>
+# <!-- custom: shared thousands formatter used by Info Screen and Victory Screen. The separator is passed by the caller so callers can use XML text, spaces, dots, or another context-specific separator without hidden module state. (Claude Opus 4.5 + GPT-5.5) -->
+def separateThousands(iValue, szSeparator):
+	# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
+	s = '%d' % iValue
+	groups = []
+	while s and s[-1].isdigit():
+		groups.append(s[-3:])
+		s = s[:-3]
+	return s + szSeparator.join(reversed(groups))
+# </advc.077>
+
 # <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
 # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
 SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0

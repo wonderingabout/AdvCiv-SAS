@@ -131,6 +131,17 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<!-- custom: Victory Screen Settings legend explains the compact AI map-heaviness flags shown next to map information. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND</Tag>
+		<English>Victory Screen Settings Legend</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND_PEDIA</Tag>
+		<English>[H1]Victory Screen Settings Legend[\H1][PARAGRAPH:2]AI Map Heaviness shows the cached DLL AI map classification next to the other map information.[NEWLINE][NEWLINE][ICON_BULLET]landHeavy: 1 when the DLL classifies the current map as land-heavy; otherwise 0.[NEWLINE][ICON_BULLET]navalHeavy: 1 when the DLL classifies the current map as naval-heavy; otherwise 0.[PARAGRAPH:2]These are the same `landHeavy` and `navalHeavy` fields written by `BBAI_GAME_SETTINGS`, but shown in-game so the active classification can be checked without enabling BBAI logs.</English>
+	</TEXT>
+
+
 
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Tag>

@@ -61,6 +61,16 @@ def getIcon(eTrait):
 	else:
 		return GENERIC_ICON
 
+# <!-- custom: Format CyGameTextMgr leader-trait text with each trait name preceded by its TraitUtil icon. Dawn of Man and Victory Screen both use this compact "icon Trait" display, while CyGameTextMgr keeps the normal trait wording/order. (GPT-5.5) -->
+def getLeaderTraitsWithIcons(eLeader, eCiv):
+	szTraits = CyGameTextMgr().parseLeaderTraits(eLeader, eCiv, True, False)
+	leaderInfo = gc.getLeaderHeadInfo(eLeader)
+	for iTrait in range(gc.getNumTraitInfos()):
+		if leaderInfo.hasTrait(iTrait):
+			traitDesc = gc.getTraitInfo(iTrait).getDescription()
+			szTraits = szTraits.replace(traitDesc, getIcon(iTrait) + u" " + traitDesc, 1)
+	return szTraits
+
 def getButton(eTrait):
 	if eTrait in TRAIT_BUTTONS:
 		return TRAIT_BUTTONS[eTrait]

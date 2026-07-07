@@ -4092,15 +4092,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly-->
 	// Wake safe retreaters (expand your existing un-sticker):
 	// You already clear MISSIONAI_RETREAT when safe. Do the same if the group is just on HOLD, even if its MissionAI isn’t RETREAT.
-	// if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
-	const bool bWorkerSleeping = (
-		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
-		(getGroup()->getActivityType() == ACTIVITY_HOLD)
-	);
-	if (bWorkerSleeping &&
-		bWeOwnThisPlot &&
-		!kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
+	const bool bWorkerSleeping = (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT || getGroup()->getActivityType() == ACTIVITY_HOLD);
+	if (bWorkerSleeping && bWeOwnThisPlot && !kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
 	{
+		if (gWorkerLogLevel >= 3)
+			logBBAI("    WORKER_PARKING_RECOVERY phase=entry turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-safe-owned-plot", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getActivityType(), getGroup()->AI().AI_getMissionAIType());
 		getGroup()->setActivityType(ACTIVITY_AWAKE);
 		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
 		// fall through to normal worker logic
@@ -4459,9 +4455,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// <advc.300> None of the stuff below seems relevant for Barbarian workers
 	if (isBarbarian())
 	{
-		if (!bCanRetreat || !AI_retreatToCity(false, true))
+		// <!-- custom: In the save-file-442 BBAI run, two Barbarian Workers with no accepted local job repeatedly called AI_retreatToCity while already inside safe owned Chehalis. This recreated MISSIONAI_RETREAT + HOLD with no queued mission every turn from about turns 126-152, so the existing wake-up only repeated the loop.
+		// Do not retreat from a safe owned city to itself; Skip for one turn so the Worker wakes and can reconsider if useful work appears later, or scrap it when AI scrapping is allowed. See KI#175. (GPT-5.5) -->
+		bool const bAlreadyInSafeOwnedCity = (getPlot().isCity() && getPlot().getOwner() == getOwner() && !kOwner.AI_isPlotThreatened(plot(), 1));
+		if (!bCanRetreat || bAlreadyInSafeOwnedCity || !AI_retreatToCity(false, true))
 		{
-			if (SyncRandOneChanceIn(6))
+			bool const bScrapRoll = SyncRandOneChanceIn(6);
+			bool const bScrapIdleBarbarianWorker = (bScrapRoll && canScrap());
+			if (gWorkerLogLevel >= 3 && bAlreadyInSafeOwnedCity)
+				logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S reason=already-in-safe-owned-city action=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()), (bScrapIdleBarbarianWorker ? "scrap" : "skip-turn"));
+			if (bScrapIdleBarbarianWorker)
 				scrap(); // Don't let it stand around indefinitely
 			else getGroup()->pushMission(MISSION_SKIP);
 		}
@@ -4687,6 +4690,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	);
 	if (bWorkerSleeping2 && bWeOwnThisPlot)
 	{
+		if (gWorkerLogLevel >= 3)
+			logBBAI("    WORKER_PARKING_RECOVERY phase=fallback turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-and-retry-city-work", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getActivityType(), getGroup()->AI().AI_getMissionAIType());
 		getGroup()->setActivityType(ACTIVITY_AWAKE);
 		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
 
@@ -4707,6 +4712,15 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
 	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
 
+	// <!-- custom: A final Skip is normal when every useful Worker path fails, but repeated Skips by the same unit reveal genuine idle/parking behavior. Log the remaining demand, city context, safety, and group state immediately before the Skip so repeated cases can be diagnosed without changing behavior. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
+	{
+		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
+		logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S areaWorkersNeeded=%d areaWorkersMissing=%d canRoute=%d ownPlot=%d danger=%d threatened=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d action=skip-turn",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()), iNeededWorkersInArea, iMissingWorkersInArea, bCanRoute, bWeOwnThisPlot,
+			kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1), getGroup()->getActivityType(), AI_getGroup()->AI_getMissionAIType(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getGroup()->getLengthMissionQueue());
+	}
 	getGroup()->pushMission(MISSION_SKIP);
 }
 

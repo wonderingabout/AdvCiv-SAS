@@ -196,6 +196,18 @@ void CvSelectionGroup::doTurn()
 
 	bool const bCouldAnyMove = canAnyMove(); // advc.153: was AllMove in K-Mod
 	CvUnit* pHeadUnit = getHeadUnit(); // advc
+	// <!-- custom: WORKER_MOVE_ENTRY cannot reveal a Worker group that remains asleep/held and never reaches Unit AI. At Worker log level 3, record every land Worker group's turn-boundary state, then log any wake/cleanup transition below so persistent parking can be distinguished from an ordinary one-turn Skip. No behavior change. (GPT-5.5) -->
+	bool const bLogSASWorkerTurn = (gWorkerLogLevel >= 3 && pHeadUnit != NULL && pHeadUnit->AI_getUnitAIType() == UNITAI_WORKER);
+	ActivityTypes const eSASWorkerActivityBefore = (bLogSASWorkerTurn ? getActivityType() : NO_ACTIVITY);
+	MissionAITypes const eSASWorkerMissionAIBefore = (bLogSASWorkerTurn ? AI().AI_getMissionAIType() : NO_MISSIONAI);
+	int const iSASWorkerQueueBefore = (bLogSASWorkerTurn ? getLengthMissionQueue() : 0);
+	if (bLogSASWorkerTurn)
+	{
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_GROUP_TURN phase=begin turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pHeadUnit->getID(), getID(), getX(), getY(), getActivityType(), AI().AI_getMissionAIType(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pHeadUnit->movesLeft());
+	}
 	/*	K-Mod. Wake spies when they reach max fortify turns in foreign territory.
 		I'm only checking the head unit.
 		Note: We only want to wake once. So this needs to be done
@@ -283,6 +295,17 @@ void CvSelectionGroup::doTurn()
 			{
 				clearMissionQueue();
 			} // K-Mod end
+		}
+	}
+	if (bLogSASWorkerTurn)
+	{
+		CvUnit* pSASWorkerHead = getHeadUnit();
+		if (pSASWorkerHead != NULL && (getActivityType() != eSASWorkerActivityBefore || AI().AI_getMissionAIType() != eSASWorkerMissionAIBefore || getLengthMissionQueue() != iSASWorkerQueueBefore))
+		{
+			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+			logBBAI("    WORKER_GROUP_TURN phase=transition turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d->%d missionAI=%d->%d missionTarget=(%d,%d) missionQueue=%d->%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorkerHead->getID(), getID(), getX(), getY(), eSASWorkerActivityBefore, getActivityType(), eSASWorkerMissionAIBefore, AI().AI_getMissionAIType(),
+				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iSASWorkerQueueBefore, getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pSASWorkerHead->movesLeft());
 		}
 	}
 

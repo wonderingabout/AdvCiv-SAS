@@ -299,9 +299,7 @@ class CvInfoScreen:
 
 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 
-		# <!-- custom: move these up as we don't need to compute them every time if i'm not mistaken. -->
-		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
-
+		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), getInfoTypeOrFail("COLOR_PLAYER_GRAY")).upper()
 
@@ -2393,7 +2391,7 @@ class CvInfoScreen:
 					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
 				else:
 					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
-		return (szPlayerName, self.separateThousands(valuePlayerPair[0]) + szMeasure)
+		return (szPlayerName, separateThousands(valuePlayerPair[0], self.TEXT_THOUSANDS_SEPARATOR_COMMA) + szMeasure)
 
 	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
 		return self.getPlayerValueStr(valuePlayerPair, "", aiGroup)[0]
@@ -2414,16 +2412,6 @@ class CvInfoScreen:
 	def roundToMultiple(self, iValue, iMultiple):
 		r = int(iValue + 0.5 * iMultiple)
 		return r - (r % iMultiple)
-
-	def separateThousands(self, iValue):
-		szSep = self.szSepBase
-		# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
-		s = '%d' % iValue
-		groups = []
-		while s and s[-1].isdigit():
-			groups.append(s[-3:])
-			s = s[:-3]
-		return s + szSep.join(reversed(groups))
 	# </advc.077>
 
 	def drawTextChart(self):
@@ -2734,21 +2722,21 @@ class CvInfoScreen:
 
 		#iCol = 1
 		# Decimal separators added. In the best/worst columns, it's easiest to do this for all values, so do it for all values here too.
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 0, self.separateThousands(iEconomy), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 3, self.separateThousands(iIndustry), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 9, self.separateThousands(iMilitary), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 0, separateThousands(iEconomy, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 3, separateThousands(iIndustry, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 6, separateThousands(iAgriculture, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 9, separateThousands(iMilitary, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 11
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 12, self.separateThousands(iLandArea), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 12, separateThousands(iLandArea, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 14
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 15, self.separateThousands(iPopulation), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 15, separateThousands(iPopulation, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 16
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 18, separateThousands(iHappiness, self.TEXT_THOUSANDS_SEPARATOR_COMMA) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		# row was 18
-		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 21, self.separateThousands(iHealth), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+		SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 21, separateThousands(iHealth, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 		if self.bShowExports:
 			# row was 21
-			SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iValueCol, 24, separateThousands(iNetTrade, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		# <!-- custom: add buttons in the demographics tab with the help of claude opus 4.5 thanks. Old code removed or commented-out for readability and concision. -->
 		#iCol = 2
@@ -2786,21 +2774,21 @@ class CvInfoScreen:
 		#iCol = 3
 		if bShowAvg:
 			# Decimal separators added
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 0, separateThousands(iEconomyGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 3, separateThousands(iIndustryGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 6, separateThousands(iAgricultureGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 9, separateThousands(iMilitaryGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 11
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 12, separateThousands(iLandAreaGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 14
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 15, separateThousands(iPopulationGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 16
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 18, separateThousands(iHappinessGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA) + self.TEXT_HAPPINESS_MEASURE, "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			# row was 18
-			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+			SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 21, separateThousands(iHealthGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 			if self.bShowExports:
 				# row was 21
-				SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
+				SASTextScale.setTableTextLabel(screen, szTable, iAvgCol, 24, separateThousands(iNetTradeGameAverage, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", chartRowWidget, chartRowId1, chartRowId2, chartRowFont)
 
 		#iCol = 4
 		if bShowWorst:

@@ -26,6 +26,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SAS_PLOT_HELP_COORDINATES</Tag>
 		<English>%d1,%d2</English>
 	</TEXT>
+	<!-- custom: Victory Settings reports the DLL's cached AI map-heaviness flags next to other map information. (GPT-5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS</Tag>
+		<English>AI Map Heaviness: landHeavy=%d1_LandHeavy navalHeavy=%d2_NavalHeavy</English>
+	</TEXT>
 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
@@ -1293,6 +1298,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_INFO_RIVAL_WORST</Tag>
 		<English>Rival Worst (Rank)</English>
+	</TEXT>
+	<!-- custom: added _COMMA to its name so other separators can be added/used if needed; other languages will use the same as well -->
+	<TEXT>
+		<Tag>TXT_KEY_THOUSANDS_SEPARATOR_COMMA</Tag>
+		<English>,</English>
 	</TEXT>
 
 

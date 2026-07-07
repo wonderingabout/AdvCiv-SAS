@@ -146,6 +146,7 @@ class CvVictoryScreen:
 
 		# <!-- custom: language tracking for initText, based on Info Screen pattern (claude opus 4.5) -->
 		self.iLanguageLoaded = -1
+		self.SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW = None
 
 		# <!-- custom: keep screen-independent advisor edge constants in init; compute runtime resolution-dependent bounds in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
@@ -213,9 +214,6 @@ class CvVictoryScreen:
 		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
 
-		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
-		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
-
 		# <!-- custom: precompute commonly used icon chars (claude opus 4.5) -->
 		self.iStrengthIcon = CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)
 		self.iCitizenIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
@@ -236,6 +234,7 @@ class CvVictoryScreen:
 		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
 		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
+		self.TEXT_THOUSANDS_SEPARATOR_COMMA = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR_COMMA", ())
 		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
 		self.HEADER_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
@@ -253,16 +252,6 @@ class CvVictoryScreen:
 		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
 		self.szFullMemberText = u"%c %s" % (self.iSilverStarIcon, self.TEXT_FULL_MEMBER)
 		self.szVotingMemberText = u"%c %s" % (self.iBulletIcon, self.TEXT_VOTING_MEMBER)
-
-	# <!-- custom: helper function to format numbers with thousand separators, based on Info Screen pattern (claude opus 4.5) -->
-	def separateThousands(self, iValue):
-		szSep = self.szSepBase
-		s = '%d' % iValue
-		groups = []
-		while s and s[-1].isdigit():
-			groups.append(s[-3:])
-			s = s[:-3]
-		return s + szSep.join(reversed(groups))
 
 	# <!-- custom: helper function to get leader icon image tag for a player (claude opus 4.5) -->
 	def getLeaderIconTag(self, iPlayer):
@@ -290,17 +279,6 @@ class CvVictoryScreen:
 		pPlayer = gc.getPlayer(iPlayer)
 		szLeaderIcon = self.getLeaderIconTag(iPlayer)
 		return u"%s %s" % (szLeaderIcon, pPlayer.getName())
-
-	# <!-- custom: helper function to get trait icons string for a player (claude opus 4.5) -->
-	def getTraitIconsString(self, iPlayer):
-		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
-			return u""
-		pPlayer = gc.getPlayer(iPlayer)
-		szTraits = u""
-		for iTrait in range(gc.getNumTraitInfos()):
-			if pPlayer.hasTrait(iTrait):
-				szTraits += TraitUtil.getIcon(iTrait)
-		return szTraits
 
 	def getScreen(self):
 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
@@ -1191,6 +1169,7 @@ class CvVictoryScreen:
 		screen.addPanel(szSettingsPanel, "", "", True, True, self.SETTINGS_PANEL_X1, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
 		szSettingsHeader = self.getNextWidgetName()
 		screen.setLabel(szSettingsHeader, "Background", self.LABEL_SETTINGS_HEADER, CvUtil.FONT_CENTER_JUSTIFY, self.SETTINGS_PANEL_X1 + self.SETTINGS_PANEL_WIDTH / 2, self.SETTINGS_PANEL_Y + 2, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		placeAdvisorLegendLink(self, "CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
 		szSettingsTable = self.getNextWidgetName()
 		screen.addListBoxGFC(szSettingsTable, "", self.SETTINGS_PANEL_X1 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
 		screen.enableSelect(szSettingsTable, False)
@@ -1205,9 +1184,7 @@ class CvVictoryScreen:
 		szActivePlayerName = u"%s %s" % (self.getLeaderIconTag(iSettingsPlayer), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())))
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szActivePlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
-		szTraitIcons = self.getTraitIconsString(iSettingsPlayer)
-		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, u"     " + TraitUtil.getLeaderTraitsWithIcons(activePlayer.getLeaderType(), activePlayer.getCivilizationType()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		g = gc.getGame() # advc
 		m = gc.getMap() # advc
@@ -1267,6 +1244,11 @@ class CvVictoryScreen:
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )) + (u" (%d x %d)" % (m.getGridWidth(), m.getGridHeight())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		# <!-- custom: Show the same cached landHeavy/navalHeavy AI map-heaviness flags used by DLL behavior and BBAI_GAME_SETTINGS, so they can be checked in-game without enabling logs. (GPT-5.5) -->
+		if self.SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW is None:
+			self.SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW = (gc.getDefineINT("SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW") > 0)
+		if self.SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW:
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS", (int(g.isLandHeavyMapnameCached()), int(g.isNavalHeavyMapnameCached()))), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190b>
 		for i in range(m.getNumCustomMapOptions()):
 			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
@@ -1417,9 +1399,7 @@ class CvVictoryScreen:
 			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
-			# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
-			szTraitIcons = self.getTraitIconsString(p.getID())
-			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     " + TraitUtil.getLeaderTraitsWithIcons(p.getLeaderType(), p.getCivilizationType()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 		# <advc.190c>
@@ -1445,9 +1425,7 @@ class CvVictoryScreen:
 				eCiv = CivilizationTypes.NO_CIVILIZATION
 				if not p.wasCivRandomlyChosen():
 					eCiv = p.getCivilizationType()
-				# <!-- custom: add trait icons to traits line  (claude opus 4.5) -->
-				szTraitIcons = self.getTraitIconsString(p.getID())
-				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     %s (%s)" % (szTraitIcons, CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, u"     " + TraitUtil.getLeaderTraitsWithIcons(p.getLeaderType(), eCiv), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
 		if iUnknownRivals > 0:
@@ -1625,7 +1603,7 @@ class CvVictoryScreen:
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, separateThousands(ourScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1638,7 +1616,7 @@ class CvVictoryScreen:
 							szBestButton = self.getLeaderButton(iBestPlayer)
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, separateThousands(bestScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -1653,7 +1631,7 @@ class CvVictoryScreen:
 					# <!-- custom: add leader icon to active player (claude opus 4.5) -->
 					SASTextScale.setTableTextLabel(screen, szTable, 2, iRow, szActivePlayerNameWithColon, szActivePlayerButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 					# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, self.separateThousands(ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+					SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, separateThousands(ourScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					if (iBestScoreTeam != -1):
 						# <!-- custom: add leader icon (claude opus 4.5) -->
@@ -1667,7 +1645,7 @@ class CvVictoryScreen:
 						SASTextScale.setTableTextLabel(screen, szTable, 4, iRow, szBestName, szBestButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 						# <!-- custom: add thousand separator to score (claude opus 4.5) -->
-						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, self.separateThousands(bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+						SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, separateThousands(bestScore, self.TEXT_THOUSANDS_SEPARATOR_COMMA), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					bEntriesFound = True
 
@@ -2043,7 +2021,7 @@ class CvVictoryScreen:
 					# <!-- custom: add culture icon before text and use thousand separator (claude opus 4.5) -->
 					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
-					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, self.separateThousands(iCultureThresh))
+					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, separateThousands(iCultureThresh, self.TEXT_THOUSANDS_SEPARATOR_COMMA))
 					SASTextScale.setTableTextLabel(screen, szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 					for i in range(victory.getNumCultureCities()):
@@ -2055,7 +2033,7 @@ class CvVictoryScreen:
 							fCulturePercent = 0.0
 							if iCultureThresh > 0:
 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
-							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+							sString = u"%s (%.2f%%)" % (separateThousands(iCultureValue, self.TEXT_THOUSANDS_SEPARATOR_COMMA), fCulturePercent)
 
 							SASTextScale.setTableTextLabel(screen, szTable, 3, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End
@@ -2073,7 +2051,7 @@ class CvVictoryScreen:
 							fCulturePercent = 0.0
 							if iCultureThresh > 0:
 								fCulturePercent = (float(iCultureValue) / float(iCultureThresh)) * 100.0
-							sString = u"%s (%.2f%%)" % (self.separateThousands(iCultureValue), fCulturePercent)
+							sString = u"%s (%.2f%%)" % (separateThousands(iCultureValue, self.TEXT_THOUSANDS_SEPARATOR_COMMA), fCulturePercent)
 
 							SASTextScale.setTableTextLabel(screen, szTable, 5, iRow, sString, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 # BUG Additions End

@@ -557,6 +557,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: show the DLL's cached landHeavy/navalHeavy AI map-heaviness flags in Victory Screen > Settings near the other map information. This matches BBAI_GAME_SETTINGS and avoids requiring logs to verify the active classification. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_CV_VICTORY_SCREEN_SETTINGS_AI_MAP_HEAVINESS_SHOW</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: optionally set how many extra rows of things to build (units, buildings, processes (research, wealth, culture)) you want to show in the city screen's production chooser bar. 0 disables this feature entirely. 1 Adds an extra row, 2 adds 2 extra rows, etc. Code added with the help of chatgpt 5.2 thanks. (Note: as of now does not affect the production chooser outside of the city screen (i.e. by clicking without entering the city screen)) -->
 	<Define>
 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
@@ -1313,7 +1321,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_EVACUATION_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: New Land-worker BBAI log level notably for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+	<!-- custom: New Land-worker BBAI log level notably for Worker AI build, movement, improvement-replacement, and idle/parking lifecycle diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
 		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

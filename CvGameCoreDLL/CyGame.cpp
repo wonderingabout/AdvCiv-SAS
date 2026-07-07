@@ -609,6 +609,17 @@ bool CyGame::isFinalInitialized()
 {
 	return m_kGame.isFinalInitialized();
 }
+
+// <!-- custom: expose the cached AI map heaviness classification so Python UI reports the same land/naval-heavy result used by DLL behavior and BBAI logging. (GPT-5.5) -->
+bool CyGame::isLandHeavyMapnameCached() const
+{
+	return m_kGame.isLandHeavyMapnameCached();
+}
+
+bool CyGame::isNavalHeavyMapnameCached() const
+{
+	return m_kGame.isNavalHeavyMapnameCached();
+}
 // advc.061:
 void CyGame::setScreenDimensions(int iWidth, int iHeight)
 {

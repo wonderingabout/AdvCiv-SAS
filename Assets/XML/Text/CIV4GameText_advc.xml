@@ -1677,14 +1677,6 @@
 		<Italian>Media rivali (ca.)</Italian>
 		<Spanish>Medio rival (aprox.)</Spanish>
 	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_THOUSANDS_SEPARATOR</Tag>
-		<English>,</English>
-		<French>[SPACE]</French>
-		<German>.</German>
-		<Italian>.</Italian>
-		<Spanish>.</Spanish>
-	</TEXT>
 
 	<!-- advc.150a: Akin to TXT_KEY_MISC_PLAYER_CONVERT_RELIGION in
 		 (Vanilla) Civ4GameTextInfos. -->

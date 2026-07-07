@@ -213,6 +213,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities)\
 [173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings)\
 [174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
+[175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6330,3 +6331,13 @@ This does not produce unusable Work Boats. `AI_neededSeaWorkers` uses no technol
 In the confirming save file 443 run (`BBAI_20260705T105644Z_load4.log`), Seoul continued choosing its Work Boat at populations 3 and 4, completed it, then started its Worker. The separate Lisbon test (`BBAI_20260705T105453Z_load1.log`) also completed its Work Boat before starting its Worker.
 
 Fixed/improved with the help of GPT-5.5 (on Codex) thanks.
+
+## 175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied
+
+In `CvUnitAI::AI_workerMove`, Base AdvCiv's Barbarian Worker branch called `AI_retreatToCity(false, true)` after finding no accepted local job, even when the Worker already occupied a safe city owned by the Barbarians. In the save file 442 BBAI test, two Workers in Chehalis repeatedly ended with `MISSIONAI_RETREAT + ACTIVITY_HOLD` and no queued mission. The existing AdvCiv-SAS Worker recovery cleared that stale state on the next turn, but the unchanged Base AdvCiv retreat call immediately recreated it from about turns 126-152.
+
+Barbarian Workers no longer try to retreat from a safe owned city to itself. They instead use the branch's existing one-turn Skip or eventual-scrap fallback, so they wake and reconsider newly available work on later turns; the scrap path now also checks that scrapping is actually allowed instead of silently doing nothing.
+
+In the repeated save file 442 run, Barbarian parking-recovery events fell from 53 to 3. All remaining safe-city no-job fallbacks explicitly skipped the turn, with no false `action=scrap` records. A separate Huge naval-heavy Equal Islands test covered 20,308 Worker group turns: its 93 recoveries were spread across 70 Workers, no Worker remained in a persistent recovery loop, and every recovered Worker found another action rather than reaching the final no-productive-action fallback.
+
+Fixed with the help of GPT-5.5 (on Codex) thanks.
