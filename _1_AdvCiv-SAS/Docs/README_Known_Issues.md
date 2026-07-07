@@ -214,6 +214,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [173 - (Fixed/Improved) Base AdvCiv issue: Live first-settler scoring reused hidden map-generation surroundings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings)\
 [174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
 [175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
+[176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6341,3 +6342,41 @@ Barbarian Workers no longer try to retreat from a safe owned city to itself. The
 In the repeated save file 442 run, Barbarian parking-recovery events fell from 53 to 3. All remaining safe-city no-job fallbacks explicitly skipped the turn, with no false `action=scrap` records. A separate Huge naval-heavy Equal Islands test covered 20,308 Worker group turns: its 93 recoveries were spread across 70 Workers, no Worker remained in a persistent recovery loop, and every recovered Worker found another action rather than reaching the final no-productive-action fallback.
 
 Fixed with the help of GPT-5.5 (on Codex) thanks.
+
+## 176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1C9Dh5nOjbA402OitO7IeNPm3-lUyWTt0?usp=sharing).
+
+Save file 446 exposed a stale AI Worker mission queue in `CvSelectionGroup::continueMission_bulk`: a Worker was standing on `(59,24)`, its `MISSIONAI_BUILD` target was `(58,24)`, and a queued Cottage build intended for `(58,24)` executed on the current plot `(59,24)` after route movement failed. This overwrote the intended Grass Hill Mine on `(59,24)` with a Cottage, which was then worked for much of the game and noticeably weakened the city.
+
+The underlying unsafe behavior is inherited from the base mission system: `MISSION_BUILD` stores the build type but no target coordinates, and `groupBuild` acts on the group's current plot. The intended target exists only in the AI mission metadata (`AI_getMissionAIPlot`). If current plot and mission target desync before the build mission reaches the head of the queue, base-derived code has no target guard.
+
+Recent AdvCiv-SAS Worker follow-up improvements made this easier to notice because useful queued follow-up builds now survive across turns instead of being deleted after feature removal consumes all movement. That likely exposed or amplified the bug, but the dangerous invariant itself is in the base/K-Mod/AdvCiv mission execution semantics.
+
+The fix is deliberately narrow: before executing an AI `MISSIONAI_BUILD`, `CvSelectionGroup::continueMission_bulk` now checks that the group is still standing on `AI_getMissionAIPlot`. If not, the stale build mission is cancelled so the Worker can replan instead of building on the wrong plot.
+
+The confirming save-file-446 t200 replay (`BBAI_20260707T090934Z_load1.log`) showed the guard firing 7 times across multiple players, not only the original Japan case. The original Japan sequence was:
+
+```log
+WORKER_GROUP_TURN phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 worker=(59,24) activity=6 missionAI=23 missionTarget=(58,24) missionQueue=3 forceUpdate=0 canAnyMove=0 movesLeft=0
+WORKER_MISSION_EXECUTION phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 mission=1 data=(58,24) flags=2 pushTurn=62 from=(59,24) missionTarget=(58,24) queue=3 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 outcome=route-failed mission=1 from=(59,24) to=(59,24) missionTarget=(58,24) done=1 action=0 ready=1 queue=3 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=begin turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 mission=33 data=(16,-1) flags=0 pushTurn=62 from=(59,24) missionTarget=(58,24) queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=64 player=0 Japanese Empire workerId=65541 groupId=73733 outcome=build-target-mismatch-cancel mission=33 from=(59,24) to=(59,24) missionTarget=(58,24) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MOVE_ENTRY turn=64 player=0 Japanese Empire workerId=65541 worker=(59,24) groupId=73733 activity=0 missionAI=23 missionTarget=(58,24) missionQueue=0 movesSpent=0 movesLeft=120 currentDanger=0 threatened=0
+```
+
+The other exact `build-target-mismatch-cancel` records in that run:
+
+```log
+WORKER_MISSION_EXECUTION phase=result turn=71 player=3 Ottoman Empire workerId=24576 groupId=24576 outcome=build-target-mismatch-cancel mission=33 from=(50,34) to=(50,34) missionTarget=(51,33) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=110 player=1 Greek Empire workerId=114690 groupId=122880 outcome=build-target-mismatch-cancel mission=33 from=(66,24) to=(66,24) missionTarget=(67,25) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=127 player=1 Greek Empire workerId=163842 groupId=172032 outcome=build-target-mismatch-cancel mission=33 from=(66,25) to=(66,25) missionTarget=(67,26) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=162 player=7 Native American Empire workerId=409611 groupId=671771 outcome=build-target-mismatch-cancel mission=33 from=(54,32) to=(54,32) missionTarget=(55,32) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=178 player=8 Celtic Empire workerId=466987 groupId=794639 outcome=build-target-mismatch-cancel mission=33 from=(27,45) to=(27,45) missionTarget=(31,48) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+WORKER_MISSION_EXECUTION phase=result turn=181 player=7 Native American Empire workerId=991295 groupId=1761313 outcome=build-target-mismatch-cancel mission=33 from=(53,31) to=(53,31) missionTarget=(56,32) done=1 action=0 ready=1 queue=1 activity=6 movesLeft=120
+```
+
+In the confirming run, the old Mine-to-Cottage corruption on `(59,24)` no longer appeared. The Worker cancelled the stale build, replanned normally, and moved to a valid new target.
+
+Fixed with the help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.

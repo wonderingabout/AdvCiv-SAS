@@ -1549,8 +1549,17 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			break;
 
 		case MISSION_BUILD:
-			if(!groupBuild((BuildTypes)missionData.iData1,
-				!missionData.bModified)) // advc.011b
+		{
+			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+			// <!-- custom: Save file 446 exposed a stale AI worker mission queue where a target plot 58,24 Cottage build executed on the current plot 59,24 after route movement failed, overwriting an intended Mine. See KI#176.
+			// MISSION_BUILD has no stored plot coordinates, so for AI worker build missions we require the group to still be standing on the mission target before allowing groupBuild to act on the current plot.
+			// Validation: the save-file-446 t200 replay after this guard fired this cancel 7 times (T64 Japan 59,24->58,24; T71 Ottoman 50,34->51,33; T110 Greece 66,24->67,25; T127 Greece 66,25->67,26; T162 Native America 54,32->55,32; T178 Celts 27,45->31,48; T181 Native America 53,31->56,32), confirming this was a systemic stale-target safety issue rather than only the original Japan tile. (ChatGPT-5.5 + GPT-5.5) -->
+			if (AI().AI_getMissionAIType() == MISSIONAI_BUILD && pMissionPlot != NULL && !atPlot(pMissionPlot))
+			{
+				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-target-mismatch-cancel";
+			}
+			else if (!groupBuild((BuildTypes)missionData.iData1, !missionData.bModified)) // advc.011b
 			{
 				bDone = true;
 				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-finished-or-invalid";
@@ -1560,6 +1569,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-step";
 			}
 			break;
+		}
 
 		default: FAssert(false);
 		}

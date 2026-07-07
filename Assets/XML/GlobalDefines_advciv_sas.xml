@@ -894,22 +894,23 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>-400</iDefineIntVal>
 	</Define>
 
-	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food bonus value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-bonus starts, without changing later strategic/bonus city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield bonus-value component; normal tile yields are still evaluated separately. (GPT-5.5) -->
+	<!-- custom: starting-location-only city-site tuning. The capital snowballs from early growth more than later cities do, so modestly favor food bonuses, fresh-water city tiles, and river support, while slightly dampening non-food bonus value. This helps first settlers choose nearby corn/fresh-water positions instead of slower commerce/hammer-bonus starts, without changing later strategic/bonus city placement. Home fresh-water value is applied before home plot value is doubled in CitySiteEvaluator. Food/non-food bonus percents affect the non-yield bonus-value component; normal tile yields are still evaluated separately. (GPT-5.5); even though food is important, do not overbuff it here (also because it is extra valuation only) or we would neglect valuable other plots like hill grass for hammer and small food cost in save file 446. -->
 	<Define>
 		<DefineName>SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT</DefineName>
-		<iDefineIntVal>140</iDefineIntVal>
+		<iDefineIntVal>125</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_EVALUATE_STARTING_NON_FOOD_BONUS_VALUE_PERCENT</DefineName>
 		<iDefineIntVal>95</iDefineIntVal>
 	</Define>
+	<!-- custom: this is extra-valuation so do not over-buff it -->
 	<Define>
 		<DefineName>SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE</DefineName>
-		<iDefineIntVal>125</iDefineIntVal>
+		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_EVALUATE_STARTING_RIVER_TILE_VALUE</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Value per actual Food/Production/Commerce yield added by a bonus-specific BFC improvement. Formula: added Food * FOOD_VALUE + added Production * PRODUCTION_VALUE + added Commerce * COMMERCE_VALUE. For example, an improvement adding +2 Food and +1 Production contributes 2 * 100 + 1 * 75 = 275 with the defaults below. Replaces AdvCiv's hardcoded nonlinear special-yield aggregation so bonus-tile yields are counted once and can be tuned without recompiling; separate health, happiness, strategic, duplicate, and trade values remain unchanged. (GPT-5.5) -->
 	<Define>
@@ -1005,20 +1006,20 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius -->
+	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius; even if it's not as strong late game, most cities are settled early/mid-game so this gives a significant advantage for minimal food cost so value it -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
+		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
-	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same -->
+	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same; it can also be irrigated and be a very nice food source especially late game. -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
-		<iDefineIntVal>60</iDefineIntVal>
+		<iDefineIntVal>65</iDefineIntVal>
 	</Define>
 	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
 	<Define>
 		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway -->
 	<Define>
