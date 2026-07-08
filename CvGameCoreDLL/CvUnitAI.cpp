@@ -7892,7 +7892,7 @@ void CvUnitAI::AI_greatPersonMove()
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	MissionAITypes eBestSlowMissionAI = NO_MISSIONAI;
 	int iBestValue = 1;
-	// <!-- custom: K-Mod initialized the nearest-path tie-breaker but updated it only for hurry-building candidates, not Join or direct Construct candidates. This could let a later, farther city replace an equally valuable nearer target; preserve the selected path length for every slow action. Great Artist logging also records it and the previous mission state after a map-428 Artist crossed the Walata-Tadmekka corridor for six turns while changing Join/corporation targets. See KI#168. (GPT-5.5) -->
+	// <!-- custom: K-Mod initialized the nearest-path tie-breaker but updated it only for hurry-building candidates, not Join or direct Construct candidates. This could let a later, farther city replace an equally valuable nearer target; preserve the selected path length for every slow action. Great Artist logging also records it and the previous mission state after a save file 428 Artist crossed the Walata-Tadmekka corridor for six turns while changing Join/corporation targets. See KI#168. (GPT-5.5) -->
 	int iBestPathTurns = MAX_INT;
 	int iPreviousSlowTargetValue = -1;
 	int iPreviousSlowTargetPathTurns = -1;
@@ -8133,7 +8133,7 @@ void CvUnitAI::AI_greatPersonMove()
 		iSlowValue /= 100;
 		missions.push_back(std::pair<int, int>(iSlowValue, GP_SLOW));
 	}
-	// <!-- custom: A map-428 Great Artist made a marginal Walata -> Kumbi Saleh -> Walata corporation-target reversal, but slow movement stored no final mission target. Record the previous target's current comparable value/path beside the new best target before adding any switching threshold. Diagnostic only. (GPT-5.5) -->
+	// <!-- custom: A save file 428 Great Artist made a marginal Walata -> Kumbi Saleh -> Walata corporation-target reversal, but slow movement stored no final mission target. Record the previous target's current comparable value/path beside the new best target before adding any switching threshold. Diagnostic only. (GPT-5.5) -->
 	if (bLogCultureGreatArtistDecision)
 		logBBAI("CULTURE_GREAT_ARTIST_SLOW_TARGET turn=%d player=%d unitId=%d previousMissionAI=%d previousMissionPlot=(%d,%d) previousValue=%d previousPathTurns=%d bestValue=%d bestPathTurns=%d bestMissionAI=%d bestCity=%S bestCityId=%d bestCityPlot=(%d,%d) specialist=%s building=%s",
 				kGame.getGameTurn(), getOwner(), getID(), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iPreviousSlowTargetValue, iPreviousSlowTargetPathTurns, iBestValue, (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns),

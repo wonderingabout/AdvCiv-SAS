@@ -6239,13 +6239,13 @@ K-Mod initialized `iBestPathTurns` for slow Great Person actions, but updated it
 
 This is a real but narrow gameplay-selection bug, not a logging-only issue: the fix updates `iBestPathTurns` whenever Join, direct Construct, or Hurry selects a new best candidate, so equal-value candidates now retain the nearer target. Great Artist diagnostics also record the chosen path length.
 
-The BBAI log prompted the target/path investigation, but did not directly demonstrate this exact equal-value case. The bug was found while reviewing and patching the source, and it was not the cause of the map-428 Walata/Kumbi Saleh reversal because those target values differed.
+The BBAI log prompted the target/path investigation, but did not directly demonstrate this exact equal-value case. The bug was found while reviewing and patching the source, and it was not the cause of the save file 428 Walata/Kumbi Saleh reversal because those target values differed.
 
 Fixed with the help of GPT-5.5 (on Codex) thanks.
 
 ## 169 - (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging)
 
-Base AdvCiv passed the end-turn movement waypoint and mission type for Great Person Join/Construct/Hurry travel, but omitted `pMissionAIPlot`. Multi-turn movement therefore stored no final city, and map-428 logging repeatedly showed `previousMissionPlot=(-1,-1)`.
+Base AdvCiv passed the end-turn movement waypoint and mission type for Great Person Join/Construct/Hurry travel, but omitted `pMissionAIPlot`. Multi-turn movement therefore stored no final city, and save file 428 logging repeatedly showed `previousMissionPlot=(-1,-1)`.
 
 This was not merely missing log output. It was real mission-state metadata used by AI target-continuity/coordination systems. The fix keeps the end-turn waypoint as the movement destination while passing the intended final city separately as the mission-AI plot; the route itself is unchanged. The next autoplay confirmed that Join and Construct targets persisted across turns and could be valued again.
 

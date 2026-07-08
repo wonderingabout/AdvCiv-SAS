@@ -1,3 +1,1152 @@
+commit feddabdf89f022dcf6412aab0cab414a54b4610c
+Author: wonderingabout <hidden>
+Date:   2026-07-07 11:24:26 +0200
+
+(Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS AI Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot (KI#176)
+- Cancel queued AI worker build missions when the group is no longer standing on the mission AI target plot. This fixes a save file 446 case where a failed route-to mission left a worker on 59,24 and the next queued Cottage build overwrote the intended Mine there instead of executing on 58,24.
+- The t200 replay confirms the guard fired 7 times across several players, preventing stale wrong-plot builds and letting workers replan normally.
+- minor tune AI settler SAS defines 1: SAS_EVALUATE_STARTING_FOOD_BONUS_VALUE_PERCENT 140->125; SAS_EVALUATE_STARTING_HOME_FRESH_WATER_VALUE 125->100; SAS_EVALUATE_STARTING_RIVER_TILE_VALUE 10->5 (this is extra-valuation so do not over-buff it)
+- minor tune AI settler SAS defines 2: SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS 75->80 (even if it's not as strong late game, most cities are settled early/mid-game so this gives a significant advantage for minimal food cost so value it)
+- minor tune AI settler SAS defines 3: SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS 60->65 (it can also be irrigated and be a very nice food source especially late game)
+- minor tune AI settler SAS defines 4: SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS 10->15
+- update 18 civs DLL
+
+commit 97b3d2c00fde87ccc5ed76f9bdd5181b2ce9db8e
+Author: wonderingabout <hidden>
+Date:   2026-07-07 08:15:41 +0200
+
+Fix Base AdvCiv bug: Barbarian AI Worker self-retreat loop (KI#175); add DLL's cached map heaviness information to BBAI logging and show it in Victory Screen's Settings Tab
+
+- Add AI Worker parking diagnostics: log land Worker group turn states, recovery transitions, and final no-productive-action fallbacks at Worker log level 3.
+- Fix Base AdvCiv Barbarian Workers repeatedly retreating to a safe city they already occupy, and only scrap them when scrapping is actually allowed. See KI#175.
+- Refactor getLeaderTraitsWithIcons and separateThousands to modules so they can be reused
+- Beautify Victory Screen's Trait char icons now just before their trait text instead of separated all trait char icons then all trait texts
+- Rename thousand separator char to TXT_KEY_THOUSANDS_SEPARATOR_COMMA so others can be added/used if needed (other languages will use the same as well)
+
+commit a36859f6a2411e2ca05ceb86986e5b174075aa9d
+Author: wonderingabout <hidden>
+Date:   2026-07-06 20:24:02 +0200
+
+Improve AI worker job selection, feature-removal follow-ups, and hill development
+
+- Compare each city's strongest reachable job using its full build value, development need, assigned workers, and travel cost instead of a blanket population preference.
+- Execute AI_bestCityBuild's selected build unchanged so valuable Chops, Mines, and Farms are not replaced with unrelated Roads.
+- Continue worthwhile improvements after standalone feature removal, preserving queued follow-ups across turns and avoiding delayed yields and repeat trips.
+- Retain only the strongest irrigation connector per target so alternative routes do not crowd out other valuable work.
+- Increase the XML-tunable enough-food Grass and Plains Hill Mine values.
+- Expand worker diagnostics.
+
+commit 40c1c1f9d4b090399d6c4f21a19e561215300727
+Author: wonderingabout <hidden>
+Date:   2026-07-06 12:16:00 +0200
+
+Add detailed BBAI worker assignment and mission diagnostics
+
+commit c74eddbf0a4c771b2b4f6b59f76ebf621dd1b74f
+Author: wonderingabout <hidden>
+Date:   2026-07-06 08:50:31 +0200
+
+Add SAS_BBAI_SETTLER_LOG_LEVEL, separated from UNIT so Settlers and other units can be inspected independently
+
+commit b97c9369572c86bab4c9d9c27ab8547fd8797648
+Author: wonderingabout <hidden>
+Date:   2026-07-06 08:22:10 +0200
+
+Refine AI first-city scouting returns to preserve strong new sites without undoing useful exploration
+
+commit 69dfeb2f51d56e8ee40e7259138f4371aeda8eae
+Author: wonderingabout <hidden>
+Date:   2026-07-06 07:49:18 +0200
+
+Optionally build a Worker or Work Boat before the first AI capital's defender
+
+commit bde91d7ea89f21697873c5d1cead5045ee21347c
+Author: wonderingabout <hidden>
+Date:   2026-07-05 14:43:26 +0200
+
+Prioritize actionable AI Work Boats before land Workers and remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (KI#174)
+
+commit 9e309a31fbfebf72c6ee9f5629e53dfc27af4550
+Author: wonderingabout <hidden>
+Date:   2026-07-05 12:04:20 +0200
+
+Prevent early AI double-Worker production and centralize AI Worker demand; log first-production context
+
+commit f544db1d5e89f248d23b853b573ae8697f62bf1f
+Author: wonderingabout <hidden>
+Date:   2026-07-05 09:50:44 +0200
+
+Create a new BBAI log for each new/loaded game, log some game settings information and currently active BBAI log levels, to simplify repeated testing; example of file name: `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`
+
+commit 419b449728d0033bee5a2a948cebd870d6bec4a8
+Author: wonderingabout <hidden>
+Date:   2026-07-05 08:45:37 +0200
+
+Heavily reduce naval-heavy coastal AI settling biases after scoring fixes from KI#173 (KI#146)
+
+commit 1c4e04179177fa799e8271abfb5d92d9de6c1c48
+Author: wonderingabout <hidden>
+Date:   2026-07-05 08:17:22 +0200
+
+Improve AI settler first-city scouting efficiency and return timing
+
+commit a5f183a4893a15e30326733e955b3b8b43d561fc
+Author: wonderingabout <hidden>
+Date:   2026-07-04 19:49:35 +0200
+
+Improve AI settler/found first-city scoring, bonus valuation, and scouting; remove a lot of convoluted, not relevant, or redundant old base AdvCiv logic, make some of it now tunable
+
+- Fix minor AI settler information cheating: when choosing the first city during gameplay, evaluate only revealed BFC terrain, bonuses, and improvement potential.
+- Keep all-seeing evaluation only for map generation. Disable the runtime starting-surroundings spacing modifier by default. See KI#173.
+
+- Increase  very-bad plots tolerance from 2 and 3 for first-city and later cities to 4 and 4 (so a very strong Berlin site with 4 peak is chosen instead of a weaker no very bad plot one)
+
+- Exclude dead or unrevealed plots from low-food evaluation (already handled elsewhere, would cause double counting).
+
+- Rank recovery sites by their complete found value, require fully revealed BFCs before interrupting scouting, and return to the best known reachable site after bounded scouting.
+- Replace Base AdvCiv's redundant nonlinear special-yield scoring with XML-tunable bonus-improvement Food, Production, and Commerce values, and apply SAS terrain valuation to bonus plots (changed vs before, so e.g. now, so Iron on Grass is as of now valued higher than Iron on Snow)
+- Externalize Base AdvCiv's natural-yield weights and remove the early-Commerce and Barbarian yield exceptions.
+- Add detailed BBAI found-value breakdowns and document the Berlin, Karakorum, and Cuzco save-file tests.
+
+commit e466b86faa145a17749e77ef1021d0da6afbfb6c
+Author: wonderingabout <hidden>
+Date:   2026-07-04 08:42:39 +0200
+
+Add evacuation BBAI diagnostics and fix Base AdvCiv important-city evacuation percentile bug (KI#172) (SAS_BBAI_EVACUATION_LOG_LEVEL)
+- clarify and rename doomed-city all-land-unit SAS define
+
+commit d66eb5de02594040e036ca600a86b21503b714a6
+Author: wonderingabout <hidden>
+Date:   2026-07-03 12:10:39 +0200
+
+Merge commit 'c2605f98d'; preserve both old and new base AdvCiv logic instead of keeping only new, via tunable SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE sas define
+
+commit 8643710c14650aff7d28f3b3325c55f2feab68f3
+Author: wonderingabout <hidden>
+Date:   2026-07-03 11:04:27 +0200
+
+Update docs following branch rename from tech-rework to main
+- this auto-closed the comparative main vs 1.12 PR #13, now reopened as PR #34
+
+commit d2ccd468a9c74c54769ccf414e4a7fd329bff46f
+Author: wonderingabout <hidden>
+Date:   2026-07-02 20:11:23 +0200
+
+Tentatively Fix and Harden a few crashes
+- KI#171 - (Tentatively Addressed and Hardened) Rare T281 crash related to `CvPlot::setLayoutDirty+0x12f3` and `CvPlot::checkLateEra+0x877`
+- KI#162.2 - (Tentatively Addressed and Hardened) Two consecutive (but rare and not consistently reproducible) T281 crashes related to `CvCity::getProductionBarPercentages`
+- Document KI#161.3: (Open/Unresolved) Two rare, intermittent T126 city-name/heap crashes related to `CvCity::cheat+0x15c3`/`+0x15c6`
+- update 18 civs DLL
+
+commit 536c6d316b79df11218a7ffaccdca8375842d3b7
+Author: wonderingabout <hidden>
+Date:   2026-07-02 18:20:38 +0200
+
+Enhance Espionage Tab leader icons being too small and unneeded char and beautify
+
+commit 520df2a23aa4f328108e4760b50d4cb42a7065e8
+Author: wonderingabout <hidden>
+Date:   2026-07-02 10:44:26 +0200
+
+Fix K-Mod / Base AdvCiv bugs and more BBAI logging
+- Expanded Great Artist diagnostics: slow base value and path turns, previous mission type/final plot, previous target’s current value/path, selected city and actual Join/Construct/Hurry type
+- (Fixed) K-Mod bug: Great Person Join and direct Construct target selection did not preserve the nearest-path tie-breaker (Bug Found During BBAI Logging Investigation/Code Review). See KI#168.
+- (Fixed) Base AdvCiv bug: slow Great Person movement omitted the intended final city from mission-AI target metadata (Mission-State/AI Coordination Bug Exposed by BBAI Logging). See KI#169.
+- (Fixed) Base AdvCiv bug: inferred Great Person Construct versus Hurry from the end-turn waypoint instead of the selected final-city action (Mission-Classification/AI Coordination Bug Exposed by BBAI Logging). See KI#170
+- Minor text upscaling refactor fix use sasFontTag instead of getSASUIFont when relevant
+
+commit 8964e26963b5fc90970d7608ec745c5ff81359c4
+Author: wonderingabout <hidden>
+Date:   2026-07-01 23:38:53 +0200
+
+Expand K-Mod AI citizen fallback to apply context-approved food trades with nonnegative raw yield value
+- Fix BBAI Artist-to-plot diagnostics counting forced or population-free specialists as reassignable
+- Fix reversed BBAI Artist-to-specialist alternative diagnostics
+- Remove unreliable pre-fix Artist-to-plot totals from documentation
+
+commit bb4027056998a985b99bc9b7d842d8005be59c47
+Author: wonderingabout <hidden>
+Date:   2026-07-01 20:06:33 +0200
+
+Refine AdvCiv-SAS AI starvation guard to allow partial food recovery
+
+commit 09a2a9333d64c1255923fc529ef2cfd2233597ea
+Author: wonderingabout <hidden>
+Date:   2026-07-01 19:29:13 +0200
+
+Expand K-Mod AI citizen fallback to apply context-approved modest food trades
+
+commit 08b51062869d340dbc37df3596cc0bd9cb461d28
+Author: wonderingabout <hidden>
+Date:   2026-07-01 19:08:52 +0200
+
+Prevent AI all-in culture pursuit when another active victory countdown is faster
+
+commit d52228ce31f8ecdd52b35d322a3433b4ff9bd6cd
+Author: wonderingabout <hidden>
+Date:   2026-07-01 17:01:30 +0200
+
+Reduce direct K-Mod AI Artist culture overvaluation in secure non-cultural cities while preserving border recovery
+- Extend Artist culture-pressure diagnostics with BFC and revolt context
+
+commit 2c4d36768cc681b6796472cde0214217b0ec8bf7
+Author: wonderingabout <hidden>
+Date:   2026-07-01 15:10:36 +0200
+
+Reduce empire-wide K-Mod AI specialist pressure from local Join City culture outside cultural victory, especially for Artists (since this specialist gives most culture)
+- Extend BBAI Great Person weight diagnostics with Join City value components
+
+commit b07682a2d1b7406f77723507d6890db5baaa92ad
+Author: wonderingabout <hidden>
+Date:   2026-07-01 10:00:55 +0200
+
+Reduce K-Mod AI one-time corporation-founder specialist pressure on recurring specialist selection
+- Add BBAI diagnostics for the sources and strategic context of K-Mod AI Great Person weights
+- Add BBAI diagnostics for CULTURE_GREAT_ARTIST_DECISION and bugfix and perf opt
+- (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt). See KI#167.
+- extend Great Artist diagnostics
+
+commit fe270ae40c771580a59e18f8599dcc437afb4bba
+Author: wonderingabout <hidden>
+Date:   2026-07-01 09:19:38 +0200
+
+Apply K-Mod's detailed city-aware valuation when its quick estimate misses better AI specialist or plot assignments
+- Optionally extend safe plot reassignment to automated human cities for convenience (previous commit's change)
+
+commit f5c82501ff77543bfd7164581aac773db629d771
+Author: wonderingabout <hidden>
+Date:   2026-06-30 14:56:36 +0200
+
+Fix/enhancement: Recheck and reassign K-Mod AI citizens from their plots to safe, clearly better unworked plots
+
+commit 5bb2a0bdb14b284bca7aa253215bbac8f9549e20
+Author: wonderingabout <hidden>
+Date:   2026-06-30 13:21:57 +0200
+
+Add BBAI diagnostics for missed AI citizen swaps and suspicious plot allocations (SAS_BBAI_CITIZEN_LOG_LEVEL)
+
+commit d065ecda85f85718256c662b017243f48ab32843
+Author: wonderingabout <hidden>
+Date:   2026-06-30 12:51:42 +0200
+
+Fix AdvCiv-SAS AI specialist assignment growth guard preventing existing specialists from considering switching types (in case they may be better) even though such swaps do not reduce city growth
+
+commit f17e7887d2d7d3ccd42cf97acae773fb2d2294b5
+Author: wonderingabout <hidden>
+Date:   2026-06-30 09:56:13 +0200
+
+Align AI culture production role with victory candidates
+- Add BBAI diagnostics for AI culture-city production and Artist allocation
+
+commit 8b72c7b6063c51953df909e410b76590eff854e8
+Author: wonderingabout <hidden>
+Date:   2026-06-30 08:42:39 +0200
+
+Reject impossible AI cultural-victory deadlines once all 3 Legendary-city finish times can be estimated
+
+commit 2e8f832f1fa826358f389d2999dbd902611b3da0
+Author: wonderingabout <hidden>
+Date:   2026-06-29 22:13:12 +0200
+
+Prioritize other AI victory plans if advanced enough (as of now AI stage >= 3 out of 4) instead of unprepared cultural pursuits
+- Perf opt: Avoid unnecessary AI culture-diagnostic calculations when logging is disabled
+- Add early-culture and Culture 4 sprint opportunity BBAI diagnostics
+
+commit 615266a47eaee61045ffcc1ca9e47be0e1b98cb8
+Author: wonderingabout <hidden>
+Date:   2026-06-29 20:05:13 +0200
+
+Do not pursue serious AI culture victory if current or planned war enemies are strong
+
+commit db0d76c10e5e4c07612b70dc27221cd8198a0a3b
+Author: wonderingabout <hidden>
+Date:   2026-06-29 18:07:55 +0200
+
+Reduce inefficient AI cultural-victory pursuits and balance investment more evenly between Legendary-city targets
+
+commit 336f984587d40d95888cd0a5d4db3e91f4efef85
+Author: wonderingabout <hidden>
+Date:   2026-06-28 21:27:46 +0200
+
+(Tentatively Addressed and Hardened) Rare non-reproducible autoplay city-name crash related to `CvCity::cheat+0x15c3` around city acquisition (Aachen city ownership transfer from Holy Rome to Mali) and uncovered during BBAI culture logging investigation
+
+commit 71b4ef81fef2861092c53bd2fb171369a481825e
+Author: wonderingabout <hidden>
+Date:   2026-06-28 20:04:53 +0200
+
+Add dedicated BBAI culture-victory diagnostics (SAS_BBAI_CULTURE_LOG_LEVEL)
+
+commit c9480529fc173638251481660963c10740662adc
+Author: wonderingabout <hidden>
+Date:   2026-06-28 12:57:25 +0200
+
+Remove old hardcoded AI scrap era/XMLcost rules (new recent rules are more dynamic, easier, les fragile to change/maintenance, and likely stronger for AI too)
+- UNIT_BARBARIAN_WORKER: iWorkRate 500->200: "<!-- custom: due to war state, they may often die in cities, and they also need to compensate their later start, so make them work extra fast to partially try to avoid or compensate that, but do not overdo it else they develop stronger than the other players, or skew too much gameplay depending on barbarian city captures (whoever captures a fully developped town barbarian city gains too much of an advantage or too soon for example) -->"
+- optionally changed **default first tab opened at Civ4 launch** as of now to **Map tab** for easier immediate unit review.
+
+commit 7a6be1b482c631ab46fe891e44fdedacd5e3871b
+Author: wonderingabout <hidden>
+Date:   2026-06-28 12:13:53 +0200
+
+Replace Settler/Found AI hardcoded enough good enough first-city plots with a dynamic one
+- Add an XML-aware “good enough” BFC tile check for first-city site evaluation, replacing the old rough non-peak-land + water-bonus approximation. Good-enough slots now account for usable/improvable land, visible bonuses, and reachable or already-improved water bonuses, while ordinary empty water and persistently bad plots no longer count.
+- Also harmonize BFC helper/counter/define names
+- Minor formatting fixes in non-onliners with the help of ChatGPT-5.5 too thanks (using a regexp `=\s*\r?\n\s*GC\.getDefine(?:INT|FLOAT|DOUBLE|STRING|BOOL)?\s*\(`)
+
+commit 9f8136174d039c00a0d1b230de4739beba5f6322
+Author: wonderingabout <hidden>
+Date:   2026-06-28 10:59:26 +0200
+
+Replace Settler/Found AI hardcoded very bad plot count with a dynamic yield-based threshold count
+e.g., `4 * food + 2 * production + commerce` (e.g., 1 food is not very bad, 1 hammer and 2 commerce is very bad, peak is very bad), no need to hardcode it and more flexible/future-proof
+
+commit f3137a536bb1901690ebae83fca1b8bb1102f771
+Author: wonderingabout <hidden>
+Date:   2026-06-28 10:06:04 +0200
+
+Replace hardcoded Settler/Found AI low-food environment evaluation with a dynamic one, and add bonuses that give food to offset low food score
+- Empirically preserves Karakoum roaming away from bad tundra start, and should help settlers move away from low food sites, without discarding those that happen to have rich food from bonuses (e.g., high tundra high fish/deer may be better than grass/plain hybrid no food from bonuses)
+- No longer hardcoded score value: now derives from actual yields, so resistant to XML modifications
+
+commit 075068c0fcae4bf534d559559c5a65f6e1336dd8
+Author: wonderingabout <hidden>
+Date:   2026-06-26 10:58:16 +0200
+
+Add and test automated AIP predump refresh GitHub Actions workflow bot (#31)
+
+* Update CIV4LeaderHeadInfos.xml (comment change only; also helps testing the GitHub Bot refresh predump workflow does not refresh predump after this)
+
+* Temporary test: increase LEADER_MOCTEZUMA's war likeliness iMaxWarRand from 50 to 10 (tests whether the GitHub Bot refresh predump workflow refreshes predump after this)
+
+* Temporary test 2: Revert previous test (was successful) and now test label change (e.g., "Build Unit %" -> "Build Unit Prob")
+
+* Automate AIP predump refresh bot workflow (and revert Temporary test 2)
+
+- Extend the existing manual AIP predump refresh workflow with path-filtered automatic push runs for Leader XML and shared AIP cache/display code.
+- Ignore the bot's own refresh branches and skip github-actions[bot] runs so bot-created predump PRs do not retrigger the refresh workflow.
+commit 3f503dec574cf2fa48a7488de50b9b112c9b82e8
+Author: wonderingabout <hidden>
+Date:   2026-06-26 08:32:49 +0200
+
+Add AIP predump manual GitHub Actions Bot refresh workflow
+- Add a workflow_dispatch GitHub Action that runs aip_predump_values.py --write and rechecks the committed predump cache.
+- Create or update a bot PR only when SevoPediaLeaderCachePredumped.py actually changes.
+- Keep the first version manual-only so the refresh bot can be tested safely before any automatic trigger is considered.
+
+commit b16dd369962846de2c2be911efe3cbc7721b1b4b
+Author: wonderingabout <hidden>
+Date:   2026-06-26 08:30:58 +0200
+
+Add AIP predump checker, refactor share ingame/checker logic, fix stale predump ("%" text not updated), add --write mode so it can run outside Civ4 (#29)
+
+* Add initial AIP predump checker and workflow step
+
+Add an initial workflow build check for Sevopedia Leader AI Personality predump values. The new checker reconstructs a partial set of effective values from CIV4LeaderHeadInfos.xml by applying LEADER_DEFAULTS inheritance, CvLeaderHeadInfo missing-tag defaults, and UWAI personality scaling, then compares them against the committed predumped cache.
+
+This first implementation validates direct scalar getters, scalar attitude-threshold getters, Flavors, and NoWarAttitudeProbs. Contact and memory aggregate values are intentionally left for a later shared-helper refactor because those predump entries are AIP-derived aggregate fields rather than direct XML/DLL array values.
+
+* Extend AIP predump checker to aggregate contact and memory values; refactor centralize shared logic
+- Extend the Sevopedia Leader AI Personality predump checker beyond direct scalar/flavor/no-war fields so it now also validates displayed aggregate contact and memory values.
+- Refactor the AIP helper layer so contact/memory aggregate formulas, aggregate key builders, shared array specs, attitude maps, and normalization helpers are shared between the Sevopedia AIP code and the workflow checker instead of being locally duplicated.
+
+This keeps the committed predump check aligned with the AIP-derived synthetic values while leaving broader metadata/UI-label centralization for a later focused cleanup.
+
+* Centralize AIP predump metadata helpers
+- Refactor Sevopedia Leader AI Personality metadata so the runtime AIP panel and the predump workflow checker share the same field specs, contact/memory specs, aggregate key builders, attitude maps, and normalization helpers.
+- This reduces duplication between SevoPediaLeaderAIPValues.py and build/aip_predump_values.py while keeping the checker aligned with AIP-derived synthetic contact and memory values. It also updates the Sevopedia debugger attitude mapping to use the shared reverse map and adds clearer credited comments for the shared AIP metadata/debug conventions.
+
+* Extract shared AIP synthetic raw field creation
+- Move Leader AI Personality synthetic aggregate field creation into shared helpers so both the Sevopedia AIP cache builder and the predump workflow checker use the same contact and memory aggregate logic.
+- This keeps the existing iAggregatedRaw* and iAggregated* cache key names, but clarifies the layer boundary: synthetic raw contact/memory fields are created before normalization, then reused by the normal AIP ranking/cache pipeline and by the XML/UWAI predump checker.
+
+* Minor merge excluded leaders in AIP and the test, and other changes
+- Also centralize the AIP-specific excluded leader list so the runtime Sevopedia AIP cache and the predump checker use the same exclusion path, without changing the broader Sevopedia leader/civilization association exclusions used by traits, improvements, religions, civics, and groupings.
+- Keep CvGameCoreDLL/Project/temp_files intact when generating light-source archives, while still excluding messy LLM_Helpers/outputs reports.
+
+* Share AIP predump tuple formatting and fix surfaced missing "%" text bug in predump
+- Move pure Sevopedia Leader AI Personality tuple formatting helpers into the shared AIP helper module so the runtime cache builder and predump workflow checker use the same label, normalization, and scale-string logic.
+- Extend the AIP predump checker from numeric-only validation to full cached tuple validation, catching stale display-cache drift such as missing percent labels in the committed predump.
+- Refresh the committed AIP predump so the new full-tuple check passes.
+
+* Document line_endings.py sometimes passing (failing to fail..) on GitHub despite failing (successfully) locally with a real CRLF/LF eol mismatch; fix mismatch locally
+- Print whether line_endings.py is checking Git-tracked working-tree files or falling back to a plain directory scan.
+- Note when a failing worktree file is already clean in the Git index, explaining why GitHub Actions may still pass.
+- Document the local/exported-bytes versus committed-checkout distinction in the workflow README.
+- Fix the files that had this mismatch locally
+
+* Share AIP cache builder so stale predump data (not a full predump file as of now though) can be rebuilt outside Civ4
+- Add a provider-based shared AIP cache builder so runtime Sevopedia and the workflow checker use the same label, normalization, scale, aggregate, and tuple logic.
+- Route the XML/UWAI predump checker and in-game AIP cache through separate providers over the same shared builder.
+- Document that stale predump tuples can now be rebuilt and checked outside Civ4, but that a full predump regeneration as of now still can only be done manually via the PythonDbg.log previous path.
+
+* Add outside-Civ4 AIP predump write mode
+- Share AIP cache construction and predump serialization between the in-game Sevopedia cache path and the XML/UWAI workflow checker.
+- Add aip_predump_values.py --write so SevoPediaLeaderCachePredumped.py can be refreshed deterministically outside Civ4.
+- Keep no-op write runs byte-identical when cache data is unchanged, avoiding false diffs from generated timestamps.
+commit 1ccad777821b1f7a832292cb58e73d2ae7eda286
+Author: wonderingabout <hidden>
+Date:   2026-06-24 17:36:07 +0200
+
+Add C++ dead-code candidate helper and gate disabled ReproTest code
+
+- Add an LLM/manual-review helper that scans the DLL source for conservative dead-code candidates.
+- Use the first report result to compile-gate ReproTest.cpp behind ENABLE_REPRO_TEST, keeping dormant reproducibility-test code out of normal builds while preserving the feature when explicitly enabled. This is a build/binary cleanup and does not change gameplay.
+
+commit c9e951c6d6960c3f839485a262049c6ba5f6b384
+Author: wonderingabout <hidden>
+Date:   2026-06-24 13:31:55 +0200
+
+Align world-size DLL/Python enums with XML and remove SAS world-size magic numbers
+
+- Add AdvCiv-SAS world sizes to the DLL/Python WorldSizeTypes enum so C++ and Python now match CIV4WorldInfo.xml order directly, including Arena and SAS24/SAS32/SAS40/SAS48.
+- Replace the old SAS_MAGIC_WORLDSIZE_* workaround in map scripts and helper code with WorldSizeTypes.WORLDSIZE_* constants. Update the world-size workflow check to verify XML/DLL/Python enum alignment and catch old runtime magic-number references.
+- Also document and disable vanilla BtS-compatible replay storage for AdvCiv-SAS replays. SAS intentionally shifts raw XML ids for game speeds, world sizes, and handicaps, so replays should use the normal mod replay format instead of pretending to be vanilla BtS-compatible. See KI#166.
+
+commit 5628eecbef59005325454373c9490773c850a5e8
+Author: wonderingabout <hidden>
+Date:   2026-06-24 10:14:30 +0200
+
+Add new Rookie and Deity+ handicaps, change, rebalance handicaps so they are more gradual, and less barbarian forgiving (now explicit and generally less forgiving, and gradually so)
+harmonize handicaps more:
+- iAnimalBonus: HANDICAP_SETTLER -30->-20; HANDICAP_CHIEFTAIN -20->-10
+- iAIAnimalBonus: HANDICAP_SETTLER -30->-20; HANDICAP_CHIEFTAIN -15->-10
+- iBarbarianBonus: HANDICAP_SETTLER -30->-20; HANDICAP_CHIEFTAIN -15->-10
+- iAIBarbarianBonus: HANDICAP_SETTLER -30->-20; HANDICAP_CHIEFTAIN -15->-10
+- iBarbarianCityCreationProb: reduce from 5 per handicap to 4 per handicap: (so settler to deity was 0,5,10,15,20,25,30,35,40,45,50, and now rookie to deity+ is 0,4,8,12,16,20,24,28,32,36,40
+- iDifficulty changed from settler to deity 10,20,30,40 (noble),50,60,70,80,90 to now rookie to deity+ 18,26,34,42,50 (noble),58,66,74,82,90,98 (better reflects that noble is an even game)
+- iSeaBarbarianBonus: add missing iSeaBarbarianBonus field so it is now explicit and so it is not -10 ingame as it seems to be now: changed from settler to deity -10,-10,-10,-10 (noble),-10,-10,-10,0,0 to now rookie to deity+ -30,-20,-10,0,0 (noble),0,0,0,0,0,0
+- iBarbarianCityAttackBonus: add missing iBarbarianCityAttackBonus so it is now explicit and so it is not -25 ingame it seems: changed from settler to deity -25,-25,-25,-25 (noble),0,0,0,0,0 to now rookie to deity+ -30,-20,-10,0,0 (noble),0,0,0,0,0,0
+- iSeaBarbarianExtraMoves: add missing iSeaBarbarianExtraMoves field so it is explicit and so it is not -1 ingame as it seems to be now: changed from settler to deity -1,-1,-1,-1 (noble),-1,-1,-1,-1,-1 to now rookie to deity+ -1,-1,-1,0,0 (noble),0,0,0,0,0,0
+- iAnimalAttackProb: changed from 10 per handicap to 8 per handicap, so changed from settler to deity 10,20,30,40 (noble),50,60,70,80,90 to now rookie to deity+ 18,26,34,42,50 (noble),58,66,74,82,90,98
+- iTechTradeKnownModifier: reduced from 10 per handicap to 8 per handicap so changed from settler to deity -30,-20,-10,0 (noble),0,0,0,0,0 to now rookie to deity+ -32,-24,-16,-8,0 (noble),0,0,0,0,0,0
+
+- Update DLL handicap averaging to use XML iDifficulty values instead of raw enum IDs when converting an averaged difficulty back into a handicap. This makes added or future non-linear handicap rows behave according to their XML rating instead of accidental enum position.
+- Update Sevopedia/chart display and helper tooling so the new handicap labels and comparisons handle the expanded ladder correctly
+- Other notable changes in the main changes guide
+
+commit c381a6eba15accbe4c4f299129c097b7b24bc706
+Author: wonderingabout <hidden>
+Date:   2026-06-23 11:19:37 +0200
+
+rebalance handicap info fields so they are more gradual
+
+- iFreeUnits: HANDICAP_SETTLER 20->11; HANDICAP_CHIEFTAIN 8->9
+- iNoTechTradeModifier: HANDICAP_SETTLER 80->78
+- iColonyMaintenancePercent: HANDICAP_DEITY 130->125
+
+- Add/update descriptive tags to XML info as helpful (e.g., "<!-- custom: HANDICAP_SETTLER (useful for VS Code upper tree view while scrolling) -->")
+
+commit 420808ddec5b9febe2216f30025b03b4d0268038
+Author: wonderingabout <hidden>
+Date:   2026-06-22 22:21:24 +0200
+
+Scoreboard controls (#28)
+
+* Add Scoreboard toggle lock hover button default
+- as of now on, to avoid always tediously clicking it the first time
+
+* Add center scoreboard on active player button
+
+* Remove scroll fastest tiers (scoreboard)
+At 1080p we display ~29 players; considering we support as of now 48 players, no need to have too many tiers. Fast is tunable, and having a fastest/slowest makes it cumbersome; plus, it may actually be harder to navigate or use for players. Also, it gives room to add more buttons, and the new center scoreboard on active player button also helps navigation and reduces burden/need to have too many buttons.
+
+* Minor rename/reword
+
+* Add toggle autocenter scoreboard scroll on the active player
+commit 322175d21c5d89f534e0f3d4ed0854b68a196826
+Author: wonderingabout <hidden>
+Date:   2026-06-21 14:32:16 +0200
+
+Fix first-city AI settler roaming before premature founding
+- Include the current plot in the visible first-city site scan so settlers can stop on a good nearby site instead of ping-ponging and later falling back to a stale cached target.
+- Also defer founding when the current plot wins the visible-good-enough scan but its non-home BFC still has unrevealed plots and first-city roam turns remain. This lets the existing scouting logic continue long enough to reveal nearby stronger sites, while still allowing immediate founding for fully checked starts.
+
+"					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
+					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
+					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5) -->"
+
+commit 382fdd118cd6c64f55a2325e2dd09499d6d9b445
+Author: wonderingabout <hidden>
+Date:   2026-06-21 12:59:11 +0200
+
+Minor Tighten BBAI log guards
+- also minor remove unused Huge player fallback
+
+commit cc2fbd2b2a68bffb472ad9d94053de13efd38bc0
+Author: wonderingabout <hidden>
+Date:   2026-06-21 09:17:07 +0200
+
+Add Python 2.4 Docker compile GitHub Actions Workflow (using our new Py 2.4 Docker Image Autobuilder)
+See: https://github.com/wonderingabout/python-2.4-docker
+
+commit 0759bd4dba4d2cbf652e8cb905e5f9b7bb787e7d
+Author: wonderingabout <hidden>
+Date:   2026-06-20 19:07:47 +0200
+
+Add python-ruff.yml (with some rules ignored); Fix Civ4 shadowed helpers and Base AdvCiv bug of using undefined Point instead of PointLayout (See KI#164 and KI#165)
+- This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164]) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165]).
+- Other ruff tweaks as part of implementing this GitHub Actions Workflow (e.g., declare unicode in builtins (old Py 2.4 unlike ruff's Py 3))
+
+commit 7c468992643c5f19ef1125e87f1c1c39635d0185
+Author: dependabot[bot] <hidden>
+Date:   2026-06-20 13:33:24 +0000
+
+Bump actions/checkout in the github-actions group across 1 directory
+
+Bumps the github-actions group with 1 update in the / directory: [actions/checkout](https://github.com/actions/checkout).
+
+
+Updates `actions/checkout` from 6 to 7
+- [Release notes](https://github.com/actions/checkout/releases)
+- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)
+- [Commits](https://github.com/actions/checkout/compare/v6...v7)
+
+---
+updated-dependencies:
+- dependency-name: actions/checkout
+  dependency-version: '7'
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+  dependency-group: github-actions
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+commit 002ee295c3dd57ce178c9cbf1d9f6c660df2a8d0
+Author: wonderingabout <hidden>
+Date:   2026-06-20 12:51:05 +0200
+
+Add make_light_source_zip.py (make an easily light exportable mod repo ZIP (e.g., for ChatGPT); add SAS_BBAI_WORKER_LOG_LEVEL and SAS_BBAI_WORKER_SEA_LOG_LEVEL
+
+Example of output (Git Bash):
+
+```text
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
+SAS
+Mod name:  AdvCiv-SAS
+Prefix:    AdvCiv-SAS_light_source
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
+Files:     944
+Size:      43,264,448 bytes before ZIP container overhead
+Mode:      ZIP_STORED / no compression
+Wrote:     944 file(s)
+```
+
+Done with the help of GPT-5.5 and ChatGPT-5.5 thanks
+
+- **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+
+commit 5fd781386a146933c8d478cb6ddb4678cd3baf0e
+Author: wonderingabout <hidden>
+Date:   2026-06-20 10:59:09 +0200
+
+Collapse C++ signatures returns statements (#27)
+
+* Collapse safe C++ function signatures to one line (add `collapse_cpp_signatures.py`)
+- **C++ signature cleanup:** collapsed **safe multiline C++ function declarations/definitions** to one physical line across the DLL source, making **signatures easier to grep, compare, and review** in diffs/LLM-assisted passes. Done with the help of the new [`collapse_cpp_signatures.py`](/LLM_Helpers/README.md#collapse_cpp_signaturespy), a **conservative** signature-only helper, which intentionally skips ordinary multiline calls and unsafe comments, while also supporting traceable hoisting for reviewed whole-line comments inside signatures; review its output as a mechanical source-cleanup tool rather than a general C++ formatter. It was empirically idempotent after the first full DLL pass (rerunning reported no safe C++ signature collapses found). This is especially useful for **overloaded functions** like `void addMessage`, or e.g., `void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p`, instead of its old three-line equivalent.
+
+Done with the very nice help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+
+Ammended commit note:
+
+Example results:
+
+- First full pass: 118 files changed, 1360 insertions, and 2662 deletions.
+- A follow-up comment-hoisting pass, amended into the same commit because it seemed small and contained, collapsed 31 more signatures across 23 files.
+- A later pass improved old comment text preservation and appended trace notes for where each hoisted comment had originally been placed: it was 66 insertions and 117 deletions.
+- Another `// Exposed to Python` metadata pass collapsed 102 more header declarations across 13 files.
+- A broad inline-comment trace pass collapsed 125 more signatures across 37 files.
+- A multiline block-comment trace pass collapsed 21 more signatures across 13 files.
+
+* Collapse safe C++ function signatures to one line (add collapse_cpp_signatures.py) - part 2
+- A root-scope `.cpp` declaration pass collapsed 6 explicit-template-instantiation signatures in `CvGameTextMgr.cpp`.
+- An existing-custom-comment pass collapsed 2 more `setUnitHelp` signatures while preserving their custom rationale comments and adding hoist-position trace notes.
+- A qualified-template-prefix pass collapsed 8 more `::` signatures with template commas in the prefix.
+- A qualified-return-type header pass collapsed 4 more declarations using `std::` return types.
+- A nested-class declaration pass collapsed 2 more `InvasionGraph::Node` declarations while keeping inline-function local constructor calls skipped.
+
+* Collapse simple inline C++ return helpers
+- **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results; for example `int CvPlayer::getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+
+* Collapse simple inline C++ return helpers - part 2
+
+* Collapse simple inline C++ return helpers - part 3
+- Opening-brace comments such as `{	// advc: ...` are hoisted above the collapsed function; closing-brace tail comments such as `} // </advc.opt>` are preserved after the collapsed body.
+
+* Collapse simple inline C++ inline statements
+- Conservative header-only helper for simple inline C++ functions whose body is exactly one non-return statement.
+- Complements `collapse_cpp_inline_returns.py`; use this for simple setters, wrapper calls, assignment helpers, `BOOST_STATIC_ASSERT(false);` stubs, and similar one-statement bodies.
+
+* Collapse simple inline C++ return helpers - part 4 + Collapse simple inline C++ inline statements - part 2
+
+* Collapse simple inline C++ return helpers - part 5
+
+* Update DLL
+- PR diff (on GitHub) reviewed OK with the help of ChatGPT-5.5 thanks
+- Game runs fine end to end at a glance (autoplay from T0 -> win at T411 in one go)
+commit e4ef11ca1a6df4dd86476296c07ded8e79dd627c
+Author: wonderingabout <hidden>
+Date:   2026-06-19 14:27:39 +0200
+
+Add GitHub Workflow check: line-ending CRLF/LF eol check and cleanup helper. Fix files with mixed line endings
+
+commit 97e8ca8f0537e0abcc40448d448c63d0057766de
+Author: wonderingabout <hidden>
+Date:   2026-06-19 11:23:59 +0200
+
+rework/rebalance civ-specific monuments 2; add more GithHub Workflow checks
+- BUILDING_EGYPTIAN_OBELISK: culture per turn 2->1, new effect: BonusHappinessChange with BONUS_STONE 0->1 ("<!-- custom: new effect with the help of ChatGPT-5.5 thanks. Fits thematic builder profile and helps having varied civ-specific monument buildings, that here preserves some early happiness without making it too OP. Nice thematic fit i think too but anyway.")
+- BUILDING_AZTEC_SACRIFICIAL_ALTAR: iCost 35->30
+- BUILDING_SUMERIAN_ZIGGURAT: Culture % +10->0, new effect: BonusHealthChange with BONUS_SHEEP 0->1 ("<!-- custom: new effect for variety and balance; ChatGPT-5.5 also says this about it thanks: "Yes, Sheep is probably the most relevant Civ4 bonus for a Ziggurat-style Mesopotamian temple economy, mostly because Civ4 has no Goat. The historical hook is not “ziggurats magically make sheep healthy,” but temple livestock administration, offerings, and redistribution. A University of Chicago dissertation on the Eanna temple at Uruk notes that the temple controlled herds of tens of thousands of sheep and goats in the 7th-6th centuries BCE" -->")
+- BUILDING_NATIVE_AMERICA_TOTEM: culture per turn 1->2
+
+- Add temp_files exists and is empty GithHub Workflow check (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling.)
+- Add GlobalDefines non-empty GitHub Workflow check (This preventively catches accidental blank define values. We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.)
+
+commit 37f1ae8823866fbf769c67cad6f19736d86a5099
+Author: wonderingabout <hidden>
+Date:   2026-06-19 10:51:30 +0200
+
+Worker sas refactor tunable and fixes (#26)
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 1)
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 2) + low value improvements being skipped instead of treated as low-priority and other changes
+- Hill Tundra, Flat Snow and Flat Desert are no longer NONE: They now have tiny fallback values.
+- reduced growth scaling to 400 * growth level (so food is a bit more important than keeping growth improvements especially higher level ones and later in the game where we have more specialist or such yields)
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 3)
+Evaluate all valid no-bonus improvement candidates before choosing one, then pick the highest adjusted value through one generic picker.
+This replaces hardcoded if/else priority order with XML branch base values plus Farm/Cottage/Workshop/Mine/Windmill value adjustments, so low-value candidates remain low priority instead of being skipped. Allows to make code simpler too.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 4)
+- Move worker no-bonus improvement protection rules to SAS defines. Holy, semi-holy, and irrigation-chain-breakable improvements are now configured through XML improvement-name lists instead of hardcoded Cottage/Hamlet/Village/Town/Workshop/Windmill checks.
+- Also generalize growth-improvement overwrite penalties by reading configurable growth-chain starts and following XML ImprovementUpgrade chains, so Cottage-chain protection can work with shorter, longer, or modded growth chains. Externalize the no-food-cost Workshop value adjustment as a SAS define too.
+- Note: review + an issue found and fixed with the help of ChatGPT-5.5 temporary (since GPT-5.5 (on codex) was on cooldown/token limit rate and to have a separate review from ChatGPT-5.5) thanks
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 5)
+- Externalize non-bonus Forest and Jungle worker feature-removal scoring from CvUnitAI::AI_bestCityBuild into SAS defines, preserving the current default population/health-pressure behavior while making it easier to tune.
+- Also fix non-bonus Fallout handling by moving it out of the Jungle branch into its own feature-removal path, so scrub priority is explicit and ordinary non-bonus builds are skipped when Fallout cannot be scrubbed yet.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 6)
+- Move AdvCiv-SAS worker bonus scoring constants from CvUnitAI into SAS defines, including bonus Fallout scrub priority, bonus-specific build base value, yield weights, AIObjective weights, and temporary Farm fallback.
+- Generalize the old Camp/Deer/Elephants/Fur feature-preserving path to use the XML-inferred bonus-specific build when it preserves Forest/Jungle, while keeping Mine/Plantation-style builds on the explicit feature-removal path.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 7)
+- Remove the special Workshop allow gate and let no-bonus branch XML values compete normally. Food-cost improvements now receive a generic recovered-food bonus only after current plot/player rules make them food-neutral or better, so early food-cost Workshops stay conservative while later food-neutral Workshops can still become attractive.
+- Also remove the obsolete bAllowNoBonusFarm picker gate; Farm eligibility is now handled by XML branch candidates, canBuild, and value adjustments.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 8)
+- Add XML master switches for the empirically tuned no-bonus food-support Farm heuristic and the chain-irrigation Farm rescue path. The irrigation toggle now covers connector candidate generation, non-farm reservation, local dry-farm rescue value, overwrite exceptions, and carrier-farm protection, while keeping the internal scoring formulas intact for testing.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 9)
+- Make bonus Farm fallback era-gated and tunable: Allow the temporary Farm fallback on high-food bonuses only when enabled and when the real bonus-specific build unlocks late enough. This keeps workers from ignoring strong food bonuses for many eras, while avoiding early temporary farms when the proper improvement is already close.
+
+* Refactor SAS AI Worker Logic: make it tunable to SAS defines (pass 10)
+- Refactor AI worker no-bonus improvement scoring: Generalize low-food worker valuation so the best food-yielding candidate in the selected XML branch gets the bonus, instead of hardcoding Farm/Windmill-style adjustments. Also move irrigation-path penalties into the generic picker.
+commit 8dc2e88cc9632ae9d2ae7f476721ea0672162397
+Author: wonderingabout <hidden>
+Date:   2026-06-18 13:54:19 +0200
+
+Tentatively Addressed and Hardened: Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits` (See KI#163)
+
+commit 7440b750a280e932dd64cfd9a986618fb0ec8324
+Author: wonderingabout <hidden>
+Date:   2026-06-18 13:12:41 +0200
+
+Tentatively Addressed and Hardened: Rare non-reproducible autoplay crash variant in `CvCity::getProductionBarPercentages` (See KI#162)
+
+commit c3cf88ef9126dc38ccde1879b77df508c89da99b
+Author: wonderingabout <hidden>
+Date:   2026-06-18 12:49:16 +0200
+
+Tentatively Addressed and Hardened: Rare non-reproducible autoplay crashes related to `CvCity::cheat+0x15c3` sharing the city-name text lookup crash signature (See KI#161)
+
+commit b9ccb1be872e47d8b9c1f655f5b7c8f82dadc457
+Author: wonderingabout <hidden>
+Date:   2026-06-18 11:49:40 +0200
+
+(Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke (See KI#160)
+- **AI unit upgrades - stop routine upgrades from draining the treasury:** Fixes an AI spending problem where normal unit **upgrades could overshoot the intended upgrade budget**. Previously, the AI only checked whether it was still below budget before starting the next upgrade, but did not check whether that next upgrade itself fit the remaining budget. For example, in BBAI diagnostics, an AI with 280 gold reserved for upgrades could spend 237 gold, still count as under budget, then start another 237 gold upgrade and end up spending 474 gold total, sometimes leaving only a few gold in the treasury. Routine **upgrades now check the actual remaining upgrade budget before upgrading**. **Emergency**-style upgrades, such as important city defenders or special impassable-unit upgrades, **remain more flexible**, but normal upgrades are much less likely to waste all available gold. AIs in **financial trouble also avoid** routine upgrades **unless they are focused on war**. See [KI#160].
+
+Note: used git rebase then reword to fix commit message while still keeping commits after it as ChatGPT-5.5 nicely taught me after i asked it thanks anyway :)
+
+commit d9364e7e623b90494f5cbdb0f3b4b1dddeb073f7
+Author: wonderingabout <hidden>
+Date:   2026-06-18 09:29:28 +0200
+
+Fixed AI civic churn from low-value paid-anarchy switches
+- "Additionally, BBAI diagnostics showed the expensive remaining problem was **paid-anarchy civic churn**, especially direct reversals soon after the normal civic timer expired. Civic switches that add anarchy now need a larger value gain, and paid-anarchy revolutions add a longer cooldown before civics are reconsidered; free/no-extra-anarchy bundled changes remain more responsive. In the tested run, paid-anarchy revolutions dropped from 52 to 23, total anarchy turns from 174 to 81, and both-sides-paid direct reversals from 49 to 17 (See [KI#159]" + "). This should be stronger, considering excessive anarchy downtime is inefficient, especially with our as of now AdvCiv-SAS anarchy duration of 2 turns."
+
+Note: used git rebase then reword to fix commit message while still keeping commits after it as ChatGPT-5.5 nicely taught me after i asked it thanks anyway :)
+
+commit bd9c02aac4d56d35291c39f2a794eccd47141e5c
+Author: wonderingabout <hidden>
+Date:   2026-06-17 16:23:25 +0200
+
+Fixed Base AdvCiv issue: ready AI attack-capable stacks ignored nearby barbarian cities without normal war targets (See KI#158)
+- **AI attack stacks now opportunistically capture nearby barbarian cities:** before this fix, ready city-attack-capable (i.e. not just `UNITAI_ATTACK_CITY`) stacks could sit idle because the AI had **no normal war target yet**, even with a **nearby pathable barbarian city**. Now, if the AI has **no normal target** and is **not already busy with an active war**, the stack can **attack that barbarian city instead**. This does not override normal wars or normal war targets; it fills the no-target idle gap. This change is usually a **strong** move: barbarian cities are often weak, cost little diplomatically, and capturing them can give land, population, resources, unit support, and future growth without spending a settler or interrupting city production nor growth. In the tested save before the fix, nearby barbarian cities survived at game end at ~T400 despite reachable AI armies to Napoleon and Shaka, and barbarian being very weak in comparison, yet bonuses-rich, and Shaka was among weakest players; after the fix, Zulu captured Hurrian at T127, Alemanni at T132, Visigoth at T148, and Gaul at T153, turning those nearby barb cities into an early expansion boost and making Shaka the strongest player for almost all middle game and end game, almost allowing him to win. This change should make AI significantly stronger. See [KI#158]
+
+commit 856ac747bcf2d6f80286382bcc845296a97f25c3
+Author: wonderingabout <hidden>
+Date:   2026-06-17 12:41:36 +0200
+
+Fix AI Work Boat local seafood deficits being vetoed by global cap
+An AdvCiv-SAS-specific bug introduced by a too strict AI workboat gate.
+
+ChatGPT-5.5: The new cap bypass is confirmed useful. The new local-deficit bypass fired 8 times.
+
+And in each of those meaningful cases, the city then actually queued a Work Boat. That is exactly what we wanted: the global cap still blocks idle excess boats, but no longer vetoes a city with a real local seafood deficit. The code now computes primary/secondary local water-area availability and only applies the global cap when there is no local deficit.
+
+The strongest proof: I found 88 priority checks where all visible guards passed, and 0 unresolved failures.
+
+Remaining stale seafood exists, but it is a different class now
+
+commit 1f82d3ca4f9ff233291d23223e041b546ef556f6
+Author: wonderingabout <hidden>
+Date:   2026-06-17 10:17:01 +0200
+
+Fix Base AdvCiv bug: Minor AI Work Boat overproduction/target mismatches; enhance AI Work Boat behaviour
+- Compare Work Boat need against the same primary/second water areas used to count seafood targets
+- Let Work Boats resolve owned off-BFC sea bonuses counted by city production
+- Skip stale Work Boat targets already connected by another boat
+- Add BBAI diagnostics for Work Boat production, movement, and sea-improvement losses
+
+commit 42cbc76648165ee979dae223a4374b3884e404a9
+Author: wonderingabout <hidden>
+Date:   2026-06-16 10:42:44 +0200
+
+Reduce AI worker lower-food improvement oscillation and multi-oscillation
+- **Worker lower-food replacement guard:** from a **tunable era onward** (default as of now: Medieval), AI workers no longer replace existing **no-bonus** improvements with lower-food alternatives. This targets **repeated food-threshold oscillation** such as **Farm → Cottage → Farm → Cottage** or **Mine → Windmill → Mine** after the city briefly looks food-safe. It still allows equal-food retools, food-restoration changes such as Cottage → Farm, and cleanup of City Ruins or obsolete/non-active improvements. In the tested BBAI log, the worst Mali farm/cottage loops reached Farm again and then skipped later Farm → Cottage attempts from about T128/T130 onward. This change is because before this era, cities are often small or health/happiness-capped (extra/excess food may not necessarily help or could be inefficient early) and early cottages still have time to mature, but later, cities are usually larger, health sources are generally multiple, and specialist yields are stronger than plot yields (so any food can be used and is generally strong/stronger), and cottages/growth improvements have less time to grow and pay back, so preserving food support is usually stronger.
+
+commit a9515bf013262e4958c7a8d01e0635a36786fdd8
+Author: wonderingabout <hidden>
+Date:   2026-06-15 21:15:20 +0200
+
+Fixed Base AdvCiv issue: ready city-attack AI stacks could park for future upgrades (sometimes for a very long time) in non-faraway cities too, even when no unit could upgrade now (See KI#156)
+This expands on previous KI#155 fix, but we now observed the same pattern happens in our core cities too, not just faraway ones.
+
+**Ready attack stacks stop parking for unavailable upgrades:** if a city-attack stack is ready, the target is not too strong, and **0 units can upgrade now**, the AI now keeps moving toward the target instead of waiting for possible future upgrades. This fixes real offensive freezes: in one BBAI-log sample, USA Washington waited from **T147-T181** with up to **59 units / 69% of total military** while targets were only **3-5 turns** away; Mali Gao waited from **T233-T255** with up to **42 units / 41% of total military**. The AI still waits for real immediate upgrades: a USA Seattle stack waited while **6 units could upgrade now**, then attacked/moved once that number became **0**. This is thought to be much stronger, because it uses the current military advantage before enemies catch up; old units can be spent in war instead of sitting around draining upkeep, needing future upgrade gold (solved if they die as well), and risking obsolescence; successful captures can then increase economy, unit support, and long-term growth; and the needless wait was very problematic and inefficient too.
+
+commit c5b1443fb2225ec46c2d48d23d59037e0fb26dbb
+Author: wonderingabout <hidden>
+Date:   2026-06-15 12:45:45 +0200
+
+Fix Base AdvCiv issue: remote captured-city AI attack stacks waiting on upgrades (sometimes a very long time)
+- Large AI attack stacks in faraway captured cities could park for many turns when upgrade waiting overrode a ready offensive target. In one BBAI-log sample, Celtic Boston held up to 41 units / 62% of Celtic military across the T156-T256 trapped-stack pattern.
+Allow sufficiently large remote captured-city attack stacks with a valid, not-too-strong target to continue existing attack movement instead of waiting for upgrades.
+
+- Also add more logging: Log remote captured-city parking details after KI#155 to verify remaining joiner/no-target cases. Confirmed across three (different save files) fresh autoplay samples that upgrade-wait parking stayed fixed and remaining cases were rare/plausible staging. So no further behavior change added as of now.
+
+commit cad2881ac0f2ab59f2419ac3eb30563c96355ee2
+Author: wonderingabout <hidden>
+Date:   2026-06-15 08:41:05 +0200
+
+Fixed Base AdvCiv issue: AI Great People could wait too long for Golden Age partners instead of using lower but useful actions: add a max wait cap (See KI#154)
+- Add an XML-tunable normal-speed cap for AI Great People waiting on Golden Age partners. After the cap, Golden Age reservation stops raising the wait threshold and the existing GP mission logic can use lower but useful actions instead.
+BBAI logs showed Persia holding Great People for 29-32 turns because Golden Age value kept blocking all alternatives. Follow-up logging showed the cap removed waits past the configured threshold while preserving useful short waits. See KI#154.
+
+- Also replace the noisy worker no-path log with WORKER_NO_ACCEPTED_CITY_BUILD diagnostics, including rejection counters and top-candidate context, so raw-candidate failures can be separated into pathing, enemy, reservation, or replacement-skip causes. This is diagnostic-only and does not change worker build selection.
+
+commit e64fa7ceffb0a129d9049a329c1cc68a169b0efc
+Author: wonderingabout <hidden>
+Date:   2026-06-14 15:56:27 +0200
+
+Further restrict AI scrapping rules, now and as of now only to sufficiently obsolete units; Add Assets DLL GitHub workflow check
+
+- Add XML SAS define for fully disabling AI scrapping (currently disabled)
+- Add one for limiting it to obsolete units after an ObsoleteTech-era delay. Keep cargo-capable units protected and improve scrap diagnostics with separate SCRAP_DECISION and SCRAP_EVENT log lines. The rationale is that only very outdated units are no longer useful enough to justify their clutter or upkeep; until then, keeping units is usually better than short-term financial relief from scrapping, because they can defend cities, deter attacks, pressure rivals, or be spent in war. War can also reduce excess units naturally, and successful captures can increase unit support, economy, and long-term growth more than deleting troops would. So this strict-but-not-absolute new scrapping gate is believed to be stronger for AI.
+- Enhance BBAI scrapping logging
+- Add a GitHub workflow check for shipped DLL layout under Assets. The check recursively scans Assets for DLL files and allows only: Assets/CvGameCoreDLL.dll, Assets/CvGameCoreDLL_18_civs_DLL.dll. It also verifies the 18-civ DLL is not larger than the main/48-civ DLL by byte size.
+
+commit 9f5bc5b34046f911396ce598dcee93615c201230
+Author: wonderingabout <hidden>
+Date:   2026-06-14 13:10:43 +0200
+
+Allow AI workers to improve reachable city tiles when preferred unimproved tiles are unreachable
+- Before: if any unimproved BFC improvement candidate existed, workers skipped ordinary replacements like Mine -> Windmill.
+- Problem: that blank candidate might be unreachable or already reserved, so the worker could skip the replacement and then find no valid build.
+- Now: replacements are only suppressed if there is at least one pathable and unreserved unimproved BFC improvement candidate for this worker (in theory at least).
+
+commit 2a5c7ba163286d1b9661b4de4be9f41d0bc470e2
+Author: wonderingabout <hidden>
+Date:   2026-06-14 11:30:32 +0200
+
+Relatively value AI unit upgrade priority/cost depending on map-heaviness (real cost unchanged) (less likely to upgrade naval units on land-heavy maps and vice-versa)
+
+commit b45eb19a0a45fee7e75c7a1ecb0856a4d98c3dac
+Author: wonderingabout <hidden>
+Date:   2026-06-14 09:18:25 +0200
+
+Fix/reduce and enhance AI workers abandoning current best local plot to move away to next city to improve: improve first if you can
+When small cities were considered improved enough, workers could rotate away even while standing on a useful owned/workable BFC plot, such as a forest that should be chopped or improved. These would then be roaded only or not improved at all despite standing on them, and they would be left unimproved even much later in the game.
+
+Keep the worker local only when AI_bestCityBuild itself selects the current plot as the best local build, preserving city-to-city worker rotation without duplicating worker build logic. This greatly reduces these unimproved or roaded-only forest plot instances.
+
+commit 2b2850389af5ad1b58817f61bf85fd5a56e77723
+Author: wonderingabout <hidden>
+Date:   2026-06-14 08:31:02 +0200
+
+Fix AI workers never considering forest chopping when city population is high and city has unhealthiness: later in the game improved yields are stronger, so accept the health loss for this gain, and do not leave unimproved plots (at least attempt to with this change)
+- Optionally show Plot coordinates on hover (e.g., `63,46`) in hover help text. This makes it to discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
+
+commit 4921e5e0bcab3e3f28431331fa6766804a03ef41
+Author: wonderingabout <hidden>
+Date:   2026-06-13 12:55:57 +0200
+
+Refine AI settler first-city roaming site evaluation and fix seafood miscounted as usable when city is not coastal
+- Keep first-city roaming focused on escaping clearly bad starts while letting AI_foundValue choose among viable sites.
+- Fix starting food-bonus classification so inland seafood and low-food XML bonuses such as AdvCiv-SAS Elephants are not treated like true Pig/Corn-style capital food. Also prevent a bad cached starting site from re-entering the roaming candidate pool unless it is strictly better by found value, fixing Karakorum returning to tundra-heavy terrain instead of continuing toward the stronger river/pig site.
+- Empirically this preserves the old Karakoum south-east for pig + maize + grass/plains river instead of tundra elephants, but also fixes Maya AI (Mutal city) going to a tundra site instead of a nice river + grass + pig site which is much stronger.
+- Add raw XML info-type lookups GitHub Workflow check and fix corresponding errors, by adding a new findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG") (instead of raw `CvUtil.findInfoTypeNum(...)`)
+
+commit 472f610b8fe3f942fd9e042e2a2ddd4bbea063c9
+Author: wonderingabout <hidden>
+Date:   2026-06-13 09:12:28 +0200
+
+Add civ-specific building and unit GitHub workflow Prereq and Obsolete tech timing check; rebalance/rework civ-specific monuments and other changes
+- BUILDING_HOSPITAL: buff iHealRateChange from 15 to 30
+
+Fix GitHub workflow and rebalance/rework civ-specific monuments:
+
+FAIL civ-specific asset tech timing
+  - BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later PrereqTech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)
+  - BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)
+  - BUILDING_NATIVE_AMERICA_TOTEM: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BANKING (GridX=11, GridY=19) before TECH_LIBERALISM (GridX=13, GridY=11)
+  - BUILDING_SUMERIAN_ZIGGURAT: building class BUILDINGCLASS_MONUMENT replacement uses later PrereqTech column than default BUILDING_MONUMENT: TECH_POLYTHEISM (GridX=2, GridY=15) after TECH_MYSTICISM (GridX=1, GridY=11)
+  - BUILDING_SUMERIAN_ZIGGURAT: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_NATURALISM (GridX=12, GridY=17) before TECH_LIBERALISM (GridX=13, GridY=11)
+
+- BUILDING_AZTEC_SACRIFICIAL_ALTAR: reduce culture per turn from 2 to 1, reduce iCost from 45 to 35, improve prereq tech from TECH_CALENDAR to TECH_MYSTICISM (confirmed and fixed with the help of the new Github Workflow https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986 with the help of ChatGPT-5.5 thanks) (with our tech rework sacrificial_altar based on tech_calendar would be a nice thematic fit as per the wikipedia info, however it would make the building much weaker and missing critical early culture need or timing; or simply being needlessly weaker than generic building here so do not do it). + "<!-- custom: note: high free happiness so early in the game is very strong, probably balance breaking, and generally avoided unless it meshes well with the building's effect, so as of now adjusted other civ-specific monuments accordingly. -->"
+- BUILDING_SUMERIAN_ZIGGURAT: reduce SpecialistCounts SPECIALIST_PRIEST from 2 to 1 (since the building is early), reduce iHappiness from 1 to 0, reduce iCost from 40 to 30, improve tech prereq from TECH_POLYTHEISM to TECH_MYSTICISM (while thematically more accurate i'm guessing, tech_construction or tech_polytheism are too far (similar reasoning as as of now for the BUILDING_AZTEC_SACRIFICIAL_ALTAR)). Similarly improve ObsoleteTech from TECH_NATURALISM to TECH_LIBERALISM (earlier than generic monument would be weaker), as detected by the Github Workflow as well.
+- BUILDING_NATIVE_AMERICA_TOTEM: reduce iCost from 35 to 30, reduce iHappiness from 1 to 0, remove gold +15% effect, add new effect: SpecialistCounts SPECIALIST_MERCHANT 1 (can Turn 1 Citizen into Merchant). Similarly improve ObsoleteTech from TECH_BANKING to TECH_LIBERALISM (earlier than generic monument would be weaker), as detected by the Github Workflow as well.
+- BUILDING_EGYPTIAN_OBELISK: reduce iCost from 40 to 30, reduce iHappiness from 2 to 0, increase culture per turn from 1 to 2, change SpecialistCounts SPECIALIST_PRIEST 2 to SPECIALIST_ENGINEER 1 (technically they are builders/industrious too, and this allows some variety thematically and in terms of strategy too). Similarly improve ObsoleteTech from TECH_BROADER_EDUCATION to TECH_LIBERALISM (earlier than generic monument would be weaker), as detected by the Github Workflow as well.
+
+- Add civ-specific asset and tech-column GitHub workflow checks and fix corresponding errors:
+
+FAIL tech column value consistency
+  - iGridX=3 has multiple iAsset values: iAsset=8: TECH_THE_WHEEL(GridY=5), TECH_WRITING(GridY=7), TECH_MONARCHY(GridY=11), TECH_METAL_CASTING(GridY=19); iAsset=16: TECH_SAILING(GridY=1)
+  - iGridX=7 has multiple iAsset values: iAsset=16: TECH_NAVIGATION(GridY=1); iAsset=24: TECH_ENGINEERING(GridY=3), TECH_PAPER(GridY=7), TECH_MEDITATION(GridY=9), TECH_PHILOSOPHY(GridY=11), TECH_AESTHETICS(GridY=15)
+  - Same iGridX means the techs are in the same tech-tree column; iGridY row differences are allowed, but core column values should normally match within that column.
+
+- Add civ-specific not-weaker GitHub workflow check
+- Rename to shorter workflow names
+- Fix incorrect Sevopedia Media Player 3D Audio note: sounds like dog or horn can take 20 seconds to start empirically ingame.
+
+commit dd616ffad9292f0e0a99cee4a60bd71b4f175479
+Author: wonderingabout <hidden>
+Date:   2026-06-12 12:33:30 +0200
+
+Improve AI worker city rotation / over/underimprovement caution, and first avoid replacement churn; Fix RFC DOC bug of Sevopedia Terrain not showing most hill improvements
+- "Update 2: **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn, such as **Mine ↔ Windmill** or **Cottage ↔ Farm**, while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain farms."
+- minor move noisy logging from 2 to 3 (with the help of ChatGPT-5.5 after giving it this change's latest log of 200 turns played)
+- (Fixed) RFC DOC bug: Sevopedia Hill page did not show improvements valid through underlying terrain, feature, or hill-eligible bonus rules; fixed with the help of GPT-5.5 on codex thanks
+
+commit 4013454bed4cb38d0e0ee4e1aa9bd387eb68dfe9
+Author: wonderingabout <hidden>
+Date:   2026-06-12 09:07:18 +0200
+
+Add XML suspicious text-character build check and fix the corresponding errors. See KI#152.
+- Add workflow check for billboard scale detail XML
+
+commit a0e0e8a3e3609241129755046048867d0e2dd478
+Author: wonderingabout <hidden>
+Date:   2026-06-11 13:10:23 +0200
+
+Add XML suspicious angle tag workflow check and fix corresponding errors (e.g., `<French>>`, `</English>>`). See KI#151.
+
+commit 118e5e0b3a6d2dd02188da3723dd4b0541cb0f40
+Author: wonderingabout <hidden>
+Date:   2026-06-11 09:47:00 +0200
+
+Add XML child and text duplicate workflow checks; Fix duplicate XML text and child tags found by workflow (See KI#149 and KI#150); Add helper references
+
+Add GitHub workflow checks for duplicate XML content:
+- Child/list duplicate checker with high-confidence failures and report-only warnings
+- GameText duplicate <TEXT>/<Tag> checker
+- Fix duplicate XML text and child tags found by workflow (See KI#149 and KI#150)
+
+Also update LLM helper reference material:
+- Legacy scan_xml_duplicates-3.3.py broad XML duplicate scanner kept as a discovery/reference tool
+- CvMainInterface Base AdvCiv 1.12 CvMainInterface_1_12_singleline.py conversion example
+
+commit ca5b991a4ad5597e9dd24c2d0b8c3cbd35975c0b
+Author: wonderingabout <hidden>
+Date:   2026-06-10 08:50:38 +0200
+
+Add XML parent duplicate-key build check; fix XML parent duplicates detected; clarify (See KI#148), and fix KI#19 asian art def changes
+Adding this allowed to spot real AdvCiv duplicates, and an AdvCiv-SAS introduced one in: https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912
+
+Run python .github/workflows/build/xml_parent_duplicate_keys.py
+
+FAIL XML duplicate parent keys
+  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_SONG_DIP_AS_EARLY_PEACE for <Script2DSound> (2 entries)
+  - Assets/XML/Audio/Audio2DScripts.xml: duplicate parent key <ScriptID> AS2D_TUTORIAL_BUILD_QUARRY_0 for <Script2DSound> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_EARLY for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_LATE for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_HANNIBAL_MIDDLE for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> DIPLO_WANGKON_EARLY for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_CBMN_DIE_VOX for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_COMBAT for <SoundData> (2 entries)
+  - Assets/XML/Audio/AudioDefines.xml: duplicate parent key <SoundID> SND_TUTORIAL_BUILD_QUARRY_0 for <SoundData> (2 entries)
+  - Assets/XML/Art/CIV4ArtDefines_Unit.xml: duplicate parent key <Type> ART_DEF_UNIT_ARCHER_ASIAN for <UnitArtInfo> (2 entries)
+Error: Process completed with exit code 1.
+
+Fixed them all, and as as for the ART_DEF_UNIT_ARCHER_ASIAN (AdvCiv-SAS change), clarified and fixed KI#19: sorted it out and restored the deleted `ART_DEF_UNIT_ARCHER_EURASIAN` (still unused as of now though). We rename assets e.g., from `ART_DEF_UNIT_ARCHER_ASIAN` to `ART_DEF_UNIT_LONGBOWMAN_ASIAN` when relevant (as of now still unused though), keep `ART_DEF_UNIT_SPEARMAN_CHINESE` when relevant and as an `ART_DEF_UNIT_SPEARMAN_ASIAN` variant exists already (renamed from `ART_DEF_UNIT_SPEARMAN_EURASIAN`), and rename `ART_DEF_UNIT_SWORDSMAN_CHINESE` to `ART_DEF_UNIT_SWORDSMAN_ASIAN` when relevant (no asian swordsman seems to exist, so make its name reflect that it is used for all asian units and looks asian enough and not specifically chinese enough).
+
+Note: ideally would assign longbowman units to artstyles since there are many we don't use, possibly others didn't check, and since this fixes ARCHER_CHINESE being in fact a LONGBOWMAN art def too, but as of now unused as in base AdvCiv it seems too.
+
+commit b22500bf3dc0b1b139ead58267a81f08634cd296
+Author: wonderingabout <hidden>
+Date:   2026-06-09 15:53:36 +0200
+
+Merge pull request #24 from wonderingabout/dependabot/github_actions/github-actions-08b3065b60
+
+Bump the github-actions group with 2 updates
+commit 372ec1f8627a2e89b2537b4b040d7e90bbd72d05
+Author: dependabot[bot] <hidden>
+Date:   2026-06-09 13:47:13 +0000
+
+Bump the github-actions group with 2 updates
+
+Bumps the github-actions group with 2 updates: [actions/checkout](https://github.com/actions/checkout) and [actions/setup-python](https://github.com/actions/setup-python).
+
+
+Updates `actions/checkout` from 4 to 6
+- [Release notes](https://github.com/actions/checkout/releases)
+- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)
+- [Commits](https://github.com/actions/checkout/compare/v4...v6)
+
+Updates `actions/setup-python` from 5 to 6
+- [Release notes](https://github.com/actions/setup-python/releases)
+- [Commits](https://github.com/actions/setup-python/compare/v5...v6)
+
+---
+updated-dependencies:
+- dependency-name: actions/checkout
+  dependency-version: '6'
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+  dependency-group: github-actions
+- dependency-name: actions/setup-python
+  dependency-version: '6'
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+  dependency-group: github-actions
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+commit cd80f7cd02f5f8cb518c7294f2fdd9a30ffc16f7
+Author: wonderingabout <hidden>
+Date:   2026-06-09 15:42:40 +0200
+
+Add Dependabot updates for GitHub Actions
+To help address Node.js runtime deprecation warnings such as `actions/checkout@v4` and `actions/setup-python@v5` still using Node.js 20. This should reduce manual maintenance and make future action-version updates easier to notice and apply.
+
+commit 6abed2e00f7ed472364dc9aa99d766b512c4bcd9
+Author: wonderingabout <hidden>
+Date:   2026-06-09 08:23:16 +0200
+
+Add GitHub workflows; add files/folders to .gitattributes
+- For example, this helped spot map scripts that were previously unclassified in SAS map-script heaviness defines; they are now listed explicitly for exhaustiveness; now fixed with an unspecified listing (no gameplay effect) for exhaustiveness.
+
+commit 24cf2b885309017c72c8eecf318f17a83a638a06
+Author: wonderingabout <hidden>
+Date:   2026-06-08 21:01:25 +0200
+
+(Fixed/Enhanced) Base AdvCiv issue of AI not adding extra valuation to unowned bonuses in city-site scoring. See KI#147.
+
+commit 644a82e5a908f23ed665be7ca1be0df568d14a54
+Author: wonderingabout <hidden>
+Date:   2026-06-08 14:45:33 +0200
+
+(Fixed/Enhanced) Base AdvCiv issue of AI undervaluing coastal settling on naval-heavy maps
+
+commit 0919fe46ad45a3a3f73548f5e8262bb202352629
+Author: wonderingabout <hidden>
+Date:   2026-06-08 13:15:59 +0200
+
+Fix AdvCiv-SAS city overeagerness to grow more if happy even when food lost due to unhealthiness was high
+- now mitigated/halted by **high food loss from unhealthiness**, where it is inefficient to grow more (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
+- Otherwise, keep the previous SAS fix/tweak deemed valuable to favour growth when we can rather.
+
+commit 8bf987dc96da53dccaf74de5bfbef12892556e0f
+Author: wonderingabout <hidden>
+Date:   2026-06-08 12:27:18 +0200
+
+Reduce AI worker farm/non-farm oscillation around irrigation chains
+- Reserve likely irrigation/farm connector plots from non-farm builds
+- Keep allowing Farms to replace existing improvements when food/irrigation logic chooses them
+- Add improvement-overwrite logging: useful for oscillation audits
+
+commit 2f988b5a492fa4bc9b2ee2428cdf3a72dba6a478
+Author: wonderingabout <hidden>
+Date:   2026-06-08 08:55:15 +0200
+
+Add timestamped BBAI log filenames
+
+commit e73e44b6b3a17a3e8d0a3313b822bcc8e1ebcc54
+Author: wonderingabout <hidden>
+Date:   2026-06-06 18:25:39 +0200
+
+Preserve the Military Advisor Map tab selected leader(s); rework/rebalance/fix civ-specific and some generic units
+- (icon clicked on) when switching Military Advisor tabs or closing/reopening the advisor (when valid/safe)
+- Note from ChatGPT-5.5 answering my question about why selected leader(s) is plural (was plural in its first blurb): "Yes, good catch: the normal click stores one leader, but the underlying state is a list because Shift-click supports multiple selected leaders."
+- Minor nerf UNIT_ARABIA_HAJJAN: TerrainAttack TERRAIN_DESERT 50->35 (was too op and unbalanced)
+- Rework and buff the UNIT_GERMAN_HUSSAR: iMoves 2->3, no other change; was underwhelming and weaker than the cossack, plus too generic too in terms of identity: this gives a clearer light cavalry identity, and restores or rather uses here as well the old Civ3 Cavalry has 3 move speed effect which was very nice. Unit should be significantly stronger and more useful now. Late so not too OP.
+- Add XML comments explaining PROMOTION_MOBILITY_COST vs PROMOTION_MOBILITY_RANGE. PROMOTION_MOBILITY_COST gives little/no practical range to 1-move units under the DLL movement-cost cap; PROMOTION_MOBILITY_RANGE is the actual +move effect.
+- UNIT_ROBOTIC_INFANTRY: replace free PROMOTION_MOBILITY_COST with PROMOTION_MOBILITY_RANGE.
+- UNIT_INCAN_QUECHUA: iHillsDefense 25->10; replace free PROMOTION_MOBILITY_COST with PROMOTION_SENTRY. Sentry better fits peak/highland lookout use; lower hill defense avoids overblowing its defensive role. Terrain modifiers minor adjustment: also TerrainDef GRASS 25->10, in addition to iHillsDefense 25->10 and PROMOTION_MOBILITY_COST->PROMOTION_SENTRY (see UNIT_SCANDINAVIA_VIKING change for similar rationale).
+- UNIT_AMERICAN_PATRIOT: iCost 120->100. Better represents "No Taxation without Representation", makes the civ-specific unit bonus more visible, and also makes upgrades cheaper.
+- UNIT_IRELAND_FLYING_COLUMN: bCanMoveImpassable 0->1; iHillsAttack 0->25; iWithdrawalProb 10->0. Better represents guerrilla/difficult-terrain route use and hill attacks without adding a defensive hill-camping bonus.
+- UNIT_AZTEC_JAGUAR: replace free PROMOTION_SENTRY with PROMOTION_COMBAT1; iPower 5->6. Sentry gives very strong early exploration/vision value on an early combat unit; Combat 1 better fits elite Jaguar warrior identity.
+- free COMBAT1->COMBAT2 (for below units) change rationale: COMBAT1 is often already taken or inherited by this stage, or can make human players avoid taking it before upgrading just to avoid wasting the free civ-specific unit promotion.
+- UNIT_ROMAN_LEGIONARY: replace free PROMOTION_COMBAT1 with PROMOTION_COMBAT2.
+- UNIT_JAPANESE_SAMURAI: replace free PROMOTION_COMBAT1 with PROMOTION_COMBAT2.
+- UNIT_ETHIOPIAN_OROMO_WARRIOR: iCombat 12->13; iFirstStrikes 1->0; iPower 12->13. Keep free PROMOTION_FIRST_STRIKE1 so the first-strike flavor can still be inherited on upgrade.
+- UNIT_OTTOMAN_JANISSARY: iCombat 14->12; iCost 110->100; iPower 14->13; add free PROMOTION_COMBAT2. Nerfs the old overtuned raw-strength version while keeping an elite trained gunpowder profile.
+- UNIT_FRENCH_MUSKETEER: remove free PROMOTION_COLLATERAL_DAMAGE1; iPower 13->12. It had become too strong/overloaded with both counter-mounted and collateral value: keep only counter-mounted.
+- UNIT_SCANDINAVIA_VIKING: TerrainAtk SNOW 50->35; TerrainDef TUNDRA 25->10; TerrainDef SNOW 50->10. Keeps the Viking more offense/raider-focused while reducing overly strong cold-terrain defensive camping (Similar reasoning as as of now for the Hajjan).
+- UNIT_RUSSIA_COSSACK: TerrainAtk SNOW 50->35; TerrainDef TUNDRA 35->10; TerrainDef SNOW 50->25. Keeps cold-weather resistance/flavor, but reduces overly broad defensive strength on a mostly mobile/offensive unit (Similar reasoning as as of now for the Hajjan).
+- UNIT_BYZANTINE_CATAPHRACT: TerrainDef GRASS 25->10. Keeps grassland attack flavor, but reduces defensive spike on an already high-strength mounted unit.
+- UNIT_EGYPTIAN_WAR_CHARIOT: TerrainAtk DESERT 35->25; TerrainDef DESERT 35->10. Base strength is already high enough for such an early unit, so desert bonuses stay moderate.
+- UNIT_SPANISH_CONQUISTADOR: TerrainDef PLAINS 25->10. Keeps plains attack/offensive identity while reducing broad defensive value.
+- UNIT_SUMERIAN_VULTURE: TerrainDef DESERT 25->10; TerrainDef GRASS 25->10. Keeps terrain flavor while reducing defensive camping value.
+- UNIT_NATIVE_AMERICA_DOG_SOLDIER: TerrainDef DESERT 25->10. Keeps desert/terrain flavor while reducing defensive camping value.
+- UNIT_ROMAN_LEGIONARY: also TerrainDef PLAINS 25->10, in addition to free PROMOTION_COMBAT1->PROMOTION_COMBAT2.
+- Update docs.
+
+commit 941551b8184deefbd564cc0dbf61bbd809b3eae3
+Author: wonderingabout <hidden>
+Date:   2026-06-06 17:32:30 +0200
+
+Fix AI Settler first-city gate treating low-food resources as food bonuses (e.g., elephants is not a food bonus (improves London and possibly Athens too, preserves Karakoum and Beijing))
+- The first-city stop-roaming gate counted any resource with natural/XML food as a food bonus. In AdvCiv-SAS, Elephants have +1 natural food but their Camp improvement adds no food, so they were incorrectly treated like Pig/Corn-tier food resources, and so 3 Elephants may be > Pig + Corn site despite the latter (Pig + Corn) giving much more food when improved and the former (3 Elephants) barely any
+- For land resources, count a first-city “good enough” food bonus only when the resource’s normal improvement adds food. Seafood still uses XML food because water improvements are outside the land bonus-improvement helper.
+- This changed London settling to one tile east (now takes the Plains Cow/Cattle too, and Athens moving away from Coast for some reason to a green land site (that may be better))
+
+commit 2cac809c5023558d38f116a26f33ebfd83c87438
+Author: wonderingabout <hidden>
+Date:   2026-06-06 15:18:37 +0200
+
+Fix and enhance first-city AI settler roaming/recheck edge cases (too long to settle in same place inefficiently for london and other cities, even better sites for karakoum (and beijing for example for those we checked) too)
+Fixes KI#144 follow-up behavior (Updates KI#144 with these changes) after the first bad-start roaming pass:
+
+- The first version fixed bad-start roaming, but some already-decent starts could still waste turns roaming only to settle the same plot later. Example: London ultimately settled the same capital site, but much later.
+- Add an anti-bounce/current-site guard: if the settler is already on a non-bad foundable first-city plot and the cached city-site target is only marginally better after the same small movement penalty, found instead of walking away and circling back.
+- Keep the Karakorum-style fix: clearly bad high-bad-plot starts can still scout/roam during the bounded first-city window, and after reaching a heuristic-good-enough recovery plot, the settler still rechecks nearby visible reachable plots before founding.
+- Add high-detail BBAI first-city BFC diagnostics at unit log level 3 to make candidate choices reviewable from logs.
+- Retesting preserved the good Karakorum result and fixed the London wasted-wandering case.
+- perf opt: further cache and hoist logging
+
+commit d04d4be4c1bdff2baec5b33479b5c7e97ec46c2d
+Author: wonderingabout <hidden>
+Date:   2026-06-06 12:30:46 +0200
+
+Run again AI settler evaluate when we reach our not very bad plot anymore rather than settle right away (includes newly discovered plots since then); Increase AI settler valuation of food and rivers/fresh water for first city (especially important). See KI#144
+- Note: for both commits, added BBAI logging as previous info was really bland and scarce
+- Empirically, this commit allows Karakoum to move to an even better site (corn + pig + river + grass which can be considered its ideal start site, much stronger than high tundra/plains one, and stronger than first not high bad plot count one)
+
+commit a28faf659846786b9398c36b7e75c1f286aec142
+Author: wonderingabout <hidden>
+Date:   2026-06-06 10:41:01 +0200
+
+Add AI first-city bad-site roaming and scouting
+Make first-city settler roaming depend on concrete BFC shape instead of flat found-value thresholds.
+
+Count BFC food bonuses and bad plots with a shared helper, treating no-yield plots, bad water, no-bonus foodless hills, and no-bonus low-food flat land as bad while preserving seafood, grass hills, useful bonus tiles, high-yield plots, and workable water.
+
+When the current or best cached first-city site is clearly bad, let the settler use the bounded early window to move to visible good-enough sites, scout safely for better information, or wait if no safe scouting step exists. This fixes cases where bad tundra/plains capitals needed to roam, while trying to make sure decent starts do not wander away needlessly.# Please enter the commit message for your changes. Lines starting
+
+commit c2605f98d8e7b5cb857f0616f83094c5c291a2c4
+Author: f1rpo <hidden>
+Date:   2026-06-05 23:30:55 +0200
+
+Fix likely inconsequential error in BUG's ConfigObj utility
+
+Adopted from SAS (see the quote box in the middle):
+https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16957154
+
+commit 7476af975e64f00d19661cb92d1cbf5183314677
+Author: f1rpo <hidden>
+Date:   2026-06-05 23:27:51 +0200
+
+Fix crash upon team elimination
+
+Seems to have been introduced whenever I decided that defeated players should have no UWAI data. [advc.104t]
+Related CFC post (lower portion):
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16957726
+
+commit bd2153482f2798ac5b0a72f9802b6563444496f4
+Author: wonderingabout <hidden>
+Date:   2026-06-05 21:18:31 +0200
+
+Improve AI coastal Port priority: add emergency water hammer building (Port) unless city is very good
+- Also force the **water-hammer building class** (e.g., **Port**) for **high-enough pop** (enough headcount so it is worth investing on water plots) coastal cities unless they are very good and don't need it: cities that **still have fairly low production** or **not too high food surplus**; Port can take significant time, but these cities are **unlikely to contribute much short-term production anyway**, and hammer on water tiles makes their later infrastructure and future building time **more helpful later on**. Immediate danger / defense logic still runs earlier, so Walls/Castle can still go first when needed, otherwise the **risk is deemed worth the delay** to produce these buildings. Runs in `CvCity::doTurn`.
+
+commit d0dbf5aa5a895a6a9aab94393a39db0a4594ad57
+Author: wonderingabout <hidden>
+Date:   2026-06-05 16:16:54 +0200
+
+Improve SAS AI worker irrigation-chain targeting
+
+Make worker irrigation logic start from concrete city BFC problems,
+such as non-bonus dry farms or low-food unimproved tiles, then search for short owned farm-chain steps toward water. This fixes cases where nearby water sources existed outside the BFC (e.g., 2-3 tiles away from BFC) but BFC-only worker logic missed the first irrigation link, as seen with Chaco Canyon and Harappan.
+
+commit 4f80a1600776cbf3af01333a56ac85a84c22d0d2
+Author: wonderingabout <hidden>
+Date:   2026-06-05 15:07:17 +0200
+
+Disable AI outside-BFC fort-airbase worker path
+Add a SAS define to keep the old late-game fort-airbase/canal worker path disabled by default. BFC fort choices were already guarded by AdvCiv-SAS worker logic; this targets outside-BFC forts that can waste worker turns and block future irrigation chains for little practical AI benefit.
+
+commit 9f18ea297837942da844afac467278d9927d1dc7
+Author: wonderingabout <hidden>
+Date:   2026-06-05 13:27:34 +0200
+
+Ensure AI rebuilds a minimum worker force
+- Add a shared AdvCiv-SAS minimum worker floor per area and use it in both city production and worker scrapping guards. This makes AIs reliably rebuild workers after losses or early underproduction, improving early development while keeping production and scrap thresholds synchronized. Note: The floor does not force only high-pop/capital cities to build workers, because weaker or stagnant cities can sometimes contribute without interrupting stronger cities' growth or key builds. This higher worker production is helpful mid/late game too.
+- Update docs. Notably fix incorrect comapre diff link.
+
+commit 81dc983da98a5ba2836d2417ef8cd903dd117923
+Author: wonderingabout <hidden>
+Date:   2026-06-05 11:05:25 +0200
+
+Fix AI worker ignoring and not re-improving altered BFC bonuses
+ingame causes these unimproved pig pastures to now be improved right away
+
+commit 01518f89c830433be372b953eb067c07a5af51e1
+Author: wonderingabout <hidden>
+Date:   2026-06-05 09:49:37 +0200
+
+Improve AI worker irrigation-chain farm support
+Value non-bonus farms as longer-term support infrastructure for low-food and hill-heavy cities, including food-consuming mines, faster growth, and specialist economies.
+
+Add targeted dry-farm irrigation-chain repair: when a candidate farm would irrigate existing dry farms, allow replacing the least harmful blocker first, from unimproved/workshop/cottage up through mature cottages if needed. Protect completed carrier farms as semi-holy so workers do not later break the chain again.
+
+commit 6eb3e959e9f1fbbbcc7a6516587a1863de030613
+Author: wonderingabout <hidden>
+Date:   2026-06-05 09:36:38 +0200
+
+update docs
+- minor other changes
+
+commit 6078dcd29cfc89fcf07201197eff43146d7bbfd3
+Author: f1rpo <hidden>
+Date:   2026-05-26 10:40:13 +0200
+
+A few comment changes
+
+commit 24dbe0256ce974067b99f4d545fa8ca23596c344
+Author: f1rpo <hidden>
+Date:   2026-04-25 00:18:51 +0200
+
+Make Barbarians attack New World colonies earlier
+
+Especially on large maps. Waiting for the civs to outnumber the Barbarians in population delays serious confrontations for too long. AdvCiv has introduced this grace period along with the placement of Barbarian cities on yet uninhabited continents - to give newly arriving civs some time to establish themselves. [advc.300]
+
+Prompted by this CFC post:
+https://forums.civfanatics.com/threads/just-wanted-to-share-this-raging-barbs-moment.703063/
+Seemed far enough off the mark that I didn't want to leave it like this, even though - or perhaps especially since - I've stopped developing the mod further.
+
 commit 82f042a44f4cd4bbc2b687444356d220b83131c1
 Author: wonderingabout <hidden>
 Date:   2026-06-04 19:20:56 +0200

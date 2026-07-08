@@ -28,66 +28,66 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 
 ## Menu
 
-[Tech Tree](/README.md#tech-tree)  
-[Military Tree and changes](/README.md#military-tree-and-changes)  
-[Ingame gameplay samples](/README.md#ingame-gameplay-samples)  
-[Docs](/README.md#docs)  
-[How to play?](/README.md#how-to-play)  
-[Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)  
-[Main Changes Guide](/README.md#main-changes-guide)  
-[UI (Main Menu)](/README.md#ui-main-menu)  
-&emsp;[Home page](/README.md#home-page)  
-&emsp;[Simple Game rework](/README.md#simple-game-rework)  
-[UI (Ingame)](/README.md#ui-ingame)  
-&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
-&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-summary-tab-battles-tab-composition-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
-&emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)  
-&emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
-&emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
-&emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
-&emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)  
-&emsp;[Main interface rework](/README.md#city-screen-rework)  
-&emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
-&emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)  
-[UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
-&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN (category items) and LEFT/RIGHT (BACK/NEXT page visited) navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-category-items-and-leftright-backnext-page-visited-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
-&emsp;[Other new categories](/README.md#other-new-categories)  
-&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
-&emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
-&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-starting-and-untradeable-techs-charts-improvement-weights-leaders-chart)  
-&emsp;[Some other Sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
-[UI (Common)](/README.md#ui-common)  
-&emsp;[Emojis](/README.md#emojis)  
-&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
-[New optional XML fields (e.g. ObsoleteTech for units, Button for eras, EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras-eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art)  
-[AI-generated images](/README.md#ai-generated-images)  
-[Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
-[Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
-&emsp;[World map with civs](/README.md#world-map-with-civs)  
-&emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
-[Assets Rebalancing](/README.md#assets-rebalancing)  
-[48 Civs DLL](/README.md#48-civs-dll)  
-&emsp;[How to use](/README.md#how-to-use)  
-&emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
-[Mapscripts](/README.md#mapscripts)  
-&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)  
-&emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
-&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
-[Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
-[Long Comments Archive](/README.md#long-comments-archive)  
-[External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
-[Python scripts](/README.md#python-scripts)  
-[BBAI logging head example](/README.md#bbai-logging-head-example)  
-[CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
-[Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)  
-["Temporary" crashes](/README.md#temporary-crashes)  
-[Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
-[Version number](/README.md#version-number)  
-[Copyright and Disclaimer](/README.md#copyright-and-disclaimer)  
-[Credits](/README.md#credits)  
-[Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)  
-[License and reuse](/README.md#license-and-reuse)  
-[Authors](/README.md#authors)  
+[Tech Tree](/README.md#tech-tree)\
+[Military Tree and changes](/README.md#military-tree-and-changes)\
+[Ingame gameplay samples](/README.md#ingame-gameplay-samples)\
+[Docs](/README.md#docs)\
+[How to play?](/README.md#how-to-play)\
+[Full exhaustive very long and exhaustive changes](/README.md#full-exhaustive-very-long-and-exhaustive-changes)\
+[Main Changes Guide](/README.md#main-changes-guide)\
+[UI (Main Menu)](/README.md#ui-main-menu)\
+&emsp;[Home page](/README.md#home-page)\
+&emsp;[Simple Game rework](/README.md#simple-game-rework)\
+[UI (Ingame)](/README.md#ui-ingame)\
+&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)\
+&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-summary-tab-battles-tab-composition-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)\
+&emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)\
+&emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)\
+&emsp;[Inverted BUG options](/README.md#inverted-bug-options)\
+&emsp;[Diplomacy Screen](/README.md#diplomacy-screen)\
+&emsp;[Miscellaneous screens](/README.md#miscellaneous-screens)\
+&emsp;[Main interface rework](/README.md#city-screen-rework)\
+&emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)\
+&emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)\
+[UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)\
+&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN (category items) and LEFT/RIGHT (BACK/NEXT page visited) navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-category-items-and-leftright-backnext-page-visited-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)\
+&emsp;[Other new categories](/README.md#other-new-categories)\
+&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)\
+&emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)\
+&emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-starting-and-untradeable-techs-charts-improvement-weights-leaders-chart)\
+&emsp;[Some other Sevopedia reworks](/README.md#some-other-sevopedia-reworks)\
+[UI (Common)](/README.md#ui-common)\
+&emsp;[Emojis](/README.md#emojis)\
+&emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)\
+[New optional XML fields (e.g. ObsoleteTech for units, Button for eras, EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras-eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art)\
+[AI-generated images](/README.md#ai-generated-images)\
+[Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)\
+[Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)\
+&emsp;[World map with civs](/README.md#world-map-with-civs)\
+&emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)\
+[Assets Rebalancing](/README.md#assets-rebalancing)\
+[48 Civs DLL](/README.md#48-civs-dll)\
+&emsp;[How to use](/README.md#how-to-use)\
+&emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)\
+[Mapscripts](/README.md#mapscripts)\
+&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)\
+&emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
+&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)\
+[Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
+[Long Comments Archive](/README.md#long-comments-archive)\
+[External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)\
+[Python scripts](/README.md#python-scripts)\
+[BBAI logging head example](/README.md#bbai-logging-head-example)\
+[CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
+[Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
+["Temporary" crashes](/README.md#temporary-crashes)\
+[Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
+[Version number](/README.md#version-number)\
+[Copyright and Disclaimer](/README.md#copyright-and-disclaimer)\
+[Credits](/README.md#credits)\
+[Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)\
+[License and reuse](/README.md#license-and-reuse)\
+[Authors](/README.md#authors)\
 
 ## Tech Tree
 
@@ -971,7 +971,9 @@ Using git you can choose any version with git reset --hard or checkout or whatev
 
 Exception: when the latest stable release receives fixes or small tweaks after release, the stable release tag may keep the original stable version number even if it is moved forward to a later commit/version. Updates to a stable release erase and replace the previous download for that same stable release; e.g. `AdvCiv-SAS 5860 Update 1 (2 days after release)` replaces the first `AdvCiv-SAS 5860` release.
 
-For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`. This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
+For example, `AdvCiv-SAS 5860 Update (2026-06-02: 9 days after release)` can keep the `5860` release tag and download link while pointing to commit/version `5900`, or similarly `AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release), which is in fact AdvCiv-SAS 5912` for example.
+
+This keeps the same CFC/GitHub download link for the corrected stable build while preserving the intervening commit history for reference, cherry-picks, or future review.
 
 ## Copyright and Disclaimer
 

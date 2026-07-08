@@ -988,7 +988,7 @@ void CvCityAI::AI_chooseProduction()
 	}
 	int iSettlerPriority = 0; // advc.031b
 
-	// <!-- custom: Map-437 diagnostics found inherited raw top-N+1 culture-rank protection applied to 14 of 21 logged cities with zero balanced culture investment and to 6 cities outside the stored top 3; Ravenna was protected at rank 4 without an assault override. Protect only required Legendary candidates with positive bottleneck-balanced investment, so backup, already-far-ahead, and non-candidate cities remain available for ordinary production. Keep logging the resulting role below for verification. (GPT-5.5 + ChatGPT-5.5 review) -->
+	// <!-- custom: Save file 437 diagnostics found inherited raw top-N+1 culture-rank protection applied to 14 of 21 logged cities with zero balanced culture investment and to 6 cities outside the stored top 3; Ravenna was protected at rank 4 without an assault override. Protect only required Legendary candidates with positive bottleneck-balanced investment, so backup, already-far-ahead, and non-candidate cities remain available for ordinary production. Keep logging the resulting role below for verification. (GPT-5.5 + ChatGPT-5.5 review) -->
 	if (iNumCitiesInArea > 2 &&
 		kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2) &&
 		iCultureVictoryRank > 0 &&
@@ -14041,7 +14041,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs with screenshots there in the google drive) -->
 			// OLD: Only avoid starvation if we're not already starving
 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
-			// <!-- custom: Our earlier AdvCiv-SAS change above improved Base AdvCiv by blocking job swaps that worsen an existing food deficit, but became overstrict by also blocking any improvement that did not eliminate the entire deficit immediately. Map-428 BBAI logging showed Bursa keep 4-5 Artists while starving by 5-7 food because working its available 4-food plot would still leave a smaller deficit, despite the full city-aware comparison strongly preferring that plot. Continue blocking food reductions while starving, but allow equal-food swaps and partial recovery. (GPT-5.5) -->
+			// <!-- custom: Our earlier AdvCiv-SAS change above improved Base AdvCiv by blocking job swaps that worsen an existing food deficit, but became overstrict by also blocking any improvement that did not eliminate the entire deficit immediately. Save file 428 BBAI logging showed Bursa keep 4-5 Artists while starving by 5-7 food because working its available 4-food plot would still leave a smaller deficit, despite the full city-aware comparison strongly preferring that plot. Continue blocking food reductions while starving, but allow equal-food swaps and partial recovery. (GPT-5.5) -->
 			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood)
 			{
 				bTakeNewJob = false;
@@ -14088,7 +14088,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
 		// Only plot pairs that are strict yield upgrades, modest or nonnegative-raw food gains, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
 		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
 		// <!-- custom: Map 428 still logged 3,702 plot-to-plot contextual-miss records; recurring high-value cases worked 2F/1H/1C instead of 3F/0H/1C or 3F/1H/1C instead of 4F/0H/1C because the approximate prefilter undervalued one additional food. Test the narrow at-least +1F for at most -1H/-2C pattern here, but require the full city-aware comparison below to approve it. (GPT-5.5) -->
-		// <!-- custom: The subsequent full 500-turn map-428 run still logged 524 food-positive misses that were nonnegative under the diagnostic 3F + 2H + 1C score; 135 had a contextual gain above 1,000, and the most common uncovered pattern was 140 +1F/0H/-3C records. Use that raw score only to expose candidates, then continue requiring the full city-aware comparison below to approve the swap. (GPT-5.5) -->
+		// <!-- custom: The subsequent full 500-turn save file 428 run still logged 524 food-positive misses that were nonnegative under the diagnostic 3F + 2H + 1C score; 135 had a contextual gain above 1,000, and the most common uncovered pattern was 140 +1F/0H/-3C records. Use that raw score only to expose candidates, then continue requiring the full city-aware comparison below to approve the swap. (GPT-5.5) -->
 		// <!-- custom: Human cities reach AI_juggleCitizens only while citizen automation is enabled; optionally share this safe fallback without changing manual citizen assignments. (GPT-5.5) -->
 		static bool const bHumanCitizenPlotFallback = GC.getDefineBOOL("SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE");
 		if (!bTakeNewJob && (!isHuman() || bHumanCitizenPlotFallback))

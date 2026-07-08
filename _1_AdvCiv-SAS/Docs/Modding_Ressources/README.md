@@ -4,61 +4,40 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 
 ## Menu
 
-Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast among other versions who/which could or not), feeding it the global search results of these entries and telling the format of the entries :) Thanks a lot chatgpt 5 hehe (among other versions had i tried with them). If you want to know how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing)'s screenshots for details; i simplified the latest level of nesting (as of now map links such as pangea, continents etc) from the menu as it was needlessly cluttering and not too informative or fast to browse (the main map link is enough i think and these entries are short).
-
-Note: do not remove the 2 spaces at the end of the links in the menu, or do so at your own risk xd (the difference is shown in the spoiler arrow below).
-
-<details>
-<summary>Spoiler: if you want to know why click here</summary>
-
-Nothing bad or dramatic would happen, but text will become like this
-[myLink1](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)
-[myLink2](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)
-[myLink3](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)
-etc.
-
-Instead of:
-
-[myLink1](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)  
-[myLink2](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)  
-[myLink3](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#menu)  
-</details>
-<br>
-
-[Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)  
-[A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)  
-&emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag-if-i-am-not-mistaken)  
-&emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)  
-&emsp;[add media assets](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#add-media-assets)  
-&emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas)  
-&emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#git-log-with-anonymized-email-in-a-txt)  
-&emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)  
-&emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
-&emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
-&emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
-[A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)  
-[In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
-[Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)  
-[Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
-[How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)  
-[How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
-[Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
-[Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-using-regexp-with-chatgpt-5s-help-and-vs-code)  
-[Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)  
-[Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#civ4-processinfos-xml-info)  
-[ICONS code XML names](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#icons-code-xml-names-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe)  
-[Insert an img in a text label in Sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)  
-[Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building)  
-[(Not used anymore in advciv-sas) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)  
-[(Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say)  
-[.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-icon-frame-in-sevopedia-units-unit-panes-icon-frame)  
-[How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)  
-[How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)  
-[How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)  
-[Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor)  
-[Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
-[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time)  
-[Drive](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#drive)  
+[Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)\
+[A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)\
+&emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag-if-i-am-not-mistaken)\
+&emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)\
+&emsp;[add media assets](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#add-media-assets)\
+&emsp;[git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#git-log-with-anonymized-email-in-a-txt)\
+&emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas)\
+&emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)\
+&emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#manuals-and-docs-in-txt)\
+&emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)\
+&emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)\
+[A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)\
+[In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)\
+[Mapscripts](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts)\
+[Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)\
+[How to check with ruff installed locally a folder for py linter errors candidates to fix with text report](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report)\
+[How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)\
+[Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)\
+[Example of how to fast replace many redundant entries (e.g. 400+ strategy entries to obsolete) using regexp (with chatgpt 5's help) and vs code](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-how-to-fast-replace-many-redundant-entries-eg-400-strategy-entries-to-obsolete-using-regexp-with-chatgpt-5s-help-and-vs-code)\
+[Which XML version file to choose to import in your mod when there are multiple ones (for example one in base Civ4 (vanilla is it called?) folder and one in BTS folder)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#which-xml-version-file-to-choose-to-import-in-your-mod-when-there-are-multiple-ones-for-example-one-in-base-civ4-vanilla-is-it-called-folder-and-one-in-bts-folder)\
+[Civ4 ProcessInfos XML info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#civ4-processinfos-xml-info)\
+[ICONS code XML names](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#icons-code-xml-names-with-some-color-changing-code-as-bonus-or-to-be-extra-exhaustive-a-bit-more-than-needed-but-is-here-if-needed-maybe)\
+[Insert an img in a text label in Sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia)\
+[Import a nif art asset from another mod](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#import-a-nif-art-asset-from-another-mod-example-with-how-we-added-the-impluviums-nif-as-an-import-from-ffh2-mods-adventurers-guild-building)\
+[(Not used anymore in advciv-sas) Example of how to add a static image file as a leader portrait](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-add-a-static-image-file-such-as-png-jpg-etc-as-a-leader-portrait)\
+[(Not used anymore in advciv-sas) Example of how to create a leader head .dds button from a static image file](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#not-used-anymore-in-advciv-sas-example-of-how-to-create-a-leader-head-dds-button-from-a-static-image-file-such-as-png-jpg-etc-ideally-from-the-leader-head-image-portrait-if-any-if-i-am-not-mistaken-but-if-i-may-say)\
+[.dds (button) size comparison analysis - (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small mistake) icon frame in Sevopedia unit's unit pane('s icon frame)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#dds-button-size-comparison-analysis---trying-to-find-optimal-dds-button-size-for-a-164px--2px-due-to-smallanyways-etc-mistake-icon-frame-in-sevopedia-units-unit-panes-icon-frame)\
+[How to change the mod's main menu background image (for example to add a static image instead of default base advciv +/- civ4 image)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-change-the-mods-main-menu-background-image-for-example-to-add-a-static-image-instead-of-default-base-advciv---civ4-image)\
+[How to remove the blue rectangle in main menu screen, change text color for example to black, etc. (in .thm files)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-remove-the-blue-rectangle-in-main-menu-screen-change-text-color-for-example-to-black-etc-in-thm-files)\
+[How to autoplay (let the AI play for you (super fast gameplay / testing tool)) in map (loaded save file, new game, etc.) view](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)\
+[Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor)\
+[Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)\
+[Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time)\
+[Drive](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#drive)\
 
 ## Modding disclaimer and general information
 
@@ -158,28 +137,6 @@ Personally i do so in Notepad++ where i also store notes of ideas of things to a
 
 I started this habit somewhere in this advciv-sas mod development i mean but is very helpful, so adding mention of it if helps.
 
-### git log with anonymized email in a .txt
-
-It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
-
-To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user):
-
-```shell
-# 1. Set your commit hashes here
-start=d005985125bc2ed497070ecc3246913121871821 # old (included), e.g.: AdvCiv-SAS 5860 Update 3 (2026-06-02: 9 days after release).
-end=82f042a44f4cd4bbc2b687444356d220b83131c1   # new (included), e.g.: AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release).
-
-# 2. Run the command (uses the variables above)
-cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
-git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$start".."$end" > git_log_anonymized_email.txt
-```
-
-Note: since as of now git log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for git log incremental last addition), the command may use different old and new tags than the git tag release one.
-
-Note 2: since i cleared up the logs from verbosity, i recommend adding new comments on old text rather than generating previous ones again.
-
-For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
-
 ### how to create/edit git tags at specific commits with a tag message
 
 Thanks to the help of chatgpt 5, and me noticing how based on past experience or such or current observation, what i mean is [git/github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) can be very useful to manage versions, provide download links, possibly also use as compare points to remember which commit they were at precisely and fast without needing to remember it yourself.
@@ -192,7 +149,7 @@ Here is how to do it with the help of chatgpt 5, which i adjusted a bit at some 
 
 If the tag doesn’t exist yet:
 
-```cmd
+```shell
 git fetch origin
 git tag -a 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
   -m "AdvCiv-SAS 4986" \
@@ -202,7 +159,7 @@ git push origin 4986
 
 If the tag exists but points to the wrong commit:
 
-```cmd
+```shell
 git fetch origin
 git tag -fa 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
   -m "AdvCiv-SAS 4986" \
@@ -224,28 +181,56 @@ As of now, this is the command we use to make each new git tag release.
 
 For stable release updates, the update tag/label is the new download for that same stable release, not a separate parallel stable release. For example, `AdvCiv-SAS 5860 Update 1 (2 days after release)` replaces the first `AdvCiv-SAS 5860` release.
 
-```cmd
+```shell
+cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"
 git fetch origin
 
 # choose names
-# stable release tag stays the same for concision; new name/message can show the update for consistency with cfc/moddb or such release version names and for clear full git diff compare link vs last stable too
-TAG=5860
-NEWNAME="AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release)"
-SHA=82f042a44f4cd4bbc2b687444356d220b83131c1  # <- the NEWNAME commit
-OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
-BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
-WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+TAG=6020
+NEWNAME="AdvCiv-SAS $TAG"
+NEWSHA=feddabdf89f022dcf6412aab0cab414a54b4610c
 
-# replace the tag locally with correct date + message
+OLDNAME="AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release), which is in fact AdvCiv-SAS 5912"
+OLDSHA=82f042a44f4cd4bbc2b687444356d220b83131c1
+
+WHEN=$(git show -s --format=%cI "$NEWSHA") # or %aI if you prefer author date
+COMPARE_URL="https://github.com/wonderingabout/AdvCiv-SAS/compare/$OLDSHA...$NEWSHA"
+
+# replace/create the tag locally with correct date + message
 GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
-git tag -fa "$TAG" "$SHA" \
+git tag -fa "$TAG" "$NEWSHA" \
   -m "$NEWNAME" \
-  -m "Full Cumulative file changes and git commit history from $OLDNAME to $NEWNAME viewable at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
+  -m "Full cumulative file changes and git commit history from $OLDNAME to $NEWNAME viewable at $COMPARE_URL"
 
-# force-push because we’re updating an existing remote tag object; <!-- custom: verify TAG first because this overwrites an existing remote tag when one exists. (GPT-5.5) -->
-# <!-- custom: this seems to be convenient both for new tag releases and for replacing an old tag with a new commit it seems so as of now always using force regardless of which case. -->
-git push --force origin "$TAG"
+# force-push because we may be updating an existing remote tag object.
+# <!-- custom: verify TAG first because this overwrites an existing remote tag when one exists. (GPT-5.5) -->
+# <!-- custom: convenient for both new tag releases and replacing an old tag with a new commit, so as of now always using force regardless of which case. (GPT-5.5) -->
+git push --force origin "refs/tags/$TAG:refs/tags/$TAG"
 ```
+
+### git log with anonymized email in a .txt
+
+It can be useful to keep a .txt copy of the full git log of your project, for grep with a global search (for example with VS Code) or such. You can gain while doing so precious information about some features you want to know more about.
+
+To create a git log based on past commits using a comand line, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths or such similar things anyways if not steam user).
+
+Note: although redundant, we as of now keep in code comment the version where it ended, so it is easier to remember where we stopped last and to append only what is new and not everything from scratch again each time (which would lose our manual edits to remove churn/typoes etc).
+
+```shell
+# 1. Set your commit hashes here
+NEWSHA=feddabdf89f022dcf6412aab0cab414a54b4610c # new (included), e.g.: AdvCiv-SAS 6020
+OLDSHA=82f042a44f4cd4bbc2b687444356d220b83131c1 # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g.: AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release)
+
+# 2. Run the command (uses the variables above)
+cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
+git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso "$OLDSHA".."$NEWSHA" > git_log_anonymized_email.txt
+```
+
+Note 2: since as of now git log text docs are updated incrementally unlike releases where we always like to compare vs last stable instead of vs last update of a stable (e.g., 5860 updated vs last 5500 for full git diff, but 5860 update 4 vs last 5860 which is update 3 for git log incremental last addition), the command may use different old and new tags than the git tag release one.
+
+Note 3: it seems that due to this, some commits are not ordered chronologically, for example `24dbe0256ce974067b99f4d545fa8ca23596c344` (2026-04-25 00:18:51 +0200) is part of the AdvCiv-SAS 6020 release batch's changelog, so it is more recent in our git log than the newer `82f042a44f4cd4bbc2b687444356d220b83131c1` 2026-06-04 19:20:56 +0200, but as of now keep it as such for no tedium and clearer/more reliable version boundaries.
+
+For example, i put thes git log files in the [/_0_Common_Docs/git_logs/](/_0_Common_Docs/git_logs/) and [/_1_AdvCiv-SAS/git_logs/](/_1_AdvCiv-SAS/git_logs/) folders.
 
 ### manual(s) and docs in .txt
 
