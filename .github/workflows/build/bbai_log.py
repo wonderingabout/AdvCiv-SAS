@@ -18,6 +18,7 @@ EXPECTED_NONZERO_BBAI_DEFAULTS = {
 	# These configure enabled logging but do not enable it themselves.
 	"SAS_BBAI_SCORE_LOG_INTERVAL": 100,
 	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
+	"SAS_BBAI_GAME_SUMMARY_TURN_INTERVAL": 10,
 }
 
 

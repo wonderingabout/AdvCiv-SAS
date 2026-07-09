@@ -1352,6 +1352,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated structured game-summary log for autoplay comparison, general game analysis, and external LLM review. Notably records setup/known-area context, periodic snapshots with deltas, chronicle actions, resources, plot development, unit/worker/settler/city/trade/Great Person context, diplomacy/contact/deal actions, advisor-style policy/espionage/attitude/environment/vote-source context, victory progress, and optional detailed rows. This is intentionally separate from PLAYER/TEAM/UNIT logging so a run can produce compact AI-readable history without broad diagnostic spam. Fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_GAME_SUMMARY_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Interval in game turns for periodic game-summary snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-summary level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay summaries, or higher for broad long-game trends. Clamped to at least 1 in BBAILog.cpp. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_GAME_SUMMARY_TURN_INTERVAL</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
 	<!-- custom: If BBAI logging is enabled, write each new game and loaded save to a new UTC-timestamped file instead of repeatedly appending to BBAI.log. Filenames use a shared chronological sequence such as BBAI_20260608T065231Z_new1.log followed by BBAI_20260608T065415Z_load2.log, and begin with the currently active BBAI log settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each run easier to identify or upload. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log behavior. (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>

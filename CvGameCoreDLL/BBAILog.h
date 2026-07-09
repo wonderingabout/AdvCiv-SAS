@@ -28,10 +28,41 @@ int getSASBBAIMapLogLevel();
 int getSASBBAIFoundLogLevel();
 int getSASBBAIDealCancelLogLevel();
 int getSASBBAICultureLogLevel();
+int getSASBBAIGameSummaryLogLevel();
+int getSASBBAIGameSummaryTurnInterval();
 int getSASBBAIScoreLogInterval();
 void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new BBAI file before new-game map generation can log. (GPT-5.5) -->
 void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identification after map and player initialization. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
+
+// <!-- custom: Structured BBAI game-summary rows for autoplay comparison, game analysis, and external LLM review. Level 2 adds compact strategic context such as BFC composition, bonuses, unit posture, city aggregates, diplomacy/contact/deal/worst-enemy/willingness context, trade/GPP context. Call sites should gate before invoking these helpers so disabled logging does not compute logging-only arguments, matching the usual BBAI call-site guard pattern; pointer-only hooks use forward declarations here to avoid pulling city/unit headers into BBAILog.h. (ChatGPT-5.5) -->
+class CvCity;
+class CvPlot;
+class CvUnit;
+void logSASBBAIGameSummaryTurn(int iGameTurn);
+void updateSASBBAIGameSummaryPlayerTurnState(PlayerTypes ePlayer);
+void logSASBBAIGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
+void logSASBBAIGameSummaryCityBuilt(CvCity const* pCity);
+void logSASBBAIGameSummaryCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
+void logSASBBAIGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);
+void logSASBBAIGameSummaryChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam);
+void logSASBBAIGameSummaryTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot);
+void logSASBBAIGameSummaryPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
+void logSASBBAIGameSummaryReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
+void logSASBBAIGameSummaryCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
+void logSASBBAIGameSummaryGoldenAge(PlayerTypes ePlayer, bool bStart);
+void logSASBBAIGameSummaryGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int iOldGoldenAgeTurns, int iNewGoldenAgeTurns);
+void logSASBBAIGameSummaryAnarchy(PlayerTypes ePlayer, bool bStart);
+void logSASBBAIGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
+void logSASBBAIGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+void logSASBBAIGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
+void logSASBBAIGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
+void logSASBBAIGameSummaryGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
+void logSASBBAIGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
+void logSASBBAIGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);
+void logSASBBAIGameSummaryUnitScrapped(CvUnit const* pUnit);
+void logSASBBAIGameSummaryUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
+void logSASBBAIGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
 
 #define gLogBBAI isSASBBAILogEnabled() // advc.007: So that BBAI logging can be checked in FAssert
 #define gPlayerLogLevel getSASBBAIPlayerLogLevel()
@@ -48,6 +79,8 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
 #define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Separate culture-victory diagnostics from general PLAYER and CITY logging. (ChatGPT-5.5) -->
+#define gGameSummaryLogLevel getSASBBAIGameSummaryLogLevel() // <!-- custom: Structured game-state/action summary for autoplay comparison and external review. (ChatGPT-5.5) -->
+#define gGameSummaryTurnInterval getSASBBAIGameSummaryTurnInterval() // <!-- custom: Periodic game-summary snapshot interval in game turns. (ChatGPT-5.5) -->
 
 void logBBAI(TCHAR* format, ... );
 // <advc.133>
