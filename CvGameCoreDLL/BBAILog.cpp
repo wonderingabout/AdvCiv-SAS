@@ -40,10 +40,10 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 	return iLevel;
 }
 
-// <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
+// <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. Classic BBAI diagnostics stay under SAS_BBAI_LOG_ENABLE, while the structured game summary can run independently as a compact run-report artifact. (GPT-5.5? + GPT-5.5) -->
 bool isSASBBAILogEnabled()
 {
-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0 || getSASBBAIGameSummaryLogLevel() > 0));
+	static const bool bEnabled = ((isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0)) || getSASGameSummaryLogLevel() > 0);
 	return bEnabled;
 }
 
@@ -137,17 +137,17 @@ int getSASBBAICultureLogLevel()
 	return iLevel;
 }
 
-// <!-- custom: Dedicated structured game-summary log for autoplay comparison, general game analysis, and external LLM review. Notably records setup/known-area context, periodic snapshots with deltas, chronicle actions, resources, plot development, unit/worker/settler/city context, diplomacy/contact/deal actions, advisor-style policy/espionage/attitude/environment/vote-source context, unit lifecycle actions, victory progress, and optional detailed rows. Use ACTION rows rather than EVENT rows to avoid confusion with Civ4 random events. (ChatGPT-5.5) -->
-int getSASBBAIGameSummaryLogLevel()
+// <!-- custom: Dedicated structured game-summary log for autoplay comparison, general game analysis, and external LLM review. This is independent from SAS_BBAI_LOG_ENABLE because it is a run-report artifact rather than classic AI-decision diagnostics, though it reuses the BBAI log-file backend for now. Use ACTION rows rather than EVENT rows to avoid confusion with Civ4 random events. (ChatGPT-5.5 + GPT-5.5) -->
+int getSASGameSummaryLogLevel()
 {
-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_GAME_SUMMARY_LOG_LEVEL") : 0);
+	static const int iLevel = getClampedSASBBAILogLevel("SAS_GAME_SUMMARY_LOG_LEVEL");
 	return iLevel;
 }
 
-int getSASBBAIGameSummaryTurnInterval()
+int getSASGameSummaryTurnInterval()
 {
 	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-summary rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
-	static const int iInterval = (isSASBBAILogMasterEnabled() ? std::max(1, GC.getDefineINT("SAS_BBAI_GAME_SUMMARY_TURN_INTERVAL")) : 1);
+	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_SUMMARY_TURN_INTERVAL"));
 	return iInterval;
 }
 
@@ -280,8 +280,8 @@ static void logSASBBAIGameSummaryInitialContext();
 // <!-- custom: Record the effective logging profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
 static void logSASBBAILogSettings()
 {
-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_GAME_SUMMARY_LOG_LEVEL=%d SAS_BBAI_GAME_SUMMARY_TURN_INTERVAL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIGameSummaryLogLevel(), getSASBBAIGameSummaryTurnInterval(), getSASBBAIScoreLogInterval());
+	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_GAME_SUMMARY_LOG_LEVEL=%d SAS_GAME_SUMMARY_TURN_INTERVAL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASGameSummaryLogLevel(), getSASGameSummaryTurnInterval(), getSASBBAIScoreLogInterval());
 }
 
 // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
@@ -927,7 +927,7 @@ static void logSASBBAIGameSummaryTeamProjects(TeamTypes eTeam, int iGameTurn);
 
 static void logSASBBAIGameSummaryBattleBuckets(int iGameTurn)
 {
-	const int iStartTurn = std::max(0, iGameTurn - getSASBBAIGameSummaryTurnInterval() + 1);
+	const int iStartTurn = std::max(0, iGameTurn - getSASGameSummaryTurnInterval() + 1);
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
