@@ -29,7 +29,7 @@ int getSASBBAIFoundLogLevel();
 int getSASBBAIDealCancelLogLevel();
 int getSASBBAICultureLogLevel();
 int getSASBBAIScoreLogInterval();
-void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new BBAI file before new-game map generation can log. (GPT-5.5) -->
+void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new timestamped BBAI diagnostic file before new-game map generation can log. (GPT-5.5 + GPT-5.5) -->
 void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identification after map and player initialization. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
 

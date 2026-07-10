@@ -20,8 +20,140 @@
 #include "CvBugOptions.h"
 #include "CvDLLFlagEntityIFaceBase.h" // BBAI
 #include "BBAILog.h"
+#include "SASGameSummaryLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "RiseFall.h" // advc.708: Needed only for savegame compatibility
 #include "SelfMod.h" // advc.092b
+
+namespace
+{
+	const char* getSASGameSummaryDiploEventName(DiploEventTypes eDiploEvent)
+	{
+		switch (eDiploEvent)
+		{
+		case DIPLOEVENT_CONTACT: return "DIPLOEVENT_CONTACT";
+		case DIPLOEVENT_AI_CONTACT: return "DIPLOEVENT_AI_CONTACT";
+		case DIPLOEVENT_FAILED_CONTACT: return "DIPLOEVENT_FAILED_CONTACT";
+		case DIPLOEVENT_GIVE_HELP: return "DIPLOEVENT_GIVE_HELP";
+		case DIPLOEVENT_REFUSED_HELP: return "DIPLOEVENT_REFUSED_HELP";
+		case DIPLOEVENT_ACCEPT_DEMAND: return "DIPLOEVENT_ACCEPT_DEMAND";
+		case DIPLOEVENT_REJECTED_DEMAND: return "DIPLOEVENT_REJECTED_DEMAND";
+		case DIPLOEVENT_DEMAND_WAR: return "DIPLOEVENT_DEMAND_WAR";
+		case DIPLOEVENT_CONVERT: return "DIPLOEVENT_CONVERT";
+		case DIPLOEVENT_NO_CONVERT: return "DIPLOEVENT_NO_CONVERT";
+		case DIPLOEVENT_REVOLUTION: return "DIPLOEVENT_REVOLUTION";
+		case DIPLOEVENT_NO_REVOLUTION: return "DIPLOEVENT_NO_REVOLUTION";
+		case DIPLOEVENT_JOIN_WAR: return "DIPLOEVENT_JOIN_WAR";
+		case DIPLOEVENT_NO_JOIN_WAR: return "DIPLOEVENT_NO_JOIN_WAR";
+		case DIPLOEVENT_STOP_TRADING: return "DIPLOEVENT_STOP_TRADING";
+		case DIPLOEVENT_NO_STOP_TRADING: return "DIPLOEVENT_NO_STOP_TRADING";
+		case DIPLOEVENT_ASK_HELP: return "DIPLOEVENT_ASK_HELP";
+		case DIPLOEVENT_MADE_DEMAND: return "DIPLOEVENT_MADE_DEMAND";
+		case DIPLOEVENT_RESEARCH_TECH: return "DIPLOEVENT_RESEARCH_TECH";
+		case DIPLOEVENT_TARGET_CITY: return "DIPLOEVENT_TARGET_CITY";
+		case DIPLOEVENT_MADE_DEMAND_VASSAL: return "DIPLOEVENT_MADE_DEMAND_VASSAL";
+		case DIPLOEVENT_SET_WARPLAN: return "DIPLOEVENT_SET_WARPLAN";
+		default: return "UNKNOWN_DIPLOEVENT";
+		}
+	}
+
+	const char* getSASGameSummaryWarPlanName(WarPlanTypes eWarPlan)
+	{
+		switch (eWarPlan)
+		{
+		case NO_WARPLAN: return "NO_WARPLAN";
+		case WARPLAN_ATTACKED_RECENT: return "WARPLAN_ATTACKED_RECENT";
+		case WARPLAN_ATTACKED: return "WARPLAN_ATTACKED";
+		case WARPLAN_PREPARING_LIMITED: return "WARPLAN_PREPARING_LIMITED";
+		case WARPLAN_PREPARING_TOTAL: return "WARPLAN_PREPARING_TOTAL";
+		case WARPLAN_LIMITED: return "WARPLAN_LIMITED";
+		case WARPLAN_TOTAL: return "WARPLAN_TOTAL";
+		case WARPLAN_DOGPILE: return "WARPLAN_DOGPILE";
+		default: return "UNKNOWN_WARPLAN";
+		}
+	}
+
+	CvString getSASGameSummaryDiploIntText(int iValue)
+	{
+		CvString szValue;
+		szValue.Format("%d", iValue);
+		return szValue;
+	}
+
+	CvString getSASGameSummaryDiploTeamText(TeamTypes eTeam)
+	{
+		if (eTeam == NO_TEAM)
+			return CvString("-");
+		CvString szValue;
+		szValue.Format("TEAM_%d", eTeam);
+		return szValue;
+	}
+
+	CvString getSASGameSummaryDiploCityText(PlayerTypes ePlayer, int iCityId)
+	{
+		if (ePlayer == NO_PLAYER)
+			return CvString("-");
+		CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityId);
+		CvString szValue;
+		if (pCity != NULL)
+			szValue.Format("cityId=%d,city=%S", pCity->getID(), pCity->getName().GetCString());
+		else szValue.Format("cityId=%d", iCityId);
+		return szValue;
+	}
+
+	CvString getSASGameSummaryDiploData1Text(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, int iData1, int iData2)
+	{
+		switch (eDiploEvent)
+		{
+		case DIPLOEVENT_JOIN_WAR:
+		case DIPLOEVENT_NO_JOIN_WAR:
+		case DIPLOEVENT_STOP_TRADING:
+		case DIPLOEVENT_NO_STOP_TRADING:
+		case DIPLOEVENT_SET_WARPLAN:
+			return getSASGameSummaryDiploTeamText((TeamTypes)iData1);
+		case DIPLOEVENT_RESEARCH_TECH:
+			if (iData1 >= 0 && iData1 < GC.getNumTechInfos())
+				return CvString(GC.getInfo((TechTypes)iData1).getType());
+			break;
+		case DIPLOEVENT_TARGET_CITY:
+			return getSASGameSummaryDiploCityText((PlayerTypes)iData1, iData2);
+		case DIPLOEVENT_CONVERT:
+		case DIPLOEVENT_NO_CONVERT:
+			return GET_PLAYER(ePlayer).getStateReligion() == NO_RELIGION ? CvString("-") : CvString(GC.getInfo(GET_PLAYER(ePlayer).getStateReligion()).getType());
+		case DIPLOEVENT_REVOLUTION:
+		case DIPLOEVENT_NO_REVOLUTION:
+			return GET_PLAYER(ePlayer).getFavoriteCivic() == NO_CIVIC ? CvString("-") : CvString(GC.getInfo(GET_PLAYER(ePlayer).getFavoriteCivic()).getType());
+		case DIPLOEVENT_ASK_HELP:
+		case DIPLOEVENT_MADE_DEMAND:
+			return CvString(iData1 > 0 ? "granted" : "not_granted_or_unknown");
+		default:
+			return CvString("-");
+		}
+		return getSASGameSummaryDiploIntText(iData1);
+	}
+
+	CvString getSASGameSummaryDiploData2Text(DiploEventTypes eDiploEvent, int iData2)
+	{
+		switch (eDiploEvent)
+		{
+		case DIPLOEVENT_SET_WARPLAN:
+			return CvString(getSASGameSummaryWarPlanName((WarPlanTypes)iData2));
+		default:
+			return CvString("-");
+		}
+	}
+
+	bool isSASGameSummaryLowValueDiploEvent(DiploEventTypes eDiploEvent)
+	{
+		return (eDiploEvent == DIPLOEVENT_CONTACT || eDiploEvent == DIPLOEVENT_AI_CONTACT || eDiploEvent == DIPLOEVENT_FAILED_CONTACT || eDiploEvent == DIPLOEVENT_TARGET_CITY || eDiploEvent == DIPLOEVENT_SET_WARPLAN);
+	}
+
+	void logSASGameSummaryDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
+	{
+		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-summary logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
+		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
+				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASGameSummaryDiploEventName(eDiploEvent), iData1, getSASGameSummaryDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameSummaryDiploData2Text(eDiploEvent, iData2).GetCString());
+	}
+}
 
 // advc.003u: Statics moved from CvPlayerAI
 CvPlayerAI** CvPlayer::m_aPlayers = NULL;
@@ -2903,6 +3035,7 @@ void CvPlayer::doTurn()
 	//doUpdateCacheOnTurn(); // advc: removed
 	kGame.verifyDeals();
 	AI().AI_doTurnPre();
+	if (gGameSummaryLogLevel > 0) updateSASGameSummaryPlayerTurnState(getID());
 
 	if (getRevolutionTimer() > 0)
 		changeRevolutionTimer(-1);
@@ -3668,6 +3801,8 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
 {
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+	if (gGameSummaryLogLevel >= 2 && (gGameSummaryLogLevel >= 3 || !isSASGameSummaryLowValueDiploEvent(eDiploEvent)))
+		logSASGameSummaryDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
 
 	switch (eDiploEvent)
 	{
@@ -7637,9 +7772,12 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 	CvWString szBuffer;
 
+	int const iOldGoldenAgeTurns = getGoldenAgeTurns();
 	bool const bOldGoldenAge = isGoldenAge();
 	m_iGoldenAgeTurns += iChange;
 	FAssert(getGoldenAgeTurns() >= 0);
+
+	if (gGameSummaryLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASGameSummaryGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
 
 	if (bOldGoldenAge != isGoldenAge())
 	{
@@ -7738,6 +7876,7 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 	FAssert(getAnarchyTurns() >= 0);
 	if (bOldAnarchy == isAnarchy())
 		return;
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryAnarchy(getID(), isAnarchy());
 
 	if (isActive())
 	{

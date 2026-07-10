@@ -85,6 +85,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/raw_getinfotype.py`](#buildraw_getinfotypepy)
 - [`build/opening_music.py`](#buildopening_musicpy)
 - [`build/bbai_log.py`](#buildbbai_logpy)
+- [`build/sas_game_summary_log.py`](#buildsas_game_summary_logpy)
 - [`build/fonts.py`](#buildfontspy)
 - [`build/detail_manager.py`](#builddetail_managerpy)
 - [`build/aip.py`](#buildaippy)
@@ -201,6 +202,10 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed 
 ### `build/bbai_log.py`
 
 Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+
+### `build/sas_game_summary_log.py`
+
+Verifies the independent game-summary report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_SUMMARY_LOG_LEVEL` must stay `0`; `SAS_GAME_SUMMARY_TURN_INTERVAL=10` and `SAS_GAME_SUMMARY_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled summaries behave but do not enable summary logging themselves.
 
 ### `build/fonts.py`
 

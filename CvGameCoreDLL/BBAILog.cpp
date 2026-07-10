@@ -5,8 +5,7 @@
 #include "CvGamePlay.h" // </advc.133>
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
-// <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
-#include <time.h>
+#include <time.h> // <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
 
 // AI decision making logging
 
@@ -20,7 +19,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 	return iLevel;
 }
 
-// <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
+// <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-summary run reports are handled independently in SASGameSummaryLog.cpp. (GPT-5.5? + GPT-5.5) -->
 bool isSASBBAILogEnabled()
 {
 	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
@@ -174,10 +173,7 @@ static CvString getSASBBAILogName()
 				szLogName.Format("BBAI%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
 			else szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString());
 		}
-		else
-		{
-			szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
-		}
+		else szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
 	}
 	else
 	{
@@ -187,10 +183,7 @@ static CvString getSASBBAILogName()
 				szLogName.Format("BBAI_%s_%s.log", getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
 			else szLogName.Format("BBAI_%s.log", getSASBBAILogTimestamp().GetCString());
 		}
-		else
-		{
-			szLogName = "BBAI.log";
-		}
+		else szLogName = "BBAI.log";
 	} // </advc.007>
 	return szLogName;
 }
@@ -205,7 +198,7 @@ static void rollSASBBAILog(const char* szContext)
 	}
 }
 
-static void logSASBBAIGameState(const char* szEvent)
+static void logSASBBAIGameState(const char* szRowType)
 {
 	CvGame& kGame = GC.getGame();
 	CvInitCore const& kInitCore = GC.getInitCore();
@@ -233,14 +226,14 @@ static void logSASBBAIGameState(const char* szEvent)
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
 	logBBAI("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szEvent, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+			szRowType, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
 			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
 	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
-// <!-- custom: Record the effective logging profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+// <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
 static void logSASBBAILogSettings()
 {
 	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
@@ -250,8 +243,6 @@ static void logSASBBAILogSettings()
 // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
 void startSASBBAILogForNewGame()
 {
-	if (!isSASBBAILogEnabled())
-		return;
 	rollSASBBAILog("new");
 	logBBAI("BBAI_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
 	logSASBBAILogSettings();
@@ -259,15 +250,12 @@ void startSASBBAILogForNewGame()
 
 void logSASBBAINewGameStarted()
 {
-	if (isSASBBAILogEnabled())
-		logSASBBAIGameState("BBAI_NEW_GAME_STARTED");
+	logSASBBAIGameState("BBAI_NEW_GAME_STARTED");
 }
 
 // <!-- custom: Civ4 does not expose the source save filename to the DLL or Python OnLoad event. Start a distinct BBAI file after all save data is read and identify the loaded state through UTC, turn/year, map/game settings, player counts, and read-only RNG states instead. This removes the need to restart Civ4 between repeated save-file tests. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave()
 {
-	if (!isSASBBAILogEnabled())
-		return;
 	rollSASBBAILog("load");
 	logSASBBAIGameState("BBAI_SAVE_LOADED");
 	logSASBBAILogSettings();
