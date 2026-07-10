@@ -148,7 +148,8 @@ void logSASGameSummary(TCHAR* format, ... )
 	va_end(args);
 }
 
-static void logSASGameSummaryGameState(const char* szEvent)
+// <!-- custom: Use "row" wording for generic SAS game-summary row prefixes because Civ4 also has EventInfo/random events. Keep GAME_SUMMARY_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+static void logSASGameSummaryGameState(const char* szRowType)
 {
 	CvGame& kGame = GC.getGame();
 	CvInitCore const& kInitCore = GC.getInitCore();
@@ -176,7 +177,7 @@ static void logSASGameSummaryGameState(const char* szEvent)
 		szGameOptions = "-";
 	const CvString szLogName = getSASGameSummaryLogName();
 	logSASGameSummary("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szEvent, getSASGameSummaryLogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+			szRowType, getSASGameSummaryLogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	logSASGameSummary("GAME_SUMMARY_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
 			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
 	logSASGameSummary("GAME_SUMMARY_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
@@ -1983,6 +1984,7 @@ void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer)
 		g_aiSASGameSummaryTotalAnarchyTurns[ePlayer]++;
 }
 
+// <!-- custom: GAME_SUMMARY_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_SUMMARY_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
 void logSASGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer)
 {
 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=TECH_ACQUIRED player=%d team=%d tech=%s", GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameSummaryTechType(eType));

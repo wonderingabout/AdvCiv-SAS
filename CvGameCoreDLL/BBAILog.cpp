@@ -198,7 +198,7 @@ static void rollSASBBAILog(const char* szContext)
 	}
 }
 
-static void logSASBBAIGameState(const char* szEvent)
+static void logSASBBAIGameState(const char* szRowType)
 {
 	CvGame& kGame = GC.getGame();
 	CvInitCore const& kInitCore = GC.getInitCore();
@@ -226,7 +226,7 @@ static void logSASBBAIGameState(const char* szEvent)
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
 	logBBAI("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szEvent, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+			szRowType, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
 			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
