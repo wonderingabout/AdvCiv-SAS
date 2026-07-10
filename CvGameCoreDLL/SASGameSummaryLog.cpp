@@ -1428,6 +1428,7 @@ static void logSASGameSummaryUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	int iLevel4Plus = 0;
 	int iLevel6Plus = 0;
 	int iPromotionInstances = 0;
+	std::vector<int> aiUnitTypes(GC.getNumUnitInfos(), 0);
 	std::vector<int> aiUnitAI(NUM_UNITAI_TYPES, 0);
 	std::vector<int> aiUnitCombat(GC.getNumUnitCombatInfos(), 0);
 	std::vector<int> aiPromotions(gGameSummaryLogLevel >= 3 ? GC.getNumPromotionInfos() : 0, 0);
@@ -1435,6 +1436,8 @@ static void logSASGameSummaryUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 	{
 		iTotal++;
+		if (pLoopUnit->getUnitType() != NO_UNIT)
+			aiUnitTypes[pLoopUnit->getUnitType()]++;
 		const int iExperience = pLoopUnit->getExperience();
 		iTotalExperience += iExperience;
 		iMaxExperience = std::max(iMaxExperience, iExperience);
@@ -1508,9 +1511,13 @@ static void logSASGameSummaryUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 				iEnemyUnitsInTerritory++;
 		}
 	}
+	CvString szUnitTypes;
 	CvString szUnitAI;
 	CvString szUnitCombat;
 	CvString szPromotions;
+	// <!-- custom: UnitAI and combat class are useful but too coarse for game-summary review: a Galley and Galleon can share naval transport roles, and a Camel Archer and Dragoon can sit in similar mounted/combat buckets despite very different strength and era impact. Include actual unit-type counts so LLM/autoplay review can see army and navy quality without per-unit spam. (GPT-5.5) -->
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+		appendSASGameSummaryTypeCount(szUnitTypes, getSASGameSummaryUnitType((UnitTypes)iI), aiUnitTypes[iI]);
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
 		appendSASGameSummaryTypeCount(szUnitAI, getSASGameSummaryUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
 	for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
@@ -1533,7 +1540,7 @@ static void logSASGameSummaryUnitPosture(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iUnitEnemyUnitsInTerritory = iEnemyUnitsInTerritory;
 	kPrevious.iUnitTotalExperience = iTotalExperience;
 	kPrevious.iUnitPromotionReady = iPromotionReady;
-	logSASGameSummary("GAME_SUMMARY_UNIT_COMPOSITION turn=%d player=%d unitAI=%s unitCombat=%s", iGameTurn, ePlayer, getSASGameSummaryOrDash(szUnitAI).GetCString(), getSASGameSummaryOrDash(szUnitCombat).GetCString());
+	logSASGameSummary("GAME_SUMMARY_UNIT_COMPOSITION turn=%d player=%d unitTypes=%s unitAI=%s unitCombat=%s", iGameTurn, ePlayer, getSASGameSummaryOrDash(szUnitTypes).GetCString(), getSASGameSummaryOrDash(szUnitAI).GetCString(), getSASGameSummaryOrDash(szUnitCombat).GetCString());
 	if (gGameSummaryLogLevel >= 3) logSASGameSummary("GAME_SUMMARY_UNIT_PROMOTIONS turn=%d player=%d promotions=%s", iGameTurn, ePlayer, getSASGameSummaryOrDash(szPromotions).GetCString());
 }
 

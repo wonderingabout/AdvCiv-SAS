@@ -43,6 +43,7 @@ In particular but not only, these are usually helpful:
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
 - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
 - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameSummary.log" or timestamped (e.g., `SASGameSummary_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-summary XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as economy, expansion, city and battle history, worked plots, diplomacy, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player audit/debug artifact and can contain spoilers; do not treat it as a spoiler-free player-advice log.
 
 The root Program Files Civ4 folder is here:
 
