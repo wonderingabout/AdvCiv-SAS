@@ -20,6 +20,7 @@
 #include "CvBugOptions.h"
 #include "CvDLLFlagEntityIFaceBase.h" // BBAI
 #include "BBAILog.h"
+#include "SASGameSummaryLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "RiseFall.h" // advc.708: Needed only for savegame compatibility
 #include "SelfMod.h" // advc.092b
 
@@ -149,7 +150,7 @@ namespace
 	void logSASGameSummaryDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
 	{
 		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-summary logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
-		logBBAI("GAME_SUMMARY_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
+		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
 				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASGameSummaryDiploEventName(eDiploEvent), iData1, getSASGameSummaryDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameSummaryDiploData2Text(eDiploEvent, iData2).GetCString());
 	}
 }
@@ -3034,7 +3035,7 @@ void CvPlayer::doTurn()
 	//doUpdateCacheOnTurn(); // advc: removed
 	kGame.verifyDeals();
 	AI().AI_doTurnPre();
-	if (gGameSummaryLogLevel > 0) updateSASBBAIGameSummaryPlayerTurnState(getID());
+	if (gGameSummaryLogLevel > 0) updateSASGameSummaryPlayerTurnState(getID());
 
 	if (getRevolutionTimer() > 0)
 		changeRevolutionTimer(-1);
@@ -7776,7 +7777,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 	m_iGoldenAgeTurns += iChange;
 	FAssert(getGoldenAgeTurns() >= 0);
 
-	if (gGameSummaryLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASBBAIGameSummaryGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
+	if (gGameSummaryLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASGameSummaryGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
 
 	if (bOldGoldenAge != isGoldenAge())
 	{
@@ -7875,7 +7876,7 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 	FAssert(getAnarchyTurns() >= 0);
 	if (bOldAnarchy == isAnarchy())
 		return;
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryAnarchy(getID(), isAnarchy());
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryAnarchy(getID(), isAnarchy());
 
 	if (isActive())
 	{

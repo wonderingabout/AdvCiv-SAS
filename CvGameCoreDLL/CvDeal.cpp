@@ -12,6 +12,7 @@
 #include "CvInfo_Organization.h" // <!-- custom: Needed for game-summary diplomacy religion trade-item names. (ChatGPT-5.5) -->
 #include "CvInfo_Terrain.h" // just for a logBBAI call :(
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameSummaryLog.h" // <!-- custom: Structured diplomacy rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 
 namespace
 {
@@ -115,19 +116,19 @@ namespace
 	void logSASGameSummaryDealAction(CvDeal const& kDeal, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList, bool bCheckAllowed, bool bMakingPeace, bool bAIRequest, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
 	{
 		// <!-- custom: Accepted diplomacy bundles are the safest high-level hook for open borders, resource trades, tech trades, war bribes, embargoes, map trades, and tribute/help exchanges. Callers gate this helper so logging-only trade-list text is not built when game-summary logging is disabled. (ChatGPT-5.5) -->
-		logBBAI("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL dealId=%d first=%d second=%d checkAllowed=%d makingPeace=%d aiRequest=%d peaceTarget=%s warTarget=%s firstGives=%s secondGives=%s",
+		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL dealId=%d first=%d second=%d checkAllowed=%d makingPeace=%d aiRequest=%d peaceTarget=%s warTarget=%s firstGives=%s secondGives=%s",
 				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), bCheckAllowed ? 1 : 0, bMakingPeace ? 1 : 0, bAIRequest ? 1 : 0, getSASGameSummaryTeamText(ePeaceTradeTarget).GetCString(), getSASGameSummaryTeamText(eWarTradeTarget).GetCString(), getSASGameSummaryTradeListText(kFirstList, kDeal.getFirstPlayer()).GetCString(), getSASGameSummaryTradeListText(kSecondList, kDeal.getSecondPlayer()).GetCString());
 	}
 
 	void logSASGameSummaryDealEndAction(CvDeal const& kDeal, bool bKillTeam, bool bUpdateAttitude, PlayerTypes eCancelPlayer)
 	{
-		logBBAI("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL_ENDED dealId=%d first=%d second=%d cancelPlayer=%d killTeam=%d updateAttitude=%d firstGives=%s secondGives=%s",
+		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL_ENDED dealId=%d first=%d second=%d cancelPlayer=%d killTeam=%d updateAttitude=%d firstGives=%s secondGives=%s",
 				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), eCancelPlayer, bKillTeam ? 1 : 0, bUpdateAttitude ? 1 : 0, getSASGameSummaryTradeListText(kDeal.getFirstList(), kDeal.getFirstPlayer()).GetCString(), getSASGameSummaryTradeListText(kDeal.getSecondList(), kDeal.getSecondPlayer()).GetCString());
 	}
 
 	void logSASGameSummaryTradeItemAction(const char* szActionType, int iDealId, TradeData const& kItem, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bFlagA, bool bFlagB, PlayerTypes eCancelPlayer = NO_PLAYER)
 	{
-		logBBAI("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
+		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
 				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASGameSummaryTradeItemName(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
 	}
 }

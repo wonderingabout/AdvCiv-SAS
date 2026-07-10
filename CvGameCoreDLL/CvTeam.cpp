@@ -18,6 +18,7 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameSummaryLog.h" // <!-- custom: Structured team-contact rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "CvBugOptions.h" // advc.071
 
 // advc.003u: Statics moved from CvTeamAI
@@ -1619,7 +1620,7 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // a
 	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
 	if (gGameSummaryLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian())
 	{
-		logSASBBAIGameSummaryTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
+		logSASGameSummaryTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
 	}
 	// <advc.120l> (Not in makeHasMet b/c all the has-met data needs to be set first)
 	if (pData != NULL &&

@@ -17,6 +17,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
+#include "SASGameSummaryLog.h" // <!-- custom: Structured unit-action rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "CvBugOptions.h" // advc.002e
 #include "CvDLLPythonIFaceBase.h" // for CvEventReporter::genericEvent
 
@@ -3662,7 +3663,7 @@ void CvUnit::scrap()
 			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
 			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
 	}
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryUnitScrapped(this);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitScrapped(this);
 	kill(true);
 }
 
@@ -6208,7 +6209,7 @@ bool CvUnit::join(SpecialistTypes eSpecialist)
 	if (pCity != NULL)
 	{
 		pCity->changeFreeSpecialistCount(eSpecialist, 1);
-		if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryGreatPersonJoined(this, pCity, eSpecialist);
+		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonJoined(this, pCity, eSpecialist);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_JOIN);
@@ -6966,7 +6967,7 @@ bool CvUnit::lead(int iUnitId)
 
 		pUnit->joinGroup(NULL, true, true);
 		pUnit->promote(eLeaderPromotion, getID());
-		if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryGreatGeneralAttached(this, pUnit, eLeaderPromotion);
+		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatGeneralAttached(this, pUnit, eLeaderPromotion);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_LEAD);
@@ -7497,7 +7498,7 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
 	pUpgradeUnit->finishMoves();
 	// advc.080: Moved into subroutine
 	pUpgradeUnit->changeExperience(pUpgradeUnit->upgradeXPChange(eUnit));
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
 	if (gUnitLogLevel > 2)
 	{
 		CvWString szString;

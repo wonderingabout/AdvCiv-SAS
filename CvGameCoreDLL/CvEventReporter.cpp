@@ -3,7 +3,8 @@
 #include "CvGame.h"
 #include "CvPlayer.h"
 #include "CvDLLPythonIFaceBase.h" // advc
-#include "BBAILog.h" // <!-- custom: Needed to complete the BBAI identity header and optional game-summary event hooks. (GPT-5.5 + ChatGPT-5.5) -->
+#include "BBAILog.h" // <!-- custom: Needed to complete the BBAI identity header. (GPT-5.5 + ChatGPT-5.5) -->
+#include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
 
 //
 // static, singleton accessor
@@ -90,6 +91,7 @@ void CvEventReporter::gameStart()
 {
 	// <!-- custom: Complete the new-game BBAI identity header after map generation and player initialization. Caller-gated to avoid entering logging helpers when BBAI is disabled. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) logSASBBAINewGameStarted();
+	if (isSASGameSummaryLogEnabled()) logSASGameSummaryNewGameStarted();
 	m_kPythonEventMgr.reportGameStart();
 }
 
@@ -107,7 +109,7 @@ void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
 	// <!-- custom: Periodic game-summary snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
-	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASBBAIGameSummaryTurn(iGameTurn);
+	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASGameSummaryTurn(iGameTurn);
 }
 
 void CvEventReporter::beginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
@@ -127,7 +129,7 @@ void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
 
 void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryCombatResult(pWinner, pLoser);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCombatResult(pWinner, pLoser);
 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
 }
 
@@ -184,21 +186,21 @@ void CvEventReporter::gotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
 
 void CvEventReporter::cityBuilt(CvCity *pCity)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryCityBuilt(pCity);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityBuilt(pCity);
 	m_kPythonEventMgr.reportCityBuilt(pCity);
 	m_kStatistics.cityBuilt(pCity);
 }
 
 void CvEventReporter::cityRazed(CvCity *pCity, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryCityRazed(pCity, ePlayer);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityRazed(pCity, ePlayer);
 	m_kPythonEventMgr.reportCityRazed(pCity, ePlayer);
 	m_kStatistics.cityRazed(pCity, ePlayer);
 }
 
 void CvEventReporter::cityAcquired(PlayerTypes eOldOwner, PlayerTypes iPlayer, CvCity* pCity, bool bConquest, bool bTrade)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
 	m_kPythonEventMgr.reportCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
 }
 
@@ -332,27 +334,27 @@ void CvEventReporter::goodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvU
 
 void CvEventReporter::greatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryGreatPersonBorn(pUnit, ePlayer, pCity);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonBorn(pUnit, ePlayer, pCity);
 	m_kPythonEventMgr.reportGreatPersonBorn( pUnit, ePlayer, pCity);
 	m_kStatistics.unitBuilt(pUnit);
 }
 
 void CvEventReporter::buildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryBuildingBuilt(pCity, eBuilding);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryBuildingBuilt(pCity, eBuilding);
 	m_kPythonEventMgr.reportBuildingBuilt(pCity, eBuilding);
 	m_kStatistics.buildingBuilt(pCity, eBuilding);
 }
 
 void CvEventReporter::projectBuilt(CvCity *pCity, ProjectTypes eProject)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryProjectBuilt(pCity, eProject);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryProjectBuilt(pCity, eProject);
 	m_kPythonEventMgr.reportProjectBuilt(pCity, eProject);
 }
 
 void CvEventReporter::techAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryTechAcquired(eType, eTeam, ePlayer);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryTechAcquired(eType, eTeam, ePlayer);
 	m_kPythonEventMgr.reportTechAcquired(eType, eTeam, ePlayer, bAnnounce);
 }
 
@@ -363,7 +365,7 @@ void CvEventReporter::techSelected(TechTypes eTech, PlayerTypes ePlayer)
 
 void CvEventReporter::religionFounded(ReligionTypes eType, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryReligionFounded(eType, ePlayer);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryReligionFounded(eType, ePlayer);
 	m_kPythonEventMgr.reportReligionFounded(eType, ePlayer);
 	m_kStatistics.religionFounded(eType, ePlayer);
 }
@@ -380,7 +382,7 @@ void CvEventReporter::religionRemove(ReligionTypes eType, PlayerTypes ePlayer, C
 
 void CvEventReporter::corporationFounded(CorporationTypes eType, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryCorporationFounded(eType, ePlayer);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCorporationFounded(eType, ePlayer);
 	m_kPythonEventMgr.reportCorporationFounded(eType, ePlayer);
 }
 
@@ -396,20 +398,20 @@ void CvEventReporter::corporationRemove(CorporationTypes eType, PlayerTypes ePla
 
 void CvEventReporter::goldenAge(PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryGoldenAge(ePlayer, true);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGoldenAge(ePlayer, true);
 	m_kPythonEventMgr.reportGoldenAge(ePlayer);
 	m_kStatistics.goldenAge(ePlayer);
 }
 
 void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryGoldenAge(ePlayer, false);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGoldenAge(ePlayer, false);
 	m_kPythonEventMgr.reportEndGoldenAge(ePlayer);
 }
 
 void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryChangeWar(bWar, eTeam, eOtherTeam);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryChangeWar(bWar, eTeam, eOtherTeam);
 	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
 }
 
@@ -425,7 +427,7 @@ void CvEventReporter::playerChangeStateReligion(PlayerTypes ePlayerID, ReligionT
 
 void CvEventReporter::playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount)
 {
-	if (gGameSummaryLogLevel >= 3) logSASBBAIGameSummaryPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
+	if (gGameSummaryLogLevel >= 3) logSASGameSummaryPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
 	m_kPythonEventMgr.reportPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
 }
 
@@ -443,7 +445,7 @@ void CvEventReporter::chat(CvWString szString)
 
 void CvEventReporter::victory(TeamTypes eWinner, VictoryTypes eVictory)
 {
-	if (gGameSummaryLogLevel > 0) logSASBBAIGameSummaryVictory(eWinner, eVictory);
+	if (gGameSummaryLogLevel > 0) logSASGameSummaryVictory(eWinner, eVictory);
 	m_kPythonEventMgr.reportVictory(eWinner, eVictory);
 	m_kStatistics.setVictory(eWinner, eVictory);
 
@@ -460,7 +462,7 @@ void CvEventReporter::victory(TeamTypes eWinner, VictoryTypes eVictory)
 
 void CvEventReporter::vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
 {
-	if (gGameSummaryLogLevel >= 2) logSASBBAIGameSummaryVassalState(eMaster, eVassal, bVassal);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryVassalState(eMaster, eVassal, bVassal);
 	m_kPythonEventMgr.reportVassalState(eMaster, eVassal, bVassal);
 }
 

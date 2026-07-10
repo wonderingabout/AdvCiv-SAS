@@ -1352,19 +1352,27 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated structured game-summary report for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%. (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: If BBAI diagnostics are enabled, write each new game and loaded save to a new UTC-timestamped BBAI_*.log file instead of repeatedly appending to BBAI.log. The file begins with the currently active BBAI settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each diagnostic run easier to identify or upload. Set to 0 to preserve fixed-name log behavior. (ChatGPT-5.5 + GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail. Fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%. (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_GAME_SUMMARY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Interval in game turns for periodic game-summary snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-summary level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay summaries, or higher for broad long-game trends. Clamped to at least 1 in BBAILog.cpp. (ChatGPT-5.5) -->
+	<!-- custom: Interval in game turns for periodic game-summary snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-summary level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay summaries, or higher for broad long-game trends. Clamped to at least 1 in SASGameSummaryLog.cpp. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_GAME_SUMMARY_TURN_INTERVAL</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
-	<!-- custom: If BBAI diagnostics or the game-summary report are enabled, write each new game and loaded save to a new UTC-timestamped file instead of repeatedly appending to BBAI.log. Filenames use a shared chronological sequence such as BBAI_20260608T065231Z_new1.log followed by BBAI_20260608T065415Z_load2.log, and begin with the currently active log settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each run easier to identify or upload. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log behavior. (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: If game-summary reporting is enabled, write each new game and loaded save to a new UTC-timestamped SASGameSummary_*.log file instead of repeatedly appending to SASGameSummary.log. This is separate from BBAI timestamped filenames so compact run reports can be used without BBAI diagnostic spam. Set to 0 to preserve fixed-name log behavior. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+		<DefineName>SAS_GAME_SUMMARY_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 

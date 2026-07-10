@@ -27,6 +27,7 @@
 #include "RiseFall.h" // advc.700
 #include "CvHallOfFameInfo.h" // advc.106i
 #include "BBAILog.h" // BBAI
+#include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary files are initialized separately from BBAI diagnostics. (GPT-5.5) -->
 #include "CvBugOptions.h" // K-Mod
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
@@ -61,8 +62,9 @@ void CvGame::init(HandicapTypes eHandicap)
 	CvInitCore& ic = GC.getInitCore();
 
 	reset(eHandicap); // Reset serialized data
-	// <!-- custom: Start a distinct BBAI file before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save log. Caller-gated to avoid entering logging helpers when BBAI is disabled. (GPT-5.5) -->
+	// <!-- custom: Start distinct diagnostic/report files before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save logs. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForNewGame();
+	if (isSASGameSummaryLogEnabled()) startSASGameSummaryLogForNewGame();
 
 	// Init containers ...
 
@@ -9363,8 +9365,9 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
 	read functions have been called. */
 void CvGame::onAllGameDataRead()
 {
-	// <!-- custom: Start a distinct timestamped BBAI log now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics. Caller-gated to avoid entering logging helpers when BBAI is disabled. (GPT-5.5) -->
+	// <!-- custom: Start distinct timestamped diagnostic/report logs now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics or summary rows. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
+	if (isSASGameSummaryLogEnabled()) startSASGameSummaryLogForLoadedSave();
 	// <advc.opt> Savegame compatibility (uiFlag<4)
 	if (m_iCivPlayersEverAlive == 0)
 		m_iCivPlayersEverAlive = countCivPlayersEverAlive();
