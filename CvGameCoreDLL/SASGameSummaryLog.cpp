@@ -222,6 +222,10 @@ static int g_aiSASGameSummaryBattleWins[MAX_PLAYERS];
 static int g_aiSASGameSummaryBattleLosses[MAX_PLAYERS];
 static int g_aiSASGameSummaryCityBattleWins[MAX_PLAYERS];
 static int g_aiSASGameSummaryCityBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameSummaryTotalBattleWins[MAX_PLAYERS];
+static int g_aiSASGameSummaryTotalBattleLosses[MAX_PLAYERS];
+static int g_aiSASGameSummaryTotalCityBattleWins[MAX_PLAYERS];
+static int g_aiSASGameSummaryTotalCityBattleLosses[MAX_PLAYERS];
 static int g_aiSASGameSummaryTotalGoldenAgeTurns[MAX_PLAYERS];
 static int g_aiSASGameSummaryTotalAnarchyTurns[MAX_PLAYERS];
 static int g_aiSASGameSummaryCitiesAcquired[MAX_PLAYERS];
@@ -377,6 +381,10 @@ static void resetSASGameSummaryState()
 		g_aiSASGameSummaryBattleLosses[iI] = 0;
 		g_aiSASGameSummaryCityBattleWins[iI] = 0;
 		g_aiSASGameSummaryCityBattleLosses[iI] = 0;
+		g_aiSASGameSummaryTotalBattleWins[iI] = 0;
+		g_aiSASGameSummaryTotalBattleLosses[iI] = 0;
+		g_aiSASGameSummaryTotalCityBattleWins[iI] = 0;
+		g_aiSASGameSummaryTotalCityBattleLosses[iI] = 0;
 		g_aiSASGameSummaryTotalGoldenAgeTurns[iI] = 0;
 		g_aiSASGameSummaryTotalAnarchyTurns[iI] = 0;
 		g_aiSASGameSummaryCitiesAcquired[iI] = 0;
@@ -1102,9 +1110,9 @@ static void logSASGameSummaryStatistics(PlayerTypes ePlayer, int iGameTurn)
 	CvPlayerRecord const* pRecord = kPlayer.getPlayerRecord();
 	const int iCitiesBuilt = (pRecord == NULL ? 0 : pRecord->getNumCitiesBuilt());
 	const int iCitiesRazed = (pRecord == NULL ? 0 : pRecord->getNumCitiesRazed());
-	// <!-- custom: Built/razed are persistent CyStatistics player-record values used by the Statistics tab. Acquired/lost are game-summary runtime counters from city-acquired actions; keeping them local avoids save-format churn while still making conquest swings visible in benchmark logs. (GPT-5.5) -->
-	logSASGameSummary("GAME_SUMMARY_STATISTICS turn=%d player=%d currentCities=%d persistentCitiesBuilt=%d persistentCitiesRazed=%d loggedCitiesAcquired=%d loggedCitiesLost=%d loggedCitiesConquered=%d loggedCitiesLostByConquest=%d loggedCitiesTradedIn=%d loggedCitiesTradedOut=%d loggedCityNet=%+d",
-			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameSummaryCitiesAcquired[ePlayer], g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryCitiesConquered[ePlayer], g_aiSASGameSummaryCitiesLostByConquest[ePlayer], g_aiSASGameSummaryCitiesTradedIn[ePlayer], g_aiSASGameSummaryCitiesTradedOut[ePlayer], g_aiSASGameSummaryCitiesAcquired[ePlayer] - g_aiSASGameSummaryCitiesLost[ePlayer]);
+	// <!-- custom: Built/razed are persistent CyStatistics player-record values used by the Statistics tab. Acquired/lost and battle totals are game-summary runtime counters from action rows; keeping them local avoids save-format churn while still making conquest swings visible in benchmark logs. (GPT-5.5) -->
+	logSASGameSummary("GAME_SUMMARY_STATISTICS turn=%d player=%d currentCities=%d persistentCitiesBuilt=%d persistentCitiesRazed=%d loggedCitiesAcquired=%d loggedCitiesLost=%d loggedCitiesConquered=%d loggedCitiesLostByConquest=%d loggedCitiesTradedIn=%d loggedCitiesTradedOut=%d loggedCityNet=%+d loggedBattleWins=%d loggedBattleLosses=%d loggedCityBattleWins=%d loggedCityBattleLosses=%d loggedBattleNet=%+d",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameSummaryCitiesAcquired[ePlayer], g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryCitiesConquered[ePlayer], g_aiSASGameSummaryCitiesLostByConquest[ePlayer], g_aiSASGameSummaryCitiesTradedIn[ePlayer], g_aiSASGameSummaryCitiesTradedOut[ePlayer], g_aiSASGameSummaryCitiesAcquired[ePlayer] - g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryTotalBattleWins[ePlayer], g_aiSASGameSummaryTotalBattleLosses[ePlayer], g_aiSASGameSummaryTotalCityBattleWins[ePlayer], g_aiSASGameSummaryTotalCityBattleLosses[ePlayer], g_aiSASGameSummaryTotalBattleWins[ePlayer] - g_aiSASGameSummaryTotalBattleLosses[ePlayer]);
 }
 
 static void logSASGameSummaryDemographics(PlayerTypes ePlayer, int iGameTurn)
@@ -2362,14 +2370,22 @@ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
 	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
 	{
 		g_aiSASGameSummaryBattleWins[eWinner]++;
+		g_aiSASGameSummaryTotalBattleWins[eWinner]++;
 		if (bCityPlot)
+		{
 			g_aiSASGameSummaryCityBattleWins[eWinner]++;
+			g_aiSASGameSummaryTotalCityBattleWins[eWinner]++;
+		}
 	}
 	if (eLoser >= 0 && eLoser < MAX_PLAYERS)
 	{
 		g_aiSASGameSummaryBattleLosses[eLoser]++;
+		g_aiSASGameSummaryTotalBattleLosses[eLoser]++;
 		if (bCityPlot)
+		{
 			g_aiSASGameSummaryCityBattleLosses[eLoser]++;
+			g_aiSASGameSummaryTotalCityBattleLosses[eLoser]++;
+		}
 	}
 	if (pLoser->getLeaderUnitType() != NO_UNIT)
 	{
