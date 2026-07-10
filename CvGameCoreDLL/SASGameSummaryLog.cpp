@@ -12,6 +12,7 @@
 #include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus type names in game-summary context rows. (ChatGPT-5.5) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-summary action rows. (ChatGPT-5.5) -->
 #include "CvInfo_Unit.h" // <!-- custom: Needed to classify unit composition and city production in game-summary rows. (ChatGPT-5.5) -->
+#include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names in game-summary economy rows. (GPT-5.5) -->
 #include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-summary city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-summary advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
@@ -528,6 +529,11 @@ static const char* getSASGameSummaryRouteType(RouteTypes eRoute)
 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
 }
 
+static const char* getSASGameSummaryCommerceType(CommerceTypes eCommerce)
+{
+	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
+}
+
 static const char* getSASGameSummaryBuildType(BuildTypes eBuild)
 {
 	return (eBuild == NO_BUILD ? "-" : GC.getInfo(eBuild).getType());
@@ -601,6 +607,13 @@ static void appendSASGameSummaryPositiveValue(CvString& szList, const char* szNa
 {
 	if (iValue <= 0)
 		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
+	szList += szItem;
+}
+
+static void appendSASGameSummaryValue(CvString& szList, const char* szName, int iValue)
+{
 	CvString szItem;
 	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szName, iValue);
 	szList += szItem;
@@ -748,6 +761,52 @@ static void logSASGameSummaryCityBFC(CvCity const& kCity, const char* szReason)
 	getSASGameSummaryPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
 	logSASGameSummary("GAME_SUMMARY_CITY_BFC turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d plots=%d owned=%d land=%d water=%d hills=%d peaks=%d riverSide=%d freshWater=%d coastal=%d improved=%d unimprovedLand=%d roaded=%d bonusImproved=%d bonusUnimproved=%d worked=%d workedImproved=%d workedUnimproved=%d natureFood=%d natureProd=%d natureCommerce=%d currentFood=%d currentProd=%d currentCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
 			GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kComposition.iPlots, iOwned, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iPeaks, kComposition.iRiverSide, kComposition.iFreshWater, kComposition.iCoastal, kComposition.iImproved, kComposition.iUnimprovedLand, kComposition.iRoaded, kComposition.iBonusImproved, kComposition.iBonusUnimproved, kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, getSASGameSummaryOrDash(szTerrains).GetCString(), getSASGameSummaryOrDash(szFeatures).GetCString(), getSASGameSummaryOrDash(szBonuses).GetCString(), getSASGameSummaryOrDash(szImprovements).GetCString(), getSASGameSummaryOrDash(szRoutes).GetCString());
+}
+
+static SASGameSummaryPlotComposition getSASGameSummaryWorkedPlotComposition(CvCity const& kCity)
+{
+	SASGameSummaryPlotComposition kComposition;
+	const TeamTypes eTeam = GET_PLAYER(kCity.getOwner()).getTeam();
+	// <!-- custom: Exclude the city center from worked-plot allocation summaries because it is always worked and would blur comparisons of citizen plot choices and improvement coverage between benchmark runs. (GPT-5.5) -->
+	for (WorkingPlotIter it(kCity, false); it.hasNext(); ++it)
+		addSASGameSummaryPlotComposition(kComposition, *it, eTeam);
+	return kComposition;
+}
+
+static void addSASGameSummaryPlotComposition(SASGameSummaryPlotComposition& kTarget, SASGameSummaryPlotComposition const& kSource)
+{
+	kTarget.iPlots += kSource.iPlots;
+	kTarget.iLand += kSource.iLand;
+	kTarget.iWater += kSource.iWater;
+	kTarget.iHills += kSource.iHills;
+	kTarget.iPeaks += kSource.iPeaks;
+	kTarget.iRiverSide += kSource.iRiverSide;
+	kTarget.iFreshWater += kSource.iFreshWater;
+	kTarget.iCoastal += kSource.iCoastal;
+	kTarget.iImproved += kSource.iImproved;
+	kTarget.iUnimprovedLand += kSource.iUnimprovedLand;
+	kTarget.iRoaded += kSource.iRoaded;
+	kTarget.iBonusImproved += kSource.iBonusImproved;
+	kTarget.iBonusUnimproved += kSource.iBonusUnimproved;
+	kTarget.iWorked += kSource.iWorked;
+	kTarget.iWorkedImproved += kSource.iWorkedImproved;
+	kTarget.iWorkedUnimproved += kSource.iWorkedUnimproved;
+	kTarget.iNatureFood += kSource.iNatureFood;
+	kTarget.iNatureProduction += kSource.iNatureProduction;
+	kTarget.iNatureCommerce += kSource.iNatureCommerce;
+	kTarget.iCurrentFood += kSource.iCurrentFood;
+	kTarget.iCurrentProduction += kSource.iCurrentProduction;
+	kTarget.iCurrentCommerce += kSource.iCurrentCommerce;
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		kTarget.aiTerrains[iI] += kSource.aiTerrains[iI];
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		kTarget.aiFeatures[iI] += kSource.aiFeatures[iI];
+	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+		kTarget.aiBonuses[iI] += kSource.aiBonuses[iI];
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		kTarget.aiImprovements[iI] += kSource.aiImprovements[iI];
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
+		kTarget.aiRoutes[iI] += kSource.aiRoutes[iI];
 }
 
 static CvString getSASGameSummaryTechEraCounts(TeamTypes eTeam)
@@ -990,6 +1049,38 @@ static void logSASGameSummaryEspionage(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iEspionagePercent = iEspionagePercent;
 	kPrevious.iTeamEP = iTeamEP;
 	kPrevious.iUnspentEP = iUnspentEP;
+}
+
+static CvString getSASGameSummaryCommercePercents(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+		appendSASGameSummaryValue(szList, getSASGameSummaryCommerceType(eLoopCommerce), kPlayer.getCommercePercent(eLoopCommerce));
+	return getSASGameSummaryOrDash(szList);
+}
+
+static CvString getSASGameSummaryCommerceRates(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+		appendSASGameSummaryValue(szList, getSASGameSummaryCommerceType(eLoopCommerce), kPlayer.getCommerceRate(eLoopCommerce));
+	return getSASGameSummaryOrDash(szList);
+}
+
+static CvString getSASGameSummaryCommerceFlexible(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(Commerce)
+		appendSASGameSummaryValue(szList, getSASGameSummaryCommerceType(eLoopCommerce), kPlayer.isCommerceFlexible(eLoopCommerce));
+	return getSASGameSummaryOrDash(szList);
+}
+
+static void logSASGameSummaryEconomy(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	TechTypes eResearch = kPlayer.getCurrentResearch();
+	logSASGameSummary("GAME_SUMMARY_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s researchRate=%d researchTurns=%d",
+			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameSummaryCommercePercents(kPlayer).GetCString(), getSASGameSummaryCommerceRates(kPlayer).GetCString(), getSASGameSummaryCommerceFlexible(kPlayer).GetCString(), getSASGameSummaryTechType(eResearch), eResearch == NO_TECH ? 0 : kPlayer.calculateResearchRate(eResearch), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
 }
 
 static void logSASGameSummaryDemographics(PlayerTypes ePlayer, int iGameTurn)
@@ -1493,6 +1584,73 @@ static void logSASGameSummaryWorkers(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iWorkerThreatened = iThreatened;
 }
 
+static void logSASGameSummaryExpansion(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	const TeamTypes eTeam = kPlayer.getTeam();
+	int iRevealedLand = 0;
+	int iVisibleLand = 0;
+	int iRevealedUnownedLand = 0;
+	int iVisibleUnownedLand = 0;
+	int iRevealedForeignLand = 0;
+	int iVisibleForeignLand = 0;
+	CvMap const& kMap = GC.getMap();
+	for (int iI = 0; iI < kMap.numPlots(); iI++)
+	{
+		CvPlot const& kPlot = kMap.getPlotByIndex(iI);
+		if (kPlot.isWater())
+			continue;
+		if (kPlot.isRevealed(eTeam, false))
+		{
+			iRevealedLand++;
+			if (kPlot.getOwner() == NO_PLAYER)
+				iRevealedUnownedLand++;
+			else if (kPlot.getOwner() != ePlayer)
+				iRevealedForeignLand++;
+		}
+		if (kPlot.isVisible(eTeam, false))
+		{
+			iVisibleLand++;
+			if (kPlot.getOwner() == NO_PLAYER)
+				iVisibleUnownedLand++;
+			else if (kPlot.getOwner() != ePlayer)
+				iVisibleForeignLand++;
+		}
+	}
+	int iCitiesProducingSettlers = 0;
+	int iCityLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+	{
+		UnitTypes eProductionUnit = pLoopCity->getProductionUnit();
+		if (eProductionUnit != NO_UNIT && GC.getInfo(eProductionUnit).getDefaultUnitAIType() == UNITAI_SETTLE)
+			iCitiesProducingSettlers++;
+	}
+	int iSettlers = 0;
+	int iFoundMission = 0;
+	int iNearestSettlerCityDistance = -1;
+	int iTotalSettlerCityDistance = 0;
+	int iSettlersWithCityDistance = 0;
+	int iUnitLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
+	{
+		if (!isSASGameSummarySettlerUnit(*pLoopUnit))
+			continue;
+		iSettlers++;
+		if (getSASGameSummaryUnitMissionType(*pLoopUnit) == MISSION_FOUND)
+			iFoundMission++;
+		CvCity const* pNearestCity = kMap.findCity(pLoopUnit->getX(), pLoopUnit->getY(), ePlayer, NO_TEAM, false);
+		if (pNearestCity == NULL)
+			continue;
+		const int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pNearestCity->getX(), pNearestCity->getY());
+		iNearestSettlerCityDistance = (iNearestSettlerCityDistance < 0 ? iDistance : std::min(iNearestSettlerCityDistance, iDistance));
+		iTotalSettlerCityDistance += iDistance;
+		iSettlersWithCityDistance++;
+	}
+	const int iAvgSettlerCityDistanceX100 = (iSettlersWithCityDistance == 0 ? -1 : (100 * iTotalSettlerCityDistance) / iSettlersWithCityDistance);
+	logSASGameSummary("GAME_SUMMARY_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d settlers=%d foundMission=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), GC.getInfo(kMap.getWorldSize()).getTargetNumCities(), kPlayer.getTotalLand(), iRevealedLand, iVisibleLand, iRevealedUnownedLand, iVisibleUnownedLand, iRevealedForeignLand, iVisibleForeignLand, iSettlers, iFoundMission, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100);
+}
+
 static void logSASGameSummarySettlers(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
@@ -1713,6 +1871,23 @@ static CvString getSASGameSummaryCityTradePartners(CvCity const& kCity)
 	return getSASGameSummaryOrDash(szList);
 }
 
+static void logSASGameSummaryWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	SASGameSummaryPlotComposition kComposition;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		addSASGameSummaryPlotComposition(kComposition, getSASGameSummaryWorkedPlotComposition(*pLoopCity));
+	CvString szTerrains;
+	CvString szFeatures;
+	CvString szBonuses;
+	CvString szImprovements;
+	CvString szRoutes;
+	getSASGameSummaryPlotCompositionTypes(kComposition, szTerrains, szFeatures, szBonuses, szImprovements, szRoutes);
+	logSASGameSummary("GAME_SUMMARY_WORKED_PLOTS turn=%d player=%d cities=%d worked=%d improved=%d unimproved=%d land=%d water=%d hills=%d riverSide=%d freshWater=%d bonusImproved=%d bonusUnimproved=%d currentFood=%d currentProd=%d currentCommerce=%d natureFood=%d natureProd=%d natureCommerce=%d terrains=%s features=%s bonuses=%s improvements=%s routes=%s",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), kComposition.iWorked, kComposition.iWorkedImproved, kComposition.iWorkedUnimproved, kComposition.iLand, kComposition.iWater, kComposition.iHills, kComposition.iRiverSide, kComposition.iFreshWater, kComposition.iBonusImproved, kComposition.iBonusUnimproved, kComposition.iCurrentFood, kComposition.iCurrentProduction, kComposition.iCurrentCommerce, kComposition.iNatureFood, kComposition.iNatureProduction, kComposition.iNatureCommerce, getSASGameSummaryOrDash(szTerrains).GetCString(), getSASGameSummaryOrDash(szFeatures).GetCString(), getSASGameSummaryOrDash(szBonuses).GetCString(), getSASGameSummaryOrDash(szImprovements).GetCString(), getSASGameSummaryOrDash(szRoutes).GetCString());
+}
+
 static void logSASGameSummaryCityDetail(CvCity const& kCity, int iGameTurn)
 {
 	CvPlotGroup const* pPlotGroup = kCity.plotGroup(kCity.getOwner());
@@ -1728,8 +1903,9 @@ static void logSASGameSummaryCityDetail(CvCity const& kCity, int iGameTurn)
 		else iForeignTradeRoutes++;
 	}
 	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
-	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d garrison=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.plot()->getNumDefenders(kCity.getOwner()), kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
+	const SASGameSummaryPlotComposition kWorkedPlots = getSASGameSummaryWorkedPlotComposition(kCity);
+	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
 	logSASGameSummary("GAME_SUMMARY_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(), getSASGameSummaryCityHappySources(kCity).GetCString(), getSASGameSummaryCityFlatUnhappySources(kCity).GetCString(), getSASGameSummaryCityAngerPercentSources(kCity).GetCString());
 	logSASGameSummary("GAME_SUMMARY_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d healthySources=%s unhealthySources=%s",
@@ -1895,13 +2071,16 @@ static void logSASGameSummaryPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	{
 		logSASGameSummaryPlayerBonuses(ePlayer, iGameTurn, kPrevious);
 		logSASGameSummaryPolicies(ePlayer, iGameTurn);
+		logSASGameSummaryEconomy(ePlayer, iGameTurn);
 		logSASGameSummaryEspionage(ePlayer, iGameTurn);
 		logSASGameSummaryDemographics(ePlayer, iGameTurn);
 		logSASGameSummaryAttitudes(ePlayer, iGameTurn);
 		logSASGameSummaryDiploStatus(ePlayer, iGameTurn);
 		logSASGameSummaryUnitPosture(ePlayer, iGameTurn);
 		logSASGameSummaryWorkers(ePlayer, iGameTurn);
+		logSASGameSummaryExpansion(ePlayer, iGameTurn);
 		logSASGameSummarySettlers(ePlayer, iGameTurn);
+		logSASGameSummaryWorkedPlots(ePlayer, iGameTurn);
 		logSASGameSummaryCities(ePlayer, iGameTurn);
 	}
 	kPrevious.bValid = true;
