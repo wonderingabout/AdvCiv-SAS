@@ -7187,6 +7187,18 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
+	enum { iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT = 5 };
+	CvPlot const* apTopPlots[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopRawValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	int aiTopAreaValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT];
+	for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+	{
+		apTopPlots[i] = NULL;
+		aiTopValues[i] = 0;
+		aiTopRawValues[i] = 0;
+		aiTopAreaValues[i] = 0;
+	}
 	for (int iI = 0; iI < kMap.numPlots(); iI++)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(iI);
@@ -7234,6 +7246,10 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 			//iValue = GET_PLAYER(BARBARIAN_PLAYER).AI_foundValue(pLoopPlot->getX(), pLoopPlot->getY(), GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
 			// K-Mod
 			int iValue = citySiteEval.evaluate(kPlot);
+			const int iRawValue = iValue;
+			// <!-- custom: Do not let Barbarian area-priority adjustment resurrect rejected city sites. In the Mauryan test, raw 0 at 30,23 became areaAdjusted 1 in bSkipCivAreas and was founded despite the detailed evaluator hard-rejecting it. (GPT-5.5) -->
+			if (iRawValue <= 0)
+				continue;
 			if (iTargetCitiesMultiplier > 100)
 			{/* <advc.300> This gives the area with the most owned tiles priority
 				over other areas unless the global city target is reached (rare),
@@ -7249,24 +7265,112 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 					iValue += iOwned;
 				else iValue *= iOwned + NUM_INNER_PLOTS; // advc.001 </advc.300>
 			}
+			const int iAreaValue = iValue;
 			//iValue += (100 + SyncRandNum(50));
-			/*	advc.300, advc.001: Looks like another bug; probably times 1 to 1.5
-				was intended. (Dividing by 100 doesn't affect pBestPlot, but let's
-				keep iBestValue is on the scale of a regular found value - although
-				it isn't used for anything.)
-				NB: This kind of randomization works mostly locally b/c nearby tiles
-				tend to have similar found values. */
-			iValue *= 100 + SyncRandNum(50);
-			iValue /= 100;
+			// advc.300, advc.001: Looks like another bug; probably times 1 to 1.5 was intended. (Dividing by 100 doesn't affect pBestPlot, but let's keep iBestValue is on the scale of a regular found value - although it isn't used for anything.) NB: This kind of randomization works mostly locally b/c nearby tiles tend to have similar found values.
+			// <!-- custom: Keep the inherited Barbarian city-site random multiplier tunable. The old 0..49 percent swing adds variety, but it can override clearly better nearby city sites. (GPT-5.5) -->
+			static const int iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT = std::max(0, GC.getDefineINT("SAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT"));
+			const int iRandomPercent = (iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT <= 0 ? 0 : SyncRandNum(iSAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT));
+			if (iRandomPercent != 0)
+			{
+				const int iOldValue = iValue;
+				iValue *= 100 + iRandomPercent;
+				iValue /= 100;
+				if (gFoundLogLevel > 0) logBBAI("Barbarian city-site random multiplier: +%d%% (%d→%d)", iRandomPercent, iOldValue, iValue);
+			}
 			if (iValue > iBestValue)
 			{
 				iBestValue = iValue;
 				pBestPlot = &kPlot;
 			}
+			if (gFoundLogLevel > 0 && iValue > aiTopValues[iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1])
+			{
+				for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+				{
+					if (iValue <= aiTopValues[i])
+						continue;
+					for (int j = iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT - 1; j > i; j--)
+					{
+						aiTopValues[j] = aiTopValues[j - 1];
+						aiTopRawValues[j] = aiTopRawValues[j - 1];
+						aiTopAreaValues[j] = aiTopAreaValues[j - 1];
+						apTopPlots[j] = apTopPlots[j - 1];
+					}
+					aiTopValues[i] = iValue;
+					aiTopRawValues[i] = iRawValue;
+					aiTopAreaValues[i] = iAreaValue;
+					apTopPlots[i] = &kPlot;
+					break;
+				}
+			}
 		}
 	}
 	if (pBestPlot != NULL)
 	{
+		if (gFoundLogLevel > 0)
+		{
+			logBBAI("Barbarian city chooser top final candidates before founding:");
+			for (int i = 0; i < iSAS_BARBARIAN_CITY_SITE_TOP_LOG_COUNT; i++)
+			{
+				if (apTopPlots[i] == NULL)
+					continue;
+				logBBAI("  #%d raw=%d areaAdjusted=%d final=%d at %d,%d area=%d", i + 1, aiTopRawValues[i], aiTopAreaValues[i], aiTopValues[i], apTopPlots[i]->getX(), apTopPlots[i]->getY(), apTopPlots[i]->getArea().getID());
+			}
+			// <!-- custom: Local found-value comparisons can show a better one-tile shift that the actual Barbarian creator skipped because it belongs to an area that does not currently want another Barbarian city. Log chooser-side eligibility around the selected plot so bad-looking Barbarian settlements can be diagnosed from the real creation filters, not only from post-selection site value. (GPT-5.5) -->
+			for (int iDX = -2; iDX <= 2; iDX++)
+			{
+				for (int iDY = -2; iDY <= 2; iDY++)
+				{
+					CvPlot const* pLoopPlot = kMap.plot(pBestPlot->getX() + iDX, pBestPlot->getY() + iDY);
+					if (pLoopPlot == NULL || pLoopPlot == pBestPlot || plotDistance(pBestPlot, pLoopPlot) > 2)
+						continue;
+					CvArea& a = pLoopPlot->getArea();
+					bool bCivArea = (a.getNumCities() > a.getCitiesPerPlayer(BARBARIAN_PLAYER));
+					int iTargetCities = perAreaUnowned.find(a.getID())->second;
+					if (bRage)
+					{
+						iTargetCities *= 7;
+						iTargetCities /= 5;
+					}
+					if (!bCivArea)
+					{
+						scaled rMult = per100(50) + per100(88) * iEra;
+						iTargetCities = (rMult * iTargetCities).round();
+					}
+					int iUnownedTilesThreshold = GC.getInfo(getHandicapType()).getUnownedTilesPerBarbarianCity();
+					if (a.getNumTiles() < iUnownedTilesThreshold / 3)
+					{
+						iTargetCities *= iTargetCitiesMultiplier;
+						iTargetCities /= 100;
+					}
+					int iDestroyedCities = std::max(0, a.getBarbarianCitiesEverCreated() - a.getCitiesPerPlayer(BARBARIAN_PLAYER));
+					iUnownedTilesThreshold += iDestroyedCities * 3;
+					iTargetCities /= std::max(1, iUnownedTilesThreshold);
+					bool bAreaEligible = (a.getCitiesPerPlayer(BARBARIAN_PLAYER) < iTargetCities);
+					bool bSpawnEligible = (!pLoopPlot->isWater() && !pLoopPlot->isVisibleToCivTeam() && (!bSkipCivAreas || !bCivArea) && bAreaEligible);
+					int iNearbyRawValue = 0;
+					int iNearbyAreaValue = 0;
+					if (bSpawnEligible)
+					{
+						iNearbyRawValue = citySiteEval.evaluate(*pLoopPlot);
+						iNearbyAreaValue = iNearbyRawValue;
+						if (iTargetCitiesMultiplier > 100)
+						{
+							int iOwned = a.getNumOwnedTiles();
+							if (bSkipCivAreas)
+								iNearbyAreaValue += iOwned;
+							else iNearbyAreaValue *= iOwned + NUM_INNER_PLOTS;
+						}
+					}
+					logBBAI("  nearby chooser candidate %d,%d dist=%d raw=%d areaAdjusted=%d area=%d areaBarbCities=%d areaTarget=%d water=%d visibleToCivTeam=%d civArea=%d areaEligible=%d spawnEligible=%d", pLoopPlot->getX(), pLoopPlot->getY(), plotDistance(pBestPlot, pLoopPlot), iNearbyRawValue, iNearbyAreaValue, a.getID(), a.getCitiesPerPlayer(BARBARIAN_PLAYER), iTargetCities, pLoopPlot->isWater(), pLoopPlot->isVisibleToCivTeam(), bCivArea, bAreaEligible, bSpawnEligible);
+					if (bSpawnEligible && iNearbyRawValue <= 1)
+					{
+						logBBAI("  Detailed raw-value rejection check for nearby chooser candidate %d,%d:", pLoopPlot->getX(), pLoopPlot->getY());
+						citySiteEval.evaluateWithLogging(*pLoopPlot);
+					}
+				}
+			}
+		}
 		FAssert(iBestValue > 0); // advc.300
 		GET_PLAYER(BARBARIAN_PLAYER).found(pBestPlot->getX(), pBestPlot->getY());
 		// advc.300 (from MNAI):

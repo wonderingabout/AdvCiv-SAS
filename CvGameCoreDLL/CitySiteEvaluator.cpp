@@ -281,8 +281,84 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 		logBBAI("Lower bound for found value: %d", getPlayer().AI_getMinFoundValue());
 	}
 	evaluateWithLogging(kPlot);
-	if (isStartingLoc() || getPlayer().isBarbarian())
+	if (isStartingLoc())
 		return;
+	if (getPlayer().isBarbarian())
+	{
+		// <!-- custom: Barbarian cities are spawned by a global scan rather than normal Settler city-site lists, and old Barbarian scoring can ignore outer-BFC seafood or other long-term capture value. Log nearby alternatives so cases like Yue-Chi, Sarmatian, Aryan, and Numidian can show whether the selected spawn tile or a one-tile shift was actually better. (GPT-5.5) -->
+		logBBAI("Barbarian selected site spawn eligibility: water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.isWater(), kPlot.isVisibleToCivTeam(), !kPlot.isWater() && !kPlot.isVisibleToCivTeam());
+		CvPlot const* pBestAdjSite = NULL;
+		CvPlot const* pBestEligibleAdjSite = NULL;
+		int iBestAdj = 0;
+		int iBestEligibleAdj = 0;
+		FOR_EACH_ADJ_PLOT(kPlot)
+		{
+			int iValue = evaluate(*pAdj);
+			if (iValue > iBestAdj)
+			{
+				pBestAdjSite = pAdj;
+				iBestAdj = iValue;
+			}
+			if (!pAdj->isWater() && !pAdj->isVisibleToCivTeam() && iValue > iBestEligibleAdj)
+			{
+				pBestEligibleAdjSite = pAdj;
+				iBestEligibleAdj = iValue;
+			}
+		}
+		if (pBestAdjSite != NULL)
+		{
+			int iAdjX = pBestAdjSite->getX();
+			int iAdjY = pBestAdjSite->getY();
+			logBBAI("\nBest Barbarian site adjacent to (%d,%d): %d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iBestAdj, iAdjX, iAdjY, pBestAdjSite->isWater(), pBestAdjSite->isVisibleToCivTeam(), !pBestAdjSite->isWater() && !pBestAdjSite->isVisibleToCivTeam());
+			evaluateWithLogging(*pBestAdjSite);
+		}
+		if (pBestEligibleAdjSite != NULL && pBestEligibleAdjSite != pBestAdjSite)
+		{
+			int iAdjX = pBestEligibleAdjSite->getX();
+			int iAdjY = pBestEligibleAdjSite->getY();
+			logBBAI("\nBest spawn-eligible Barbarian site adjacent to (%d,%d): %d (%d,%d)", kPlot.getX(), kPlot.getY(), iBestEligibleAdj, iAdjX, iAdjY);
+			evaluateWithLogging(*pBestEligibleAdjSite);
+		}
+		CvPlot const* pBestRange2Site = NULL;
+		CvPlot const* pBestEligibleRange2Site = NULL;
+		int iBestRange2 = 0;
+		int iBestEligibleRange2 = 0;
+		for (int iDX = -2; iDX <= 2; iDX++)
+		{
+			for (int iDY = -2; iDY <= 2; iDY++)
+			{
+				CvPlot const* pLoopPlot = GC.getMap().plot(kPlot.getX() + iDX, kPlot.getY() + iDY);
+				if (pLoopPlot == NULL || pLoopPlot == &kPlot || plotDistance(&kPlot, pLoopPlot) != 2)
+					continue;
+				int iValue = evaluate(*pLoopPlot);
+				if (iValue > iBestRange2)
+				{
+					pBestRange2Site = pLoopPlot;
+					iBestRange2 = iValue;
+				}
+				if (!pLoopPlot->isWater() && !pLoopPlot->isVisibleToCivTeam() && iValue > iBestEligibleRange2)
+				{
+					pBestEligibleRange2Site = pLoopPlot;
+					iBestEligibleRange2 = iValue;
+				}
+			}
+		}
+		if (pBestRange2Site != NULL)
+		{
+			int iRangeX = pBestRange2Site->getX();
+			int iRangeY = pBestRange2Site->getY();
+			logBBAI("\nBest Barbarian site at distance 2 from (%d,%d): %d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iBestRange2, iRangeX, iRangeY, pBestRange2Site->isWater(), pBestRange2Site->isVisibleToCivTeam(), !pBestRange2Site->isWater() && !pBestRange2Site->isVisibleToCivTeam());
+			evaluateWithLogging(*pBestRange2Site);
+		}
+		if (pBestEligibleRange2Site != NULL && pBestEligibleRange2Site != pBestRange2Site)
+		{
+			int iRangeX = pBestEligibleRange2Site->getX();
+			int iRangeY = pBestEligibleRange2Site->getY();
+			logBBAI("\nBest spawn-eligible Barbarian site at distance 2 from (%d,%d): %d (%d,%d)", kPlot.getX(), kPlot.getY(), iBestEligibleRange2, iRangeX, iRangeY);
+			evaluateWithLogging(*pBestEligibleRange2Site);
+		}
+		return;
+	}
 	{
 		CvPlot const* pNextBestSite = NULL;
 		int iBest = 0;
@@ -1345,65 +1421,69 @@ int AIFoundValue::evaluate()
 	const int iBeforeDistanceCulture = iValue;
 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
 	{
-		// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too) -->
-		// --- SAS inline distance shaping (simple & bounded) ---
-		// C++03-safe, integer math only, overflow-safe via percent scaling.
-		// Notes
-		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope" at extreme distances.
-		// I left the “too close" branch clamped at 50% so proximity never kills a locally amazing site.
-		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire" philosophy.
-		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks -->
-		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
-		// const on the right (* const) means you won’t reassign pNearest.
-		CvCity const* const pNearest = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
-		if (pNearest != NULL)
+		if (!bBarbarian)
 		{
-			const int iDistRaw = ::plotDistance(iX, iY, pNearest->getX(), pNearest->getY());
-
-			// Derive from city radius so mods changing radius stay sane.
-			static const int CITYR_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_ADD");
-			static const int CITYR_DIVIDE = std::max(1, GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_DIVIDE"));
-			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks-->
-			static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
-			static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
-			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close"
-			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far"
-
-			static const int CLOSE_STEP = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_STEP"); // % per tile inside MIN_OK
-			static const int FAR_STEP   = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_STEP"); // % per tile beyond MAX_OK
-			static const int CLOSE_CAP  = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_CAP"); // max close penalty
-			static const int FAR_CAP    = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_CAP"); // allow hard kill
-
-			int mult = 100; // 100% = no change
-
-			// Too close
-			if (iDistRaw <= MIN_OK - 1)
+			// <!-- custom: This is normal-civ empire distance shaping. Do not apply it to Barbarian city creation: Barbarians are spawned by a global map scan, and using distance from existing Barbarian cities hard-rejected better one-tile shifts such as 70,37 near Zapotec despite good local city value. (GPT-5.5) -->
+			// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too) -->
+			// --- SAS inline distance shaping (simple & bounded) ---
+			// C++03-safe, integer math only, overflow-safe via percent scaling.
+			// Notes
+			// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope" at extreme distances.
+			// I left the “too close" branch clamped at 50% so proximity never kills a locally amazing site.
+			// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire" philosophy.
+			// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks -->
+			// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
+			// const on the right (* const) means you won’t reassign pNearest.
+			CvCity const* const pNearest = GC.getMap().findCity(iX, iY, ePlayer, eTeam, false);
+			if (pNearest != NULL)
 			{
-				int pct = (MIN_OK - iDistRaw) * CLOSE_STEP;
-				if (pct > CLOSE_CAP) pct = CLOSE_CAP;
-				mult -= pct;
-			}
-			// Too far
-			else if (iDistRaw >= MAX_OK + 1)
-			{
-				int pct = (iDistRaw - MAX_OK) * FAR_STEP;
-				if (pct > FAR_CAP) pct = FAR_CAP;
+				const int iDistRaw = ::plotDistance(iX, iY, pNearest->getX(), pNearest->getY());
 
-				// Hard cutoff for extreme stretch
-				if (pct >= 100)
+				// Derive from city radius so mods changing radius stay sane.
+				static const int CITYR_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_ADD");
+				static const int CITYR_DIVIDE = std::max(1, GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_DIVIDE"));
+				static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks-->
+				static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
+				static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
+				static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close"
+				static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far"
+
+				static const int CLOSE_STEP = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_STEP"); // % per tile inside MIN_OK
+				static const int FAR_STEP   = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_STEP"); // % per tile beyond MAX_OK
+				static const int CLOSE_CAP  = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_CAP"); // max close penalty
+				static const int FAR_CAP    = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_CAP"); // allow hard kill
+
+				int mult = 100; // 100% = no change
+
+				// Too close
+				if (iDistRaw <= MIN_OK - 1)
 				{
-					IFLOG logBBAI("Dist shaping: d=%d -> hard reject near %S", iDistRaw, cityName(*pNearest));
-					return 0;
+					int pct = (MIN_OK - iDistRaw) * CLOSE_STEP;
+					if (pct > CLOSE_CAP) pct = CLOSE_CAP;
+					mult -= pct;
 				}
-				mult -= pct;
-			}
+				// Too far
+				else if (iDistRaw >= MAX_OK + 1)
+				{
+					int pct = (iDistRaw - MAX_OK) * FAR_STEP;
+					if (pct > FAR_CAP) pct = FAR_CAP;
 
-			const int oldVal = iValue;
-			iValue = (iValue * mult) / 100;
-			if (iValue < 0) iValue = 0;
-			IFLOG if (iValue != oldVal) logBBAI("Dist shaping: d=%d -> x%d%% (%d→%d) near %S", iDistRaw, mult, oldVal, iValue, cityName(*pNearest));
+					// Hard cutoff for extreme stretch
+					if (pct >= 100)
+					{
+						IFLOG logBBAI("Dist shaping: d=%d -> hard reject near %S", iDistRaw, cityName(*pNearest));
+						return 0;
+					}
+					mult -= pct;
+				}
+
+				const int oldVal = iValue;
+				iValue = (iValue * mult) / 100;
+				if (iValue < 0) iValue = 0;
+				IFLOG if (iValue != oldVal) logBBAI("Dist shaping: d=%d -> x%d%% (%d→%d) near %S", iDistRaw, mult, oldVal, iValue, cityName(*pNearest));
+			}
+			// --- end SAS distance shaping ---
 		}
-		// --- end SAS distance shaping ---
 
 		// <!-- custom: 2) -->
 		// --- SAS: super-simple culture pressure gate (no cheat, cheap) ---
@@ -1782,13 +1862,12 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 		if (isHome(*p))
 			continue;
 		// <advc.303>
-		if (bBarbarian && !adjacentOrSame(*p, kPlot))
+		static const bool bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE = GC.getDefineBOOL("SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE");
+		if (bBarbarian && !bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE && !adjacentOrSame(*p, kPlot))
 		{
-			/*  Rational Barbarians wouldn't mind settling one off the coast,
-				but human players do mind, and some really hate this.
-				Therefore, count the outer ring coast as bad if !bCoastal. */
-			if(p != NULL && p->isWater() && !bCoastal &&
-				p->calculateBestNatureYield(YIELD_FOOD, eTeam) <= 1)
+			// Rational Barbarians wouldn't mind settling one off the coast, but human players do mind, and some really hate this. Therefore, count the outer ring coast as bad if !bCoastal.
+			// <!-- custom: This is separate from the Barbarian coastal value bonus: it keeps the inherited adjacent/inner-focused Barbarian scoring, which can ignore outer-BFC seafood or other long-term captured-city value. AdvCiv-SAS makes this toggleable because Barbarian cities should also be useful city sites for themselves and later conquerors; set SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE to use normal full-BFC scoring. (GPT-5.5) -->
+			if(p != NULL && p->isWater() && !bCoastal && p->calculateBestNatureYield(YIELD_FOOD, eTeam) <= 1)
 			{
 				iBadTiles++;
 				if (bInner)
@@ -1885,7 +1964,8 @@ bool AIFoundValue::isTooManyBadTiles(int iBadTiles, int iInnerBadTiles) const //
 			continue;
 		} // </advc.031>
 		// <advc.303>
-		if(bBarbarian && !adjacentOrSame(p, kPlot))
+		static const bool bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE = GC.getDefineBOOL("SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE");
+		if(bBarbarian && !bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE && !adjacentOrSame(p, kPlot))
 			continue; // </advc.303>
 		if(getRevealedOwner(p) != NO_PLAYER &&
 			// <advc.031>
@@ -1953,7 +2033,9 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	}
 	bool const bInnerRing = adjacentOrSame(*p, kPlot);
 	// <advc.303>
-	if (bBarbarian && !bInnerRing)
+	// <!-- custom: This was the remaining inherited inner-ring-only Barbarian city-site shortcut. Gate it with SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE too, otherwise outer-BFC seafood still gets ignored even when bad-tile checks use full BFC scoring. (GPT-5.5) -->
+	static const bool bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE = GC.getDefineBOOL("SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE");
+	if (bBarbarian && !bSAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE && !bInnerRing)
 		return false; // </advc.303>
 	/*	advc.031: Moved up. If we can't see the tile, we don't really know if it's
 		already taken by a rival. (Will find out when our Settler gets there.) */
@@ -3084,7 +3166,9 @@ int AIFoundValue::evaluateSeaAccess(bool bGoodFirstColony, scaled rProductionMod
 	// <advc.303>
 	if (bBarbarian)
 	{
-		iR += 350;
+		// <!-- custom: Keep the inherited Barbarian coastal push XML-tunable. Coastal Barbarian cities can maintain Galley/naval pressure from lone islands, but too much coastal bias can outweigh stronger long-term city sites that Barbarians or later conquerors would use better; adjust SAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE in XML. (GPT-5.5) -->
+		static const int iSAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE = GC.getDefineINT("SAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE");
+		iR += iSAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE;
 		IFLOG logBBAI("+%d for coastal (Barbarian)", iR);
 		return iR;
 	} // </advc.303>

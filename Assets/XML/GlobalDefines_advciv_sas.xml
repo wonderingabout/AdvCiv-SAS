@@ -974,6 +974,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_NAVAL_HEAVY_OTHER_CITIES_COASTAL_EXTRA_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+	<!-- custom: Base AdvCiv/K-Mod Barbarian city creation has a hardcoded coastal bonus. AdvCiv-SAS makes it tunable because we do not want a Barbarian-only coastal push to outweigh stronger long-term city sites, especially when these cities often become future captured player cities. Default 350 preserves base behavior for now because coastal Barbarian cities can maintain Galley/naval pressure from lone islands and still threaten player land; change this value to adjust this Barbarian-only coastal push. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE</DefineName>
+		<iDefineIntVal>350</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv/K-Mod Barbarian city scoring mainly considers adjacent/inner plots, which can ignore seafood and other valuable outer-BFC plots that matter once the city is captured by a major civilization. Default 0 preserves base behavior; set to 1 to use normal full-BFC scoring for Barbarian city placement. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv/K-Mod adds random variation to Barbarian city-site values, but this can override clearly stronger sites. The random bonus is +0..N-1 percent: for example, 50 changes value 1000 to 1000..1490, 5 changes it to 1000..1040, 1 leaves it at 1000 so effectively disables it but still calls the random path, however 0 disables the random path entirely (value would stay 1000 the same though but cleaner/simpler code). Base behavior is 50. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Flat city-site extra value for each distinct bonus in a candidate BFC that the AI does not already own from its own empire. Local tile yields are already valued normally; this only nudges empire bonus diversity, e.g. prefer new Maize over extra Wheat, or Whales over another Crab. Trade imports do not count as owned here because they are not permanent. Applied once per bonus type and only after the first city. Set to 0 to disable. See KI#147. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE</DefineName>
@@ -1360,7 +1375,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail. Fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%. (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_GAME_SUMMARY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>

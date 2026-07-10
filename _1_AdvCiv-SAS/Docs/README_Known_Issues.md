@@ -215,6 +215,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [174 - (Fixed/Improved) Base AdvCiv Work Boat `iCityPopulation < 3` cutoff in `CvCityAI::AI_chooseProduction` interrupted seafood production for a land Worker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)\
 [175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
 [176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot)\
+[177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6380,3 +6381,129 @@ WORKER_MISSION_EXECUTION phase=result turn=181 player=7 Native American Empire w
 In the confirming run, the old Mine-to-Cottage corruption on `(59,24)` no longer appeared. The Worker cancelled the stale build, replanned normally, and moved to a valid new target.
 
 Fixed with the help of ChatGPT-5.5 and GPT-5.5 (on Codex) thanks.
+
+## 177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gIGu1D8WNJ638rHdNURx-k5sFgw7jkr4?usp=sharing).
+
+The investigation used BBAI logs from save file 450/autoplay testing, notably `BBAI_20260710T103448Z_load1.log`, `BBAI_20260710T105033Z_load1.log`, `BBAI_20260710T115446Z_load1.log`, and `BBAI_20260710T120718Z_load1.log`.
+
+Barbarian city creation had several inherited or inherited-adjacent city-site problems that could make Barbarian cities settle one tile away from clearly stronger long-term sites. This matters because Barbarian cities are not only temporary threats: they often become captured player cities, so their BFC should still be a useful city site when possible.
+
+The initial symptoms were visible in save file 450 BBAI/autoplay review:
+
+- `57,24` could be chosen instead of stronger hill-plant `57,23`, which gained Crab and kept Copper.
+- `45,18` could be chosen even though `44,17` settled on a better hill tile and gained extra seafood.
+- `36,20` could be chosen even though `37,19` was also a hill plant and gained another seafood.
+- `71,37` could be chosen while nearby `70,37` looked stronger because it gained another Molluscs.
+- `30,23` could be founded despite no convincing local value.
+
+The investigation found multiple overlapping causes.
+
+### 1. Barbarian found-value scoring was still effectively inner-ring-only in one important path
+
+AdvCiv/K-Mod has Barbarian-specific logic around city placement because Barbarian cities are spawned globally rather than moved by Settlers. Some of the inherited coastal/inner-ring handling was also explicitly about human player preference against one-off-coast Barbarian cities. AdvCiv-SAS does not treat that taste preference as more important than useful long-term city sites: Barbarian cities should be good for themselves and for the players who later conquer them.
+
+AdvCiv-SAS first added `SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE` to make the old inner-focused behavior tunable, but the first patch covered bad-tile checks only. BBAI logs then showed outer-BFC seafood still missing from key candidate comparisons.
+
+The remaining inherited shortcut was in `AIFoundValue::isUsablePlot`, where `if (bBarbarian && !bInnerRing) return false;` still discarded outer-BFC plots before they contributed value. Gating this shortcut behind `SAS_EVALUATE_BARBARIAN_FULL_BFC_ENABLE` fixed the actual full-BFC scoring path.
+
+After this, the same test started counting full BFCs correctly, and sites such as `57,23`, `44,17`, and `37,19` became capable of winning when eligible.
+
+### 2. The inherited random city-site multiplier could override better sites
+
+Base AdvCiv/K-Mod used a random Barbarian city-site multiplier of `+0..49%`. This adds variety, but it can override clearly better nearby city sites and makes testing/review noisy. AdvCiv-SAS now exposes this as `SAS_EVALUATE_BARBARIAN_CITY_SITE_RANDOM_PERCENT`.
+
+For reproducible testing, setting this to `0` disables the random path entirely. A value of `1` gives no effective variation but still calls the random path; the old behavior is `50`.
+
+### 3. The hardcoded Barbarian coastal bonus is now tunable
+
+Base AdvCiv/K-Mod also gave Barbarian coastal sites a hardcoded `+350` value. This is separate from the inherited one-off-coast/player-preference handling above. AdvCiv-SAS still wants coastal Barbarian pressure to remain possible: coastal Barbarian cities can maintain Galley/naval pressure from lone islands and avoid becoming gameplay-inert. However, the hidden hardcoded value can also push Barbarian city placement toward weaker long-term city sites.
+
+AdvCiv-SAS now exposes this as `SAS_EVALUATE_BARBARIAN_COASTAL_EXTRA_VALUE`, so the naval-pressure preference can be preserved, reduced, or disabled without a DLL recompile.
+
+### 4. Normal-civilization distance shaping was inappropriate for global Barbarian city creation
+
+AdvCiv-SAS distance shaping is meant for normal civilization expansion: it penalizes sites too close to or too far from a civilization's existing cities. Barbarian city creation is different. It scans the map globally and does not represent one coherent empire expanding outward from a core.
+
+BBAI logging showed this exact problem for `70,37`: the candidate was spawn-eligible and locally strong, but raw value became `0` because distance shaping hard-rejected it as too far from an existing Barbarian city:
+
+```log
+nearby chooser candidate 70,37 dist=1 raw=0 areaAdjusted=0 area=548894 areaBarbCities=0 areaTarget=3 water=0 visibleToCivTeam=0 civArea=0 areaEligible=1 spawnEligible=1
+Detailed raw-value rejection check for nearby chooser candidate 70,37:
+Computing found value for [70,37] Grassland
+Dist shaping: d=15 -> hard reject near Gepid
+```
+
+Barbarian found-value evaluation now skips this normal-civilization distance shaping. The later confirming run showed `70,37` no longer hard-rejected and ranking as a strong candidate:
+
+```log
+#1 raw=4233 areaAdjusted=4233 final=4233 at 71,40 area=548894
+#2 raw=3781 areaAdjusted=3781 final=3781 at 70,37 area=548894
+#3 raw=3755 areaAdjusted=3755 final=3755 at 70,39 area=548894
+#4 raw=3751 areaAdjusted=3751 final=3751 at 71,37 area=548894
+```
+
+### 5. Raw-zero sites could be resurrected by area-priority adjustment
+
+In `CvGame::createBarbarianCity`, the inherited area-priority logic can multiply or add area ownership values after calculating a found value. During `bSkipCivAreas`, this could turn a rejected raw `0` site into a tiny positive value and let it found.
+
+The Mauryan test showed this clearly:
+
+```log
+Barbarian city chooser top final candidates before founding:
+#1 raw=0 areaAdjusted=1 final=1 at 30,23 area=442385
+#2 raw=0 areaAdjusted=1 final=1 at 33,23 area=442385
+#3 raw=0 areaAdjusted=1 final=1 at 33,24 area=442385
+#4 raw=0 areaAdjusted=1 final=1 at 33,25 area=442385
+#5 raw=0 areaAdjusted=1 final=1 at 33,26 area=442385
+...
+Computing found value for [30,23] Plains Forest
+Dist shaping: d=28 -> hard reject near Khazak
+Player 48 (Barbarians) founds new city Mauryan at 30, 23
+```
+
+AdvCiv-SAS now skips raw `<= 0` Barbarian city candidates before area adjustment, so area priority cannot resurrect a rejected city site.
+
+### 6. The original BBAI logging was not enough to diagnose the real chooser
+
+The first diagnostic only logged the selected site's found value and nearby alternatives after the chooser had already selected a plot. This was useful but incomplete because `createBarbarianCity` applies spawn filters, area-target logic, area adjustment, and optional randomization before founding.
+
+The BBAI diagnostics now log chooser-side data:
+
+- top final Barbarian city candidates before founding,
+- raw value before area adjustment,
+- area-adjusted value,
+- final value after optional randomization,
+- nearby candidate spawn eligibility,
+- water/visibility/civ-area/area-target fields,
+- detailed raw-value breakdown for spawn-eligible nearby candidates with raw `0` or `1`.
+
+This exposed both the raw-zero resurrection and the inappropriate Barbarian distance-shaping hard rejects.
+
+### After the fixes
+
+After the fixes, the confirming run improved the original cases substantially:
+
+```log
+Barbarian city chooser top final candidates before founding:
+#1 raw=3018 areaAdjusted=27162 final=27162 at 37,19 area=401420
+...
+Player 48 (Barbarians) founds new city Cherokee at 37, 19
+```
+
+```log
+Barbarian city chooser top final candidates before founding:
+#1 raw=2362 areaAdjusted=2362 final=2362 at 44,17 area=385034
+#3 raw=2128 areaAdjusted=2128 final=2128 at 45,18 area=385034
+...
+Player 48 (Barbarians) founds new city Anasazi at 44, 17
+```
+
+The `57,23` case is history-dependent because Barbarian city creation still correctly rejects plots visible to a civilization team. In one fixed run, `57,23` was chosen when eligible; in a later run, it was not spawn-eligible because it had become visible:
+
+```log
+nearby chooser candidate 57,23 dist=1 raw=0 areaAdjusted=0 area=458771 areaBarbCities=0 areaTarget=1 water=0 visibleToCivTeam=1 civArea=0 areaEligible=1 spawnEligible=0
+```
+
+Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.

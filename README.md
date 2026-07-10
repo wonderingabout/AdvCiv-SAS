@@ -942,7 +942,6 @@ GAME_SUMMARY_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUS
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_summary (2).PNG" alt="chatgpt_5_6_sol_sas_game_summary (2)" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_summary (3).PNG" alt="chatgpt_5_6_sol_sas_game_summary (3)" width="250"></img>
 
-
 ## CuCuGS
 
 Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
