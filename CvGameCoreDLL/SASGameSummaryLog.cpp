@@ -22,6 +22,7 @@
 #include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
 #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-summary advisor rows. (ChatGPT-5.5) -->
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-summary diplomacy-status rows. (ChatGPT-5.5) -->
+#include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-summary benchmark rows. (GPT-5.5) -->
 #include <time.h>
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-summary city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-summary known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
@@ -223,6 +224,12 @@ static int g_aiSASGameSummaryCityBattleWins[MAX_PLAYERS];
 static int g_aiSASGameSummaryCityBattleLosses[MAX_PLAYERS];
 static int g_aiSASGameSummaryTotalGoldenAgeTurns[MAX_PLAYERS];
 static int g_aiSASGameSummaryTotalAnarchyTurns[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesAcquired[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesLost[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesConquered[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesLostByConquest[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesTradedIn[MAX_PLAYERS];
+static int g_aiSASGameSummaryCitiesTradedOut[MAX_PLAYERS];
 
 struct SASGameSummaryPlayerPrevious
 {
@@ -372,6 +379,12 @@ static void resetSASGameSummaryState()
 		g_aiSASGameSummaryCityBattleLosses[iI] = 0;
 		g_aiSASGameSummaryTotalGoldenAgeTurns[iI] = 0;
 		g_aiSASGameSummaryTotalAnarchyTurns[iI] = 0;
+		g_aiSASGameSummaryCitiesAcquired[iI] = 0;
+		g_aiSASGameSummaryCitiesLost[iI] = 0;
+		g_aiSASGameSummaryCitiesConquered[iI] = 0;
+		g_aiSASGameSummaryCitiesLostByConquest[iI] = 0;
+		g_aiSASGameSummaryCitiesTradedIn[iI] = 0;
+		g_aiSASGameSummaryCitiesTradedOut[iI] = 0;
 		g_akSASGameSummaryPlayerPrevious[iI].bValid = false;
 	}
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
@@ -1081,6 +1094,17 @@ static void logSASGameSummaryEconomy(PlayerTypes ePlayer, int iGameTurn)
 	TechTypes eResearch = kPlayer.getCurrentResearch();
 	logSASGameSummary("GAME_SUMMARY_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s researchRate=%d researchTurns=%d",
 			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameSummaryCommercePercents(kPlayer).GetCString(), getSASGameSummaryCommerceRates(kPlayer).GetCString(), getSASGameSummaryCommerceFlexible(kPlayer).GetCString(), getSASGameSummaryTechType(eResearch), eResearch == NO_TECH ? 0 : kPlayer.calculateResearchRate(eResearch), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+}
+
+static void logSASGameSummaryStatistics(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerRecord const* pRecord = kPlayer.getPlayerRecord();
+	const int iCitiesBuilt = (pRecord == NULL ? 0 : pRecord->getNumCitiesBuilt());
+	const int iCitiesRazed = (pRecord == NULL ? 0 : pRecord->getNumCitiesRazed());
+	// <!-- custom: Built/razed are persistent CyStatistics player-record values used by the Statistics tab. Acquired/lost are game-summary runtime counters from city-acquired actions; keeping them local avoids save-format churn while still making conquest swings visible in benchmark logs. (GPT-5.5) -->
+	logSASGameSummary("GAME_SUMMARY_STATISTICS turn=%d player=%d currentCities=%d persistentCitiesBuilt=%d persistentCitiesRazed=%d loggedCitiesAcquired=%d loggedCitiesLost=%d loggedCitiesConquered=%d loggedCitiesLostByConquest=%d loggedCitiesTradedIn=%d loggedCitiesTradedOut=%d loggedCityNet=%+d",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), iCitiesBuilt, iCitiesRazed, g_aiSASGameSummaryCitiesAcquired[ePlayer], g_aiSASGameSummaryCitiesLost[ePlayer], g_aiSASGameSummaryCitiesConquered[ePlayer], g_aiSASGameSummaryCitiesLostByConquest[ePlayer], g_aiSASGameSummaryCitiesTradedIn[ePlayer], g_aiSASGameSummaryCitiesTradedOut[ePlayer], g_aiSASGameSummaryCitiesAcquired[ePlayer] - g_aiSASGameSummaryCitiesLost[ePlayer]);
 }
 
 static void logSASGameSummaryDemographics(PlayerTypes ePlayer, int iGameTurn)
@@ -2072,6 +2096,7 @@ static void logSASGameSummaryPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameSummaryPlayerBonuses(ePlayer, iGameTurn, kPrevious);
 		logSASGameSummaryPolicies(ePlayer, iGameTurn);
 		logSASGameSummaryEconomy(ePlayer, iGameTurn);
+		logSASGameSummaryStatistics(ePlayer, iGameTurn);
 		logSASGameSummaryEspionage(ePlayer, iGameTurn);
 		logSASGameSummaryDemographics(ePlayer, iGameTurn);
 		logSASGameSummaryAttitudes(ePlayer, iGameTurn);
@@ -2190,6 +2215,22 @@ void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner,
 {
 	if (pCity == NULL)
 		return;
+	if (eNewOwner >= 0 && eNewOwner < MAX_PLAYERS)
+	{
+		g_aiSASGameSummaryCitiesAcquired[eNewOwner]++;
+		if (bConquest)
+			g_aiSASGameSummaryCitiesConquered[eNewOwner]++;
+		if (bTrade)
+			g_aiSASGameSummaryCitiesTradedIn[eNewOwner]++;
+	}
+	if (eOldOwner >= 0 && eOldOwner < MAX_PLAYERS)
+	{
+		g_aiSASGameSummaryCitiesLost[eOldOwner]++;
+		if (bConquest)
+			g_aiSASGameSummaryCitiesLostByConquest[eOldOwner]++;
+		if (bTrade)
+			g_aiSASGameSummaryCitiesTradedOut[eOldOwner]++;
+	}
 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
 			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityBFC(*pCity, "acquired");
