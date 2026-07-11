@@ -12,6 +12,7 @@
 #include "BarbarianWeightMap.h" // advc.304
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Command.h" // <!-- custom: Settler parking diagnostics log MissionTypes by XML type. (ChatGPT-5.5) -->
 #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
 #include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
 #include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
@@ -52,6 +53,259 @@ static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, 
 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
 	logBBAI("    SAFETY_UNIT_RESULT action=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
 		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
+}
+
+
+// <!-- custom: Settler parking diagnostics for expansion-security testing. These logs are deliberately diagnostic-only: they explain why a Settler stayed put, whether it had a target, whether danger was nearby, and whether the current city seemed to have spare escort candidates before any behavior change tries to make Settlers wait for escorts. (ChatGPT-5.5) -->
+struct SASSettlerParkingRecord
+{
+	int iLastTurn;
+	int iCreatedTurn;
+	int iX;
+	int iY;
+	int iTargetX;
+	int iTargetY;
+	int iParkedTurns;
+	SASSettlerParkingRecord() : iLastTurn(-1), iCreatedTurn(-1), iX(-1), iY(-1), iTargetX(-1), iTargetY(-1), iParkedTurns(0) {}
+};
+
+static std::map<int, SASSettlerParkingRecord> g_kSASSettlerParkingRecords;
+
+static const char* SAS_getUnitTypeName(UnitTypes eUnit)
+{
+	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
+}
+
+static const char* SAS_getUnitAITypeName(UnitAITypes eUnitAI)
+{
+	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
+}
+
+static const char* SAS_getMissionTypeName(MissionTypes eMission)
+{
+	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
+}
+
+static int SAS_updateSettlerParkedTurns(CvUnitAI const& kUnit, CvPlot const* pTargetPlot)
+{
+	int const iKey = 1000000 * kUnit.getOwner() + kUnit.getID();
+	SASSettlerParkingRecord& kRecord = g_kSASSettlerParkingRecords[iKey];
+	int const iTurn = GC.getGame().getGameTurn();
+	int const iTargetX = (pTargetPlot == NULL ? -1 : pTargetPlot->getX());
+	int const iTargetY = (pTargetPlot == NULL ? -1 : pTargetPlot->getY());
+	bool const bSameParkingState = (kRecord.iCreatedTurn == kUnit.getGameTurnCreated() && kRecord.iX == kUnit.getX() && kRecord.iY == kUnit.getY() && kRecord.iTargetX == iTargetX && kRecord.iTargetY == iTargetY);
+	if (!bSameParkingState)
+		kRecord.iParkedTurns = 1;
+	else if (kRecord.iLastTurn != iTurn)
+		kRecord.iParkedTurns++;
+	kRecord.iLastTurn = iTurn;
+	kRecord.iCreatedTurn = kUnit.getGameTurnCreated();
+	kRecord.iX = kUnit.getX();
+	kRecord.iY = kUnit.getY();
+	kRecord.iTargetX = iTargetX;
+	kRecord.iTargetY = iTargetY;
+	return kRecord.iParkedTurns;
+}
+
+static bool SAS_isSettlerDiagnosticUnit(CvUnit const& kUnit)
+{
+	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
+}
+
+static bool SAS_isWorkerDiagnosticUnit(CvUnit const& kUnit)
+{
+	UnitAITypes const eUnitAI = kUnit.AI_getUnitAIType();
+	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
+}
+
+static void SAS_countSettlerGroupUnits(CvSelectionGroup const* pGroup, int& iGroupUnits, int& iGroupDefenders, int& iGroupHealthyDefenders, int& iGroupSettlers)
+{
+	iGroupUnits = 0;
+	iGroupDefenders = 0;
+	iGroupHealthyDefenders = 0;
+	iGroupSettlers = 0;
+	if (pGroup == NULL)
+		return;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		iGroupUnits++;
+		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
+			iGroupSettlers++;
+		if (pLoopUnit->canDefend(pLoopUnit->plot()))
+		{
+			iGroupDefenders++;
+			if (pLoopUnit->getDamage() <= 25)
+				iGroupHealthyDefenders++;
+		}
+	}
+}
+
+struct SASSettlerCityEscortPool
+{
+	CvCityAI const* pCity;
+	int iCityUnits;
+	int iCityDefenders;
+	int iCityHealthyDefenders;
+	int iCityWoundedDefenders;
+	int iCitySettlers;
+	int iCityWorkers;
+	int iCityAttackers;
+	int iCityNeededDefenders;
+	int iCitySpareDefenders;
+	int iEscortCandidates;
+	CvUnit const* pBestEscort;
+	CvString szUnitList;
+	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
+};
+
+static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettlerCityEscortPool& kPool)
+{
+	CvPlot const* pPlot = kSettler.plot();
+	if (pPlot == NULL || !pPlot->isCity() || pPlot->getOwner() != kSettler.getOwner())
+		return;
+	kPool.pCity = pPlot->AI_getPlotCity();
+	if (kPool.pCity == NULL)
+		return;
+	CvSelectionGroup const* pSettlerGroup = kSettler.getGroup();
+	int iLoggedUnits = 0;
+	for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
+			continue;
+		kPool.iCityUnits++;
+		bool const bCanDefend = pLoopUnit->canDefend(pPlot);
+		if (bCanDefend)
+		{
+			kPool.iCityDefenders++;
+			if (pLoopUnit->getDamage() <= 25)
+				kPool.iCityHealthyDefenders++;
+			else kPool.iCityWoundedDefenders++;
+		}
+		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
+			kPool.iCitySettlers++;
+		if (SAS_isWorkerDiagnosticUnit(*pLoopUnit))
+			kPool.iCityWorkers++;
+		if (pLoopUnit->canAttack())
+			kPool.iCityAttackers++;
+		bool const bInSettlerGroup = (pSettlerGroup != NULL && pLoopUnit->getGroup() == pSettlerGroup);
+		if (bCanDefend && !bInSettlerGroup && pLoopUnit->getDamage() <= 50)
+		{
+			kPool.iEscortCandidates++;
+			if (kPool.pBestEscort == NULL || pLoopUnit->baseCombatStr() > kPool.pBestEscort->baseCombatStr() || (pLoopUnit->baseCombatStr() == kPool.pBestEscort->baseCombatStr() && pLoopUnit->getDamage() < kPool.pBestEscort->getDamage()))
+				kPool.pBestEscort = pLoopUnit;
+		}
+		if (gSettlerLogLevel >= 3 && iLoggedUnits < 10)
+		{
+			CvString szItem;
+			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", SAS_getUnitTypeName(pLoopUnit->getUnitType()), pLoopUnit->getID(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
+			if (!kPool.szUnitList.empty())
+				kPool.szUnitList += ",";
+			kPool.szUnitList += szItem;
+			iLoggedUnits++;
+		}
+	}
+	kPool.iCityNeededDefenders = kPool.pCity->AI_neededDefenders(true);
+	kPool.iCitySpareDefenders = kPool.iCityDefenders - kPool.iCityNeededDefenders;
+}
+
+static void SAS_countVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes ePlayer, int iRange, int& iVisibleEnemies, int& iVisibleCombatEnemies, CvUnit const*& pNearestEnemy, int& iNearestEnemyDistance)
+{
+	iVisibleEnemies = 0;
+	iVisibleCombatEnemies = 0;
+	pNearestEnemy = NULL;
+	iNearestEnemyDistance = -1;
+	if (ePlayer == NO_PLAYER)
+		return;
+	TeamTypes const eTeam = GET_PLAYER(ePlayer).getTeam();
+	for (int iDX = -iRange; iDX <= iRange; iDX++)
+	{
+		for (int iDY = -iRange; iDY <= iRange; iDY++)
+		{
+			CvPlot const* pLoopPlot = plotXY(kCenter.getX(), kCenter.getY(), iDX, iDY);
+			if (pLoopPlot == NULL || !pLoopPlot->isVisible(eTeam, false))
+				continue;
+			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+			{
+				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
+					continue;
+				iVisibleEnemies++;
+				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())
+					iVisibleCombatEnemies++;
+				int const iDistance = plotDistance(kCenter.getX(), kCenter.getY(), pLoopPlot->getX(), pLoopPlot->getY());
+				if (iNearestEnemyDistance < 0 || iDistance < iNearestEnemyDistance)
+				{
+					iNearestEnemyDistance = iDistance;
+					pNearestEnemy = pLoopUnit;
+				}
+			}
+		}
+	}
+}
+
+static void SAS_findBestReachableSettlerSite(CvUnitAI& kSettler, MovementFlags eFlags, CvPlot const*& pBestSite, int& iBestValue, int& iBestPathTurns, CvPlot const*& pBestEndTurnPlot)
+{
+	pBestSite = NULL;
+	iBestValue = 0;
+	iBestPathTurns = -1;
+	pBestEndTurnPlot = NULL;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain())
+			continue;
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(kSite, eFlags, true, &iPathTurns))
+			continue;
+		int const iValue = kSite.getFoundValue(kSettler.getOwner());
+		if (iValue > iBestValue)
+		{
+			iBestValue = iValue;
+			iBestPathTurns = iPathTurns;
+			pBestSite = &kSite;
+			pBestEndTurnPlot = &kSettler.getPathEndTurnPlot();
+		}
+	}
+}
+
+static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eFlags)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
+	CvPlot const* pPlot = kSettler.plot();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	CvPlot const* pBestSite = NULL;
+	CvPlot const* pBestEndTurnPlot = NULL;
+	int iBestReachableValue = 0;
+	int iBestReachablePathTurns = -1;
+	SAS_findBestReachableSettlerSite(kSettler, eFlags, pBestSite, iBestReachableValue, iBestReachablePathTurns, pBestEndTurnPlot);
+	CvPlot const* pTargetPlot = (pMissionPlot != NULL ? pMissionPlot : pBestSite);
+	int const iParkedTurns = SAS_updateSettlerParkedTurns(kSettler, pTargetPlot);
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupHealthyDefenders = 0;
+	int iGroupSettlers = 0;
+	SAS_countSettlerGroupUnits(kSettler.getGroup(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
+	int iVisibleEnemies = 0;
+	int iVisibleCombatEnemies = 0;
+	int iNearestEnemyDistance = -1;
+	CvUnit const* pNearestEnemy = NULL;
+	if (pPlot != NULL)
+		SAS_countVisibleEnemiesNearPlot(*pPlot, kSettler.getOwner(), 2, iVisibleEnemies, iVisibleCombatEnemies, pNearestEnemy, iNearestEnemyDistance);
+	SASSettlerCityEscortPool kCityPool;
+	SAS_collectSettlerCityEscortPool(kSettler, kCityPool);
+	MissionTypes const eMission = (pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0));
+	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
+	logBBAI("    SETTLER_PARKED turn=%d player=%d %S reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(), SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()), GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(), (kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()), (kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue, (pBestSite == NULL ? -1 : pBestSite->getX()), (pBestSite == NULL ? -1 : pBestSite->getY()), iBestReachablePathTurns, (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()), bDanger, (pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())), (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
+	if (gSettlerLogLevel >= 3 && kCityPool.pCity != NULL)
+	{
+		logBBAI("    SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
+			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, kCityPool.szUnitList.empty() ? "-" : kCityPool.szUnitList.GetCString());
+	}
 }
 
 // <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
@@ -3318,7 +3572,10 @@ void CvUnitAI::AI_settleMove()
 		{	// flee
 			joinGroup(NULL);
 			if(AI_retreatToCity())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_DANGER", 0, 0, bDanger, eMoveFlags);
 				return;
+			}
 			/*if(AI_safety())
 				return;
 			getGroup()->pushMission(MISSION_SKIP);*/ // BtS
@@ -3388,6 +3645,7 @@ void CvUnitAI::AI_settleMove()
 				if (!kOwner.AI_isAnyUnitTargetMissionAI(*getGroup()->getHeadUnit(), MISSIONAI_PICKUP))
 				{
 					//FErrorMsg("advc.test: Just to see how frequently the AI scraps settlers"); // hardly ever
+					if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SCRAP_NO_VALID_CITY_SITE", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 					scrap(); //may seem wasteful, but settlers confuse the AI.
 					return;
 				}
@@ -3435,6 +3693,7 @@ void CvUnitAI::AI_settleMove()
 		bDanger && GC.getGame().getMaxCityElimination() > 0 &&
 		getGroup()->getNumUnits() < 3)
 	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_DANGER_MAX_CITY_ELIMINATION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		getGroup()->pushMission(MISSION_SKIP);
 		return;
 	}
@@ -3503,13 +3762,23 @@ void CvUnitAI::AI_settleMove()
 	} // K-Mod end
 
 	if(AI_retreatToCity())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
 	// K-Mod
 	if (AI_handleStranded())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "HANDLE_STRANDED_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
 	// K-Mod end
 	if (AI_safety())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
+	if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_NO_SETTLER_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
