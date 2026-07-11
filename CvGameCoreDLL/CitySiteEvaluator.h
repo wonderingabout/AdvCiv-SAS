@@ -164,7 +164,7 @@ private:
 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
 	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const;
-	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier) const;
+	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool& bAnyGrowthBonus, std::vector<int>* paiBonusCount, int iCultureModifier, int* piBaseBonusVal = NULL, int* piMultiplier = NULL, int* piEarlyPercent = NULL, int* piWaterPenalty = NULL) const;
 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
