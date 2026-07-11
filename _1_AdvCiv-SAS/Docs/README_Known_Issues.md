@@ -6507,3 +6507,51 @@ nearby chooser candidate 57,23 dist=1 raw=0 areaAdjusted=0 area=458771 areaBarbC
 ```
 
 Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1X72W-hFWSeVnrRB1eIj8EjFgJTbLTZjr?usp=sharing).
+
+The investigation used save file 450/autoplay testing, notably `BBAI_20260711T141636Z_load1.log` and `SASGameSummary_20260711T141636Z_load1.log`.
+
+After the KI#177 Barbarian/city-placement fixes, the Zulu uMgungundlovu case still exposed a broader city-site scoring issue: the old non-yield bonus path reused broad `AI_bonusVal`-style bonus value. That value is suitable for immediate bonus trade and current-era resource usefulness, but city settling has a different horizon. A city site lasts long enough that food, health, happiness, and ordinary early building effects matter more than short-term trade pricing; conversely, late or expensive building effects should not be assumed because the city or empire may have died, won, or lost before they matter.
+
+In save file 450, the old path made Elephants at `(20,41)` greatly outscore nearby Crab and pushed Shaka's second city toward weaker `(18,40)` instead of the greener Crab/Rice/Camel `(17,40)` site. This was wrong in practice: Crab is a strong local food source and its health remains useful long-term, especially with a Harbor in a coastal city, while Elephants are mostly a classical-era pressure bonus with some happiness.
+
+AdvCiv-SAS now replaces that city-site path with explicit settlement-oriented non-yield value:
+
+- bonus health and happiness use direct XML-tunable values,
+- ordinary non-limited building health/happiness effects are counted only up to a tunable prerequisite-era gate,
+- coastal buildings such as Harbor only count for coastal candidate cities,
+- late/expensive buildings such as Supermarket can be excluded by the era gate,
+- broad current-era `AI_bonusVal` trade value, first-growth/luxury extra, and old strategic-resource dampening are no longer used in this settlement path,
+- strategic need remains handled separately through `iAIObjective`,
+- local improvement yields and terrain/feature value remain separate,
+- visible/revealed bonus rules still apply, so early hidden bonuses such as Uranium are not counted in ordinary live city-site scoring.
+
+The confirming log shows the intended split for uMgungundlovu:
+
+```log
+BONUS_SCORE plot=16,39 bonus=Rice happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=0 nonYield=300 diversity=250 aiObjective=0 bonusYield=175 total=725
+BONUS_SCORE plot=15,41 bonus=Crab happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=48 nonYield=252 diversity=250 aiObjective=0 bonusYield=250 total=752
+BONUS_SCORE plot=20,41 bonus=Elephants happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=0 nonYield=300 diversity=250 aiObjective=0 bonusYield=200 total=750
+Best site adjacent to (17,40): selected=4128 adjacent=3993 delta=-135 (18,40)
+Player 7 (Zulu Empire) founds new city uMgungundlovu at 17, 40
+```
+
+This is no longer a single opaque `AI_bonusVal` spike. Crab, Rice, and Elephants all receive explicit long-term health/happiness/building value, while the final site choice can still be decided by the complete BFC, local yields, water penalties, terrain, culture, and strategic bonuses.
+
+The same change also tightens duplicate bonus handling. Trade imports do not count as owned because they are temporary, but a bonus already owned or plausibly covered by one of our existing cities' future BFC should not receive another full empire-wide duplicate value. However, if a known rival's future BFC also threatens that bonus, the value is kept because ownership is not reliable. In the same save-file family, this matters after uMgungundlovu correctly claims Crab: another Zulu city should not over-settle far away only for another safe Crab, while contested Camel near Arabia can still matter.
+
+Barbarians now use the same settlement-specific non-yield bonus value too. Base AdvCiv skipped Barbarian non-yield bonus trade value because Barbarians do not care about ordinary bonus trading, but AdvCiv-SAS wants Barbarian-founded cities to be good long-term sites for Barbarian strength and for later capture by normal players. The confirming BBAI log shows the Barbarian Hittite site scoring Crab with the new explicit value:
+
+```log
+Barbarian is about to found a city at (13,35); turn 50 (year -3000)
+BONUS_SCORE plot=15,34 bonus=Crab happyHealth=300 buildingHappyHealth=150 adjustPercent=100 waterPenalty=48 nonYield=252 diversity=250 aiObjective=0 bonusYield=250 total=752
+Best Barbarian site adjacent to (13,35): selected=5034 adjacent=4209 delta=-825 (14,36) water=0 visibleToCivTeam=0 spawnEligible=1
+Player 48 (Barbarians) founds new city Hittite at 13, 35
+```
+
+The same run also showed that the new Zulu western city Nobamba at `(9,45)` was a strong enough site on paper, with Maize, Deer, Silver, Copper, lots of Grassland, and four hills, but it was conquered and razed by Barbarians three turns later. That result is a defense/history issue, not evidence that the city-site valuation itself rejected the west.
+
+Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.

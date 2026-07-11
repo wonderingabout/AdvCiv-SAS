@@ -925,6 +925,20 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_COMMERCE_VALUE</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: Settlement-specific non-yield value for a bonus's explicit health/happiness effect and ordinary building bonus effects up to the prerequisite-era gate below. In save file 450, the old broad AI_bonusVal path made Elephants greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure (War Elephants) with some happiness. Settling cares less about immediate current-era trade value and more about long-term health/happiness city-site value, which can be very different. Example: if health value is 150 and coastal Crab gives 1 empire-wide health plus 1 health from Harbor within the era gate, the city site gains 2 * 150 = 300 before trade/access/water adjustments. See KI#178. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<!-- custom: Building-effect gate uses era indexes: 0 Ancient, 1 Classical, 2 Medieval, etc.; -1 disables building health/happiness effects. This lets settlement value count early ordinary buildings such as Granary/Harbor because we are likely to build them, while excluding late or expensive buildings such as Supermarket because the city may die, win, or lose before they matter. See KI#178. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv weights now tunable: every plot starts with its natural XML yields: terrain, retained feature, and any revealed bonus's intrinsic yield, but not improvement yield handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code then selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5) -->
 	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot with at least the 2 Food consumed by one citizen. E.g. 2F1P contributes the fixed 10-point self-sustaining bonus + 2 * 40 + 1 * 30 = 120 before other plot adjustments. (GPT-5.5) -->
 	<Define>
