@@ -76,6 +76,87 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 }
 
 
+static int SAS_getDangerAdjustedMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
+{
+	int iMinFoundValue = kPlayer.AI_getMinFoundValue();
+	if (bDanger)
+	{
+		iMinFoundValue *= 3;
+		iMinFoundValue /= 2;
+	}
+	return iMinFoundValue;
+}
+
+static bool SAS_isSettlerEarlyFoundValueFloorActive(CvPlayerAI const& kPlayer, int& iFloor, int& iMinCities, int& iMaxEra)
+{
+	static const int iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE");
+	static const int iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES");
+	static const int iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA = GC.getDefineINT("SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA");
+	iFloor = iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE;
+	iMinCities = iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES;
+	iMaxEra = iSAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA;
+	return (iFloor > 0 && kPlayer.getNumCities() >= iMinCities && (iMaxEra < 0 || kPlayer.getCurrentEra() <= iMaxEra));
+}
+
+static int SAS_getSettlerBuildMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
+{
+	int iMinFoundValue = SAS_getDangerAdjustedMinFoundValue(kPlayer, bDanger);
+	int iSettlerFloor = 0;
+	int iSettlerFloorMinCities = 0;
+	int iSettlerFloorMaxEra = 0;
+	if (SAS_isSettlerEarlyFoundValueFloorActive(kPlayer, iSettlerFloor, iSettlerFloorMinCities, iSettlerFloorMaxEra))
+		iMinFoundValue = std::max(iMinFoundValue, iSettlerFloor);
+	return iMinFoundValue;
+}
+
+static bool SAS_getSettlerBuildSiteStatus(CvCityAI const& kCity, int& iNumAreaCitySites, int& iAreaBestFoundValue, int& iNumWaterAreaCitySites, int& iWaterAreaBestFoundValue, int& iSettlerBuildMinFoundValue)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	iAreaBestFoundValue = -1;
+	iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kCity.getArea(), iAreaBestFoundValue);
+	iWaterAreaBestFoundValue = 0;
+	CvArea const* pWaterArea = kCity.waterArea(true);
+	iNumWaterAreaCitySites = (pWaterArea == NULL ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterArea, &kCity.getArea()));
+	iSettlerBuildMinFoundValue = SAS_getSettlerBuildMinFoundValue(kPlayer, kCity.AI_isDanger());
+	return (iNumAreaCitySites > 0 && iAreaBestFoundValue > iSettlerBuildMinFoundValue) || (iNumWaterAreaCitySites > 0 && iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue);
+}
+
+// <!-- custom: Central AI Settler production-value helper. Early/midgame weak Settlers have high opportunity cost because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment.
+// If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city just to avoid being cramped. Later mature empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth, so lower-value filler, resource, denial, or colony Settlers can become worthwhile again.
+// Keep this as an AI production-choice test, not a canTrain rule, so humans, scripts, existing queues, and late opportunistic settling remain legal. The concrete AI_chooseUnit pre-push gate below is the main safety net; higher-level callers may also use this helper only to avoid wasted candidate scoring. (ChatGPT-5.5) -->
+static bool SAS_isSettlerBuildWorthwhile(CvCityAI const& kCity, int& iAreaBestFoundValue, int& iWaterAreaBestFoundValue, int& iSettlerBuildMinFoundValue)
+{
+	int iNumAreaCitySites = 0;
+	int iNumWaterAreaCitySites = 0;
+	return SAS_getSettlerBuildSiteStatus(kCity, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue);
+}
+
+static bool SAS_isSettlerProductionCandidate(UnitTypes eUnit, UnitAITypes eUnitAI)
+{
+	return (eUnitAI == UNITAI_SETTLE || (eUnit != NO_UNIT && GC.getInfo(eUnit).getDefaultUnitAIType() == UNITAI_SETTLE));
+}
+
+
+static void SAS_logSettlerBuildDecision(CvCityAI const& kCity, char const* szSource, char const* szResult, UnitTypes eUnit, UnitAITypes eUnitAI, int iOdds, int iValue)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	int iNumAreaCitySites = 0;
+	int iAreaBestFoundValue = -1;
+	int iNumWaterAreaCitySites = 0;
+	int iWaterAreaBestFoundValue = 0;
+	int iSettlerBuildMinFoundValue = 0;
+	bool const bHasBuildSite = SAS_getSettlerBuildSiteStatus(kCity, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue);
+	int iSettlerFloor = 0;
+	int iSettlerFloorMinCities = 0;
+	int iSettlerFloorMaxEra = 0;
+	bool const bSettlerFloorActive = SAS_isSettlerEarlyFoundValueFloorActive(kPlayer, iSettlerFloor, iSettlerFloorMinCities, iSettlerFloorMaxEra);
+	UnitTypes const eProductionUnit = kCity.getProductionUnit();
+	UnitAITypes const eProductionUnitAI = kCity.getProductionUnitAI();
+	logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=%s result=%s unit=%S unitAI=%d odds=%d value=%d hasBuildSite=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d min=%d earlyFloor=%d floorActive=%d floorMinCities=%d floorMaxEra=%d ownerEra=%d totalSettlers=%d trainSettlers=%d cityTrainSettlers=%d numCities=%d pop=%d isCapital=%d danger=%d financial=%d currentProduction=%S currentProductionAI=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), szSource, szResult, eUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eUnit).getDescription(), eUnitAI, iOdds, iValue, bHasBuildSite, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerFloor, bSettlerFloorActive, iSettlerFloorMinCities, iSettlerFloorMaxEra, kPlayer.getCurrentEra(), kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLE), kCity.getNumTrainUnitAI(UNITAI_SETTLE), kPlayer.getNumCities(), kCity.getPopulation(), kCity.isCapital(), kCity.AI_isDanger(), kPlayer.AI_isFinancialTrouble(), eProductionUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eProductionUnit).getDescription(), eProductionUnitAI);
+}
+
+
 CvCityAI::CvCityAI() // advc.003u: Merged with AI_reset
 {
 	FAssert(GC.getNumEmphasizeInfos() > 0);
@@ -1787,12 +1868,8 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
-	int iMinFoundValue = kPlayer.AI_getMinFoundValue();
-	if (bDanger)
-	{
-		iMinFoundValue *= 3;
-		iMinFoundValue /= 2;
-	}
+	int const iMinFoundValue = SAS_getDangerAdjustedMinFoundValue(kPlayer, bDanger);
+	int const iSettlerBuildMinFoundValue = SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger);
 
 	// BBAI TODO: Check that this works to produce early rushes on tight maps
 	if (!bUnitExempt && !bGetBetterUnits && bCapitalArea &&
@@ -2206,7 +2283,7 @@ void CvCityAI::AI_chooseProduction()
 
 	if (!(bDefenseWar && iWarSuccessRating < -50))
 	{
-		if (iAreaBestFoundValue > iMinFoundValue || iWaterAreaBestFoundValue > iMinFoundValue)
+		if (iAreaBestFoundValue > iSettlerBuildMinFoundValue || iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue)
 		{	/*  BBAI TODO: Needs logic to check for early settler builds,
 				settler builds in small cities, whether settler sea exists
 				for water area sites? */
@@ -2255,10 +2332,10 @@ void CvCityAI::AI_chooseProduction()
 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
 				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5 + GPT-5.5-Thinking) -->
-				if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
+				if (gSettlerLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
 				{
-					logBBAI("      City %S first-settler gate: pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlers=%d/%d priority=%d plotSettlers=%d",
-							sCityName, iCityPopulation, bSettlerGateFreeWindow, bSettlerGateStagnant, bSettlerGateDanger, bFinancialTrouble, bSettlerGateDefenseMode, bSettlerGateOffenseMode, bNoSettler, bWorkerReplacesSettler, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
+					logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=first_settler_gate result=CHECK pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d",
+							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCityPopulation, bSettlerGateFreeWindow, bSettlerGateStagnant, bSettlerGateDanger, bFinancialTrouble, bSettlerGateDefenseMode, bSettlerGateOffenseMode, bNoSettler, bWorkerReplacesSettler, iNumAreaCitySites, iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
 				}
 				// <!-- custom: add a no barbarian check and also add our no settler check as well too here cleanly, as first parameter for computational efficiency-->
 				if (!isBarbarian() && !bNoSettler && AI_chooseUnit(UNITAI_SETTLE, //bLandWar ? 50 : -1))
@@ -2267,7 +2344,7 @@ void CvCityAI::AI_chooseProduction()
 					// advc.031b: Replacing the above
 					iSettlerPriority * (bLandWar ? 1 : 2)))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses build settler 1", sCityName);
+					if (gSettlerLogLevel >= 2) logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=build_settler_1 result=CHOSEN areaBest=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iAreaBestFoundValue, iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
 					if (kPlayer.getNumMilitaryUnits() <= iNumCities + 1)
 					{
 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
@@ -3224,7 +3301,7 @@ void CvCityAI::AI_chooseProduction()
 		if (iPlotSettlerCount <= 0 && // advc.031b: Same condition as for "build settler 1"
 			iNumSettlers < iMaxSettlers)
 		{
-			if (!bFinancialTrouble && iAreaBestFoundValue > iMinFoundValue)
+			if (!bFinancialTrouble && iAreaBestFoundValue > iSettlerBuildMinFoundValue)
 			{	// <advc.031b>
 				if(iSettlerPriority <= 0) // "build settler 1" may have already computed it
 				{
@@ -3234,7 +3311,7 @@ void CvCityAI::AI_chooseProduction()
 				if (!isBarbarian() && !bNoSettler && AI_chooseUnit(UNITAI_SETTLE, (iSettlerPriority * 3) / 2))
 				// if (AI_chooseUnit(UNITAI_SETTLE, /* advc.031b: */ (iSettlerPriority * 3) / 2))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses build settler 2", sCityName);
+					if (gSettlerLogLevel >= 2) logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=build_settler_2 result=CHOSEN areaBest=%d waterBest=%d minFound=%d settlerBuildMin=%d settlers=%d/%d priority=%d plotSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iAreaBestFoundValue, iWaterAreaBestFoundValue, iMinFoundValue, iSettlerBuildMinFoundValue, iNumSettlers, iMaxSettlers, iSettlerPriority, iPlotSettlerCount);
 					return;
 				}
 				// <!-- custom: also add a barbarian check here (with also our worker replaces settler new logic too) as our logic doesn't apply to barbarians as well at least not as of now-->
@@ -3602,12 +3679,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 
 	const int iNumCities = kOwner.getNumCities();
 
-	int iDummy=-1;
-	if (!bFinancialTrouble && (bPrimaryArea ?
-		//kOwner.findBestFoundValue() > 0 : getArea().getBestFoundValue(getOwner()) > 0
-		// <advc.opt>
-		kOwner.AI_getNumCitySites() > 0 :
-		kOwner.AI_getNumAreaCitySites(getArea(), iDummy) > 0)) // </advc.opt>
+	int iSettlerAreaBestFoundValue = -1;
+	int iSettlerWaterBestFoundValue = 0;
+	int iSettlerBuildMinFoundValue = 0;
+	if (!bFinancialTrouble && SAS_isSettlerBuildWorthwhile(*this, iSettlerAreaBestFoundValue, iSettlerWaterBestFoundValue, iSettlerBuildMinFoundValue))
 	{
 		aiUnitAIVal[UNITAI_SETTLE]++;
 	}
@@ -4210,10 +4285,24 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 		{
 			aiUnitAIVal[UNITAI_SETTLE] = 0;
 		}
+
+		int iSettlerAreaBestFoundValue = -1;
+		int iSettlerWaterBestFoundValue = 0;
+		int iSettlerBuildMinFoundValue = 0;
+		if (aiUnitAIVal[UNITAI_SETTLE] > 0 && !SAS_isSettlerBuildWorthwhile(*this, iSettlerAreaBestFoundValue, iSettlerWaterBestFoundValue, iSettlerBuildMinFoundValue))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_bestUnit_value", "REJECT_MIN_FOUND_VALUE", NO_UNIT, UNITAI_SETTLE, -1, aiUnitAIVal[UNITAI_SETTLE]);
+			aiUnitAIVal[UNITAI_SETTLE] = 0;
+		}
+		else if (aiUnitAIVal[UNITAI_SETTLE] > 0 && gSettlerLogLevel >= 3)
+		{
+			SAS_logSettlerBuildDecision(*this, "AI_bestUnit_value", "VALUE_ALLOWED", NO_UNIT, UNITAI_SETTLE, -1, aiUnitAIVal[UNITAI_SETTLE]);
+		}
 	}
 
 	int iBestValue = 0;
 	UnitTypes eBestUnit = NO_UNIT;
+	UnitAITypes eBestUnitAI = NO_UNITAI;
 
 	FOR_EACH_ENUM(UnitAI)
 	{
@@ -4232,11 +4321,14 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
 			{
 				iBestValue = aiUnitAIVal[eLoopUnitAI];
 				eBestUnit = eUnit;
+				eBestUnitAI = eLoopUnitAI;
 				if (peBestUnitAI != NULL)
 					*peBestUnitAI = eLoopUnitAI;
 			}
 		}
 	}
+	if (eBestUnitAI == UNITAI_SETTLE && gSettlerLogLevel >= 2)
+		SAS_logSettlerBuildDecision(*this, "AI_bestUnit", eBestUnit == NO_UNIT ? "NO_UNIT" : "BEST_UNIT", eBestUnit, eBestUnitAI, -1, iBestValue);
 	return eBestUnit;
 }
 
@@ -4544,6 +4636,8 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
 		}
 	}
 
+	if (eUnitAI == UNITAI_SETTLE && gSettlerLogLevel >= 2)
+		SAS_logSettlerBuildDecision(*this, "AI_bestUnitAI", eBestUnit == NO_UNIT ? "NO_UNIT" : "BEST_UNIT", eBestUnit, eUnitAI, -1, iBestValue);
 	return eBestUnit;
 }
 
@@ -12175,25 +12269,35 @@ void CvCityAI::AI_doEmphasize()
 
 bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 {
+	// <!-- custom: Production-side Settler diagnostics belong to the Settler log category, not the broad city log, so tests with only SAS_BBAI_SETTLER_LOG_LEVEL enabled still show which high- or low-level unit choice path tried to train a Settler. Callers still own the log-level guard before this formatter is invoked. (GPT-5.5-Thinking) -->
+	const bool bRequestedSettler = (eUnitAI == UNITAI_SETTLE);
+	if (bRequestedSettler)
+	{
+		int iSettlerAreaBestFoundValue = -1;
+		int iSettlerWaterBestFoundValue = 0;
+		int iSettlerBuildMinFoundValue = 0;
+		if (!SAS_isSettlerBuildWorthwhile(*this, iSettlerAreaBestFoundValue, iSettlerWaterBestFoundValue, iSettlerBuildMinFoundValue))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_requested", "REJECT_MIN_FOUND_VALUE", NO_UNIT, eUnitAI, iOdds, -1);
+			return false;
+		}
+		if (gSettlerLogLevel >= 3) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_requested", "REQUEST_ALLOWED", NO_UNIT, eUnitAI, iOdds, -1);
+	}
+
 	UnitTypes eBestUnit;
 	if (eUnitAI != NO_UNITAI)
 		eBestUnit = AI_bestUnitAI(eUnitAI);
 	else eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
 
+	const bool bResolvedSettler = (eUnitAI == UNITAI_SETTLE);
+	if (bResolvedSettler && gSettlerLogLevel >= 2)
+		SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", eBestUnit == NO_UNIT ? "NO_BEST_UNIT" : "BEST_UNIT", eBestUnit, eUnitAI, iOdds, -1);
+
 	// <!-- custom: performance optimization: cache repetitive calls -->
 	CvGame const& kGame = GC.getGame();
-	// <!-- custom: Settler diagnostics use the same city-log gate several times; cache the combined condition so non-settler calls avoid repeated log-level checks and all settler logs stay category-gated. (GPT-5.5) -->
-	const bool bLogSettler = (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2);
-
-	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5 + GPT-5.5-Thinking) -->
-	if (bLogSettler)
-	{
-		logBBAI("      City %S settler chooseUnit: bestUnit=%S odds=%d totalSettlers=%d",
-				getName().GetCString(), eBestUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eBestUnit).getDescription(), iOdds, GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_SETTLE));
-	}
 
 	if (eBestUnit != NO_UNIT)
-	{	// <advc.033> Don't build outdated pirates
+	{   // <advc.033> Don't build outdated pirates
 		if(!isBarbarian() && eUnitAI == UNITAI_PIRATE_SEA)
 		{
 			TechTypes eTech = GC.getInfo(eBestUnit).getPrereqAndTech();
@@ -12209,28 +12313,24 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			SyncRandNum(100) < iOdds)*/ // BtS
 		// K-Mod. boost the odds based on our completion percentage.
 		if (iOdds < 0 || SyncRandSuccess100(iOdds +
-			/*	advc.131: Coefficient was 100. Should we re-roll at all once
-				production has been started? Same issue in AI_chooseBuilding. */
-			(250 * getUnitProduction(eBestUnit)) /
-			std::max(1, getProductionNeeded(eBestUnit)))) // K-Mod end
+			/*  advc.131: Coefficient was 100. Should we re-roll at all once production has been started? Same issue in AI_chooseBuilding. */
+			(250 * getUnitProduction(eBestUnit)) / std::max(1, getProductionNeeded(eBestUnit)))) // K-Mod end
 		{
+			if (bResolvedSettler && gSettlerLogLevel >= 2)
+				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CALL_CONCRETE", eBestUnit, eUnitAI, iOdds, -1);
 			// <!-- custom: avoid redundance, call same function instead, also so we can tweak it there only once, much cleaner; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate -->
 			// pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
 			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
-			if (!bChosen && bLogSettler)
-				logBBAI("      City %S settler chooseUnit rejected concrete unit %S", getName().GetCString(), GC.getInfo(eBestUnit).getDescription());
+			if (!bChosen && bResolvedSettler && gSettlerLogLevel >= 2)
+				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CONCRETE_REJECTED", eBestUnit, eUnitAI, iOdds, -1);
 			return bChosen;
 		}
-		else if (bLogSettler)
+		else if (bResolvedSettler && gSettlerLogLevel >= 2)
 		{
-			logBBAI("      City %S settler chooseUnit rejected by random odds", getName().GetCString());
+			SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "REJECT_RANDOM_ODDS", eBestUnit, eUnitAI, iOdds, -1);
 		}
-	}
-	else if (bLogSettler)
-	{
-		logBBAI("      City %S settler chooseUnit rejected: AI_bestUnitAI returned NO_UNIT", getName().GetCString());
 	}
 
 	return false;
@@ -12517,6 +12617,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 
 bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
+	if (SAS_isSettlerProductionCandidate(eUnit, eUnitAI) && gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "CANDIDATE", eUnit, eUnitAI, -1, -1);
 	if (eUnit != NO_UNIT)
 	{
 		// <!-- custom: see known issue 53.2.2 for related info or related code in this function on why we'd want to change unit here-->
@@ -13305,27 +13406,27 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						int iMaxUnits = 1;
 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
 						const bool bEarlyExpansionSettler = (iNumCities < 3 && iTotalUnitAIs <= 0);
-						// <!-- custom: Same local settler-log gate as the UnitAITypes overload; this concrete-unit branch already knows it is handling UNITAI_SETTLE. (GPT-5.5) -->
-						const bool bLogSettler = (gCityLogLevel >= 2);
+						// <!-- custom: Same Settler-log gate as the UnitAITypes overload; this concrete-unit branch already knows it is handling UNITAI_SETTLE. (GPT-5.5-Thinking) -->
+						const bool bLogSettler = (gSettlerLogLevel >= 2);
 
 						if (bLogSettler)
 						{
-							logBBAI("      City %S settler land-unit gate: atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d maxSettlers=%d",
-									getName().GetCString(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs, iMaxUnits);
+							logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=AI_bestUnit_land_settler_gate result=CHECK atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d maxSettlers=%d numCities=%d",
+									GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs, iMaxUnits, kPlayer.getNumCities());
 						}
 
 						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5 + GPT-5.5-Thinking) -->
 						if (bAtWar || bEnemyStrong || bDanger || (bWarPlan && !bEarlyExpansionSettler))
 						{
 							if (bLogSettler)
-								logBBAI("      City %S rejects settler in AI_chooseUnit: threat gate", getName().GetCString());
+								logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=AI_bestUnit_land_settler_gate result=REJECT_THREAT atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs);
 							return false;
 						}
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
 							if (bLogSettler)
-								logBBAI("      City %S rejects settler in AI_chooseUnit: settler cap %d/%d", getName().GetCString(), iTotalUnitAIs, iMaxUnits);
+								logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=AI_bestUnit_land_settler_gate result=REJECT_SETTLER_CAP totalSettlers=%d maxSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits);
 							return false;
 						}
 					}
@@ -13455,6 +13556,21 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
+			if (SAS_isSettlerProductionCandidate(eChangedUnit, eChangedUnitAI))
+			{
+				// <!-- custom: Central AI Settler production gate, deliberately placed immediately before pushOrder. Higher-level code may skip weak Settler candidates for efficiency, but this pre-push check is the normal safety net for direct or future AI_chooseUnit paths after the concrete unit has been resolved.
+				// This complements older SAS anti-waste Settler rules by refusing early/midgame production for poor remaining sites: a small compact AI may be better off growing, defending, or attacking than splitting hammers and escorts into a far, slow, maintenance-heavy filler city.
+				// Do not move this to canTrain unless we intentionally want to make the unit strategically illegal rather than merely a bad AI production choice. (ChatGPT-5.5) -->
+				int iSettlerAreaBestFoundValue = -1;
+				int iSettlerWaterBestFoundValue = 0;
+				int iSettlerBuildMinFoundValue = 0;
+				if (!SAS_isSettlerBuildWorthwhile(*this, iSettlerAreaBestFoundValue, iSettlerWaterBestFoundValue, iSettlerBuildMinFoundValue))
+				{
+					if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "VETO_PRE_PUSH", eChangedUnit, eChangedUnitAI, -1, -1);
+					return false;
+				}
+				if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "PUSH_ORDER", eChangedUnit, eChangedUnitAI, -1, -1);
+			}
 			if (gWorkerSeaLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
 			{
 				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());

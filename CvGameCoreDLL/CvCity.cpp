@@ -941,24 +941,29 @@ void CvCity::doTurn()
 
 					if (bHaveAnyFallbackUnit)
 					{
-						// only if something unusable is there
-						const bool bReplaceHead = (!bQueueEmpty);
-						// and Python maps bAppend → iPosition via:
-						// bAppend == true → iPosition = -1 (append)
-						// bAppend == false → iPosition = 0 (insert at head)
-						// So in C++ you should comment the arg as /*iPosition=*/..., not /*bAppend=*/....
-						//
-						// make it the head so it starts immediately next turn
-						pushOrder(ORDER_TRAIN,
-								ePick,
-								ePickAI,
-								/*bSave=*/false,
-								/*bPop=*/bReplaceHead,
-								/*iPosition=*/0,
-								/*bForce=*/false);
+						// <!-- custom: This emergency no-production fallback bypasses CvCityAI::AI_chooseUnit(UnitTypes, UnitAITypes) and directly queues a unit. It must therefore remain restricted to safe fallback military choices, or any future civilian/Settler fallback added here must call the same AI Settler production veto before pushOrder. Otherwise weak Settlers could bypass the central AI_chooseUnit gate. (ChatGPT-5.5) -->
+						FAssertMsg(ePickAI != UNITAI_SETTLE, "No-production fallback must not bypass the AI Settler production gate.");
+						if (ePickAI != UNITAI_SETTLE)
+						{
+							// only if something unusable is there
+							const bool bReplaceHead = (!bQueueEmpty);
+							// and Python maps bAppend → iPosition via:
+							// bAppend == true → iPosition = -1 (append)
+							// bAppend == false → iPosition = 0 (insert at head)
+							// So in C++ you should comment the arg as /*iPosition=*/..., not /*bAppend=*/....
+							//
+							// make it the head so it starts immediately next turn
+							pushOrder(ORDER_TRAIN,
+									ePick,
+									ePickAI,
+									/*bSave=*/false,
+									/*bPop=*/bReplaceHead,
+									/*iPosition=*/0,
+									/*bForce=*/false);
 
-						// critical: stop the chooser from clearing this emergency order next turn
-						setChooseProductionDirty(false);
+							// critical: stop the chooser from clearing this emergency order next turn
+							setChooseProductionDirty(false);
+						}
 					}
 				}
 				// <!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->

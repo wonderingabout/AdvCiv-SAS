@@ -1240,6 +1240,22 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
+	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
+	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE</DefineName>
+		<iDefineIntVal>2000</iDefineIntVal>
+	</Define>
+	<!-- custom: City-count threshold before the early/midgame Settler found-value floor applies. The starting Settler is unaffected; the default applies the floor to every trained early/midgame Settler after the capital exists, so a one-city AI does not spend on a very poor second city merely to avoid being cramped. A compact AI with only weak expansion sites may have a better chance by growing, defending, or attempting a military breakout than by spending limited tempo on a weak second city. Raise this value to leave more early expansion to normal AdvCiv valuation. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Highest player era index where the early/midgame Settler found-value floor applies; default 2 corresponds to Medieval in the normal Civ4 era order, so Renaissance+ expansion returns to normal AdvCiv valuation. Set to -1 to ignore era and keep the floor active whenever the city-count threshold is met. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>

@@ -219,6 +219,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)\
 [179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
 [180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed)\
+[181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6629,3 +6630,52 @@ The fix now has two parts:
 Follow-up T130 testing (`BBAI_20260711T180850Z_load1.log` and `SASGameSummary_20260711T180850Z_load1.log`) then founded stronger Zulu cities: Nobamba at `(13,35)`, Bulawayo at `(10,41)`, and later captured Barbarian Aryan at `(7,45)` with Horse, Deer, and Silver; Shaka reached rank 2 by turn 130 in that run.
 
 Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1iHkB2ZEeP2oMB_ofe7nhCj4LS9TfQflA?usp=sharing).
+
+Follow-up testing after KI#179 and KI#180 showed that the exposed-Settler and weak-current-plot fixes were not enough by themselves. Those changes made Settlers safer and better at choosing among reachable sites once they existed, but the AI could still train a new early/midgame Settler when only a very weak remaining city site was available.
+
+This is in the same spirit as older AdvCiv-SAS Settler-production changes that tried to avoid wasting early production on weak expansion: keep early Settlers tied to strong cities and worthwhile sites, and let the AI grow, defend, or attack when expansion would only spread it thin.
+
+The clearest example was Paris in the save-file 450 follow-up logs. In the earlier `BBAI_20260711T194838Z_load1.log` run, France already had four cities when Paris still trained weak extra Settlers for remaining sites valued only around 1544-1823:
+
+```text
+SETTLER_BUILD_DECISION turn=85 player=4 French Empire city=Paris ... areaBest=1544 min=1000 numCities=4
+SETTLER_BUILD_DECISION turn=98 player=4 French Empire city=Paris ... areaBest=1823 min=1000 numCities=4
+SETTLER_PARKED turn=101 player=4 French Empire reason=RETREAT_TO_CITY_NO_FOUND_ACTION ... areaBestFoundValue=0 otherBestFoundValue=1822 bestReachableValue=0
+```
+
+In that run, the Settler then remained parked while France lost momentum and nearby space changed; Charlemagne later founded Ulm at `(45,49)` after France had already been weakened. A later diagnostic run (`BBAI_20260711T202524Z_load1.log`) exposed the same production-side weakness with more explicit floor fields: the early floor existed but was inactive because the threshold was still `floorMinCities=3`, so Paris could accept `areaBest=1341` while France had two cities:
+
+```text
+SETTLER_BUILD_DECISION turn=118 player=4 French Empire city=Paris ... areaBest=1341 min=607 earlyFloor=2000 floorActive=0 floorMinCities=3 ownerEra=2 numCities=2
+```
+
+These sites were legal and technically above the normal minimum, but they were the wrong strategic response: they were tundra/snow-heavy filler sites unlikely to grow or produce much soon, while still costing hammers, growth, an escort, maintenance, Settler build time, and military tempo. Such cities can make the AI worse by spreading its limited potential and thinning defenses before the new city can repay the investment. In such a position, a compact AI can be better off growing, defending, or attempting a military breakout rather than forcing a poor extra city just to avoid being cramped.
+
+This has been fixed/improved by adding an optional early/midgame Settler production found-value floor:
+
+```xml
+SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE
+SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES
+SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MAX_ERA
+```
+
+With the current defaults, every trained early/midgame Settler after the starting capital exists must have a sufficiently valuable site. The rule is deliberately an AI build-choice gate, not a `canTrain` rule: Settlers remain legal for humans, scripts, existing queues, existing Settlers, and late opportunistic expansion.
+
+Implementation notes:
+
+- `SAS_getSettlerBuildMinFoundValue` combines the normal danger-adjusted `AI_getMinFoundValue` with the optional early/midgame floor.
+- `SAS_isSettlerBuildWorthwhile` checks both same-area and adjacent-water-area city-site values against that threshold.
+- High-level city-production paths use the helper to avoid wasting candidate scoring on weak Settlers.
+- The concrete `CvCityAI::AI_chooseUnit(UnitTypes, UnitAITypes)` path now has a final pre-`pushOrder` safety veto for Settlers, so normal AI unit-production paths cannot queue a weak Settler after resolving a concrete unit.
+- `CvCity::doTurn` emergency no-production fallback is documented/asserted as a bypass of `AI_chooseUnit`; it must stay restricted to safe non-Settler fallback units unless it explicitly calls the same Settler production veto.
+- `SETTLER_BUILD_DECISION` BBAI logging records the active floor, city count threshold, era window, chosen/rejected result, site values, and current Settler counts.
+
+Retesting with `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES=1` in `BBAI_20260711T213207Z_load1.log` showed the intended behavior: Paris still built Settlers for strong sites (`areaBest` values such as 4380, 3671, and 3344), but no longer spent on the weak late snow/filler site; Carthage's marginal `areaBest` values around 1844-1854 were rejected against the 2000 floor. The final pre-push gate did not need to fire in that sample, which suggests the normal requested path already rejected the bad choices, while the concrete gate remains as a future-proof safety net.
+
+A separate stale-Settler problem can still happen when a valid site exists when the Settler is created but later disappears or becomes invalid/reachable value 0. That is not fully solved by this production floor and should be treated as a distinct stale-Settler cleanup issue if it remains important.
+
+Fixed/improved with the help of ChatGPT-5.5 thanks.
