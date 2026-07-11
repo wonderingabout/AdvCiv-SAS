@@ -216,6 +216,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [175 - (Fixed) Base AdvCiv bug: Barbarian Workers in `CvUnitAI::AI_workerMove` repeatedly retreated to the safe owned city they already occupied](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#175---fixed-base-advciv-bug-barbarian-workers-in-cvunitaiai_workermove-repeatedly-retreated-to-the-safe-owned-city-they-already-occupied)\
 [176 - (Fixed) Base AdvCiv/K-Mod mission-queue bug exposed by AdvCiv-SAS Worker follow-up improvements: stale AI Worker build target could execute on the wrong plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot)\
 [177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites)\
+[178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)\
+[179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -2860,6 +2862,8 @@ Hopefully clearer/saner less frustration generating/inducing xd, also i find it 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Eip4H2dji_1fxmw2HmShhoa_1I4JnISF?usp=sharing).
 
 For some reason we were very slow to produce our first settler after the change, but after we had our first settler, 2nd spain AI city was founded soon after which is nice and addresses this issue: we now have 3 cities at turn 100, and so do other ais more or less as well, which seems like a nice and quite safe enhancement since cities seem guarded more than enough (2 units per city it seems) but check to be sure as i only glanced through autoplay
+
+Update after [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts): the anti-parking goal remains valid, but the old broad early "go settle anyway" safety override was too blunt. Save file 450 later showed it could allow an exposed post-capital city to be founded without an escort and razed shortly afterward. That path has now been replaced by guarded-Settler behavior: reassign a healthy city defender as escort when the donor city can keep enough remaining healthy defenders, otherwise wait/retreat instead of sending a lone exposed Settler.
 
 ## 69 - (Tremendously Improved) AI going for great general leaders, while military instructors are much better (with added logic to favour top hammer cities, remove military instructor per city limit, favour it further if have or building heroic epic effect building, etc.)
 
@@ -6555,3 +6559,50 @@ Player 48 (Barbarians) founds new city Hittite at 13, 35
 The same run also showed that the new Zulu western city Nobamba at `(9,45)` was a strong enough site on paper, with Maize, Deer, Silver, Copper, lots of Grassland, and four hills, but it was conquered and razed by Barbarians three turns later. That result is a defense/history issue, not evidence that the city-site valuation itself rejected the west.
 
 Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1PQJr5edJPJPtby_-FgFU-JSQSb4VUfkh?usp=sharing).
+
+After the Nobamba observation in KI#178, BBAI and SASGameSummary testing from save file 450 exposed a settler-safety failure: an AI could found a valuable but exposed post-capital city without a military defender in the Settler group. The clearest original case was Shaka founding western Nobamba near Barbarians without a defender; Barbarians captured and razed it shortly afterward. The city site itself was strong enough on paper, so this was not a city-site valuation failure.
+
+The risky path came from an earlier AdvCiv-SAS anti-parking / early-expansion override added for the KI#68 problem: AIs could have a Settler parked in the capital around turn 45 at Normal speed and still have only their capital around turn 100 despite safe enough candidate sites. That old override had good intent and did improve one-city stagnation, but it was too blunt: it could treat some early post-capital settling as safe before the normal escort logic had produced a guarded group. KI#179 therefore keeps the anti-parking objective but replaces the unsafe shortcut with explicit guarded-Settler behavior.
+
+This has been fixed/improved by replacing that reckless early-settling path with guarded-Settler behavior:
+
+- post-capital Settlers should not found or continue exposed expansion unless the group can defend or an existing guard-city mission covers the site;
+- a Settler parked in one of its own cities can reassign one healthy local defender as escort before evaluating exposed expansion;
+- the donor city must keep at least the configured remaining healthy defenders after losing the escort;
+- direct found-in-place and found-follow mission paths are guarded too, not only the normal city-site loop;
+- detailed BBAI logging now records Settler parking, city escort pools, escort attachment, blocked founding, and mission-push decisions;
+- SASGameSummary now records per-city unit counts and Settler-group combat rows so autoplay reviews can distinguish "founded empty" from "founded guarded, then later attacked".
+
+The follow-up BBAI log showed the new wait-then-reassign-escort behavior. Carthage initially kept its Settler parked because the city had no spare healthy escort after the remaining-defenders check, then attached a Longbowman once that became safe enough and moved the Settler as a defended group:
+
+```log
+SETTLER_PARKED turn=24 player=10 Carthaginian Empire reason=WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE ... cityHealthyDefenders=2 cityNeededDefenders=3 citySpareDefenders=-1
+SETTLER_ATTACH_CITY_ESCORT turn=29 player=10 Carthaginian Empire city=Carthage ... escortUnit=UNIT_LONGBOWMAN ... oldSettlerGroupUnits=1 newSettlerGroupUnits=2
+SETTLER_MISSION_DECISION turn=29 player=10 Carthaginian Empire action=PUSH_MOVE_TO_FOUND ... groupUnits=2 groupDefenders=1 groupHealthyDefenders=1 groupCanDefend=1
+```
+
+The same save-file family also showed the intended Zulu behavior after the fix. uMgungundlovu was founded with an Archer escort, and the later Nobamba replay did not repeat the old empty-city razing pattern:
+
+```log
+SETTLER_MISSION_DECISION turn=32 player=7 Zulu Empire action=PUSH_MOVE_TO_FOUND ... target=(17,40) ... groupUnits=2 groupDefenders=1 groupHealthyDefenders=1 groupCanDefend=1
+Player 7 (Zulu Empire) founds new city uMgungundlovu at 17, 40
+GAME_SUMMARY_CITY_UNITS turn=59 reason=built player=7 city=Nobamba ... militaryUnits=2 defenders=2 healthyDefenders=2 settlers=1
+GAME_SUMMARY_CITY turn=130 player=7 city=Nobamba ... garrison=2 cityUnits=2 militaryUnits=2 defenders=2 healthyDefenders=2
+```
+
+Validation so far:
+
+- follow-up BBAI logs from save file 450 showed exposed Settlers waiting when no spare escort was available, then moving once a defender was attached;
+- guarded Settler groups were logged with `groupDefenders>=1` and `groupCanDefend=1` before moving to or founding exposed sites;
+- donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
+- the follow-up game-summary log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
+
+Remaining risk:
+
+This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
+
+Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.

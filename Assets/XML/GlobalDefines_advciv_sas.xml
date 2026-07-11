@@ -1191,11 +1191,6 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Long_Comments_XML.txt #196 -->
-	<Define>
-		<DefineName>SAS_AI_FOUND_OPTIMIZE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
@@ -1221,15 +1216,20 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
-	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
+	<!-- custom: Block exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
-	</Define>
-	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do) -->
-	<Define>
-		<DefineName>SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
+		<DefineName>SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: When an unescorted Settler is parked in one of its own cities, allow the AI to reassign one healthy local defender as escort before evaluating exposed expansion. This is not a temporary loan: the unit joins the Settler group. Save-file 450 BBAI testing showed this prevents freezing expansion while avoiding lone exposed Settlers. `AI_neededDefenders` can be conservative for this specific choice; the practical rule is the tunable remaining-defenders value below, e.g. at 2, a city with 3 healthy defenders can reassign 1 escort and keep 2. Delaying a guarded Settler can lose contested city sites and early growth snowball. See KI#179. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum healthy city defenders to keep behind after reassigning one local defender as escort for an unescorted Settler; if `healthy defenders - 1 < this value`, the Settler waits instead. This remaining-defenders value is the practical safety check even when `AI_neededDefenders` says there is no formal spare defender: a city left with e.g. 2 healthy defenders should usually be safe enough, while founding a guarded city sooner is strategically stronger than parking the Settler indefinitely. See KI#179. (ChatGPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>

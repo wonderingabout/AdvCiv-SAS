@@ -153,7 +153,7 @@ struct SASSettlerCityEscortPool
 	int iCityNeededDefenders;
 	int iCitySpareDefenders;
 	int iEscortCandidates;
-	CvUnit const* pBestEscort;
+	CvUnit* pBestEscort;
 	CvString szUnitList;
 	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
 };
@@ -170,7 +170,7 @@ static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettle
 	int iLoggedUnits = 0;
 	for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
 	{
-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
 		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
 			continue;
 		kPool.iCityUnits++;
@@ -306,6 +306,56 @@ static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int 
 		logBBAI("    SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
 			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, kCityPool.szUnitList.empty() ? "-" : kCityPool.szUnitList.GetCString());
 	}
+}
+
+// <!-- custom: Settler escort behavior uses the diagnostic city-unit pool to reassign one local healthy defender as escort before allowing exposed expansion. This is not a temporary loan: the unit joins the Settler group.
+// `AI_neededDefenders` can be conservative for this specific expansion choice; the practical rule is the tunable remaining-defenders value, e.g. at 2, a city with 3 healthy defenders can reassign 1 escort and keep 2. Delaying a guarded Settler can lose contested city sites and early growth snowball.
+// Save-file 450 BBAI testing showed this fixed the Nobamba-style exposed-founding failure without restoring the old reckless lone-Settler override. See KI#179. (ChatGPT-5.5) -->
+static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eMoveFlags)
+{
+	CvSelectionGroup* pSettlerGroup = kSettler.getGroup();
+	if (pSettlerGroup == NULL || pSettlerGroup->canDefend())
+		return false;
+	SASSettlerCityEscortPool kPool;
+	SAS_collectSettlerCityEscortPool(kSettler, kPool);
+	static const int iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT");
+	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT)
+		return false;
+	CvUnit* pEscort = kPool.pBestEscort;
+	int const iOldGroupUnits = pSettlerGroup->getNumUnits();
+	int const iOldEscortGroupId = (pEscort->getGroup() == NULL ? -1 : pEscort->getGroup()->getID());
+	int const iOldEscortGroupUnits = (pEscort->getGroup() == NULL ? 0 : pEscort->getGroup()->getNumUnits());
+	pEscort->joinGroup(pSettlerGroup);
+	if (gSettlerLogLevel >= 2)
+	{
+		logBBAI("    SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d %S city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
+			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), kPool.pCity->getName().GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(), SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(), pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits, kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates, iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
+		SAS_logSettlerParking(kSettler, "ATTACHED_CITY_ESCORT", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+	}
+	return pSettlerGroup->canDefend();
+}
+
+// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site. See KI#179. (ChatGPT-5.5) -->
+static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroup const* pGroup = kSettler.getGroup();
+	if (kOwner.getNumCities() <= 0 || pGroup == NULL || pGroup->canDefend() || kSettler.getInvisibleType() != NO_INVISIBLE)
+		return false;
+	return kTargetPlot.getOwner() != kSettler.getOwner();
+}
+
+static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& kSettler, CvPlot const* pTargetPlot, CvPlot const* pEndTurnPlot, int iFoundValue, int iPathTurns, char const* szReason)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupHealthyDefenders = 0;
+	int iGroupSettlers = 0;
+	SAS_countSettlerGroupUnits(pGroup, iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
+	logBBAI("    SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), szAction, szReason, kSettler.getID(), kSettler.getX(), kSettler.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), (pTargetPlot == NULL ? NO_PLAYER : pTargetPlot->getOwner()), iFoundValue, iPathTurns, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), kOwner.AI_getPlotDanger(kSettler.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
 }
 
 // <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
@@ -3595,9 +3645,21 @@ void CvUnitAI::AI_settleMove()
 		{
 			if (at(kSite) && canFound(plot()))
 			{
-				if (gSettlerLogLevel >= 2) logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
-				getGroup()->pushMission(MISSION_FOUND);
-				return;
+				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
+				{
+					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
+				}
+				else
+				{
+					if (gSettlerLogLevel >= 2)
+					{
+						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
+						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_SETTLE_MOVE_AT_SITE");
+					}
+					getGroup()->pushMission(MISSION_FOUND);
+					return;
+				}
 			}
 			// K-Mod. If we are already heading to this site, then keep going.
 			// (disabled. This is no longer required - I hope.)
@@ -3689,9 +3751,7 @@ void CvUnitAI::AI_settleMove()
 	} */ /* BtS - disabled by K-Mod. Let them risk moving an undefended settler..
 			there are other checks in place to help them. */
 
-	if (getPlot().isCity() && getPlot().getOwner() == getOwner() &&
-		bDanger && GC.getGame().getMaxCityElimination() > 0 &&
-		getGroup()->getNumUnits() < 3)
+	if (getPlot().isCity() && getPlot().getOwner() == getOwner() && bDanger && GC.getGame().getMaxCityElimination() > 0 && getGroup()->getNumUnits() < 3)
 	{
 		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_DANGER_MAX_CITY_ELIMINATION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		getGroup()->pushMission(MISSION_SKIP);
@@ -3701,6 +3761,33 @@ void CvUnitAI::AI_settleMove()
 	{
 		if (AI_found(eMoveFlags))
 			return;
+	}
+	// <!-- custom: Let AI_found make the actual city-site decision first; only park or retreat an unescorted Settler after all currently allowed found missions have been rejected. Save-file 450 follow-up logs showed this keeps guarded city founding moving while cities that cannot keep enough healthy defenders after giving one to the Settler wait instead of sending lone exposed Settlers. See KI#179. (ChatGPT-5.5) -->
+	static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+	if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
+	{
+		if (getPlot().isCity() && getPlot().getOwner() == getOwner() && iAreaBestFoundValue > 0)
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+			getGroup()->pushMission(MISSION_SKIP);
+			return;
+		}
+		if (getPlot().getOwner() != getOwner() || bDanger)
+		{
+			if (AI_retreatToCity())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+				return;
+			}
+			if (AI_safety())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+				return;
+			}
+			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+			getGroup()->pushMission(MISSION_SKIP);
+			return;
+		}
 	}
 	// <advc.040>
 	if(bMoveToCoast && AI_moveSettlerToCoast())
@@ -18905,26 +18992,18 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pBestFoundPlot = NULL;
 	int iBestFoundValue = 0;
+	int iBestPathTurns = -1;
 	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
 
-	// <!-- custom: AI has settler parked in capital at turn ~45 (normal speed), still only 1 city at turn 100 in autoplay. Candidate city sites were safe enough; relaxing restrictions. Credit: Claude Sonnet 4.5; ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
-	// Looking at your issue, the AI settler is getting stuck in the capital because the safety check is too strict.
-	// Solution 1: Time-Based Override (Easiest)
-	// Add a grace period where safety is ignored early game
-	// Solution 2: Conditional Safety (Better)
-	// Only require safety after the first city
-	bool const bSafe = (getGroup()->canDefend() ||
-	 		getInvisibleType() != NO_INVISIBLE); // advc.057b
-	static const bool bSAS_AI_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_AI_FOUND_OPTIMIZE");
-	static const int iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL");
-	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
-	const int iEarlyCutoff = (iSAS_AI_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
-	const int iCurrentTurn = kGame.getGameTurn();
-	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
-	static const int iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES");
-	const bool bNotEnoughCities = kOwner.getNumCities() <= iSAS_AI_FOUND_BSAFE_IGNORE_NUM_CITIES; // Always allow 2nd city
-	const bool bSafeOverride = (bSAS_AI_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
-	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
+	// <!-- custom: Try to form a defended Settler group before evaluating city-site missions. Save-file 450 BBAI testing showed cities with enough remaining healthy defenders can reassign one defender as escort, while cities below that threshold wait rather than send exposed lone Settlers. See KI#179. (ChatGPT-5.5) -->
+	static const bool bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE");
+	if (bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE && kOwner.getNumCities() > 0 && getPlot().isCity() && getPlot().getOwner() == getOwner() && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
+	{
+		SAS_tryAttachCityEscortToSettler(*this, 0, 0, kOwner.AI_isAnyPlotDanger(getPlot()), eFlags);
+	}
+
+	// <!-- custom: Remove the old AdvCiv-SAS empirical early-city bSafe override; exposed expansion now depends on a defended group, an existing guard-city mission, or a local escort attached above. Save-file 450 BBAI testing showed the old override could produce an empty Nobamba razed by Barbarians; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
+	bool const bSafe = (getGroup()->canDefend() || getInvisibleType() != NO_INVISIBLE); // advc.057b
 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
 	{
 		CvPlot& kSite = kOwner.AI_getCitySite(i);
@@ -18936,16 +19015,14 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 				!kOwner.AI_isAnyPlotTargetMissionAI(
 				kSite, MISSIONAI_FOUND, getGroup()))
 			{
-				if (bGoSettleAnyway ||
-					kOwner.AI_isAnyPlotTargetMissionAI(
-					kSite, MISSIONAI_GUARD_CITY))
+				if (bSafe || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_GUARD_CITY))
 				{
 					int iPathTurns;
 					if (generatePath(kSite, eFlags, true, &iPathTurns))
 					{
 						if (!kSite.isVisible(getTeam()) || // K-Mod
 							!kSite.isVisibleEnemyUnit(this) ||
-							(iPathTurns > 1 && bGoSettleAnyway)) // K-Mod
+							(iPathTurns > 1 && bSafe)) // K-Mod
 						{
 							int iValue = kSite.getFoundValue(getOwner());
 							// <advc.052>
@@ -18958,12 +19035,13 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 							} // </advc.052>
 							iValue *= 1000;
 							//iValue /= (iPathTurns + 1);
-							iValue /= iPathTurns + (bGoSettleAnyway ? 4 : 1); // K-Mod
+							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
 							if (iValue > iBestFoundValue)
 							{
 								iBestFoundValue = iValue;
 								pBestPlot = &getPathEndTurnPlot();
 								pBestFoundPlot = &kSite;
+								iBestPathTurns = iPathTurns;
 							}
 						}
 					}
@@ -18975,14 +19053,22 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 		return false;
 	if (at(*pBestFoundPlot))
 	{
-		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+			SAS_logSettlerMissionDecision("PUSH_FOUND", *this, pBestFoundPlot, pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), 0, "AI_FOUND_AT_SITE");
+		}
 		getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
 	}
 	else
 	{
-		if (gSettlerLogLevel >= 2) logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+			SAS_logSettlerMissionDecision("PUSH_MOVE_TO_FOUND", *this, pBestFoundPlot, pBestPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, "AI_FOUND_MOVE");
+		}
 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
 				MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
@@ -19003,7 +19089,17 @@ bool CvUnitAI::AI_foundFollow()
 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
-		if (gSettlerLogLevel >= 2) logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
+			return false;
+		}
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_FOUND_FOLLOW");
+		}
 		getGroup()->pushMission(MISSION_FOUND);
 		return true;
 	}

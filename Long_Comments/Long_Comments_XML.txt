@@ -3313,6 +3313,8 @@ Set to 0 if you always want to compute despite it being more costly (for modding
 
 <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details -->
 
+Update: now removed as we're now using BBAI to attempt to fix it in a cleaner and stronger way.
+
 ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
 ----- Comment #197 -----
 
