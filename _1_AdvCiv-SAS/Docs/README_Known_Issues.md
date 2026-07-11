@@ -218,6 +218,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [177 - (Fixed) Multiple base AdvCiv/K-Mod Barbarian city-placement issues could produce poor captured city sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#177---fixed-multiple-base-advcivk-mod-barbarian-city-placement-issues-could-produce-poor-captured-city-sites)\
 [178 - (Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)\
 [179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
+[180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6606,3 +6607,25 @@ Remaining risk:
 This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
 
 Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1bEgmCksDoryWsY0KiOrRXJZ65V05b6HG?usp=sharing).
+
+Save-file 450 KI#179 exposed-Settler safety problem follow-up testing exposed a separate city-site movement issue: after a nearby Barbarian city spawned, the original Zulu target area became much poorer and smaller, but Zulu city 3 still founded weak tundra-heavy Nobamba at `(10,47)` even while the found-value logger saw a better reachable site:
+
+```log
+SETTLER_MISSION_DECISION turn=59 player=7 Zulu Empire action=PUSH_FOUND_IN_PLACE ... target=(10,47) ... targetFoundValue=1990
+Next best site compared with selected (10,47): selected=1990 next=2830 delta=+840 (12,39)
+```
+
+The first attempted fix blocked direct founding on a clearly inferior current plot, but BBAI testing then showed a flip-flop: the Settler moved from `(10,47)` to a neighboring plot toward the better site, then path-discounted `AI_found` scoring pulled it back to the very near weak `(10,47)` because it was only one turn away. This was not Barbarian-territory fear; it was ordinary path-cost scoring overpowering clearly better raw city-site value after the direct-found guard rejected the weak plot.
+
+The fix now has two parts:
+
+- direct found-in-place and follow-found shortcuts do not found the current plot when another reachable site is clearly better by tunable raw found-value thresholds;
+- `AI_found` candidate selection also skips a very-near weak site when a clearly stronger reachable site exists, so path-cost scoring cannot pull the Settler back into the rejected weak site.
+
+Follow-up T130 testing (`BBAI_20260711T180850Z_load1.log` and `SASGameSummary_20260711T180850Z_load1.log`) then founded stronger Zulu cities: Nobamba at `(13,35)`, Bulawayo at `(10,41)`, and later captured Barbarian Aryan at `(7,45)` with Horse, Deer, and Silver; Shaka reached rank 2 by turn 130 in that run.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.

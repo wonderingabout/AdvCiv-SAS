@@ -345,6 +345,45 @@ static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, Cv
 	return kTargetPlot.getOwner() != kSettler.getOwner();
 }
 
+// <!-- custom: Avoid direct founding on a merely valid current plot when the current city-site list already contains a clearly better reachable site. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already reported a much better reachable site.
+// Direct-found blocking alone made the Settler flip-flop between the poor current plot and its neighbor because path-discounted scoring kept pulling it back; use the same raw-value threshold in AI_found candidate selection so a very-near weak site does not beat a clearly stronger reachable site by path cost alone. Follow-up T130 testing then founded stronger Zulu cities and Shaka reached rank 2. See KI#180. (GPT-5.5) -->
+static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFoundValue)
+{
+	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF");
+	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF");
+	if (iCurrentFoundValue <= 0 || (iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF <= 0 && iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF <= 0))
+		return false;
+	int const iValueDiff = iBetterFoundValue - iCurrentFoundValue;
+	return iValueDiff >= iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF;
+}
+
+static bool SAS_shouldDelayFoundInPlaceForBetterReachableSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kCurrentPlot, int iCurrentFoundValue, CvPlot const*& pBetterFoundPlot, int& iBetterFoundValue, int& iBetterPathTurns)
+{
+	pBetterFoundPlot = NULL;
+	iBetterFoundValue = 0;
+	iBetterPathTurns = -1;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if (&kSite == &kCurrentPlot || !kSettler.canFound(&kSite) || (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, kSettler.getGroup()))
+			continue;
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(kSite, eMoveFlags, true, &iPathTurns))
+			continue;
+		int const iValue = kSite.getFoundValue(kSettler.getOwner());
+		if (iValue > iBetterFoundValue)
+		{
+			pBetterFoundPlot = &kSite;
+			iBetterFoundValue = iValue;
+			iBetterPathTurns = iPathTurns;
+		}
+	}
+	if (pBetterFoundPlot == NULL)
+		return false;
+	return SAS_isFoundValueClearlyBetter(iCurrentFoundValue, iBetterFoundValue);
+}
+
 static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& kSettler, CvPlot const* pTargetPlot, CvPlot const* pEndTurnPlot, int iFoundValue, int iPathTurns, char const* szReason)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
@@ -3652,10 +3691,19 @@ void CvUnitAI::AI_settleMove()
 				}
 				else
 				{
+					CvPlot const* pBetterFoundPlot = NULL;
+					int iBetterFoundValue = 0;
+					int iBetterPathTurns = -1;
+					int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
+					if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eMoveFlags, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+					{
+						if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOUND_IN_PLACE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+						continue;
+					}
 					if (gSettlerLogLevel >= 2)
 					{
 						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
-						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_SETTLE_MOVE_AT_SITE");
+						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_SETTLE_MOVE_AT_SITE");
 					}
 					getGroup()->pushMission(MISSION_FOUND);
 					return;
@@ -19004,6 +19052,28 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 
 	// <!-- custom: Remove the old AdvCiv-SAS empirical early-city bSafe override; exposed expansion now depends on a defended group, an existing guard-city mission, or a local escort attached above. Save-file 450 BBAI testing showed the old override could produce an empty Nobamba razed by Barbarians; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
 	bool const bSafe = (getGroup()->canDefend() || getInvisibleType() != NO_INVISIBLE); // advc.057b
+	// <!-- custom: Precompute the best reachable raw city-site value before path-discounted selection. Without this, blocking direct founding on weak (10,47) made the Zulu Settler step away, then `AI_found` immediately chose (10,47) again because it was only one turn away; filtering later candidates against this raw-value winner fixed that flip-flop. See KI#180. (GPT-5.5) -->
+	CvPlot const* pBestReachableRawFoundPlot = NULL;
+	int iBestReachableRawFoundValue = 0;
+	int iBestReachableRawPathTurns = -1;
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if ((AI_canEnterByLand(kSite.getArea()) || canMoveAllTerrain()) && canFound(&kSite) && !kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, getGroup()))
+		{
+			int iPathTurns = -1;
+			if (generatePath(kSite, eFlags, true, &iPathTurns) && (!kSite.isVisible(getTeam()) || !kSite.isVisibleEnemyUnit(this) || (iPathTurns > 1 && bSafe)))
+			{
+				int const iRawValue = kSite.getFoundValue(getOwner());
+				if (iRawValue > iBestReachableRawFoundValue)
+				{
+					pBestReachableRawFoundPlot = &kSite;
+					iBestReachableRawFoundValue = iRawValue;
+					iBestReachableRawPathTurns = iPathTurns;
+				}
+			}
+		}
+	}
 	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
 	{
 		CvPlot& kSite = kOwner.AI_getCitySite(i);
@@ -19033,6 +19103,22 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 										scaled::hash(m_iBirthmark);
 								iValue = (iValue * rRandMult).round();
 							} // </advc.052>
+							if (pBestReachableRawFoundPlot != NULL && pBestReachableRawFoundPlot != &kSite && SAS_isFoundValueClearlyBetter(kSite.getFoundValue(getOwner()), iBestReachableRawFoundValue))
+							{
+								if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_PATH_NEAR_SITE_BETTER_RAW_SITE", *this, pBestReachableRawFoundPlot, &getPathEndTurnPlot(), iBestReachableRawFoundValue, iBestReachableRawPathTurns, "BETTER_REACHABLE_SITE");
+								continue;
+							}
+							if (at(kSite))
+							{
+								CvPlot const* pBetterFoundPlot = NULL;
+								int iBetterFoundValue = 0;
+								int iBetterPathTurns = -1;
+								if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eFlags, kSite, kSite.getFoundValue(getOwner()), pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+								{
+									if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_AI_FOUND_CURRENT_SITE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+									continue;
+								}
+							}
 							iValue *= 1000;
 							//iValue /= (iPathTurns + 1);
 							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
@@ -19095,10 +19181,19 @@ bool CvUnitAI::AI_foundFollow()
 			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
 			return false;
 		}
+		CvPlot const* pBetterFoundPlot = NULL;
+		int iBetterFoundValue = 0;
+		int iBetterPathTurns = -1;
+		int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
+		if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, NO_MOVEMENT_FLAGS, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOLLOW_FOUND_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+			return false;
+		}
 		if (gSettlerLogLevel >= 2)
 		{
 			logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
-			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "AI_FOUND_FOLLOW");
+			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_FOUND_FOLLOW");
 		}
 		getGroup()->pushMission(MISSION_FOUND);
 		return true;

@@ -1231,6 +1231,15 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
+	<!-- custom: When a Settler is already standing on a foundable city site, do not immediately found if another reachable city site is clearly better by raw found value. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already saw a much better reachable site. This prevents that direct-found valid-tile trap without chasing tiny differences. Set either threshold very high to effectively disable that part of the check. See KI#180 for info about a related fix too. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
