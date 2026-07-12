@@ -8161,11 +8161,15 @@ void CvUnitAI::AI_generalMove()
 {
 	PROFILE_FUNC();
 
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), getArea().getAreaAIType(getTeam()));
+
 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
 	if (AI_construct(1))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
@@ -8174,6 +8178,7 @@ void CvUnitAI::AI_generalMove()
 	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
 	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
 		return;
 	}
 
@@ -8187,18 +8192,21 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_COUNTER);
 		if (AI_lead(aeUnitAITypes))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	}
 
     if (AI_construct(1))
     {
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1 stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
         return;
     }
 
     // Try joining again
     if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
     {
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
         return;
     }
 	// Rest of original logic...
@@ -8210,6 +8218,7 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
 		if (AI_lead(aeUnitAITypes))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 
@@ -8217,22 +8226,26 @@ void CvUnitAI::AI_generalMove()
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
 		if (AI_lead(aeUnitAITypes))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	} // BETTER_BTS_AI_MOD: END
 
 	if (AI_join(2))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=2 stage=legacy1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_construct(2))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_join(4))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=4 stage=legacy2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
@@ -8240,17 +8253,20 @@ void CvUnitAI::AI_generalMove()
 	{
 		if (AI_construct())
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=unbounded random=1in3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	}
 
 	if (AI_join())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=unbounded stage=legacy3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_retreatToCity())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=retreat", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
@@ -8261,9 +8277,11 @@ void CvUnitAI::AI_generalMove()
 
 	if (AI_safety())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=safety", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
+	if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=skip", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -15809,6 +15827,12 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 				}
 				// or the unit with the best healing ability
 				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+				if (gGreatGeneralLogLevel >= 3)
+				{
+					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
+					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing, getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
+				}
 				if (iHealing > iBestHealing)
 				{
 					iBestHealing = iHealing;
@@ -15834,28 +15858,44 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 	{
 		if (at(*pBestPlot) && pBestUnit != NULL)
 		{
-			if (gUnitLogLevel > 2)
+			if (gGreatGeneralLogLevel >= 1)
 			{
 				CvWString szString; getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
-				logBBAI("      Great general %d for %S chooses to lead %S with UNITAI %S", getID(), kOwner.getCivilizationDescription(0), pBestUnit->getName(0).GetCString(), szString.GetCString());
+				logBBAI("      GREAT_GENERAL_LEAD_CHOSEN turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d reason=%s",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), szString.GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getLevel(), pBestUnit->getExperience(), pBestUnit->baseCombatStr(), pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (pBestUnit == pBestHealUnit ? "healing" : "strength"));
 			}
 			getGroup()->pushMission(MISSION_LEAD, pBestUnit->getID());
 			return true;
 		}
 		else
 		{
+			if (gGreatGeneralLogLevel >= 2 && pBestUnit != NULL)
+				logBBAI("      GREAT_GENERAL_LEAD_MOVE turn=%d player=%d %S generalId=%d targetUnitId=%d targetUnit=%S target=(%d,%d) pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
 			pushGroupMoveTo(*pBestPlot, MOVE_AVOID_ENEMY_WEIGHT_3);
 			return true;
 		}
 	}
 	// BETTER_BTS_AI_MOD: END
 
+	if (gGreatGeneralLogLevel >= 2)
+		logBBAI("      GREAT_GENERAL_LEAD_NO_CANDIDATE turn=%d player=%d %S generalId=%d roles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), (int)aeUnitAITypes.size());
 	return false;
 }
 
 // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
 /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
+// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Warlord attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
+static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
+{
+	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+	const int iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel(0);
+	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
+	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
+	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d",
+			GC.getGame().getGameTurn(), kGeneral.getOwner(), GET_PLAYER(kGeneral.getOwner()).getCivilizationDescription(0), kGeneral.getID(), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount, kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true), kCity.AI_isSafe(), GET_PLAYER(kGeneral.getOwner()).AI_isAnyPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft());
+}
+
 bool CvUnitAI::AI_join(int iMaxCount)
 {
 	PROFILE_FUNC();
@@ -15871,13 +15911,20 @@ bool CvUnitAI::AI_join(int iMaxCount)
 		if (!AI_canEnterByLand(pLoopCity->getArea()) // advc.030 (replacing same-area check)
 			/*|| AI_plotValid(pLoopCity->plot())*/) // advc.opt: Mostly redundant
 		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-enter-by-land", iMaxCount, iCount);
 			continue;
 		}
 		//if (pLoopCity->getPlot().isVisibleEnemyUnit(this))
 		if (!pLoopCity->AI_isSafe()) // advc.139: Replacing the above
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-not-safe", iMaxCount, iCount);
 			continue;
+		}
 		if (!generatePath(pLoopCity->getPlot(), MOVE_SAFE_TERRITORY, true))
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "no-safe-path", iMaxCount, iCount);
 			continue;
+		}
 		// BETTER_BTS_AI_MOD: END
 		FOR_EACH_ENUM(Specialist)
 		{
@@ -15891,7 +15938,10 @@ bool CvUnitAI::AI_join(int iMaxCount)
 			{
 				iCount += pLoopCity->getSpecialistCount(eLoopSpecialist);
 				if (iCount >= iMaxCount)
+				{
+					if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MAXCOUNT_REACHED turn=%d player=%d %S generalId=%d specialist=%s maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eLoopSpecialist).getType(), iMaxCount, iCount);
 					return false;
+				}
 			}
 			if (canJoin(pLoopCity->plot(), eLoopSpecialist))
 			{
@@ -15900,6 +15950,14 @@ bool CvUnitAI::AI_join(int iMaxCount)
 				{
 					//iValue = pLoopCity->AI_specialistValue(eLoopSpecialist, pLoopCity->AI_avoidGrowth(), false);
 					int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist); // K-Mod
+					if (gGreatGeneralLogLevel >= 3)
+					{
+						const int iFoodSurplus = pLoopCity->getYieldRate(YIELD_FOOD) - pLoopCity->foodConsumption();
+						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
+						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
+						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
+						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue, pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true), pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(), getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
+					}
 					if (iValue > iBestValue)
 					{
 						iBestValue = iValue;
@@ -15907,7 +15965,11 @@ bool CvUnitAI::AI_join(int iMaxCount)
 						eBestSpecialist = eLoopSpecialist;
 					}
 				}
+				else if (gGreatGeneralLogLevel >= 3)
+					logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-plot-danger-radius2", iMaxCount, iCount);
 			}
+			else if (bDoesJoin && gGreatGeneralLogLevel >= 3)
+				logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-join-specialist", iMaxCount, iCount);
 		}
 	}
 
@@ -15915,17 +15977,21 @@ bool CvUnitAI::AI_join(int iMaxCount)
 	{
 		if (at(*pBestPlot))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("      GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d %S generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
 			getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
 			return true;
 		}
 		else
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
+			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY);
 			return true;
 		}
 	}
 
+	if (gGreatGeneralLogLevel >= 2)
+		logBBAI("      GREAT_GENERAL_JOIN_NO_CANDIDATE turn=%d player=%d %S generalId=%d maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), iMaxCount, iCount);
 	return false;
 }
 

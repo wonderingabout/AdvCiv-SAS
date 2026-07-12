@@ -1366,6 +1366,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 logs compact parking/security decisions, and level 3 adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>

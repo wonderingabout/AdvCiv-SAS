@@ -20,6 +20,7 @@ int getSASBBAITeamLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
+int getSASBBAIGreatGeneralLogLevel();
 int getSASBBAISettlerLogLevel();
 int getSASBBAIEvacuationLogLevel();
 int getSASBBAIWorkerLogLevel();
@@ -40,6 +41,7 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gCityLogLevel getSASBBAICityLogLevel()
 #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
+#define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
 #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
 #define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
 #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->

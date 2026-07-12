@@ -910,16 +910,15 @@ AdvCiv-SAS has two complementary log families, that are as of now both tunable v
 
 ### BBAI logging and head example
 
-BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, culture, evacuation, citizen allocation, or found-value scoring.
+BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
 
 For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
 
 ```log
-BBAI_NEW_GAME_INITIALIZING utc=20260706T191308Z logFile=BBAI_20260706T191308Z_new1.log
-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=3 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=3 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
-BBAI_NEW_GAME_STARTED utc=20260706T191308Z logFile=BBAI_20260706T191308Z_new1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_NETHERLANDS activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1
-BBAI_GAME_SETTINGS mapScript=Equal_Islands_V2_beta map=120x84 landHeavy=0 navalHeavy=1 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_MONARCH options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
-BBAI_GAME_RNG mapRandState=880265761 syncRandState=971898437
+BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
+BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
 ```
 
 ### SAS game summary log
