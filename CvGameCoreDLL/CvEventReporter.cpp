@@ -2,6 +2,16 @@
 #include "CvEventReporter.h"
 #include "CvGame.h"
 #include "CvPlayer.h"
+#include "CvCity.h" // <!-- custom: Needed to log nearest/working city context for Worker deaths. (GPT-5.5) -->
+#include "CvPlot.h" // <!-- custom: Needed to log plot context for Worker deaths. (GPT-5.5) -->
+#include "CvUnit.h" // <!-- custom: Needed to log killed Worker and killer unit context. (GPT-5.5) -->
+#include "CvUnitAI.h" // <!-- custom: Needed to inspect killed Worker AI group state. (GPT-5.5) -->
+#include "CvPlayerAI.h" // <!-- custom: Needed to log killed Worker's current plot danger. (GPT-5.5) -->
+#include "CvMap.h" // <!-- custom: Needed for nearest-city distance in Worker-death diagnostics. (GPT-5.5) -->
+#include "PlotRadiusIterator.h" // <!-- custom: Needed to count visible enemies around Worker-death plots. (GPT-5.5) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus/improvement/route names in Worker-death diagnostics. (GPT-5.5) -->
+#include "CvSelectionGroupAI.h" // <!-- custom: Needed to log Worker-death mission AI context in BBAI Worker diagnostics. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Needed for BBAI Worker-death unit-AI and mission-AI strings. (GPT-5.5) -->
 #include "CvDLLPythonIFaceBase.h" // advc
 #include "BBAILog.h" // <!-- custom: Needed to complete the BBAI identity header. (GPT-5.5 + ChatGPT-5.5) -->
 #include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
@@ -23,6 +33,70 @@ void CvEventReporter::resetStatistics()
 
 // advc.106l: Explicit constructor added, so I can initialize my booleans.
 CvEventReporter::CvEventReporter() : m_bPreAutoSave(false), m_bPreQuickSave(false) {}
+
+static bool isSASBBAIWorkerDeathUnit(CvUnit const& kUnit)
+{
+	return kUnit.isWorker() || kUnit.AI_getUnitAIType() == UNITAI_WORKER || kUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA;
+}
+
+static CvCity const* getSASBBAINearestOwnedCity(CvPlot const& kPlot, PlayerTypes ePlayer, int& iDistance)
+{
+	iDistance = -1;
+	if (ePlayer == NO_PLAYER)
+		return NULL;
+	CvCity const* pBestCity = NULL;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		const int iLoopDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
+		if (iDistance < 0 || iLoopDistance < iDistance)
+		{
+			iDistance = iLoopDistance;
+			pBestCity = pLoopCity;
+		}
+	}
+	return pBestCity;
+}
+
+static void countSASBBAIVisibleEnemiesNearWorkerDeath(CvPlot const& kPlot, PlayerTypes ePlayer, int& iVisibleEnemies, int& iVisibleCombatEnemies)
+{
+	iVisibleEnemies = 0;
+	iVisibleCombatEnemies = 0;
+	if (ePlayer == NO_PLAYER)
+		return;
+	for (SquareIter it(kPlot, 2); it.hasNext(); ++it)
+	{
+		iVisibleEnemies += it->plotCount(PUF_isEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer);
+		iVisibleCombatEnemies += it->plotCount(PUF_canDefendEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer);
+	}
+}
+
+static void logSASBBAIWorkerDeathContext(CvUnit const* pWinner, CvUnit const* pLoser)
+{
+	if (pWinner == NULL || pLoser == NULL || !isSASBBAIWorkerDeathUnit(*pLoser))
+		return;
+	CvPlot const& kPlot = pLoser->getPlot();
+	PlayerTypes const eLoser = pLoser->getOwner();
+	CvSelectionGroupAI const* pGroup = pLoser->AI().AI_getGroup();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	CvWString szLoserAI; getUnitAIString(szLoserAI, pLoser->AI_getUnitAIType());
+	CvWString szWinnerAI; getUnitAIString(szWinnerAI, pWinner->AI_getUnitAIType());
+	CvWString szMissionAI; getMissionAIString(szMissionAI, pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+	int iVisibleEnemies = 0;
+	int iVisibleCombatEnemies = 0;
+	countSASBBAIVisibleEnemiesNearWorkerDeath(kPlot, eLoser, iVisibleEnemies, iVisibleCombatEnemies);
+	int iNearestOwnedCityDistance = -1;
+	CvCity const* pNearestOwnedCity = getSASBBAINearestOwnedCity(kPlot, eLoser, iNearestOwnedCityDistance);
+	CvCity const* pWorkingCity = kPlot.getWorkingCity();
+	const int iOwnerUnits = kPlot.plotCount(PUF_isPlayer, eLoser);
+	const int iOwnerDefenders = kPlot.plotCount(PUF_canDefend, -1, -1, eLoser);
+	const int iOwnerWorkers = kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER, -1, eLoser) + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, eLoser);
+	// <!-- custom: Worker death counts dropped from 40 to 17 by t200 in the save-file-450 test after the current-danger fixes, but the remaining deaths still need classification. Log only Worker/Work Boat deaths in BBAI Worker diagnostics with enough context to distinguish unavoidable war-front losses from bad movement or missing retreat. No gameplay behavior change. (GPT-5.5) -->
+	logBBAI("    WORKER_DEATH_CONTEXT turn=%d loser=%d %S loserUnitId=%d loserUnit=%S loserAI=%S winner=%d winnerUnitId=%d winnerUnit=%S winnerAI=%S plot=(%d,%d) owner=%d cityPlot=%d currentDanger=%d missionAI=%S missionTarget=(%d,%d) missionQueue=%d activity=%d movesSpent=%d movesLeft=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d ownerUnitsOnPlot=%d ownerDefendersOnPlot=%d ownerWorkersOnPlot=%d nearestOwnedCity=%S nearestOwnedCityId=%d nearestOwnedCityDistance=%d workingCity=%S workingCityId=%d terrain=%S feature=%S bonus=%S improvement=%S route=%S",
+			GC.getGame().getGameTurn(), eLoser, GET_PLAYER(eLoser).getCivilizationDescription(0), pLoser->getID(), GC.getInfo(pLoser->getUnitType()).getDescription(), szLoserAI.GetCString(), pWinner->getOwner(), pWinner->getID(), GC.getInfo(pWinner->getUnitType()).getDescription(), szWinnerAI.GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), kPlot.isCity(), GET_PLAYER(eLoser).AI_getPlotDanger(kPlot), szMissionAI.GetCString(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), pLoser->getMoves(), pLoser->movesLeft(), iVisibleEnemies, iVisibleCombatEnemies, iOwnerUnits, iOwnerDefenders, iOwnerWorkers, (pNearestOwnedCity == NULL ? L"-" : pNearestOwnedCity->getName().GetCString()), (pNearestOwnedCity == NULL ? -1 : pNearestOwnedCity->getID()), iNearestOwnedCityDistance, (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
+			GC.getInfo(kPlot.getTerrainType()).getDescription(), (kPlot.getFeatureType() == NO_FEATURE ? L"-" : GC.getInfo(kPlot.getFeatureType()).getDescription()), (kPlot.getBonusType(pLoser->getTeam()) == NO_BONUS ? L"-" : GC.getInfo(kPlot.getBonusType(pLoser->getTeam())).getDescription()), (kPlot.getImprovementType() == NO_IMPROVEMENT ? L"-" : GC.getInfo(kPlot.getImprovementType()).getDescription()), (kPlot.getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(kPlot.getRouteType()).getDescription()));
+}
 
 // advc.003y: Just pass the call along
 void CvEventReporter::initPythonCallbackGuards()
@@ -130,6 +204,7 @@ void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
 void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
 {
 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCombatResult(pWinner, pLoser);
+	if (gWorkerLogLevel >= 2) logSASBBAIWorkerDeathContext(pWinner, pLoser);
 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
 }
 

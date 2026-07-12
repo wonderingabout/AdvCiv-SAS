@@ -19,6 +19,7 @@
 #include "CvDLLFlagEntityIFaceBase.h"
 // <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 #include "BBAILog.h"
+#include "SASGameSummaryLog.h" // <!-- custom: CvPlot::setBonusType logs in-game bonus appearances/disappearances in SASGameSummary for autoplay review context. (GPT-5.5) -->
 
 /*	advc.make: I've added safeIntCast calls in a few places that looked at least
 	slightly hazardous. Beyond that, explicit casts would only add clutter.
@@ -4702,6 +4703,7 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
 {
 	if(getBonusType() == eNewValue)
 		return;
+	const BonusTypes eOldBonus = getBonusType();
 
 	if (getBonusType() != NO_BONUS)
 	{
@@ -4727,6 +4729,9 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
 	updateYield();
 	setLayoutDirty(true);
 	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+	// <!-- custom: Some bonuses can appear or disappear after game start, e.g. save-file-450 follow-up testing showed Shaka gaining Gems. Log only after elapsed turns start so initial map bonus placement does not flood the game-summary file. (GPT-5.5) -->
+	if (gGameSummaryLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0)
+		logSASGameSummaryBonusChanged(this, eOldBonus, eNewValue);
 }
 
 

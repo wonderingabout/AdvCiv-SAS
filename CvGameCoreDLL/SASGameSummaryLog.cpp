@@ -550,6 +550,18 @@ static const char* getSASGameSummaryRouteType(RouteTypes eRoute)
 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
 }
 
+void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
+{
+	if (pPlot == NULL || eOldBonus == eNewBonus)
+		return;
+	const char* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
+	CvCity const* pWorkingCity = pPlot->getWorkingCity();
+	CvCity const* pPlotCity = pPlot->getPlotCity();
+	// <!-- custom: Reproducible T129 crash dumps after adding this row failed in msvcr71!_output/_vsnprintf with an invalid read at 0x000003fc. The original argument for area=%d was pPlot->getArea(), but CvPlot::getArea returns CvArea&, not an integer; passing that object reference through varargs corrupted the following formatter reads. Logging the area ID explicitly fixed the crash in the next test run. (GPT-5.5) -->
+	logSASGameSummary("GAME_SUMMARY_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
+			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(), getSASGameSummaryBonusType(eOldBonus), getSASGameSummaryBonusType(eNewBonus), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(), (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), (pPlotCity == NULL ? L"-" : pPlotCity->getName().GetCString()), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
+}
+
 static const char* getSASGameSummaryCommerceType(CommerceTypes eCommerce)
 {
 	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());

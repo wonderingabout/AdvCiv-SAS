@@ -38,6 +38,7 @@ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit c
 void logSASGameSummaryUnitScrapped(CvUnit const* pUnit);
 void logSASGameSummaryUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
 void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
+void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
 
 #define gGameSummaryLogLevel getSASGameSummaryLogLevel() // <!-- custom: Structured game-state/action summary for autoplay comparison and external review, independent from the classic BBAI master switch. (ChatGPT-5.5 + GPT-5.5) -->
 #define gGameSummaryTurnInterval getSASGameSummaryTurnInterval() // <!-- custom: Periodic game-summary snapshot interval in game turns. (ChatGPT-5.5) -->

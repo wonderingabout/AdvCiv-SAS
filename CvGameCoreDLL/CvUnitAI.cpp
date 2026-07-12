@@ -4557,9 +4557,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
          - Result: workers often abandoned tasks too early, leaving some cities
            (especially jungle ones) unimproved for a long time.
 
-       New code:
-         - Inside our cultural borders: skip threat check entirely.
-           (If an enemy is already on our tile, the game captures us before this runs.)
+       Current code:
+         - Inside our cultural borders: ignore broad threat-radius noise, but still react when the worker's current plot is already dangerous.
          - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
            → This greatly reduces “false positives" from slow or harmless enemy units
              far away but still inside the old radius 2 bubble.
@@ -4570,16 +4569,27 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
            in genuinely dangerous situations outside borders.
     */
 
-		bool bThreatened = false;
-
-		if (plot()->getOwner() != getOwner())
-		{
-			// Only check threat outside borders
-			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts
-		}
+		const int iCurrentDanger = kOwner.AI_getPlotDanger(getPlot());
+		// <!-- custom: Save-file-450 worker diagnostics showed 40 Worker deaths by the comparable t200/t201 run.
+		// 1) Treat current plot danger as real danger even inside owned culture, while still ignoring broad inside-border threat-radius noise. This was necessary but did not improve behavior by itself: threatened Workers entered the danger branch, but the branch still redirected through city-improvement logic first.
+		// 2) Handle current plot danger before city-improvement redirection; otherwise a Zulu Worker at (14,45) with currentDanger=1 selected the same plot to keep building and died to a Barbarian Archer. This made that Worker retreat on turn 59 instead, removed the old t60 (14,45) death, and worker deaths fell from 40 to 17 in the next comparable t200 run. The remaining issue was retreat sometimes ending on a still-dangerous plot. (GPT-5.5) -->
+		const bool bCurrentPlotDanger = (iCurrentDanger > 0);
+		bool bThreatened = bCurrentPlotDanger;
+		if (!bThreatened && plot()->getOwner() != getOwner())
+			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts outside borders
 
 		if (bThreatened)
 		{
+			if (bCurrentPlotDanger)
+			{
+				if (AI_retreatToCity()) return;
+				// <!-- custom: Retesting AI_safety before AI_retreatToCity regressed the save-file-450 worker-death test from 17 to 31 deaths by t200. In the original Zulu case, AI_safety chose action=wait on (14,45) with targetDanger=1 on turns 59-61, then the Worker died there. Keep city retreat first for now; if retreat ends on a dangerous plot, that needs a narrower follow-up than calling generic AI_safety first. (GPT-5.5) -->
+				if (AI_safety()) return;
+				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_DANGER_NO_ESCAPE turn=%d player=%d %S workerId=%d worker=(%d,%d) currentDanger=%d threatened=%d action=skip-no-build", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iCurrentDanger, kOwner.AI_isPlotThreatened(plot(), 1));
+				getGroup()->pushMission(MISSION_SKIP);
+				return;
+			}
+
 			bool bNearTarget = false;
 
 			CvPlot* pTarget = AI_getGroup()->AI_getMissionAIPlot();
