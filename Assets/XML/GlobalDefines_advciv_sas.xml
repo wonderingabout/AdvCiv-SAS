@@ -1423,42 +1423,6 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 
 
-	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: Minimum adjusted UWAI drive percent for a nearby land target to block worse farther fallbacks, e.g. 25 means at least 25% drive after peace-treaty and avoid-war adjustments. This is only a sanity gate for the preferred local target, not a comparison with the farther target; set to 0 to ignore drive for this rule. (GPT-5.5); i set it to a low value instead of GPT-5.5's value of 25 because i don't know enough about this drive value or as of now trust it too much, so as low enough attitude weak enough opponent that is close when we were about to pick another is already a strong enough, simple and reliable incentive, then kept it as such in case it would/may make us choose very low utility or skip high utility ones or such. -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT</DefineName>
-		<iDefineIntVal>15</iDefineIntVal>
-	</Define>
-	<!-- custom: Maximum nearest-city distance for the preferred local war-target rule. This is intentionally local, so remote naval or overseas choices still use ordinary UWAI target selection. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE</DefineName>
-		<iDefineIntVal>8</iDefineIntVal>
-	</Define>
-	<!-- custom: Maximum target defensive power as percent of our team power for the preferred local war-target rule, e.g. 70 means the target has at most 70% of our team's power. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
-	</Define>
-	<!-- custom: Maximum AI attitude value toward the preferred local war target. 0 allows neutral or worse targets; negative values require dislike. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-	<!-- custom: Minimum AI_teamCloseness for the preferred local war-target rule. 1 keeps this to actual nearby land rivalry and avoids treating zero-contact geography as local. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-	<!-- custom: Minimum nearest-city distance advantage required before skipping a farther fallback target. 2 means a fallback at distance 10 can be skipped for a preferred local target at distance 8 or closer. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
-		<iDefineIntVal>2</iDefineIntVal>
-	</Define>
-
 
 	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
@@ -3096,6 +3060,49 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING</DefineName>
 		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum adjusted UWAI drive percent for a nearby land target to block worse farther fallbacks, e.g. 25 means at least 25% drive after peace-treaty and avoid-war adjustments. This is only a sanity gate for the preferred local target, not a comparison with the farther target; set to 0 to ignore drive for this rule. (GPT-5.5); i set it to a low value instead of GPT-5.5's value of 25 because i don't know enough about this drive value or as of now trust it too much, so as low enough attitude weak enough opponent that is close when we were about to pick another is already a strong enough, simple and reliable incentive, then kept it as such in case it would/may make us choose very low utility or skip high utility ones or such. -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum nearest-city distance for the preferred local war-target rule. This is intentionally local, so remote naval or overseas choices still use ordinary UWAI target selection. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum target defensive power as percent of our team power for the preferred local war-target rule, e.g. 70 means the target has at most 70% of our team's power. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum AI attitude value toward the preferred local war target. 0 allows neutral or worse targets; negative values require dislike. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum AI_teamCloseness for the preferred local war-target rule. 1 keeps this to actual nearby land rivalry and avoids treating zero-contact geography as local. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum nearest-city distance advantage required before skipping a farther fallback target. 2 means a fallback at distance 10 can be skipped for a preferred local target at distance 8 or closer. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: With SAS_BBAI_WAR_LOG_LEVEL >= 3, log WAR_UTILITY_HIGH final rows and WAR_UTILITY_SCENARIO_HIGH component rows when UWAI war utility reaches this absolute value. Use this to diagnose saturated drive values before tuning UWAI behavior; 0 disables the extra high-utility breakdown. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 

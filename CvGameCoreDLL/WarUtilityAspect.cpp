@@ -2917,7 +2917,8 @@ int Risk::preEvaluate()
 	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
 	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
 
-	if (minContact == INT_MAX || minContact > maxTurns || noLift)
+	// <!-- custom: This older AdvCiv-SAS hard reject is a war-scenario guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent because UWAI computes final utility as war minus peace; e.g. -78 - (-105438) became +105360 in BBAI testing. See KI#183. (GPT-5.5) -->
+	if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
 		return -100000; // kill this (agent,target) war plan
 
 	// --- END RPE FILTER ---

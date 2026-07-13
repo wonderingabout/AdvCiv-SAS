@@ -220,6 +220,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [179 - (Fixed/Improved) AdvCiv-SAS early-settler anti-parking override could let post-capital Settlers found exposed cities without escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts)\
 [180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed)\
 [181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example)\
+[182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available)\
+[183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6715,3 +6717,48 @@ declares war: 154
 All 17 skips had the skipped target at least 2 tiles farther than the preferred target. The preferred targets had adjusted drive at least 16%, and all had preferred target power <= 75%: 16 were in the 51-75% band and one was in the 26-50% band. Earlier experiments were intentionally rejected: setting the drive gate to 0 produced too many very-low-drive overrides, and a broader same-distance / near-distance skip affected ordinary local choices too much.
 
 Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario
+
+This is a follow-up to the older AdvCiv-SAS KI#61 faraway-war guard in `Risk::preEvaluate` (`WarUtilityAspect.cpp`). That guard was intended to kill bad war plans when a rival was unreachable, too far away, or when a naval war had no lift capacity. BBAI high-utility logging later showed that the same hard reject also fired in the recursive peace scenario used by `WarEvaluator`.
+
+That was wrong because UWAI computes final war utility as:
+
+```text
+war scenario utility - peace scenario utility
+```
+
+When the peace scenario received the `-100000` hard reject, mediocre or slightly bad wars could look extremely good. In `BBAI_20260713T114245Z_load1.log`, one representative row was:
+
+```text
+WAR_UTILITY_HIGH turn=389 agentTeam=5 targetTeam=7 warPlan=WARPLAN_LIMITED finalUtility=105166 warScenarioUtility=-220 peaceScenarioUtility=-105386
+```
+
+So the war itself was not strong; the final score became huge because `-220 - (-105386) = +105166`.
+
+The diagnostic breakdown confirmed `RISK` as the culprit. Before the fix, high scenario component rows included many `PEACE RISK` values around `-105000`:
+
+```text
+PEACE RISK count=53839 avg=-104994.2 min=-105393 max=-104980
+WAR   RISK count=45897 avg=-104999.7 min=-105394 max=-178
+```
+
+The fix keeps the faraway-war hard reject for actual war scenarios but prevents it from firing during the recursive peace scenario:
+
+```cpp
+if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
+	return -100000;
+```
+
+Retesting in `BBAI_20260713T120154Z_load1.log` confirmed the sign-flip bug disappeared:
+
+```text
+positive final: 0
+negative final: 72704
+```
+
+The remaining high rows were `WAR RISK` rejects only, meaning the guard now works in the intended direction: bad faraway/unreachable war scenarios are unattractive instead of making wars look artificially excellent.
+
+The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
+
+Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
