@@ -8184,13 +8184,16 @@ void CvUnitAI::AI_generalMove()
 
 	std::vector<UnitAITypes> aeUnitAITypes;
 	bool const bOffenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
+	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE");
+	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING");
 
 	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2))
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
 		aeUnitAITypes.push_back(UNITAI_COUNTER);
-		if (AI_lead(aeUnitAITypes))
+		// <!-- custom: BBAI save-file 450 testing showed the inherited plot-danger Great General unit-attachment branch attaching to a low-value Longbowman after AI_join rejected all cities for safety/path reasons. Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
@@ -8209,14 +8212,12 @@ void CvUnitAI::AI_generalMove()
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
         return;
     }
-	// Rest of original logic...
-
 	// BETTER_BTS_AI_MOD, Unit AI, 05/14/10, jdog5000: START
 	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
-		if (AI_lead(aeUnitAITypes))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
@@ -8224,7 +8225,7 @@ void CvUnitAI::AI_generalMove()
 
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
-		if (AI_lead(aeUnitAITypes))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
@@ -15749,7 +15750,7 @@ bool CvUnitAI::AI_discover(bool bThisTurnOnly, bool bFirstResearchOnly)
 }
 
 
-bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrengthScore, int iMinHealing)
 {
 	PROFILE_FUNC();
 
@@ -15819,20 +15820,33 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 						iCombatStrength /= std::max(1, iMaxGlobal);
 					}
 				}
+				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+				// <!-- custom: Optional thresholds stop weak non-healer units from becoming Great General unit-attachment targets just because AI_join could not safely join a city this turn. (GPT-5.5) -->
+				bool const bBelowMinStrength = (iMinStrengthScore > 0 && iCombatStrength < iMinStrengthScore);
+				bool const bBelowMinHealing = (iMinHealing <= 0 || iHealing < iMinHealing);
+				if (bBelowMinStrength && bBelowMinHealing)
+				{
+					if (gGreatGeneralLogLevel >= 3)
+					{
+						CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
+						logBBAI("      GREAT_GENERAL_LEAD_REJECTED turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d minStrengthScore=%d healing=%d minHealing=%d reason=below-great-general-unit-attachment-threshold",
+								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iMinStrengthScore, iHealing, iMinHealing);
+					}
+					continue;
+				}
 				if (iCombatStrength > iBestStrength)
 				{
 					iBestStrength = iCombatStrength;
 					pBestStrUnit = pLoopUnit;
 					pBestStrPlot = &getPathEndTurnPlot();
 				}
-				// or the unit with the best healing ability
-				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
 				if (gGreatGeneralLogLevel >= 3)
 				{
 					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
 					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing, getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
 				}
+				// or the unit with the best healing ability
 				if (iHealing > iBestHealing)
 				{
 					iBestHealing = iHealing;
@@ -15885,7 +15899,7 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
 /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
-// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Warlord attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
+// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Great General unit attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
 static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
 {
 	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();

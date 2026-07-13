@@ -787,7 +787,7 @@ Author: wonderingabout <hidden>
 Date:   2026-06-14 08:31:02 +0200
 
 Fix AI workers never considering forest chopping when city population is high and city has unhealthiness: later in the game improved yields are stronger, so accept the health loss for this gain, and do not leave unimproved plots (at least attempt to with this change)
-- Optionally show Plot coordinates on hover (e.g., `63,46`) in hover help text. This makes it to discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
+- Optionally show Plot coordinates on hover (e.g., `63,46`) in hover help text. This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
 
 commit 4921e5e0bcab3e3f28431331fa6766804a03ef41
 Author: wonderingabout <hidden>

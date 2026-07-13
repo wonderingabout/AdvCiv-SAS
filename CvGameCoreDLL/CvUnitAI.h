@@ -164,7 +164,8 @@ protected:
 	bool AI_spreadReligionAirlift();
 	bool AI_spreadCorporationAirlift();
 	bool AI_discover(bool bThisTurnOnly = false, bool bFirstResearchOnly = false);
-	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes);
+	// <!-- custom: Optional minimum Great General unit-attachment target gates; AI_generalMove passes high SAS defaults so Great Generals normally still prefer Military Academy or Military Instructor unless the thresholds are deliberately lowered. (GPT-5.5) -->
+	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes, int iMinStrengthScore = 0, int iMinHealing = 0);
 	bool AI_join(int iMaxCount = MAX_INT);
 	bool AI_construct(int iMaxCount = MAX_INT, int iMaxSingleBuildingCount = MAX_INT, int iThreshold = 15);
 	/*bool AI_switchHurry(); // advc.003j

@@ -1366,7 +1366,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
+	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -3045,6 +3045,16 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT</DefineName>
 		<iDefineIntVal>999</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum unit strength score before Great General unit attachment is allowed. BBAI save-file 450 testing showed Great Generals could otherwise attach to low-value Longbowmen after Military Instructor city joining was blocked by safety/path gates. Current AdvCiv-SAS balance strongly prefers Military Instructor or Military Academy, so the default is intentionally too high for normal units to pass; lower it to allow Great General unit attachments again, or set 0 to disable this strength gate. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
+	</Define>
+	<!-- custom: Existing unit healing value that can bypass the Great General unit-attachment strength gate. Healing is same-tile + adjacent healing; for example, rough Medic-promotion values are 10 / 20 / 40 / 60. Current AdvCiv-SAS default is intentionally too high for normal healers to pass; lower it if you want true super-medics to remain possible, or set 0 to disable this healing bypass. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING</DefineName>
+		<iDefineIntVal>100000</iDefineIntVal>
 	</Define>
 
 

@@ -2877,6 +2877,10 @@ Changes thanks to claude sonnet 4.5 and chatgpt 5, in `CvCityAI::AI_permanentSpe
 
 I have noticed AI goes for great general leader, when it is much better to go for a military instructor that would scale throughout the game, and in top hammer cities, especially if they have heroic epic. Plus removed the military instructor per city limit. Results ingame are very good.
 
+Update: BBAI save-file 450 testing showed a remaining edge case: France had a Great General in Orleans at T132, `AI_join` rejected Orleans as `city-not-safe` and rejected Lyons/Rheims as `no-safe-path`, then the plot-danger branch attached the Great General to a low-value Longbowman (`baseCombat=4`, `xp=4`, `healing=0`).
+
+Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Academy or Military Instructor unless these thresholds are deliberately lowered. In the latest T200 retest, France's low-value Longbowman attachment was rejected from T132 to T136 and the Great General joined Orleans at T137; the same gate also rejected a United States Longbowman from T186 to T188, and that Great General joined Washington at T189.
+
 ## 70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots
 
 See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, seemingly now fixed with the help of chatgpt 5 and my prompts or such, check if accurate.
