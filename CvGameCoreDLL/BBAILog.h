@@ -17,6 +17,7 @@ bool isSASBBAILogEnabled();
 bool isSASBBAILogMasterEnabled();
 int getSASBBAIPlayerLogLevel();
 int getSASBBAITeamLogLevel();
+int getSASBBAIWarLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
@@ -38,6 +39,7 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gPlayerLogLevel getSASBBAIPlayerLogLevel()
 #define gScoreLogInterval getSASBBAIScoreLogInterval() // advc.007: was hardcoded to 25 in CvPlayer::onTurnLogging
 #define gTeamLogLevel getSASBBAITeamLogLevel()
+#define gWarLogLevel getSASBBAIWarLogLevel() // <!-- custom: Separate war-plan and war-target diagnostics from broad TEAM logging. (GPT-5.5) -->
 #define gCityLogLevel getSASBBAICityLogLevel()
 #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()

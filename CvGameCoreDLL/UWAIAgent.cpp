@@ -9,9 +9,11 @@
 #include "CoreAI.h"
 #include "CvCityAI.h"
 #include "CvDiploParameters.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
 #include "TeamPathFinder.h"
 #include "CvArea.h"
 #include "RiseFall.h" // advc.705
+#include "BBAILog.h" // <!-- custom: Dedicated SAS war diagnostics log UWAI target utility and distance context separately from broad TEAM logging. (GPT-5.5) -->
 
 using std::vector;
 using std::set;
@@ -25,6 +27,51 @@ namespace
 	/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
 		(no modifier for brokering, i.e. 100%). */
 	scaled const rReparationsModifierHuman = fixp(0.75);
+
+	int getSASBBAINearestCityDistance(TeamTypes eFrom, TeamTypes eTo)
+	{
+		int iBestDistance = MAX_INT;
+		for (MemberAIIter itFrom(eFrom); itFrom.hasNext(); ++itFrom)
+		{
+			FOR_EACH_CITY(pFromCity, *itFrom)
+			{
+				for (MemberAIIter itTo(eTo); itTo.hasNext(); ++itTo)
+				{
+					FOR_EACH_CITY(pToCity, *itTo)
+					{
+						iBestDistance = std::min(iBestDistance, plotDistance(pFromCity->getX(), pFromCity->getY(), pToCity->getX(), pToCity->getY()));
+					}
+				}
+			}
+		}
+		return (iBestDistance == MAX_INT ? -1 : iBestDistance);
+	}
+
+	int getSASBBAITargetPowerPercent(CvTeamAI const& kAgent, TeamTypes eTarget)
+	{
+		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+	}
+
+	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork)
+	{
+		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+		const PlayerTypes eAgentLeader = kAgent.getLeaderID();
+		const PlayerTypes eTargetLeader = kTarget.getLeaderID();
+		const int iAttitude = kAgent.AI_getAttitude(eTarget);
+		const int iAttitudeValue = kAgent.AI_getAttitudeVal(eTarget);
+		const int iOurPower = std::max(1, kAgent.getPower(true));
+		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
+		logBBAI("WAR_TARGET_EVAL turn=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+	}
+
+	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork)
+	{
+		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+		logBBAI("WAR_TARGET_DRIVE turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+	}
 }
 
 
@@ -1146,12 +1193,22 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
 		rSwitchProb += fixp(1.8);
 	m_pReport->log("Switching target for war preparations to %s (u=%d) with pr=%d percent",
 			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchProb.getPercent());
+	if (gWarLogLevel >= 1)
+	{
+		logBBAI("WAR_TARGET_SWITCH_CHECK turn=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d switchPercent=%d oldQualms=%d newQualms=%d oldDistance=%d newDistance=%d oldAttitude=%d newAttitude=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, rSwitchProb.getPercent(), bQualms, bAltQualms, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitude(eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+	}
 	if (!SyncRandSuccess(rSwitchProb))
 	{
 		m_pReport->log("Target not switched");
 		return true;
 	}
 	m_pReport->log("Target switched");
+	if (gWarLogLevel >= 1)
+	{
+		logBBAI("WAR_TARGET_SWITCHED turn=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d oldDistance=%d newDistance=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+	}
 	if (!isInBackground())
 	{
 		int iWPAge = kAgent.AI_getWarPlanStateCounter(eTarget);
@@ -1219,6 +1276,11 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
 	}
 	if (bConclude)
 	{
+		if (gWarLogLevel >= 1)
+		{
+			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d",
+					GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+		}
 		if (!isInBackground())
 		{
 			// Don't AI_setWarPlanStateCounter, i.e. let CvTeamAI reset it to 0.
@@ -1424,14 +1486,15 @@ namespace
 {
 	struct TargetData
 	{
-		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, int iU)
-		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU)
+		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, int iU, bool bShortWork)
+		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU), bShortWork(bShortWork)
 		{}
 		bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
 		scaled rDrive;
 		TeamTypes eTeam;
 		bool bTotal;
 		int iU;
+		bool bShortWork;
 	};
 }
 
@@ -1527,6 +1590,10 @@ void UWAI::Team::scheme()
 					((bTotal && bTotalNaval) || (!bTotal && bLimitedNaval)) ?
 					"naval" : "", iU);
 		}
+		if (gWarLogLevel >= 2)
+		{
+			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork);
+		}
 		bool const bCanHireOld = kCache.canBeHiredAgainst(eTarget);
 		kCache.updateCanBeHiredAgainst(eTarget, iU, iWarTradeUtilityThresh);
 		bool const bCanHireNew = kCache.canBeHiredAgainst(eTarget);
@@ -1566,7 +1633,7 @@ void UWAI::Team::scheme()
 		rPeacePortionRemaining.decreaseTo(fixp(0.95));
 		// (Let's try it w/o exponentiation)
 		rDrive *= (1 - rPeacePortionRemaining)/*.pow(fixp(1.5))*/;
-		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, iU));
+		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, iU, bShortWork));
 		rTotalDrive += rDrive;
 	}
 	// Descending by drive
@@ -1586,8 +1653,15 @@ void UWAI::Team::scheme()
 				WARPLAN_PREPARING_LIMITED);
 		m_pReport->log("Drive for war preparations against %s: %d percent",
 				m_pReport->teamName(eTarget), rDrive.getPercent());
+		if (gWarLogLevel >= 2)
+			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork);
 		if (SyncRandSuccess(rDrive))
 		{
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_TARGET_CHOSEN turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+			}
 			if (!isInBackground())
 			{
 				kAgent.AI_setWarPlan(eTarget, eWP);

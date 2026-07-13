@@ -15,6 +15,7 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "CvGameTextMgr.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for game-summary diplomacy rows. (GPT-5.5) -->
 #include "RiseFall.h"
 #include "AdvCiv4lerts.h"
 #include "CvBugOptions.h"
@@ -26,52 +27,6 @@
 
 namespace
 {
-	const char* getSASGameSummaryDiploEventName(DiploEventTypes eDiploEvent)
-	{
-		switch (eDiploEvent)
-		{
-		case DIPLOEVENT_CONTACT: return "DIPLOEVENT_CONTACT";
-		case DIPLOEVENT_AI_CONTACT: return "DIPLOEVENT_AI_CONTACT";
-		case DIPLOEVENT_FAILED_CONTACT: return "DIPLOEVENT_FAILED_CONTACT";
-		case DIPLOEVENT_GIVE_HELP: return "DIPLOEVENT_GIVE_HELP";
-		case DIPLOEVENT_REFUSED_HELP: return "DIPLOEVENT_REFUSED_HELP";
-		case DIPLOEVENT_ACCEPT_DEMAND: return "DIPLOEVENT_ACCEPT_DEMAND";
-		case DIPLOEVENT_REJECTED_DEMAND: return "DIPLOEVENT_REJECTED_DEMAND";
-		case DIPLOEVENT_DEMAND_WAR: return "DIPLOEVENT_DEMAND_WAR";
-		case DIPLOEVENT_CONVERT: return "DIPLOEVENT_CONVERT";
-		case DIPLOEVENT_NO_CONVERT: return "DIPLOEVENT_NO_CONVERT";
-		case DIPLOEVENT_REVOLUTION: return "DIPLOEVENT_REVOLUTION";
-		case DIPLOEVENT_NO_REVOLUTION: return "DIPLOEVENT_NO_REVOLUTION";
-		case DIPLOEVENT_JOIN_WAR: return "DIPLOEVENT_JOIN_WAR";
-		case DIPLOEVENT_NO_JOIN_WAR: return "DIPLOEVENT_NO_JOIN_WAR";
-		case DIPLOEVENT_STOP_TRADING: return "DIPLOEVENT_STOP_TRADING";
-		case DIPLOEVENT_NO_STOP_TRADING: return "DIPLOEVENT_NO_STOP_TRADING";
-		case DIPLOEVENT_ASK_HELP: return "DIPLOEVENT_ASK_HELP";
-		case DIPLOEVENT_MADE_DEMAND: return "DIPLOEVENT_MADE_DEMAND";
-		case DIPLOEVENT_RESEARCH_TECH: return "DIPLOEVENT_RESEARCH_TECH";
-		case DIPLOEVENT_TARGET_CITY: return "DIPLOEVENT_TARGET_CITY";
-		case DIPLOEVENT_MADE_DEMAND_VASSAL: return "DIPLOEVENT_MADE_DEMAND_VASSAL";
-		case DIPLOEVENT_SET_WARPLAN: return "DIPLOEVENT_SET_WARPLAN";
-		default: return "UNKNOWN_DIPLOEVENT";
-		}
-	}
-
-	const char* getSASGameSummaryWarPlanName(WarPlanTypes eWarPlan)
-	{
-		switch (eWarPlan)
-		{
-		case NO_WARPLAN: return "NO_WARPLAN";
-		case WARPLAN_ATTACKED_RECENT: return "WARPLAN_ATTACKED_RECENT";
-		case WARPLAN_ATTACKED: return "WARPLAN_ATTACKED";
-		case WARPLAN_PREPARING_LIMITED: return "WARPLAN_PREPARING_LIMITED";
-		case WARPLAN_PREPARING_TOTAL: return "WARPLAN_PREPARING_TOTAL";
-		case WARPLAN_LIMITED: return "WARPLAN_LIMITED";
-		case WARPLAN_TOTAL: return "WARPLAN_TOTAL";
-		case WARPLAN_DOGPILE: return "WARPLAN_DOGPILE";
-		default: return "UNKNOWN_WARPLAN";
-		}
-	}
-
 	CvString getSASGameSummaryDiploIntText(int iValue)
 	{
 		CvString szValue;
@@ -136,7 +91,7 @@ namespace
 		switch (eDiploEvent)
 		{
 		case DIPLOEVENT_SET_WARPLAN:
-			return CvString(getSASGameSummaryWarPlanName((WarPlanTypes)iData2));
+			return CvString(getSASWarPlanType((WarPlanTypes)iData2));
 		default:
 			return CvString("-");
 		}
@@ -151,7 +106,7 @@ namespace
 	{
 		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-summary logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
 		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
-				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASGameSummaryDiploEventName(eDiploEvent), iData1, getSASGameSummaryDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameSummaryDiploData2Text(eDiploEvent, iData2).GetCString());
+				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1, getSASGameSummaryDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameSummaryDiploData2Text(eDiploEvent, iData2).GetCString());
 	}
 }
 
@@ -3859,7 +3814,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 
 	case DIPLOEVENT_DEMAND_WAR:
 		FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on our own team");
-		if (gTeamLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
 		GET_TEAM(getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, WARPLAN_LIMITED);
 		break;
@@ -3895,7 +3850,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_JOIN_WAR);
 		// advc.146:
 		GET_TEAM(getTeam()).signPeaceTreaty(TEAMID(ePlayer));
-		if (gTeamLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gWarLogLevel >= 2) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			logBBAI("    Team %d (%S) declares war on team %d due to DIPLOEVENT", getTeam(), getCivilizationDescription(0), ePlayer);
 		GET_TEAM(ePlayer).declareWar((TeamTypes)iData1, false, WARPLAN_DOGPILE,
 				true, getID()); // advc.100
@@ -16332,7 +16287,7 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 	{
 		if (pTriggeredData->m_eOtherPlayer != NO_PLAYER)
 		{
-			if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event", GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+			if (gWarLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to event", GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam(), GET_PLAYER(pTriggeredData->m_eOtherPlayer).getCivilizationDescription(0), getTeam()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).declareWar(getTeam(), false, WARPLAN_LIMITED,
 					true, NO_PLAYER, true); // advc.106g
 		}

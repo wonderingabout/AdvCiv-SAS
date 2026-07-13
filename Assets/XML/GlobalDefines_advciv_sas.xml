@@ -1346,6 +1346,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI target choice, preparation switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; when disabled: 0. (GPT-5.5?) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>

@@ -7,6 +7,7 @@
 #include "CvCity.h"
 #include "CvMap.h"
 #include "CvGameTextMgr.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw TradeableItems token text for game-summary diplomacy deal rows. (GPT-5.5) -->
 #include "CvInfo_Civics.h"
 #include "CvInfo_Tech.h" // <!-- custom: Needed for game-summary diplomacy trade-item names. (ChatGPT-5.5) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for game-summary diplomacy religion trade-item names. (ChatGPT-5.5) -->
@@ -16,33 +17,6 @@
 
 namespace
 {
-	const char* getSASGameSummaryTradeItemName(TradeableItems eItem)
-	{
-		switch (eItem)
-		{
-		case NO_TRADE_ITEM: return "-";
-		case TRADE_GOLD: return "TRADE_GOLD";
-		case TRADE_GOLD_PER_TURN: return "TRADE_GOLD_PER_TURN";
-		case TRADE_MAPS: return "TRADE_MAPS";
-		case TRADE_VASSAL: return "TRADE_VASSAL";
-		case TRADE_SURRENDER: return "TRADE_SURRENDER";
-		case TRADE_OPEN_BORDERS: return "TRADE_OPEN_BORDERS";
-		case TRADE_DEFENSIVE_PACT: return "TRADE_DEFENSIVE_PACT";
-		case TRADE_PERMANENT_ALLIANCE: return "TRADE_PERMANENT_ALLIANCE";
-		case TRADE_PEACE_TREATY: return "TRADE_PEACE_TREATY";
-		case TRADE_TECHNOLOGIES: return "TRADE_TECHNOLOGIES";
-		case TRADE_RESOURCES: return "TRADE_RESOURCES";
-		case TRADE_CITIES: return "TRADE_CITIES";
-		case TRADE_PEACE: return "TRADE_PEACE";
-		case TRADE_WAR: return "TRADE_WAR";
-		case TRADE_EMBARGO: return "TRADE_EMBARGO";
-		case TRADE_CIVIC: return "TRADE_CIVIC";
-		case TRADE_RELIGION: return "TRADE_RELIGION";
-		case TRADE_DISENGAGE: return "TRADE_DISENGAGE";
-		default: return "UNKNOWN_TRADE_ITEM";
-		}
-	}
-
 	CvString getSASGameSummaryIntText(int iValue)
 	{
 		CvString szValue;
@@ -107,7 +81,7 @@ namespace
 		FOR_EACH_TRADE_ITEM(kList)
 		{
 			CvString szItem;
-			szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASGameSummaryTradeItemName(pItem->m_eItemType), getSASGameSummaryTradeDataText(*pItem, eFromPlayer).GetCString());
+			szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASGameSummaryTradeDataText(*pItem, eFromPlayer).GetCString());
 			szList += szItem;
 		}
 		return szList.empty() ? CvString("-") : szList;
@@ -129,7 +103,7 @@ namespace
 	void logSASGameSummaryTradeItemAction(const char* szActionType, int iDealId, TradeData const& kItem, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bFlagA, bool bFlagB, PlayerTypes eCancelPlayer = NO_PLAYER)
 	{
 		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
-				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASGameSummaryTradeItemName(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
+				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
 	}
 }
 
@@ -976,7 +950,7 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
 
 	case TRADE_WAR:
 	{
-		if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to TRADE_WAR with %d (%S)", kFromPlayer.getTeam(), kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer, kToPlayer.getCivilizationDescription(0));
+		if (gWarLogLevel >= 2) logBBAI("    Team %d (%S) declares war on team %d due to TRADE_WAR with %d (%S)", kFromPlayer.getTeam(), kFromPlayer.getCivilizationDescription(0), trade.m_iData, eToPlayer, kToPlayer.getCivilizationDescription(0));
 		TeamTypes const eAttackedTeam = (TeamTypes)trade.m_iData;
 		GET_TEAM(eFromPlayer).declareWar(eAttackedTeam, true, NO_WARPLAN,
 				true, eToPlayer); // advc.100

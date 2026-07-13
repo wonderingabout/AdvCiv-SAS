@@ -10,6 +10,7 @@
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
 #include "BBAILog.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
 #include "UWAIAgent.h" // advc.104
 #include <numeric> // K-Mod. used in AI_warSpoilsValue
 
@@ -4873,6 +4874,11 @@ void CvTeamAI::AI_setWarPlan(TeamTypes eTarget, WarPlanTypes eNewValue, bool bWa
 	WarPlanTypes const eOldValue = AI_getWarPlan(eTarget);
 	if (eOldValue == eNewValue || (!bWar && isAtWar(eTarget)))
 		return;
+	if (gWarLogLevel >= 1)
+	{
+		logBBAI("WAR_PLAN_CHANGE turn=%d team=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s bWar=%d atWar=%d stateCounter=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), getID(), eTarget, getSASWarPlanType(eOldValue), getSASWarPlanType(eNewValue), bWar, isAtWar(eTarget), AI_getWarPlanStateCounter(eTarget), getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
+	}
 	AI_updateWarPlanCounts(eTarget, m_aeWarPlan.get(eTarget), eNewValue); // advc.opt
 	m_aeWarPlan.set(eTarget, eNewValue);
 	AI_setWarPlanStateCounter(eTarget, 0);
@@ -5891,7 +5897,7 @@ void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes e
 	{
 		if (AI_getWarPlanStateCounter(eTarget) > ((15 * iAbandonTimeModifier) / (100)))
 		{
-			if (gTeamLogLevel >= 1)
+			if (gWarLogLevel >= 1)
 			{
 				logBBAI("    Team %d (%S) abandoning WARPLAN_LIMITED or WARPLAN_DOGPILE against team %d (%S) after %d turns with enemy power percent %d",
 						getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0),
@@ -5907,7 +5913,7 @@ void CvTeamAI::AI_abandonWarPlanIfTimedOut(int iAbandonTimeModifier, TeamTypes e
 	{
 		if (GET_TEAM(eTarget).getNumWars() <= 0)
 		{
-			if (gTeamLogLevel >= 1)
+			if (gWarLogLevel >= 1)
 			{
 				logBBAI("    Team %d (%S) abandoning WARPLAN_DOGPILE against team %d (%S) after %d turns because enemy has no war",
 						getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0),
@@ -5990,7 +5996,7 @@ void CvTeamAI::AI_doWar()
 			if (AI_getAtWarCounter(eLoopTeam) >
 				(GET_TEAM(eLoopTeam).AI_isLandTarget(getID()) ? 9 : 3))
 			{
-				if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from ATTACKED_RECENT to ATTACKED with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent);
+				if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from ATTACKED_RECENT to ATTACKED with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), iEnemyPowerPercent);
 				AI_setWarPlan(eLoopTeam, WARPLAN_ATTACKED);
 			}
 		}
@@ -6011,7 +6017,7 @@ void CvTeamAI::AI_doWar()
 				{
 					if (AI_getWarPlanStateCounter(eLoopTeam) > 20 * iAbandonTimeModifier / 100)
 					{
-						if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLANS against team %d (%S) due to human / vassal timeout", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0));
+						if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLANS against team %d (%S) due to human / vassal timeout", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0));
 						AI_setWarPlan(eLoopTeam, NO_WARPLAN);
 					}
 				}
@@ -6019,7 +6025,7 @@ void CvTeamAI::AI_doWar()
 				{
 					if (kOurMaster.AI_getWarPlan(eLoopTeam) == NO_WARPLAN)
 					{
-						if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLANS against team %d (%S) due to AI master's warplan cancelation", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0));
+						if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLANS against team %d (%S) due to AI master's warplan cancelation", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0));
 						AI_setWarPlan(eLoopTeam, NO_WARPLAN);
 					}
 				}
@@ -6075,12 +6081,12 @@ void CvTeamAI::AI_doWar()
 				if (AI_startWarVal(eLoopTeam, WARPLAN_LIMITED) > 0) // K-Mod. Last chance to change our mind if circumstances have changed
 				{
 					AI_setWarPlan(eLoopTeam, WARPLAN_LIMITED);
-					if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_LIMITED to LIMITED after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_LIMITED to LIMITED after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 				else
 				{	// advc.001: Actually abandon the war plan
 					AI_setWarPlan(eLoopTeam, NO_WARPLAN);
-					if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLAN_LIMITED against team %d (%S) after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLAN_LIMITED against team %d (%S) after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 			}
 		}
@@ -6135,12 +6141,12 @@ void CvTeamAI::AI_doWar()
 					AI_startWarVal(eLoopTeam, WARPLAN_TOTAL) > 0)) // K-Mod. Last chance to change our mind if circumstances have changed
 				{
 					AI_setWarPlan(eLoopTeam, WARPLAN_TOTAL);
-					if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_TOTAL to TOTAL after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) switching WARPLANS against team %d (%S) from PREPARING_TOTAL to TOTAL after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 				else if (AI_getWarPlanStateCounter(eLoopTeam) > ((20 * iAbandonTimeModifier) / 100))
 				{
 					AI_setWarPlan(eLoopTeam, NO_WARPLAN);
-					if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLAN_TOTAL_PREPARING against team %d (%S) after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
+					if (gWarLogLevel >= 1) logBBAI("    Team %d (%S) abandoning WARPLAN_TOTAL_PREPARING against team %d (%S) after %d turns with enemy power percent %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eLoopTeam, GET_PLAYER(GET_TEAM(eLoopTeam).getLeaderID()).getCivilizationDescription(0), AI_getWarPlanStateCounter(eLoopTeam), iEnemyPowerPercent);
 				}
 			}
 		}
