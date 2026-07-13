@@ -888,7 +888,7 @@ For modders: i have made several scripts with AI assistance. We don't use them a
 
 Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
 
-Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time, of the core/most useful files/folders, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder).
+Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time. It includes the core useful source/data/docs/helper files, including [LLM_Helpers](/LLM_Helpers/) itself, while leaving out generated or too-heavy files/folders (e.g., as of now no `LLM_Helpers/outputs`, .fpk, .tga, .dll, pycache folders, or art assets folder).
 
 GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
 
@@ -923,17 +923,24 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 ### SAS game summary log
 
-`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
+`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+
+Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+For better LLM analysis, also provide mod context when possible. For example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
 
 See also [ChatGPT-5.6-Sol SASGameSummary analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_summary_example.md) for an example of an external LLM using the summary log to review an autoplay run.
 
 For example, `SASGameSummary_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
 
 ```log
-GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile=SASGameSummary_20260710T064839Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
-GAME_SUMMARY_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile="SASGameSummary_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+GAME_SUMMARY_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+GAME_SUMMARY_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
+GAME_SUMMARY_RUN_STATUS turn=190 reason=snapshot elapsed=190 year=1260 winnerTeam=-1 victory=- playersAlive=10 teamsAlive=10 playersEverAlive=11 humans=1 eliminatedPlayers=9 topScorePlayer=3 topScore=1964 topPowerPlayer=10 topPower=456000 totalCities=63 totalPopulation=702
 GAME_SUMMARY_STATISTICS turn=190 player=9 currentCities=1 persistentCitiesBuilt=4 persistentCitiesRazed=0 loggedCitiesAcquired=0 loggedCitiesLost=3 loggedCitiesConquered=0 loggedCitiesLostByConquest=3 loggedCitiesTradedIn=0 loggedCitiesTradedOut=0 loggedCityNet=-3 loggedBattleWins=16 loggedBattleLosses=38 loggedCityBattleWins=0 loggedCityBattleLosses=8 loggedBattleNet=-22
 GAME_SUMMARY_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSKETMAN:7,UNIT_RIFLEMAN:4,UNIT_CANNON:2 unitAI=UNITAI_WORKER:1,UNITAI_ATTACK:2,UNITAI_CITY_DEFENSE:11 unitCombat=UNITCOMBAT_GUN:11,UNITCOMBAT_SIEGE:2
+GAME_SUMMARY_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
 ```
 
 <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_summary_log_example.PNG" alt="sas_game_summary_log_example.PNG" width="250"></img>

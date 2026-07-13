@@ -40,8 +40,7 @@
 /.markdownlint.jsonc  export-ignore
 /ruff.toml            export-ignore
 
-# <!-- custom: LLM helpers are not needed in released archives of the mod -->
-/LLM_Helpers/         export-ignore
+# <!-- custom: Keep LLM_Helpers in GitHub/source ZIP downloads because it contains compact review/tuning scripts and docs, notably make_light_source_zip.py, that help LLM/code-agent analysis. Generated LLM_Helpers/outputs files stay out through .gitignore. (GPT-5.5) -->
 
 # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
 /.github/             export-ignore

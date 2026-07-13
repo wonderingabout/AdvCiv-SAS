@@ -32,6 +32,10 @@ void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding
 void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
 void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
 void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
+void logSASGameSummaryRunStatus(char const* szReason);
+void logSASGameSummaryPlayerEliminated(PlayerTypes ePlayer);
+void logSASGameSummaryPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
+void logSASGameSummaryAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus);
 void logSASGameSummaryGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
 void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
 void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);

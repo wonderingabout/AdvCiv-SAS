@@ -9052,6 +9052,9 @@ void CvPlayer::setAlive(bool bNewValue)
 			m_bEverAlive = true;
 			GET_TEAM(getTeam()).changeEverAliveCount(1);
 		}
+		// <!-- custom: Initial slots are already described by GAME_SUMMARY_PLAYER_SETUP; log later alive transitions explicitly so colonies, revivals, or unusual player appearances are visible instead of only changing alive/ever-alive counts. (GPT-5.5) -->
+		if (gGameSummaryLogLevel >= 2 && !isBarbarian() && (bEverAlive || kGame.getElapsedGameTurns() > 0))
+			logSASGameSummaryPlayerAliveChanged(getID(), bEverAlive);
 		if (getNumCities() <= 0)
 			setFoundedFirstCity(false);
 		updatePlotGroups();
@@ -9085,6 +9088,9 @@ void CvPlayer::setAlive(bool bNewValue)
 		//killUnits(); // advc.003m: Moved up
 		killCities();
 		killAllDeals();
+		// <!-- custom: SAS game-summary logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
+		if (gGameSummaryLogLevel >= 2 && bEverAlive && !isBarbarian())
+			logSASGameSummaryPlayerEliminated(getID());
 
 		setTurnActive(false);
 
