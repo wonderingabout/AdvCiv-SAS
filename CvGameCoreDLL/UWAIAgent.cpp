@@ -52,6 +52,54 @@ namespace
 		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
 	}
 
+	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
+	{
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE");
+		if (!bEnable)
+			return false;
+		// <!-- custom: UWAI sorts by drive, then tests targets probabilistically. BBAI war-target logs showed this can fall through to a farther target even when a closer weak/disliked land target is available, splitting armies away from the core and inviting opportunistic invasions.
+		// Mark only mutually land-relevant local targets here; island/naval choices remain ordinary UWAI or future naval-specific logic. The later skip is intentionally narrow so ordinary UWAI target choice is not flattened into always attacking the weakest neighbor. Uses team power because UWAI chooses team war plans. See KI#182. (GPT-5.5) -->
+		if (!kAgent.AI_isLandTarget(eTarget) || !GET_TEAM(eTarget).AI_isLandTarget(kAgent.getID()))
+			return false;
+		static const int iMinDrivePercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT");
+		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE");
+		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT");
+		static const int iMaxAttitudeValue = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE");
+		static const int iMinCloseness = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS");
+		return (rDrive.getPercent() >= iMinDrivePercent && getSASBBAINearestCityDistance(kAgent.getID(), eTarget) <= iMaxDistance && getSASBBAITargetPowerPercent(kAgent, eTarget) <= iMaxTargetPowerPercent && kAgent.AI_getAttitudeVal(eTarget) <= iMaxAttitudeValue && kAgent.AI_teamCloseness(eTarget) >= iMinCloseness);
+	}
+
+	bool shouldSASBBAISkipForPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, TeamTypes ePreferredTarget)
+	{
+		if (ePreferredTarget == NO_TEAM || eTarget == ePreferredTarget)
+			return false;
+		static const int iMinDistanceAdvantage = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE");
+		return (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) >= getSASBBAINearestCityDistance(kAgent.getID(), ePreferredTarget) + iMinDistanceAdvantage);
+	}
+
+	bool isSASBBAIBetterPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eCandidate, scaled rCandidateDrive, TeamTypes eCurrent, scaled rCurrentDrive)
+	{
+		if (eCurrent == NO_TEAM)
+			return true;
+		int const iCandidateDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCandidate);
+		int const iCurrentDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCurrent);
+		if (iCandidateDistance != iCurrentDistance)
+			return (iCandidateDistance < iCurrentDistance);
+		int const iCandidatePowerPercent = getSASBBAITargetPowerPercent(kAgent, eCandidate);
+		int const iCurrentPowerPercent = getSASBBAITargetPowerPercent(kAgent, eCurrent);
+		if (iCandidatePowerPercent != iCurrentPowerPercent)
+			return (iCandidatePowerPercent < iCurrentPowerPercent);
+		int const iCandidateAttitudeValue = kAgent.AI_getAttitudeVal(eCandidate);
+		int const iCurrentAttitudeValue = kAgent.AI_getAttitudeVal(eCurrent);
+		if (iCandidateAttitudeValue != iCurrentAttitudeValue)
+			return (iCandidateAttitudeValue < iCurrentAttitudeValue);
+		int const iCandidateCloseness = kAgent.AI_teamCloseness(eCandidate);
+		int const iCurrentCloseness = kAgent.AI_teamCloseness(eCurrent);
+		if (iCandidateCloseness != iCurrentCloseness)
+			return (iCandidateCloseness > iCurrentCloseness);
+		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
+	}
+
 	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork)
 	{
 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
@@ -1638,16 +1686,47 @@ void UWAI::Team::scheme()
 	}
 	// Descending by drive
 	std::sort(aTargets.rbegin(), aTargets.rend());
+	vector<scaled> aAdjustedDrives;
+	aAdjustedDrives.reserve(aTargets.size());
+	TeamTypes ePreferredLocalTarget = NO_TEAM;
+	scaled rPreferredLocalDrive;
+	int iPreferredLocalRank = -1;
+	// <!-- custom: Reuse the same adjusted drive that the normal target loop uses after AI_isAvoidWar hesitation, then pick at most one close/weak/disliked land-war target for the narrow faraway-target guard. This prepass does not itself start a war; it only identifies the local target that can block clearly farther alternatives below. See KI#182. (GPT-5.5) -->
 	for (size_t i = 0; i < aTargets.size(); i++)
 	{
 		TeamTypes const eTarget = aTargets[i].eTeam;
 		scaled rDrive = aTargets[i].rDrive;
 		// Conscientious hesitation
 		if (kAgent.AI_isAvoidWar(eTarget, true))
-		{
 			rDrive -= rTotalDrive / 2;
-			if (rDrive <= 0)
-				continue;
+		aAdjustedDrives.push_back(rDrive);
+		if (rDrive > 0 && isSASBBAIPreferredLocalWarTarget(kAgent, eTarget, rDrive) && isSASBBAIBetterPreferredLocalWarTarget(kAgent, eTarget, rDrive, ePreferredLocalTarget, rPreferredLocalDrive))
+		{
+			ePreferredLocalTarget = eTarget;
+			rPreferredLocalDrive = rDrive;
+			iPreferredLocalRank = (int)i + 1;
+		}
+	}
+	if (gWarLogLevel >= 1 && ePreferredLocalTarget != NO_TEAM)
+	{
+		logBBAI("WAR_TARGET_LOCAL_PREFERRED turn=%d agentTeam=%d preferredTargetTeam=%d preferredDrivePercent=%d preferredRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), ePreferredLocalTarget, rPreferredLocalDrive.getPercent(), iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+	}
+	for (size_t i = 0; i < aTargets.size(); i++)
+	{
+		TeamTypes const eTarget = aTargets[i].eTeam;
+		scaled rDrive = aAdjustedDrives[i];
+		if (rDrive <= 0)
+			continue;
+		if (shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget))
+		{
+			// <!-- custom: Only block targets that are clearly farther than the preferred local land target. Equal-distance and closer targets still use ordinary UWAI, keeping this a narrow faraway-war blunder fix rather than a broad war-target rewrite. (GPT-5.5) -->
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_TARGET_LOCAL_PREFERRED_SKIP turn=%d agentTeam=%d skippedTargetTeam=%d preferredTargetTeam=%d skippedDrivePercent=%d preferredDrivePercent=%d skippedRank=%d preferredRank=%d candidateCount=%d skippedAttitude=%d skippedAttitudeValue=%d preferredAttitude=%d preferredAttitudeValue=%d skippedCloseness=%d preferredCloseness=%d skippedDistance=%d preferredDistance=%d skippedTargetPowerPercent=%d preferredTargetPowerPercent=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, ePreferredLocalTarget, rDrive.getPercent(), rPreferredLocalDrive.getPercent(), (int)i + 1, iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(eTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+			}
+			continue;
 		}
 		WarPlanTypes const eWP = (aTargets[i].bTotal ? WARPLAN_PREPARING_TOTAL :
 				WARPLAN_PREPARING_LIMITED);

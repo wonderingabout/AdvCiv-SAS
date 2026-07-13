@@ -6685,3 +6685,33 @@ Retesting with `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES=1` i
 A separate stale-Settler problem can still happen when a valid site exists when the Settler is created but later disappears or becomes invalid/reachable value 0. That is not fully solved by this production floor and should be treated as a distinct stale-Settler cleanup issue if it remains important.
 
 Fixed/improved with the help of ChatGPT-5.5 thanks.
+
+## 182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available
+
+The existing AdvCiv-SAS faraway-war safeguards, such as KI#61, reduced many bad long-distance wars, but BBAI war-target logging exposed a remaining UWAI target-selection issue. `UWAI::Team::scheme` sorts war targets by drive, then tests them probabilistically. When the best nearby target fails its random roll, the loop can fall through to another target that is farther away, friendlier, or less practical, even if a closer weak/disliked land target exists.
+
+This is a major military AI blunder when it happens: attacking too far away can split the army from the core, make reinforcements slow, leave cities vulnerable to opportunistic invasions, and make captured cities harder to defend. However, the fix should not make UWAI bland by always attacking the nearest or weakest neighbor; sometimes ordinary UWAI has valid diplomatic or strategic reasons to prefer another local target.
+
+The fix therefore stays deliberately narrow. Before the normal target roll, AdvCiv-SAS marks one preferred local land target only if it passes tunable gates:
+
+- close enough by nearest-city distance;
+- weak enough by team defensive power percent;
+- disliked or neutral enough by attitude value;
+- mutually land-relevant through `AI_isLandTarget`, so island/naval target selection remains ordinary UWAI or future naval-specific logic;
+- enough `AI_teamCloseness`;
+- and at least a small adjusted UWAI drive sanity threshold.
+
+During the normal target loop, the AI skips only non-preferred targets that are farther than the preferred local target by the configured distance advantage. Equal-distance and closer candidates are left to ordinary UWAI, so this is a "do not go too far when a clearly better local target exists" guard, not a complete replacement for UWAI target choice.
+
+Final BBAI test data with `SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT=15`, `SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT=75`, and the narrow distance skip showed the intended scope in `BBAI_20260713T100055Z_load1.log`:
+
+```text
+WAR_TARGET_LOCAL_PREFERRED: 32
+WAR_TARGET_LOCAL_PREFERRED_SKIP: 17
+WAR_TARGET_CHOSEN: 247
+declares war: 154
+```
+
+All 17 skips had the skipped target at least 2 tiles farther than the preferred target. The preferred targets had adjusted drive at least 16%, and all had preferred target power <= 75%: 16 were in the 51-75% band and one was in the 26-50% band. Earlier experiments were intentionally rejected: setting the drive gate to 0 produced too many very-low-drive overrides, and a broader same-distance / near-distance skip affected ordinary local choices too much.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
