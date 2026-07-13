@@ -3,6 +3,8 @@
 #ifndef CIV4_GAMECORE_UTILS_H
 #define CIV4_GAMECORE_UTILS_H
 
+#include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
+
 class CvPlot;
 class CvCity;
 class CvCityAI; // advc.003u
@@ -115,6 +117,12 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
 char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
+int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->
+int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
 

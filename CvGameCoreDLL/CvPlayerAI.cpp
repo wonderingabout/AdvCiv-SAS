@@ -20,6 +20,7 @@
 #include "CvInfo_Civics.h"
 #include "BBAILog.h"
 #include "CvPopupInfo.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared victory-stage helpers used by AI victory diagnostics and strategy logs. (GPT-5.5) -->
 
 //#define GREATER_FOUND_RANGE			(5)
 #define CIVIC_CHANGE_DELAY				(20) // was 25
@@ -30,21 +31,6 @@ static std::map<int,int> g_sasWorkerSeaFirstSeenUnimprovedTurn;
 static std::map<int,int> g_sasWorkerSeaFirstSeenBuildableTurn;
 static std::map<int,int> g_sasWorkerSeaFirstSeenReachableTurn;
 static int g_iSASWorkerSeaAuditLastTurn = -1;
-
-
-// <!-- custom: Local helper for compact victory-stage comparisons and logging summaries. The victory-stage state is already a bitfield, so this avoids repeated AI_atVictoryStage checks without adding header/API churn. (ChatGPT-5.5 + GPT-5.5 review) -->
-static int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
-{
-	if ((eVictoryStageHash & eStage4) != 0)
-		return 4;
-	if ((eVictoryStageHash & eStage3) != 0)
-		return 3;
-	if ((eVictoryStageHash & eStage2) != 0)
-		return 2;
-	if ((eVictoryStageHash & eStage1) != 0)
-		return 1;
-	return 0;
-}
 
 // <!-- custom: Return the actual culture of a player's Nth-best city for early cultural-race qualification/ranking. Unlike late projected countdowns, this remains meaningful before cities reach the culture level immediately below Legendary. Reserve the known city count because culture-stage ranking calls this repeatedly across rivals. (GPT-5.5) -->
 static int getSASCultureVictoryNthCityCulture(CvPlayerAI const& kPlayer, int iCityRank)
@@ -2713,10 +2699,10 @@ void CvPlayerAI::AI_updateCommerceWeights()
 		int const iCurrentDeadlineMargin = (iCurrentBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iCurrentBottleneckCountdown);
 		int const iProjectedDeadlineMargin = (iProjectedBottleneckCountdown < 0 ? -1 : iTurnsRemaining - iProjectedBottleneckCountdown);
 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
-		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
-		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
-		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
-		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+		int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+		int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+		int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
 		bool const bAtWar = (kTeam.getNumWars() > 0);
 		int const iEnemyPowerPercent = kTeam.AI_getEnemyPowerPercent(true);
@@ -26236,10 +26222,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 	if (!isHuman() && iMinCompetingVictoryStage > 0 && iHighCultureCount < iVictoryCities)
 	{
 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
-		int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
-		int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
-		int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
-		int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+		int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+		int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+		int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
 		int const iMostAdvancedCompetingStage = std::max(std::max(iSpaceStage, iConquestStage), std::max(iDominationStage, iDiplomacyStage));
 		if (iMostAdvancedCompetingStage >= iMinCompetingVictoryStage)
 		{
@@ -26427,10 +26413,10 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
 					int const iProjectedDeadlinePercent = (iWinningCountdown < MAX_INT && iTurnsRemaining > 0 ? (int)((long long)100 * iWinningCountdown / iTurnsRemaining) : -1);
 					bool const bEligibleRankOK = (iMaxCultureRaceRank <= 0 || iEligibleCultureRaceRank <= 0 || iEligibleCultureRaceRank <= iMaxCultureRaceRank);
 					AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
-					int const iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
-					int const iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
-					int const iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
-					int const iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+					int const iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+					int const iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+					int const iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+					int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
 					bool const bCompetingVictoryPressure = (iSpaceStage >= 3 || iConquestStage >= 3 || iDominationStage >= 3 || iDiplomacyStage >= 3);
 					std::vector<std::pair<int,int> > candidateCountdownList;
 					candidateCountdownList.reserve(getNumCities());
@@ -28381,11 +28367,11 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
 	if (bLogCultureGreatPersonWeights)
 	{
 		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
-		iCultureStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4);
-		iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
-		iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
-		iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
-		iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
+		iCultureStage = getSASCultureVictoryStageLevel(eVictoryStageHash);
+		iSpaceStage = getSASSpaceVictoryStageLevel(eVictoryStageHash);
+		iConquestStage = getSASConquestVictoryStageLevel(eVictoryStageHash);
+		iDominationStage = getSASDominationVictoryStageLevel(eVictoryStageHash);
+		iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
 	}
 	// (smaller iMin means more focus on high-value specialists)
 	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)

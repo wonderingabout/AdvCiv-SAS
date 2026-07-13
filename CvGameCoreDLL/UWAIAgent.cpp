@@ -9,7 +9,7 @@
 #include "CoreAI.h"
 #include "CvCityAI.h"
 #include "CvDiploParameters.h"
-#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text and victory-stage helpers for structured war diagnostics. (GPT-5.5) -->
 #include "TeamPathFinder.h"
 #include "CvArea.h"
 #include "RiseFall.h" // advc.705
@@ -50,6 +50,50 @@ namespace
 	int getSASBBAITargetPowerPercent(CvTeamAI const& kAgent, TeamTypes eTarget)
 	{
 		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+	}
+
+	void getSASBBAITeamVictoryStages(TeamTypes eTeam, int& iCultureStage, int& iSpaceStage, int& iConquestStage, int& iDominationStage, int& iDiplomacyStage)
+	{
+		iCultureStage = 0;
+		iSpaceStage = 0;
+		iConquestStage = 0;
+		iDominationStage = 0;
+		iDiplomacyStage = 0;
+		for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		{
+			AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
+			iCultureStage = std::max(iCultureStage, getSASCultureVictoryStageLevel(eVictoryStageHash));
+			iSpaceStage = std::max(iSpaceStage, getSASSpaceVictoryStageLevel(eVictoryStageHash));
+			iConquestStage = std::max(iConquestStage, getSASConquestVictoryStageLevel(eVictoryStageHash));
+			iDominationStage = std::max(iDominationStage, getSASDominationVictoryStageLevel(eVictoryStageHash));
+			iDiplomacyStage = std::max(iDiplomacyStage, getSASDiplomacyVictoryStageLevel(eVictoryStageHash));
+		}
+	}
+
+	int getSASBBAISpaceshipPartsBuilt(TeamTypes eTeam)
+	{
+		int iPartsBuilt = 0;
+		CvTeamAI const& kTeam = GET_TEAM(eTeam);
+		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+		{
+			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+			if (kProject.isSpaceship())
+				iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
+		}
+		return iPartsBuilt;
+	}
+
+	void logSASBBAIWarTargetVictoryContext(CvTeamAI const& kAgent, TeamTypes eTarget, char const* szRow, WarPlanTypes eWarPlan, int iUtility, int iDrivePercent, int iTargetRank, int iCandidateCount, bool bBackground)
+	{
+		int iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage;
+		int iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage;
+		getSASBBAITeamVictoryStages(eTarget, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage);
+		getSASBBAITeamVictoryStages(kAgent.getID(), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage);
+		if (std::max(std::max(iTargetCultureStage, iTargetSpaceStage), std::max(std::max(iTargetConquestStage, iTargetDominationStage), iTargetDiplomacyStage)) < 3 && GET_TEAM(eTarget).AI_getLowestVictoryCountdown() < 0)
+			return;
+		// <!-- custom: Map 450 showed Lincoln winning Space Race despite stronger teams evaluating him as weak and reachable only a few turns earlier. Log near-victory target context directly beside UWAI target rows so future runs show whether the AI noticed a rival victory threat, whether the target was weak/near enough, and whether normal war selection acted too late. (GPT-5.5) -->
+		logBBAI("WAR_TARGET_VICTORY_PRESSURE turn=%d row=%s background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d targetCultureStage=%d targetSpaceStage=%d targetConquestStage=%d targetDominationStage=%d targetDiplomacyStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d agentCultureStage=%d agentSpaceStage=%d agentConquestStage=%d agentDominationStage=%d agentDiplomacyStage=%d agentVictoryCountdown=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), szRow, bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, iDrivePercent, iTargetRank, iCandidateCount, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAISpaceshipPartsBuilt(eTarget), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage, kAgent.AI_getLowestVictoryCountdown(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), kAgent.getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
 	}
 
 	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
@@ -100,7 +144,7 @@ namespace
 		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
 	}
 
-	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork)
+	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork, bool bBackground)
 	{
 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
 		const PlayerTypes eAgentLeader = kAgent.getLeaderID();
@@ -110,15 +154,17 @@ namespace
 		const int iOurPower = std::max(1, kAgent.getPower(true));
 		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
 		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
-		logBBAI("WAR_TARGET_EVAL turn=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
-				GC.getGame().getGameTurn(), kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
 	}
 
-	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork)
+	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork, bool bBackground)
 	{
 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
-		logBBAI("WAR_TARGET_DRIVE turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
-				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		logBBAI("WAR_TARGET_DRIVE turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DRIVE", eWarPlan, iUtility, rDrive.getPercent(), -1, -1, bBackground);
 	}
 }
 
@@ -1326,13 +1372,20 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
 	{
 		if (gWarLogLevel >= 1)
 		{
-			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d",
-					GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
+			logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_ADOPTED", eDirectWP, iU, -1, -1, -1, isInBackground());
 		}
 		if (!isInBackground())
 		{
 			// Don't AI_setWarPlanStateCounter, i.e. let CvTeamAI reset it to 0.
 			kAgent.AI_setWarPlan(eTarget, eDirectWP);
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_PLAN_DIRECT_SET turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d stateCounter=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.AI_getWarPlanStateCounter(eTarget));
+				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_SET", eDirectWP, iU, -1, -1, -1, false);
+			}
 		}
 		return false;
 	}
@@ -1640,7 +1693,7 @@ void UWAI::Team::scheme()
 		}
 		if (gWarLogLevel >= 2)
 		{
-			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork);
+			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, isInBackground());
 		}
 		bool const bCanHireOld = kCache.canBeHiredAgainst(eTarget);
 		kCache.updateCanBeHiredAgainst(eTarget, iU, iWarTradeUtilityThresh);
@@ -1733,17 +1786,25 @@ void UWAI::Team::scheme()
 		m_pReport->log("Drive for war preparations against %s: %d percent",
 				m_pReport->teamName(eTarget), rDrive.getPercent());
 		if (gWarLogLevel >= 2)
-			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork);
+			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
 		if (SyncRandSuccess(rDrive))
 		{
 			if (gWarLogLevel >= 1)
 			{
-				logBBAI("WAR_TARGET_CHOSEN turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
-						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+				// <!-- custom: CHOSEN can be emitted during UWAI background evaluation, where no real war plan is assigned. Keep it for probabilistic target-choice context, but log PLAN_SET below only after the non-background AI_setWarPlan call so victory-pressure audits can distinguish simulated choice from actual action. (GPT-5.5) -->
+				logBBAI("WAR_TARGET_CHOSEN turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "CHOSEN", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), isInBackground());
 			}
 			if (!isInBackground())
 			{
 				kAgent.AI_setWarPlan(eTarget, eWP);
+				if (gWarLogLevel >= 1)
+				{
+					logBBAI("WAR_TARGET_PLAN_SET turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d stateCounter=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
+							GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), kAgent.AI_getWarPlanStateCounter(eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+					logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "PLAN_SET", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
+				}
 				showWarPrepStartedMsg(eTarget);
 			}
 			m_pReport->log("War plan initiated (%s)", m_pReport->warPlanName(eWP));
