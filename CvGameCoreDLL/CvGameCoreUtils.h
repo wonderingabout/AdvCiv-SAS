@@ -123,6 +123,7 @@ int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
 

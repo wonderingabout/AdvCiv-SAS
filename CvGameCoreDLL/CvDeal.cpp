@@ -105,6 +105,38 @@ namespace
 		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
 				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
 	}
+
+	bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL)
+	{
+		static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+		if (!bSASUWAIVictoryDenialEnable)
+			return false;
+		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
+		int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
+		if (piVictoryCountdown != NULL)
+			*piVictoryCountdown = iCountdown;
+		if (piMaxVictoryStage != NULL)
+			*piMaxVictoryStage = iMaxVictoryStage;
+		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4);
+	}
+
+	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
+	{
+		int iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage;
+		bool const bFirstVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(eFirstTeam, &iFirstCountdown, &iFirstMaxVictoryStage);
+		bool const bSecondVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(eSecondTeam, &iSecondCountdown, &iSecondMaxVictoryStage);
+		if (!bFirstVictoryThreat && !bSecondVictoryThreat)
+			return false;
+		if (gWarLogLevel >= 1)
+		{
+			static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
+			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d maxRefusePeaceCountdown=%d",
+					GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage, iMaxVictoryDenialPeaceCountdown);
+		}
+		return true;
+	}
 }
 
 
@@ -321,6 +353,11 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			erroneously allow the vassal's units to stay in the master's land. */
 		// <advc.039>
 		bool bSurrender = isVassalTrade(kFirstList) || isVassalTrade(kSecondList);
+		// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard.
+		// Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals, and a later run showed stage-4 anti-spaceship wars against Egypt ending before countdown started.
+		// Block non-surrender peace here, just before makePeace, while either side is still a stage-4 or countdown victory threat. (GPT-5.5) -->
+		if (!bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
+			return;
 		bool bDone = false;
 		if(!bSurrender && GC.getDefineBOOL(CvGlobals::ANNOUNCE_REPARATIONS))
 		{

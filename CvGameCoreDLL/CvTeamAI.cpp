@@ -3789,6 +3789,27 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
 	if (!canChangeWarPeace(ePeaceTeam))
 		return DENIAL_VASSAL;
 
+	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	if (bSASUWAIVictoryDenialEnable)
+	{
+		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
+		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
+		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
+		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
+		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
+		// Refuse brokered peace while the target is inside the countdown window or still a stage-4 victory threat; otherwise direct denial wars become mostly cosmetic. See KI#184. (GPT-5.5) -->
+		if ((iVictoryCountdown >= 0 && iVictoryCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4))
+		{
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_REFUSE_PEACE turn=%d team=%d peaceTeam=%d brokerTeam=%d targetVictoryCountdown=%d targetMaxVictoryStage=%d maxRefusePeaceCountdown=%d warPlan=%s atWarCounter=%d",
+						GC.getGame().getGameTurn(), getID(), ePeaceTeam, eBroker, iVictoryCountdown, iMaxVictoryStage, iMaxVictoryDenialPeaceCountdown, getSASWarPlanType(AI_getWarPlan(ePeaceTeam)), AI_getAtWarCounter(ePeaceTeam));
+			}
+			return DENIAL_VICTORY;
+		}
+	}
+
 	// <advc.104>
 	if(getUWAI().isEnabled())
 		return uwai().makePeaceTrade(ePeaceTeam, eBroker);

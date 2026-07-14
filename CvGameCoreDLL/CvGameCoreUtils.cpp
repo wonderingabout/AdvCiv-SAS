@@ -399,6 +399,17 @@ int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getS
 int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4); }
 int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4); }
 int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4); }
+int getSASTeamMaxVictoryStage(TeamTypes eTeam)
+{
+	int iMaxVictoryStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+	{
+		AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
+		int const iMemberMaxVictoryStage = std::max(std::max(getSASCultureVictoryStageLevel(eVictoryStageHash), getSASSpaceVictoryStageLevel(eVictoryStageHash)), std::max(std::max(getSASConquestVictoryStageLevel(eVictoryStageHash), getSASDominationVictoryStageLevel(eVictoryStageHash)), getSASDiplomacyVictoryStageLevel(eVictoryStageHash)));
+		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
+	}
+	return iMaxVictoryStage;
+}
 
 // advc: No longer needed
 /*bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)

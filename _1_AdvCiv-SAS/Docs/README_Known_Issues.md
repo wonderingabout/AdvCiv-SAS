@@ -222,6 +222,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example)\
 [182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available)\
 [183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
+[184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6762,3 +6763,65 @@ The remaining high rows were `WAR RISK` rejects only, meaning the guard now work
 The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
 
 Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GZnGuSovQd6mHu3EGumKOeQpEIJvba5Z?usp=sharing).
+
+This is a follow-up to the KI#182 and KI#183 UWAI work. Once faraway-war target fall-through and the peace-scenario Risk sign-flip were improved, BBAI war diagnostics exposed a broader victory-denial problem: the AI could see that a rival was close to winning, but ordinary UWAI target utility, preparation delay, personality hesitation, and peace deals could still let the rival win.
+
+The main observed failure modes were:
+
+- A rival close to a victory could remain unattractive as a war target until too late, even when stopping that victory was strategically urgent.
+- UWAI could set a preparation plan instead of declaring immediately, leaving too few turns to disrupt a launched or nearly launched victory.
+- Emergency anti-victory wars could be cancelled by ordinary peace treaties after only 1-2 turns, making the war almost cosmetic.
+- A weak rival could nearly win Space Race despite much stronger nearby or reachable AIs being capable of killing it.
+
+Repeated autoplay from the same save-file 450 test setup often branched into either a Lincoln Space-win variant or a Ramesses Space-win variant, roughly often enough that both outcomes were useful for testing. This was helpful because they represent different failure severities: very weak Lincoln should be crushed if nearby stronger AIs react correctly, while strong Ramesses can legitimately survive real military pressure and still deserve the win if he remains strong enough. Reference saves kept for these branches include `PC AD-1884 450 292 win but lincoln weak why did htey allow him to win.CivBeyondSwordSave` and `PC AD-1880 450 290 win rameses strong.CivBeyondSwordSave`, with later after-fix saves including `PC AD-1985 450 345 win weak lincoln dies but then soso PC wins quite much later.CivBeyondSwordSave` and `PC AD-1847 450 279 rameses win but hurt now weaker after bbai review.CivBeyondSwordSave`.
+
+The first strong sample was save file 450 with Egypt/Ramesses. In one BBAI run, Ramesses won Space Race at turn 290 while other AIs evaluated him every turn but never turned that evaluation into a real war plan soon enough. This showed that ordinary UWAI utility could be too passive when the actual game objective is "stop this rival now or lose".
+
+Later Ramesses retests were useful because they showed partial progress without proving the whole issue solved. In the final run, Ramesses was not ignored: by turn 280 he was fighting teams 1, 4, and 8, had fallen from the top rank to rank 2, and had lost 25 units / 16 military units from the previous snapshot (`units=95`, `militaryUnits=39`, `power=3267`). By turn 290 he had dropped further to rank 4, lost 2 cities and 49 total city-population points from the previous snapshot, and his power had fallen to 2608. He did not win in that run; instead he recovered later and remained strong. This is a better outcome than the original passive Ramesses Space win: strong leaders can still survive or recover, but the AI is now at least applying real military pressure.
+
+The Lincoln/America follow-up was even clearer because this was the case where "they tried" was not enough: weak Lincoln should lose. In the final `BBAI_20260713T201538Z_load1.log` / `SASGameSummary_20260713T201538Z_load1.log` run, Lincoln was a serious Space Race threat but was very militarily beatable. Around turn 260 he had Space production underway, 4 cities, 55 military units, and 1818 power. That was only about 76% of Arabia/Team 0's 2401 power, about 52% of Ramesses/Egypt's 3490 power, and about 42% of Hannibal/Carthage's 4359 power; Hannibal also had 10 cities and 154 military units. The new victory-denial path fired before countdown:
+
+```text
+WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=1 targetTeam=9 warPlan=WARPLAN_LIMITED utility=115 originalUtility=-35 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=61 nearestCityDistance=6
+WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=3 targetTeam=9 warPlan=WARPLAN_TOTAL utility=271 originalUtility=121 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=51 nearestCityDistance=4
+WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=4 targetTeam=9 warPlan=WARPLAN_LIMITED utility=191 originalUtility=41 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=92 nearestCityDistance=5
+WAR_TARGET_VICTORY_DENIAL_DECLARE turn=269 agentTeam=8 targetTeam=9 warPlan=WARPLAN_LIMITED utility=136 originalUtility=-14 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=23 nearestCityDistance=5
+```
+
+Peace was then blocked while Lincoln remained a stage-4 victory threat:
+
+```text
+WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=269 firstTeam=1 secondTeam=9 firstVictoryCountdown=-1 secondVictoryCountdown=-1 firstMaxVictoryStage=3 secondMaxVictoryStage=4 maxRefusePeaceCountdown=20
+WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=270 firstTeam=9 secondTeam=3 firstVictoryCountdown=-1 secondVictoryCountdown=-1 firstMaxVictoryStage=4 secondMaxVictoryStage=3 maxRefusePeaceCountdown=20
+```
+
+The result was the intended one. At turn 270 Lincoln had already fallen to 3 cities, 5 units, and only 489 power while fighting teams 1, 3, 4, and 8:
+
+```text
+GAME_SUMMARY_PLAYER turn=270 player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN ... cities=3 ... units=5 unitsDelta=-57 militaryUnits=5 militaryUnitsDelta=-50 power=489 powerDelta=-1329 ... wars=1,3,4,8
+GAME_SUMMARY_ACTION turn=272 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=242 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
+```
+
+The implementation is deliberately narrow:
+
+- add a victory-denial utility boost for rivals inside a victory countdown window, and a smaller boost for stage-4 threats before countdown;
+- allow direct limited/total war against weak and near victory threats instead of only setting a preparation plan;
+- reduce or remove avoid-war hesitation for imminent victory threats through a tunable percent;
+- block ordinary peace while either side is still inside the configured victory-denial countdown window or stage-4 peace-refusal condition;
+- keep direct-war power, distance, and land-target gates, so faraway or naval-heavy threats can still receive utility pressure without forcing reckless direct war.
+
+Several earlier attempts helped but were not enough because higher-level UWAI choices could still become preparation plans, direct plans could still fail to declare soon enough, or peace could still be created through lower-level trade/deal paths. The final implementation therefore places the decisive checks in low-level enough paths:
+
+- `UWAI::Team::scheme` adjusts target utility and can call direct `declareWar` for the narrow victory-denial case, similarly in spirit to other AdvCiv-SAS final guards that stop high-level AI intent from being bypassed by later shortcuts;
+- `CvTeamAI::AI_makePeaceTrade` refuses brokered peace with current stage-4/countdown victory threats;
+- `CvDeal::addTradeItems` blocks ordinary non-surrender `TRADE_PEACE_TREATY` deals just before `makePeace`, because direct treaty creation can reach this path with denial checks disabled.
+
+This is not intended to make every late-game AI dogpile every possible winner. It is a sanity layer for cases where the alternative is visibly losing the game to a rival that could realistically be disrupted.
+
+The same final run was therefore the after-fix Lincoln branch, not a Lincoln win: Lincoln died at turn 272, then much later Arabia/Team 0 won Space at turn 345 despite not being dominant (`rank=4`, `cities=7`, `power=2238` at turn 340, compared for example to nearby Hannibal/Team 10 at `rank=1`, `cities=19`, `power=8065`). This was still better than the original failure because Teams 6 and 7 declared at turn 329, France/Team 4 declared at turn 335, Hannibal/Team 10 declared at turn 341, and peace deals were then blocked. The remaining issue was earlier: Hannibal had already fought Arabia, made peace at turn 321, and the resulting forced peace delayed his response until Arabia was already at countdown 4. That suggests a possible later refinement for Space stage 3 with many spaceship parts, but that is separate from this step.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
