@@ -1798,12 +1798,30 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	CvPlayerAI const& kPreviousOwner = GET_PLAYER(kCity.getPreviousOwner());
 	CvTeam const& kPreviousTeam = GET_TEAM(kCity.getPreviousOwner());
 	CvGame const& kGame = GC.getGame();
+	bool const bLogRazeDecision = (gPlayerLogLevel >= 1);
+	// <!-- custom: Hoisted because existing SAS isolation rules and normal AdvCiv raze valuation below already use closeness; the new diagnostics reuse the same calculation. (GPT-5.6-Sol) -->
+	int const iCloseness = kCity.AI_playerCloseness(getID());
+	CvCity const* pNearestOwnCity = NULL;
+	int iNearestOwnCityDistance = -1;
+	if (bLogRazeDecision)
+	{
+		FOR_EACH_CITY(pLoopCity, *this)
+		{
+			if (pLoopCity == &kCity) continue;
+			int const iLoopDistance = stepDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (pNearestOwnCity == NULL || iLoopDistance < iNearestOwnCityDistance)
+			{
+				pNearestOwnCity = pLoopCity;
+				iNearestOwnCityDistance = iLoopDistance;
+			}
+		}
+		logBBAI("RAZE_EVAL_BEGIN turn=%d player=%d civ=%S city=%S population=%d previousOwner=%d originalOwner=%d everOwned=%d closeness=%d nearestOwnCity=%S nearestOwnCityDistance=%d teamAreaCities=%d", kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getPopulation(), kCity.getPreviousOwner(), kCity.getOriginalOwner(), bEverOwned, iCloseness, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), iNearestOwnCityDistance, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()));
+	}
 
 	// <!-- custom: new logic later, see below for details -->
 	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
 	bool bCultureVictory = false; // advc.116
 	bool bRaze = false;
-	bool const bLogRazeDecision = (gPlayerLogLevel >= 1);
 	// Reasons to always raze
 	if (2 * kCity.getCulture(kPreviousOwner.getID()) >
 		kCity.getCultureThreshold(kGame.culturalVictoryCultureLevel()))
@@ -1823,29 +1841,27 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		if (iHighCultureCount == iVictTarget || iHighCultureCount == iVictTarget + 1)
 		{
 			bCultureVictory = true;
-			bRaze = (bRaze ||
-					// BETTER_BTS_AI_MOD, 07/05/10, jdog5000 (not in K-Mod):
-					(GET_TEAM(getTeam()).AI_getEnemyPowerPercent(false) > 75));
+			// BETTER_BTS_AI_MOD, 07/05/10, jdog5000 (not in K-Mod):
+			int const iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(false);
+			bRaze = (bRaze || (iEnemyPowerPercent > 75));
+			int iAttStr = -1;
+			int iDefStr = -1;
 			if (!bRaze)
 			{
-				int iAttStr = AI_localAttackStrength(kCity.plot(),
-						kPreviousTeam.getID(), DOMAIN_LAND, 4);
-				int iDefStr = AI_localDefenceStrength(kCity.plot(), getTeam(),
-						DOMAIN_LAND, 3);
-				if(5 * iAttStr > 4 * iDefStr)
-					bRaze = true;
-				// <!-- custom: logBBAI now has only a global runtime gate, so player-AI conquest details still need player-log guards to avoid leaking into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
-				if (bRaze && bLogRazeDecision)
-					logBBAI("  Razing enemy cultural victory city");
+				iAttStr = AI_localAttackStrength(kCity.plot(), kPreviousTeam.getID(), DOMAIN_LAND, 4);
+				iDefStr = AI_localDefenceStrength(kCity.plot(), getTeam(), DOMAIN_LAND, 3);
+				if(5 * iAttStr > 4 * iDefStr) bRaze = true;
 			}
+			// <!-- custom: Identify each forced conquest-raze branch at PLAYER level 1 without changing the decision. (GPT-5.6-Sol) -->
+			if (bRaze && bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=CULTURE_VICTORY highCultureCities=%d victoryTargetCities=%d enemyPowerPercent=%d localAttackStrength=%d localDefenceStrength=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iHighCultureCount, iVictTarget, iEnemyPowerPercent, iAttStr, iDefStr);
 		} // </advc.116>
 	}  // <advc.ctr>
 	// <!-- custom: store it once to avoid reuse -->
 	const bool bBarbarian = isBarbarian();
-	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned &&
-		!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true))
+	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && !kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true))
 	{
 		bRaze = true;
+		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=ADVC_AWFUL_SITE population=%d era=%d closeness=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), kGame.getCurrentEra(), iCloseness, iNearestOwnCityDistance);
 	} // </advc.ctr>
 	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
 	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
@@ -1856,24 +1872,23 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	const int iEarlyTurns =	iEarlyTurnsBase * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100;
 	const bool bEarlyPhase = (GC.getGame().getGameTurn() < iEarlyTurns);
 
-	int const iCloseness = kCity.AI_playerCloseness(getID());
-    const bool bIsolated = (iCloseness == 0) || (GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()) == 0);
+	const bool bIsolated = (iCloseness == 0) || (GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()) == 0);
 
 	// <!-- custom: other reasons to always and absolutely raze no matter what: -->
 	// --- 2) SAS early far-barb rule (minimal) ---
-    if (!bBarbarian && !bEverOwned && bBarbCity /* <!-- custom: no need to care about these, raze regardless if not in our interest to keep the city --> !kCity.isHolyCity() && !kCity.hasActiveWorldWonder() */)
-    {
-		// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate) -->
-        if (bIsolated && bEarlyPhase)
-		{
-            bRaze = true;
-		}
-    }
+	// <!-- custom: Holy-city and active-World-Wonder checks are intentionally omitted; raze an early remote Barbarian city when keeping it is not in our interest. -->
+	// <!-- custom: hopefully this helps raze islandic cities or such in pangea-like maps in particular so we stay focused and don't spread our troops too as chatgpt 5 added here (but check if accurate) -->
+	if (!bBarbarian && !bEverOwned && bBarbCity && bIsolated && bEarlyPhase)
+	{
+		bRaze = true;
+		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_BARB population=%d closeness=%d isolated=%d earlyTurnLimit=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, bIsolated, iEarlyTurns, iNearestOwnCityDistance);
+	}
 	// <!-- custom: even for non barbarian cities, if they are too far and we are in the early game, do not risk crumbling or splitting our forces at a critical early time when economy and military is weaker and we can't spread too much; so raze the city rather -->
 	// Optional non-barb outpost rule (stricter)
 	if (!bBarbarian && bEarlyPhase && iCloseness == 0)
 	{
-        bRaze = true;
+		bRaze = true;
+		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_EARLY_REMOTE_NONBARB population=%d closeness=%d earlyTurnLimit=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iEarlyTurns, iNearestOwnCityDistance);
 	}
 
 	if (!bRaze)
@@ -1903,7 +1918,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		if (bGoingForDomination)
 		{
 			// Do not raze, going for domination
-			if (bLogRazeDecision) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+			if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION_PRIMARY_AREA", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
 			keepCity(kCity);
 			return;
 		}
@@ -2051,13 +2066,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 							std::min(20, rSubtr.round()));
 				} // </advc.116>
 			}
+			int const iRazeValueAfterDistance = iRazeValue;
 			// <advc.116>
 			if (bFinancialTrouble)
 			{
 				iRazeValue += //std::max(0, (70 - 15 * pCity->getPopulation()));
 						kCity.calculateBaseMaintenanceTimes100() / 100;
 			}
+			int const iRazeValueAfterMaintenance = iRazeValue;
 			iRazeValue -= 3 * kCity.getPopulation();
+			int const iRazeValueAfterPopulation = iRazeValue;
 			// </advc.116>
 			// (disabled by K-Mod)
 			// Scale down distance/maintenance effects for organized.
@@ -2071,6 +2089,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			iRazeValue += GC.getInfo(getPersonalityType()).getRazeCityProb()
 					/ 5; // advc.116
 			iRazeValue -= AI_atVictoryStage(AI_VICTORY_DOMINATION2) ? 20 : 0; // K-Mod
+			int const iRazeValueAfterPersonalityAndDomination = iRazeValue;
 
 			if (getStateReligion() != NO_RELIGION)
 			{
@@ -2186,7 +2205,11 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			}
 
 			// advc.116: Replacing the dice roll below. Hardly any randomness this way.
-			iRazeValue += SyncRandNum(6);
+			int const iRazeValueBeforeRandom = iRazeValue;
+			int const iRazeRandom = SyncRandNum(6);
+			iRazeValue += iRazeRandom;
+			// <!-- custom: Preserve the normal AdvCiv valuation result while exposing compact component deltas for review. (GPT-5.6-Sol) -->
+			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation, iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
 		} // End of !isBarbarian()
 
 		if(bLogRazeDecision)
@@ -2242,11 +2265,15 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 
 	if (bRaze)
 	{	// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
-		if (bLogRazeDecision) logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=RAZE", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
 		kCity.doTask(TASK_RAZE);
 	}
 	// advc (replacing a bugfix from UNOFFICIAL_PATCH (06/14/09, Maniac & jdog5000)
-	else keepCity(kCity);
+	else
+	{
+		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=NORMAL_VALUE", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
+		keepCity(kCity);
+	}
 }
 
 // advc.130q: About 7 or 8 is high (important city), below 1 is low
@@ -30437,28 +30464,44 @@ bool CvPlayerAI::AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const
 bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
 {
 	int const iEra = GC.getGame().getCurrentEra();
+	bool const bLogConquestRaze = (bConquest && gPlayerLogLevel >= 1);
 	// If the city has grown, the site has somewhat proved its usefulness.
-	if (kCity.getPopulation() * 2 >= 3 * iEra + 7 - (bConquest ? 2 : 0))
+	int const iPopulationProofThreshold = 3 * iEra + 7 - (bConquest ? 2 : 0);
+	if (kCity.getPopulation() * 2 >= iPopulationProofThreshold)
+	{
+		if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=0 reason=POPULATION_PROVED_USEFUL population=%d era=%d populationX2=%d populationProofThreshold=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold);
 		return false;
+	}
 
 	scaled rDecentPlots = 0;
 	bool const bCountCoast = kCity.isCoastal();
+	int iOverlapOrImpassablePlots = 0;
+	int iThirdPartyCulturePlots = 0;
+	int iHighFoodPlots = 0;
+	int iDecentLandPlots = 0;
+	int iBonusPlots = 0;
+	int iCountedCoastPlots = 0;
 	for (CityPlotIter it(kCity, false); it.hasNext(); ++it)
 	{
 		CvPlot const& p = *it;
 		if(p.getPlayerCityRadiusCount(kCity.getOwner()) > 1 || p.isImpassable())
+		{
+			if (bLogConquestRaze) iOverlapOrImpassablePlots++;
 			continue;
+		}
 		// Third-party culture
 		PlayerTypes eCulturalOwner = p.calculateCulturalOwner();
 		if(eCulturalOwner != NO_PLAYER && eCulturalOwner != getID() &&
 			eCulturalOwner != (bConquest ? kCity.getPreviousOwner() : kCity.getOwner()))
 		{
+			if (bLogConquestRaze) iThirdPartyCulturePlots++;
 			continue;
 		}
 		// Flood plains, oases
 		if(p.calculateNatureYield(YIELD_FOOD, getTeam()) >= 3)
 		{
 			rDecentPlots++;
+			if (bLogConquestRaze) iHighFoodPlots++;
 			continue;
 		}
 		// Not tundra, snow, desert, regardless of hill, forest or river
@@ -30468,22 +30511,30 @@ bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
 			p.calculateNatureYield(YIELD_COMMERCE, getTeam(), true) / 2 >= 2)
 		{
 			rDecentPlots++;
+			if (bLogConquestRaze) iDecentLandPlots++;
 			continue;
 		}
 		BonusTypes eBonus = p.getNonObsoleteBonusType(getTeam());
 		if(eBonus != NO_BONUS)
 		{
 			rDecentPlots++;
+			if (bLogConquestRaze) iBonusPlots++;
 			continue;
 		}
 		// Coast is (almost) half-decent
 		if(bCountCoast && p.isWater() && p.isAdjacentToLand())
+		{
 			rDecentPlots += fixp(0.4);
+			if (bLogConquestRaze) iCountedCoastPlots++;
+		}
 	}
 	scaled rThresh(20, 3);
 	if (bConquest && kCity.getPopulation() >= iEra + 4)
 		rThresh--;
-	return (rDecentPlots < rThresh);
+	bool const bAwfulSite = (rDecentPlots < rThresh);
+	// <!-- custom: Base AdvCiv's awful-site result can force an immediate raze before normal valuation. Log its terrain count, exclusions, population safeguard, and threshold so close-city razes and later resettlement can be reviewed without changing behavior. (GPT-5.6-Sol) -->
+	if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=%d reason=PLOT_THRESHOLD population=%d era=%d populationX2=%d populationProofThreshold=%d decentPlotsX100=%d thresholdX100=%d highFoodPlots=%d decentLandPlots=%d bonusPlots=%d countedCoastPlots=%d overlapOrImpassablePlots=%d thirdPartyCulturePlots=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bAwfulSite, kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold, (100 * rDecentPlots).round(), (100 * rThresh).round(), iHighFoodPlots, iDecentLandPlots, iBonusPlots, iCountedCoastPlots, iOverlapOrImpassablePlots, iThirdPartyCulturePlots);
+	return bAwfulSite;
 }
 
 // advc.104:
