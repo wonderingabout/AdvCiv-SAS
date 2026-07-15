@@ -1240,6 +1240,24 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
+	<!-- custom: Post-capital Settlers can be one tile from a promising alternative that currently scores slightly lower only because more of its BFC is still fogged. Instead of founding the barely-higher known site immediately, optionally spend a small extra move as exploration, then let normal city-site scoring recalculate next turn. Set the unrevealed advantage to 0 to disable. See KI#185. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>105</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum extra path turns allowed for this post-capital Settler scouting detour compared with the current selected found target. Default 3 is intentionally local but not one-tile-only: save-file 450 testing preserved the corrected uMgungundlovu (17,40) choice, did not create obvious Settler parking by turn 101, and still requires the other promising-site gates above, so ordinary city founding should not turn into broad wandering. See KI#185. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
 	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
 	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5) -->
 	<Define>
@@ -1376,9 +1394,14 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 logs compact parking/security decisions, and level 3 adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
+	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 notably logs compact parking/security decisions, and level 3 notably adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+	<Define>
+		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Dedicated evacuation/retreat diagnostics, separated from CITY and UNIT so city-side evacuation decisions and affected units can be inspected together without broad logging. This notably covers doomed cities, workers, and naval units. (GPT-5.5) -->
@@ -1394,11 +1417,6 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA, notably for production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 	<Define>
 		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
-		<iDefineIntVal>0</iDefineIntVal>
-	</Define>
-	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
-	<Define>
-		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->

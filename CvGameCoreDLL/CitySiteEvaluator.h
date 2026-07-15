@@ -68,6 +68,8 @@ public:
 	bool isExpansive() const { return m_bExpansive; }
 	// <advc.031c>
 	void log(CvPlot const& kPlot);
+	// <!-- custom: Detailed found-value breakdown for comparison sites logged next to a selected site, e.g. adjacent/current-site checks that explained and fixed the uMgungundlovu stale-target case in KI#185. (GPT-5.5) -->
+	void logComparedSiteBreakdown(char const* szLabel, CvPlot const& kPlot) const;
 	void logSettings() const; // </advc.031c>
 
 private:

@@ -23,11 +23,11 @@ int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
 int getSASBBAIGreatGeneralLogLevel();
 int getSASBBAISettlerLogLevel();
+int getSASBBAIFoundLogLevel();
 int getSASBBAIEvacuationLogLevel();
 int getSASBBAIWorkerLogLevel();
 int getSASBBAIWorkerSeaLogLevel();
 int getSASBBAIMapLogLevel();
-int getSASBBAIFoundLogLevel();
 int getSASBBAIDealCancelLogLevel();
 int getSASBBAICultureLogLevel();
 int getSASBBAIScoreLogInterval();
@@ -45,11 +45,11 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
 #define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
 #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
+#define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
 #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: Separate Work Boat / WORKER_SEA diagnostics from general UNIT and land-Worker logging. (ChatGPT-5.5 + GPT-5.5 review) -->
 #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
-#define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
 #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
 #define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Separate culture-victory diagnostics from general PLAYER and CITY logging. (ChatGPT-5.5) -->
 

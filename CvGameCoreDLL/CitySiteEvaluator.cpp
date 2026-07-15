@@ -262,12 +262,17 @@ int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
 }
 
 
+// <!-- custom: Selected-site breakdown was already compact, but save-file 450's uMgungundlovu regression needed the same compact row for adjacent/next alternatives too; otherwise the relevant 18,40 vs 17,40 delta was buried in verbose per-plot logs. (GPT-5.5) -->
+void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot const& kPlot) const
+{
+	CvString szBreakdown;
+	int const iBreakdownValue = evaluateWithBreakdown(kPlot, szBreakdown);
+	logBBAI("%s breakdown value=%d %s", szLabel, iBreakdownValue, szBreakdown.GetCString());
+}
+
+
 void CitySiteEvaluator::log(CvPlot const& kPlot)
 {
-	// <!-- custom: callers normally check gFoundLogLevel already; keep this guard so this entry point stays cheap if reached directly. (ChatGPT 5.5) -->
-	if (gFoundLogLevel <= 0)
-		return;
-
 	/*  Important to ignore other city sites. Because, when CvPlayerAI::
 		AI_updateCitySites computes the found value of the best site,
 		none of the other sites are chosen yet. Here, all sites are chosen. */
@@ -284,6 +289,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 	}
 	// <!-- custom: Log the selected site's final value beside adjacent/next alternatives; the verbose component dump alone made save file 450's 18,40 vs 17,40 comparison unnecessarily hard to verify. (GPT-5.5) -->
 	int const iCurrentValue = evaluateWithLogging(kPlot);
+	bool const bLogComparedSiteBreakdown = (gFoundLogLevel >= 2);
 	if (gFoundLogLevel >= 2)
 	{
 		CvString szCurrentBreakdown;
@@ -320,6 +326,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iAdjY = pBestAdjSite->getY();
 			logBBAI("\nBest Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestAdj, iBestAdj - iCurrentValue, iAdjX, iAdjY, pBestAdjSite->isWater(), pBestAdjSite->isVisibleToCivTeam(), !pBestAdjSite->isWater() && !pBestAdjSite->isVisibleToCivTeam());
 			evaluateWithLogging(*pBestAdjSite);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent Barbarian site", *pBestAdjSite);
 		}
 		if (pBestEligibleAdjSite != NULL && pBestEligibleAdjSite != pBestAdjSite)
 		{
@@ -327,6 +334,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iAdjY = pBestEligibleAdjSite->getY();
 			logBBAI("\nBest spawn-eligible Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleAdj, iBestEligibleAdj - iCurrentValue, iAdjX, iAdjY);
 			evaluateWithLogging(*pBestEligibleAdjSite);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible adjacent Barbarian site", *pBestEligibleAdjSite);
 		}
 		CvPlot const* pBestRange2Site = NULL;
 		CvPlot const* pBestEligibleRange2Site = NULL;
@@ -358,6 +366,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iRangeY = pBestRange2Site->getY();
 			logBBAI("\nBest Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestRange2, iBestRange2 - iCurrentValue, iRangeX, iRangeY, pBestRange2Site->isWater(), pBestRange2Site->isVisibleToCivTeam(), !pBestRange2Site->isWater() && !pBestRange2Site->isVisibleToCivTeam());
 			evaluateWithLogging(*pBestRange2Site);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best distance-2 Barbarian site", *pBestRange2Site);
 		}
 		if (pBestEligibleRange2Site != NULL && pBestEligibleRange2Site != pBestRange2Site)
 		{
@@ -365,6 +374,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iRangeY = pBestEligibleRange2Site->getY();
 			logBBAI("\nBest spawn-eligible Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleRange2, iBestEligibleRange2 - iCurrentValue, iRangeX, iRangeY);
 			evaluateWithLogging(*pBestEligibleRange2Site);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible distance-2 Barbarian site", *pBestEligibleRange2Site);
 		}
 		return;
 	}
@@ -389,6 +399,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iNextY = pNextBestSite->getY();
 			logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iNextX, iNextY);
 			evaluateWithLogging(*pNextBestSite);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Next best site", *pNextBestSite);
 		}
 	}
 	{
@@ -409,6 +420,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
 			int iAdjY = pBestAdjSite->getY();
 			logBBAI("\nBest site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iAdjX, iAdjY);
 			evaluateWithLogging(*pBestAdjSite);
+			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent site", *pBestAdjSite);
 		}
 	}
 }
@@ -1660,7 +1672,7 @@ int AIFoundValue::evaluate()
 	{
 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
-		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d resources=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distanceCulture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
+		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distanceCulture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
 				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots, iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistanceCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
 	}
 

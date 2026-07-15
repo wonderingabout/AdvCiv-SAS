@@ -511,6 +511,81 @@ static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes
 	return iUnrevealedPlots;
 }
 
+static int SAS_countRevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes eTeam)
+{
+	int iRevealedPlots = 0;
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam))
+			++iRevealedPlots;
+	}
+	return iRevealedPlots;
+}
+
+// <!-- custom: Post-capital Settlers normally found the best currently known city site, but save-file 450 showed uMgungundlovu choosing 18,40 over nearby 17,40 because the latter's BFC still hid Rice and other plots.
+// Compare average known value per revealed BFC plot rather than a flat value gap: a nearby site with stronger known average and more fogged plots is plausibly better, so move toward it as exploration rather than as MISSIONAI_FOUND and let next turn recalculate normally instead of auto-founding blindly. See KI#185. (GPT-5.5) -->
+static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kSelectedSite, int iSelectedFoundValue, int iSelectedPathTurns, CvPlot const*& pScoutSite, CvPlot const*& pScoutEndTurnPlot, int& iScoutFoundValue, int& iScoutPathTurns, int& iSelectedRevealedBFC, int& iSelectedUnrevealedBFC, int& iScoutRevealedBFC, int& iScoutUnrevealedBFC)
+{
+	pScoutSite = NULL;
+	pScoutEndTurnPlot = NULL;
+	iScoutFoundValue = 0;
+	iScoutPathTurns = -1;
+	iSelectedRevealedBFC = SAS_countRevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
+	iSelectedUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
+	iScoutRevealedBFC = 0;
+	iScoutUnrevealedBFC = 0;
+	static const int iMinUnrevealedAdvantage = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE");
+	if (iMinUnrevealedAdvantage <= 0 || iSelectedFoundValue <= 0)
+		return false;
+	static const int iMinRevealedBFC = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC");
+	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT");
+	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS");
+	if (iSelectedRevealedBFC < iMinRevealedBFC)
+		return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	// <!-- custom: Adjacent promising-fog candidates can have cached getFoundValue=0 when they are not in the current city-site list, which hid 17,40 in save file 450. Evaluate them directly so this scout check compares real site values. See KI#185. (GPT-5.5) -->
+	CitySiteEvaluator kEvaluator(kOwner);
+	// <!-- custom: Treat adjacent promising-fog candidates as replacements for the selected site, not as extra tentative sites next to it; otherwise overlap with the selected 18,40 site makes the 17,40 comparison return 0 while the found-value logger correctly shows it as viable. See KI#185. (GPT-5.5) -->
+	kEvaluator.setDebug(true);
+	FOR_EACH_ADJ_PLOT(kSelectedSite)
+	{
+		if (pAdj == NULL || pAdj == &kSelectedSite)
+			continue;
+		if (!kSettler.canFound(pAdj) || (!pAdj->isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(*pAdj, MISSIONAI_FOUND, kSettler.getGroup()))
+		{
+			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=not-foundable-or-targeted", pAdj->getX(), pAdj->getY());
+			continue;
+		}
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(*pAdj, eMoveFlags, true, &iPathTurns) || iPathTurns > iSelectedPathTurns + iMaxExtraPathTurns)
+		{
+			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=path selectedPathTurns=%d pathTurns=%d maxExtra=%d", pAdj->getX(), pAdj->getY(), iSelectedPathTurns, iPathTurns, iMaxExtraPathTurns);
+			continue;
+		}
+		int const iRevealedBFC = SAS_countRevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
+		int const iUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
+		int const iFoundValue = kEvaluator.evaluate(*pAdj);
+		if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site candidate %d,%d selectedValue=%d value=%d selectedRevealedBFC=%d revealedBFC=%d selectedUnrevealedBFC=%d unrevealedBFC=%d selectedAvgX100=%d avgX100=%d selectedPathTurns=%d pathTurns=%d", pAdj->getX(), pAdj->getY(), iSelectedFoundValue, iFoundValue, iSelectedRevealedBFC, iRevealedBFC, iSelectedUnrevealedBFC, iUnrevealedBFC, (100 * iSelectedFoundValue) / iSelectedRevealedBFC, (iRevealedBFC <= 0 ? 0 : (100 * iFoundValue) / iRevealedBFC), iSelectedPathTurns, iPathTurns);
+		if (iRevealedBFC < iMinRevealedBFC || iUnrevealedBFC < iSelectedUnrevealedBFC + iMinUnrevealedAdvantage)
+			continue;
+		if (100 * iFoundValue * iSelectedRevealedBFC < iMinAverageValuePercent * iSelectedFoundValue * iRevealedBFC)
+			continue;
+		if (pScoutSite == NULL || iFoundValue * iScoutRevealedBFC > iScoutFoundValue * iRevealedBFC || (iFoundValue * iScoutRevealedBFC == iScoutFoundValue * iRevealedBFC && iUnrevealedBFC > iScoutUnrevealedBFC))
+		{
+			pScoutSite = pAdj;
+			pScoutEndTurnPlot = &kSettler.getPathEndTurnPlot();
+			iScoutFoundValue = iFoundValue;
+			iScoutPathTurns = iPathTurns;
+			iScoutRevealedBFC = iRevealedBFC;
+			iScoutUnrevealedBFC = iUnrevealedBFC;
+		}
+	}
+	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
+}
+
 // <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
 // The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
 // Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
@@ -19227,6 +19302,47 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	}
 	if (pBestPlot == NULL || pBestFoundPlot == NULL)
 		return false;
+
+	// <!-- custom: Promising-fog scouting can reveal that the Settler's current plot is now better than the cached target, as in save file 450 where the group reached 17,40 and revealed it as better than stale 18,40.
+	// Evaluate the current plot as a replacement site before moving away, otherwise the Settler can scout correctly and still found the old weaker target. See KI#185. (GPT-5.5) -->
+	if (!at(*pBestFoundPlot) && canFound(plot()) && !kOwner.AI_isAnyPlotTargetMissionAI(getPlot(), MISSIONAI_FOUND, getGroup()))
+	{
+		CitySiteEvaluator kCurrentPlotEvaluator(kOwner);
+		kCurrentPlotEvaluator.setDebug(true);
+		int const iCurrentFoundValue = kCurrentPlotEvaluator.evaluate(getPlot());
+		int const iSelectedFoundValue = pBestFoundPlot->getFoundValue(getOwner());
+		if (iCurrentFoundValue > iSelectedFoundValue)
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("FOUND_CURRENT_SITE_BETTER_THAN_SELECTED_TARGET", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "CURRENT_SITE_NOW_BETTER");
+			pBestPlot = &getPlot();
+			pBestFoundPlot = &getPlot();
+			iBestPathTurns = 0;
+		}
+	}
+
+	// <!-- custom: After choosing the best currently known target, allow a short MISSIONAI_EXPLORE detour to a nearby fogged alternative that has stronger known average value but lower total value only because fewer BFC plots are revealed.
+	// This keeps normal post-capital founding decisive while fixing the save-file 450 uMgungundlovu case where 17,40 needed one more local scout before outranking stale 18,40. See KI#185. (GPT-5.5) -->
+	CvPlot const* pFogScoutSite = NULL;
+	CvPlot const* pFogScoutEndTurnPlot = NULL;
+	int iFogScoutFoundValue = 0;
+	int iFogScoutPathTurns = -1;
+	int iSelectedRevealedBFC = 0;
+	int iSelectedUnrevealedBFC = 0;
+	int iFogScoutRevealedBFC = 0;
+	int iFogScoutUnrevealedBFC = 0;
+	if (SAS_shouldScoutPromisingFoggedNearbyFoundSite(*this, eFlags, *pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, iSelectedRevealedBFC, iSelectedUnrevealedBFC, iFogScoutRevealedBFC, iFogScoutUnrevealedBFC))
+	{
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler scouting promising nearby fogged city site for %S player %d from target %d,%d to %d,%d; selectedValue=%d scoutValue=%d selectedRevealedBFC=%d scoutRevealedBFC=%d selectedUnrevealedBFC=%d scoutUnrevealedBFC=%d selectedAvgX100=%d scoutAvgX100=%d selectedPathTurns=%d scoutPathTurns=%d",
+				kOwner.getCivilizationDescription(0), getOwner(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), pFogScoutSite->getX(), pFogScoutSite->getY(), pBestFoundPlot->getFoundValue(getOwner()), iFogScoutFoundValue, iSelectedRevealedBFC, iFogScoutRevealedBFC, iSelectedUnrevealedBFC, iFogScoutUnrevealedBFC, (100 * pBestFoundPlot->getFoundValue(getOwner())) / iSelectedRevealedBFC, (100 * iFogScoutFoundValue) / iFogScoutRevealedBFC, iBestPathTurns, iFogScoutPathTurns);
+			SAS_logSettlerMissionDecision("PUSH_SCOUT_PROMISING_FOGGED_SITE", *this, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, "PROMISING_FOGGED_NEAR_SITE");
+		}
+		pushGroupMoveTo(*pFogScoutEndTurnPlot, eFlags, false, false, MISSIONAI_EXPLORE, pFogScoutSite);
+		return true;
+	}
+
+	// <!-- custom: Normal found-at-target path after the current-site and promising-fog safeguards above had a chance to override stale or under-scouted targets. (GPT-5.5) -->
 	if (at(*pBestFoundPlot))
 	{
 		if (gSettlerLogLevel >= 2)

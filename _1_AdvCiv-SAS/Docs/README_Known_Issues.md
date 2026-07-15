@@ -224,6 +224,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
 [184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact)\
 [184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown)\
+[185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6847,5 +6848,63 @@ Save file 452 showed the same symptom in a fast DeityPlus Space race. In `BBAI_2
 Save file 450 retests showed the same pattern on the Ramesses branch. In `BBAI_20260715T071453Z_load1.log` / `SASGameSummary_20260715T071453Z_load1.log`, Ramesses' team reached 8/16 spaceship parts at turn 260, teams 1 and 4 declared at turn 261, peace deals were blocked from turn 263 onward, and team 9 later captured Paris before Ramesses recaptured it. Ramesses still won at turn 282, which is acceptable for a strong Space leader surviving real pressure rather than being ignored.
 
 In the later `BBAI_20260715T072834Z_load1.log` / `SASGameSummary_20260715T072834Z_load1.log` branch, the Space response again began at 8/16 parts: UWAI chose stage-3 Space pressure from turn 265 onward, later direct wars fired, cities changed hands, and the Space win moved to turn 293. This supports keeping the threshold broad enough to start real pressure before countdown without making every Apollo builder an emergency target.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1-RaBTEQYMlgIDXpHRokuzQBP-UDYx9Ay?usp=sharing).
+
+This is a follow-up to the save-file 450 uMgungundlovu investigation from KI#178. KI#178 fixed a major bonus-valuation problem: the old broad `AI_bonusVal` path could make Elephants massively outscore Crab for settlement, pushing Shaka toward weaker `(18,40)` instead of the stronger nearby `(17,40)` site. Later BBAI retesting showed a separate remaining movement / information problem: even after bonus valuation was improved, history could change enough that `(17,40)` still looked slightly worse only because more of its BFC was fogged, while `(18,40)` had more known plots.
+
+This is not the same system as first-city roaming in KI#43 / KI#173. First-city scouting happens before the capital exists and uses a bounded capital-search routine. This issue is for post-capital `CvUnitAI::AI_found`, where the AI normally follows cached city-site targets. By then, most nearby land is usually known, so we do not want broad roaming; the useful case is narrow: a Settler is already near a selected site, and an adjacent site has a stronger average known value per revealed BFC plot while still having more unrevealed plots.
+
+In `BBAI_20260715T092145Z_load1.log`, the first half of the new logic worked: Zulu repeatedly chose `PUSH_SCOUT_PROMISING_FOGGED_SITE` toward `(17,40)`:
+
+```text
+Settler promising-fogged-site candidate 17,40 selectedValue=3064 value=2959 selectedRevealedBFC=19 revealedBFC=17 selectedUnrevealedBFC=1 unrevealedBFC=3 selectedAvgX100=16126 avgX100=17405 selectedPathTurns=3 pathTurns=3
+SETTLER_MISSION_DECISION turn=36 player=7 Zulu Empire action=PUSH_SCOUT_PROMISING_FOGGED_SITE reason=PROMISING_FOGGED_NEAR_SITE ... target=(17,40) ... targetFoundValue=2959 pathTurns=3
+```
+
+However, that revealed a second stale-target issue. The Settler reached `(17,40)`, fully revealed it, and the direct found-value comparison now showed it was better than `(18,40)`, but the cached city-site target remained `(18,40)` and the Settler still walked back to found there:
+
+```text
+Settler promising-fogged-site candidate 17,40 selectedValue=3993 value=4099 selectedRevealedBFC=20 revealedBFC=20 selectedUnrevealedBFC=0 unrevealedBFC=0 selectedAvgX100=19965 avgX100=20495 selectedPathTurns=1 pathTurns=1
+SETTLER_MISSION_DECISION turn=40 player=7 Zulu Empire action=PUSH_MOVE_TO_FOUND ... x=17 y=40 target=(18,40) ... targetFoundValue=3993 pathTurns=1
+Shaka is about to found a city at (18,40); turn 40
+Best site adjacent to (18,40): selected=3993 adjacent=4099 delta=+106 (17,40)
+```
+
+The final fix therefore has two parts:
+
+- post-capital Settlers can make a short exploratory move to an adjacent promising fogged site when its known average value is strong enough and it has enough additional unrevealed BFC plots;
+- after such scouting or any similar movement, if the Settler is already standing on a foundable plot that direct replacement scoring now says is better than the cached selected target, it founds there instead of walking away to the stale target.
+
+The debugging path matters because the code looks more specific than a simple adjacent-tile scan:
+
+- first attempt: using adjacent plots' cached `getFoundValue` made `(17,40)` log as `value=0`, because adjacent replacement candidates are not necessarily entries in the current cached city-site list;
+- second attempt: switching to a direct evaluator still logged `value=0`, because the evaluator treated `(17,40)` as an extra tentative city overlapping the selected `(18,40)` site;
+- third attempt: matching the found-value logger's replacement-site mode with `setDebug(true)` made `(17,40)` score correctly and triggered the scout move;
+- final missing piece: once the group reached `(17,40)`, the normal cached target could still remain `(18,40)`, so a current-plot replacement check was needed before moving away.
+
+Implementation details:
+
+- candidate scoring uses a direct `CitySiteEvaluator` pass, not cached `getFoundValue`, because adjacent alternatives may not be in the current city-site list and can otherwise read as `0`;
+- the evaluator uses `setDebug(true)` for these comparisons, matching the found-value logger's adjacent-site mode, so the alternative is treated as a replacement for the selected site rather than an extra tentative city overlapping it;
+- the exploratory move uses `MISSIONAI_EXPLORE`, not `MISSIONAI_FOUND`, so `AI_foundFollow` does not blindly found after one move without recalculating.
+
+Retesting in `BBAI_20260715T092627Z_load1.log` / `SASGameSummary_20260715T092627Z_load1.log` confirmed the intended result:
+
+```text
+SETTLER_MISSION_DECISION turn=40 player=7 Zulu Empire action=FOUND_CURRENT_SITE_BETTER_THAN_SELECTED_TARGET reason=CURRENT_SITE_NOW_BETTER ... x=17 y=40 target=(17,40) ... targetFoundValue=4099 pathTurns=0
+Shaka is about to found a city at (17,40); turn 40
+Selected site breakdown value=4099 ... bonuses=2077(nonYield=1302,bonusImprovementYields=775) ...
+Best site adjacent to (17,40): selected=4099 adjacent=3993 delta=-106 (18,40)
+GAME_SUMMARY_ACTION turn=40 type=CITY_BUILT player=7 cityId=16385 city="uMgungundlovu" x=17 y=40 pop=1
+```
+
+This founded uMgungundlovu at `(17,40)` with Crab/Rice/Camel and a better food profile, instead of the stale `(18,40)` Elephants/Rice/Camel site. Follow-up testing with the extra-path limit raised to 3 in `BBAI_20260715T100351Z_load1.log` / `SASGameSummary_20260715T100351Z_load1.log` preserved the same `(17,40)` result, showed no obvious Settler parking by turn 101, and produced only three actual promising-fog scout chains in the run. This supports default 3 as local enough while still allowing more than one-tile-only correction attempts.
+
+This should make post-capital Settlers less brittle around small fog differences without turning them into broad wandering scouts.
 
 Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
