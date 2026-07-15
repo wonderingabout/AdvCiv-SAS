@@ -119,7 +119,8 @@ namespace
 		if (piMaxVictoryStage != NULL)
 			*piMaxVictoryStage = iMaxVictoryStage;
 		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
-		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4);
+		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
 	}
 
 	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
@@ -132,8 +133,8 @@ namespace
 		if (gWarLogLevel >= 1)
 		{
 			static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
-			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d maxRefusePeaceCountdown=%d",
-					GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage, iMaxVictoryDenialPeaceCountdown);
+			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d firstSpaceshipParts=%d secondSpaceshipParts=%d firstSpaceshipPartsPercent=%d secondSpaceshipPartsPercent=%d firstSpaceLeaderPartGap=%d secondSpaceLeaderPartGap=%d maxRefusePeaceCountdown=%d",
+					GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage, getSASTeamSpaceshipPartsBuilt(eFirstTeam), getSASTeamSpaceshipPartsBuilt(eSecondTeam), getSASTeamSpaceshipPartsPercent(eFirstTeam), getSASTeamSpaceshipPartsPercent(eSecondTeam), getSASTeamStage3SpaceLeaderPartGap(eFirstTeam), getSASTeamStage3SpaceLeaderPartGap(eSecondTeam), iMaxVictoryDenialPeaceCountdown);
 		}
 		return true;
 	}
@@ -355,7 +356,8 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 		bool bSurrender = isVassalTrade(kFirstList) || isVassalTrade(kSecondList);
 		// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard.
 		// Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals, and a later run showed stage-4 anti-spaceship wars against Egypt ending before countdown started.
-		// Block non-surrender peace here, just before makePeace, while either side is still a stage-4 or countdown victory threat. (GPT-5.5) -->
+		// Save-file 450's Arabia branch and save-file 452's Churchill win showed that stage-3 Space near completion can also be dangerous before the final countdown.
+		// Block non-surrender peace here, just before makePeace, while either side is still a countdown, stage-4, or configured stage-3 Space victory threat. (GPT-5.5) -->
 		if (!bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
 			return;
 		bool bDone = false;

@@ -3796,15 +3796,17 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
 		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
 		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
 		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
 		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
 		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
-		// Refuse brokered peace while the target is inside the countdown window or still a stage-4 victory threat; otherwise direct denial wars become mostly cosmetic. See KI#184. (GPT-5.5) -->
-		if ((iVictoryCountdown >= 0 && iVictoryCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4))
+		// The Arabia branch then showed that waiting until countdown 4 could still be too late, and save-file 452 showed raw part count could still fire too late, so stage-3 Space near completion can also be protected if enabled.
+		// Refuse brokered peace while the target is inside the countdown window, still a stage-4 victory threat, or already a configured stage-3 Space threat; otherwise direct denial wars become mostly cosmetic. (GPT-5.5) -->
+		if ((iVictoryCountdown >= 0 && iVictoryCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(ePeaceTeam)))
 		{
 			if (gWarLogLevel >= 1)
 			{
-				logBBAI("WAR_TARGET_VICTORY_DENIAL_REFUSE_PEACE turn=%d team=%d peaceTeam=%d brokerTeam=%d targetVictoryCountdown=%d targetMaxVictoryStage=%d maxRefusePeaceCountdown=%d warPlan=%s atWarCounter=%d",
-						GC.getGame().getGameTurn(), getID(), ePeaceTeam, eBroker, iVictoryCountdown, iMaxVictoryStage, iMaxVictoryDenialPeaceCountdown, getSASWarPlanType(AI_getWarPlan(ePeaceTeam)), AI_getAtWarCounter(ePeaceTeam));
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_REFUSE_PEACE turn=%d team=%d peaceTeam=%d brokerTeam=%d targetVictoryCountdown=%d targetMaxVictoryStage=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d maxRefusePeaceCountdown=%d warPlan=%s atWarCounter=%d",
+						GC.getGame().getGameTurn(), getID(), ePeaceTeam, eBroker, iVictoryCountdown, iMaxVictoryStage, getSASTeamSpaceshipPartsBuilt(ePeaceTeam), getSASTeamSpaceshipPartsPercent(ePeaceTeam), getSASTeamStage3SpaceLeaderPartGap(ePeaceTeam), iMaxVictoryDenialPeaceCountdown, getSASWarPlanType(AI_getWarPlan(ePeaceTeam)), AI_getAtWarCounter(ePeaceTeam));
 			}
 			return DENIAL_VICTORY;
 		}

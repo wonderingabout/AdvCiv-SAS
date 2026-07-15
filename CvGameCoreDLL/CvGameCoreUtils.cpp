@@ -6,6 +6,7 @@
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
 
 // advc.035:
 void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2)
@@ -409,6 +410,73 @@ int getSASTeamMaxVictoryStage(TeamTypes eTeam)
 		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
 	}
 	return iMaxVictoryStage;
+}
+
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam)
+{
+	int iMaxSpaceStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		iMaxSpaceStage = std::max(iMaxSpaceStage, getSASSpaceVictoryStageLevel(it->AI_getVictoryStageHash()));
+	return iMaxSpaceStage;
+}
+
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam)
+{
+	int iPartsBuilt = 0;
+	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+	for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+	{
+		CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+		if (kProject.isSpaceship())
+			iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
+	}
+	return iPartsBuilt;
+}
+
+int getSASSpaceshipPartsRequired()
+{
+	static int iPartsRequired = -1;
+	if (iPartsRequired < 0)
+	{
+		iPartsRequired = 0;
+		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+		{
+			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+			if (kProject.isSpaceship())
+				iPartsRequired += std::max(0, kProject.getMaxTeamInstances());
+		}
+	}
+	return iPartsRequired;
+}
+
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
+{
+	int const iPartsRequired = getSASSpaceshipPartsRequired();
+	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
+}
+
+int getSASLeadingSpaceshipPartsBuilt()
+{
+	int iLeadingParts = 0;
+	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+		iLeadingParts = std::max(iLeadingParts, getSASTeamSpaceshipPartsBuilt(itTeam->getID()));
+	return iLeadingParts;
+}
+
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
+{
+	static const int iStage3SpacePercentThreshold = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD");
+	if (iStage3SpacePercentThreshold <= 0 || getSASTeamSpaceVictoryStage(eTeam) < 3)
+		return false;
+	int const iPartsBuilt = getSASTeamSpaceshipPartsBuilt(eTeam);
+	static const int iLeaderPartMargin = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN");
+	// <!-- custom: Save-file 452 showed raw part count was too crude: England and Egypt were both major Space threats at 8/16 parts, but every Apollo builder should not trigger emergency wars. Require enough completion and near-leader Space progress. (GPT-5.5) -->
+	return (iPartsBuilt * 100 >= getSASSpaceshipPartsRequired() * iStage3SpacePercentThreshold && getSASLeadingSpaceshipPartsBuilt() - iPartsBuilt <= iLeaderPartMargin);
+}
+
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam)
+{
+	return getSASLeadingSpaceshipPartsBuilt() - getSASTeamSpaceshipPartsBuilt(eTeam);
 }
 
 // advc: No longer needed

@@ -3132,6 +3132,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Space-specific pre-countdown threat threshold. Save-file 450's Arabia branch showed that waiting until Space countdown 4 was mechanically correct but still too late: Arabia was weak and near Hannibal, yet won four turns after Hannibal's direct war. Save-file 452 then showed that a raw 10-parts threshold or 75% completion could still fire too late in a fast DeityPlus Space race: Churchill had 8/16 parts by T230 and won on T250. Treat stage-3 Space as an earlier warning once the spaceship is at least this complete; 0 disables this stage-3 Space extension. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Stage-3 Space pre-countdown pressure only applies to the Space-progress leader or teams within this many spaceship parts of the leader. This avoids overreacting to every Apollo builder while still catching close multi-contender races like save-file 452, where Egypt and England were both serious threats. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 	<!-- custom: Maximum utility added by the countdown part of victory denial. It scales up as the countdown approaches 0; e.g. with max countdown 20 and this set to 600, a 10-turn countdown gives roughly half the boost plus any stage-4 boost. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST</DefineName>
@@ -3142,9 +3152,24 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+	<!-- custom: Utility added for stage-3 Space threats that already have high spaceship completion and near-leader Space progress. This is narrower than a generic stage-3 victory boost: save-file 450's Arabia branch showed that direct war at the final countdown could come too late, and save-file 452's Churchill win showed that fast Space races can need pressure even before 10 raw parts. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST</DefineName>
+		<iDefineIntVal>300</iDefineIntVal>
+	</Define>
 	<!-- custom: Allow direct victory-denial war against weak/near stage-4 targets even before a countdown exists. Save-file 450 showed Lincoln at 11 spaceship parts before launch; waiting for countdown made the later war too late to matter. Power, distance, and land-target gates still apply. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Allow direct victory-denial war against weak/near stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached. Power, distance, and land-target gates still apply; this is meant to start the Arabia/Churchill-style response before the final countdown, not to make every Space 3 target an automatic war. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Refuse ordinary peace with stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached. This complements direct-war pressure; without peace refusal, an earlier emergency war can still be cancelled before countdown/stage-4 gates activate. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if the target's defensive power is at most this percent of our team power. Higher values make the AI more willing to try desperate disruption wars before losing. (GPT-5.5) -->

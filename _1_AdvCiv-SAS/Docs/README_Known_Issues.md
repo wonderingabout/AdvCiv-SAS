@@ -223,6 +223,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available)\
 [183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
 [184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact)\
+[184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6822,6 +6823,29 @@ Several earlier attempts helped but were not enough because higher-level UWAI ch
 
 This is not intended to make every late-game AI dogpile every possible winner. It is a sanity layer for cases where the alternative is visibly losing the game to a rival that could realistically be disrupted.
 
-The same final run was therefore the after-fix Lincoln branch, not a Lincoln win: Lincoln died at turn 272, then much later Arabia/Team 0 won Space at turn 345 despite not being dominant (`rank=4`, `cities=7`, `power=2238` at turn 340, compared for example to nearby Hannibal/Team 10 at `rank=1`, `cities=19`, `power=8065`). This was still better than the original failure because Teams 6 and 7 declared at turn 329, France/Team 4 declared at turn 335, Hannibal/Team 10 declared at turn 341, and peace deals were then blocked. The remaining issue was earlier: Hannibal had already fought Arabia, made peace at turn 321, and the resulting forced peace delayed his response until Arabia was already at countdown 4. That suggests a possible later refinement for Space stage 3 with many spaceship parts, but that is separate from this step.
+The same final run was therefore the after-fix Lincoln branch, not a Lincoln win: Lincoln died at turn 272, then much later Arabia/Team 0 won Space at turn 345 despite not being dominant (`rank=4`, `cities=7`, `power=2238` at turn 340, compared for example to nearby Hannibal/Team 10 at `rank=1`, `cities=19`, `power=8065`). This was still better than the original failure because Teams 6 and 7 declared at turn 329, France/Team 4 declared at turn 335, Hannibal/Team 10 declared at turn 341, and peace deals were then blocked. The remaining issue was earlier: Hannibal had already fought Arabia and made peace at turn 321; the resulting normal Civ4 forced-peace interval prevented an immediate new war, so Hannibal's next response was delayed until Arabia was already at countdown 4. See KI#184.2 for the follow-up Space-stage-3 refinement.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+## 184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sbQXIw23MagHuJcdzoCugLR8iX2_cMp4?usp=sharing).
+
+This is the direct follow-up to KI#184. That fix solved the most blatant failure modes: weak Lincoln could be killed before completing Space, strong Ramesses was no longer ignored, and ordinary peace deals were blocked while the target remained a serious victory threat. However, the same test chain exposed a narrower Space-specific problem: the AI could still wait until the launch countdown or stage 4, even when a rival already had enough spaceship parts that the remaining disruption window was too short.
+
+The motivating save-file 450 follow-up was the Arabia/Team 0 branch described at the end of KI#184. Lincoln died correctly, but much later Arabia still won Space despite not being dominant. Hannibal had already fought Arabia and made peace at turn 321; the resulting normal Civ4 forced-peace interval prevented an immediate new war, so the renewed anti-Space response did not arrive until Arabia was already at countdown 4. The problem was not that the countdown/stage-4 emergency response was absent; it was that the response became urgent only after too much of the Space race had already been completed.
+
+Space Race is a safer case for earlier action than most stage-3 victory plans because actual spaceship parts are concrete. A generic stage-3 victory plan can still be vague or reversible, but a team that has many completed spaceship parts and is close to the parts leader is visibly nearing a win before the final countdown starts. The fix therefore extends victory denial only for stage-3 Space threats that meet both conditions:
+
+- spaceship completion is high enough;
+- and the team is close enough to the current spaceship-parts leader.
+
+The implementation then applies the same predicate consistently to UWAI utility, direct-war eligibility, and peace refusal. This avoids the earlier split where one layer could notice the danger while another layer still prepared too slowly or allowed a quick peace.
+
+Save file 452 showed the same symptom in a fast DeityPlus Space race. In `BBAI_20260714T085908Z_load1.log` / `SASGameSummary_20260714T085908Z_load1.log`, Churchill/England reached 8/16 spaceship parts before the final countdown, the stage-3 Space rule fired around that point, China and Carthage declared, and China captured Oxford next turn. Churchill still won at turn 252, but the AI was no longer only reacting at the final launch window.
+
+Save file 450 retests showed the same pattern on the Ramesses branch. In `BBAI_20260715T071453Z_load1.log` / `SASGameSummary_20260715T071453Z_load1.log`, Ramesses' team reached 8/16 spaceship parts at turn 260, teams 1 and 4 declared at turn 261, peace deals were blocked from turn 263 onward, and team 9 later captured Paris before Ramesses recaptured it. Ramesses still won at turn 282, which is acceptable for a strong Space leader surviving real pressure rather than being ignored.
+
+In the later `BBAI_20260715T072834Z_load1.log` / `SASGameSummary_20260715T072834Z_load1.log` branch, the Space response again began at 8/16 parts: UWAI chose stage-3 Space pressure from turn 265 onward, later direct wars fired, cities changed hands, and the Space win moved to turn 293. This supports keeping the threshold broad enough to start real pressure before countdown without making every Apollo builder an emergency target.
 
 Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.

@@ -88,6 +88,11 @@ namespace
 			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST");
 			iBoost += iStage4UtilityBoost;
 		}
+		if (isSASTeamStage3SpaceVictoryThreat(eTarget))
+		{
+			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST");
+			iBoost += iStage3SpaceUtilityBoost;
+		}
 		return iBoost;
 	}
 
@@ -99,11 +104,13 @@ namespace
 		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
 		static const int iMaxCountdownDirectWar = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR");
 		static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
+		static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
 		bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
 		bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
+		bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
 		// <!-- custom: Save-file 450 showed Lincoln reaching 11 spaceship parts before the victory countdown started, then later reporting stage 3 while countdown still showed only a few turns left.
-		// Allow direct war for either hard countdown emergencies or weak/near stage-4 threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
-		if (!bCountdownDirect && !bStage4Direct)
+		// The later Arabia branch showed direct war at countdown 4 was mechanically correct but still too late. Save-file 452 then showed raw part count could still fire too late in a faster Space race. Allow direct war for hard countdown emergencies, weak/near stage-4 threats, or configured stage-3 Space threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
+		if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
 			return false;
 		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
 		if (getSASBBAITargetPowerPercent(kAgent, eTarget) > iMaxTargetPowerPercent)
@@ -112,19 +119,6 @@ namespace
 		if (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) > iMaxDistance)
 			return false;
 		return (!bNaval || kAgent.AI_isLandTarget(eTarget));
-	}
-
-	int getSASBBAISpaceshipPartsBuilt(TeamTypes eTeam)
-	{
-		int iPartsBuilt = 0;
-		CvTeamAI const& kTeam = GET_TEAM(eTeam);
-		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
-		{
-			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
-			if (kProject.isSpaceship())
-				iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
-		}
-		return iPartsBuilt;
 	}
 
 	void logSASBBAIWarTargetVictoryContext(CvTeamAI const& kAgent, TeamTypes eTarget, char const* szRow, WarPlanTypes eWarPlan, int iUtility, int iDrivePercent, int iTargetRank, int iCandidateCount, bool bBackground)
@@ -136,8 +130,8 @@ namespace
 		if (std::max(std::max(iTargetCultureStage, iTargetSpaceStage), std::max(std::max(iTargetConquestStage, iTargetDominationStage), iTargetDiplomacyStage)) < 3 && GET_TEAM(eTarget).AI_getLowestVictoryCountdown() < 0)
 			return;
 		// <!-- custom: Map 450 showed Lincoln winning Space Race despite stronger teams evaluating him as weak and reachable only a few turns earlier. Log near-victory target context directly beside UWAI target rows so future runs show whether the AI noticed a rival victory threat, whether the target was weak/near enough, and whether normal war selection acted too late. (GPT-5.5) -->
-		logBBAI("WAR_TARGET_VICTORY_PRESSURE turn=%d row=%s background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d targetCultureStage=%d targetSpaceStage=%d targetConquestStage=%d targetDominationStage=%d targetDiplomacyStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d agentCultureStage=%d agentSpaceStage=%d agentConquestStage=%d agentDominationStage=%d agentDiplomacyStage=%d agentVictoryCountdown=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
-				GC.getGame().getGameTurn(), szRow, bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, iDrivePercent, iTargetRank, iCandidateCount, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAISpaceshipPartsBuilt(eTarget), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage, kAgent.AI_getLowestVictoryCountdown(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), kAgent.getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
+		logBBAI("WAR_TARGET_VICTORY_PRESSURE turn=%d row=%s background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d targetCultureStage=%d targetSpaceStage=%d targetConquestStage=%d targetDominationStage=%d targetDiplomacyStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d agentCultureStage=%d agentSpaceStage=%d agentConquestStage=%d agentDominationStage=%d agentDiplomacyStage=%d agentVictoryCountdown=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), szRow, bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, iDrivePercent, iTargetRank, iCandidateCount, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage, kAgent.AI_getLowestVictoryCountdown(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), kAgent.getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
 	}
 
 	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
@@ -1733,8 +1727,8 @@ void UWAI::Team::scheme()
 			iU += iVictoryDenialBoost;
 			if (gWarLogLevel >= 1)
 			{
-				logBBAI("WAR_TARGET_VICTORY_DENIAL_ADJUST turn=%d agentTeam=%d targetTeam=%d originalUtility=%d adjustedUtility=%d boost=%d direct=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
-						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAISpaceshipPartsBuilt(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_ADJUST turn=%d agentTeam=%d targetTeam=%d originalUtility=%d adjustedUtility=%d boost=%d direct=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
 			}
 		}
 		m_pReport->setMute(false);

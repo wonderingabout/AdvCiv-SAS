@@ -124,6 +124,12 @@ int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
 int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level Space victory-stage helper for victory-denial rules that need Space-specific progress instead of the highest route-agnostic stage. (GPT-5.5) -->
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam); // <!-- custom: Shared spaceship-parts count for Space victory-denial rules and logs; using one helper keeps UWAI and peace-refusal thresholds consistent. (GPT-5.5) -->
+int getSASSpaceshipPartsRequired();
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
 
