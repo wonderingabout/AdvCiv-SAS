@@ -755,6 +755,22 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE</DefineName>
 		<iDefineIntVal>4</iDefineIntVal>
 	</Define>
+	<!-- custom: Tunable thresholds for whether an acquired city is likely to benefit its recipient long-term.
+	Intrinsic site quality fails only when both the very-bad-plot and net-low-food limits are exceeded.
+	On the same land area, excessive distance from our nearest city fails regardless of intrinsic quality because defending the outpost can exhaust units before a nearer rival captures its developed city and plots. Razing instead makes that rival spend its own Settler, development time, and defensive resources.
+	The conquest caller force-razes a failing city subject to its exclusions, and the city-trade logic rejects transferring one to an AI recipient. Component logs keep the thresholds reviewable in autoplay tests. See KI#186. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA</DefineName>
+		<iDefineIntVal>8</iDefineIntVal>
+	</Define>
 	<!-- custom: Long_Comments_XML.txt #207 -->
 	<Define>
 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>

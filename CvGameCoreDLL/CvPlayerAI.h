@@ -539,7 +539,9 @@ public:
 	CvPlot& AI_getCitySite(int iIndex) const;
 	// advc.117, advc.121:
 	bool AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const;
-	bool AI_isAwfulSite(CvCity const& kCity, bool bConquest = false) const; // advc.ctr
+	// <!-- custom: Replace Base AdvCiv's negative terrain-veto predicate with a positive SAS evaluation of intrinsic city-site quality and sustainable same-area distance. See KI#186. (GPT-5.6-Sol) -->
+	// bool AI_isAwfulSite(CvCity const& kCity, bool bConquest = false) const; // advc.ctr
+	bool AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) const;
 	bool AI_deduceCitySite(CvCity const& pCity) const; // K-Mod
 	void AI_cityKilled(CvCity const& kCity); // advc.104
 	void AI_cityCreated(CvCity& kCity); // advc.104

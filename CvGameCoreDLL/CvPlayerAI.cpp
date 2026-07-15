@@ -1815,7 +1815,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				iNearestOwnCityDistance = iLoopDistance;
 			}
 		}
-		logBBAI("RAZE_EVAL_BEGIN turn=%d player=%d civ=%S city=%S population=%d previousOwner=%d originalOwner=%d everOwned=%d closeness=%d nearestOwnCity=%S nearestOwnCityDistance=%d teamAreaCities=%d", kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getPopulation(), kCity.getPreviousOwner(), kCity.getOriginalOwner(), bEverOwned, iCloseness, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), iNearestOwnCityDistance, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()));
+		logBBAI("RAZE_EVAL_BEGIN turn=%d player=%d civ=%S city=%S population=%d previousOwner=%d originalOwner=%d everOwned=%d closeness=%d nearestOwnCity=%S nearestOwnCityDistance=%d teamAreaCities=%d",
+			kGame.getGameTurn(), getID(), getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getPopulation(), kCity.getPreviousOwner(), kCity.getOriginalOwner(), bEverOwned, iCloseness, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), iNearestOwnCityDistance, GET_TEAM(getTeam()).countNumCitiesByArea(kCity.getArea()));
 	}
 
 	// <!-- custom: new logic later, see below for details -->
@@ -1853,15 +1854,22 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 				if(5 * iAttStr > 4 * iDefStr) bRaze = true;
 			}
 			// <!-- custom: Identify each forced conquest-raze branch at PLAYER level 1 without changing the decision. (GPT-5.6-Sol) -->
-			if (bRaze && bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=CULTURE_VICTORY highCultureCities=%d victoryTargetCities=%d enemyPowerPercent=%d localAttackStrength=%d localDefenceStrength=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iHighCultureCount, iVictTarget, iEnemyPowerPercent, iAttStr, iDefStr);
+			if (bRaze && bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=CULTURE_VICTORY highCultureCities=%d victoryTargetCities=%d enemyPowerPercent=%d localAttackStrength=%d localDefenceStrength=%d",
+				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iHighCultureCount, iVictTarget, iEnemyPowerPercent, iAttStr, iDefStr);
 		} // </advc.116>
 	}  // <advc.ctr>
 	// <!-- custom: store it once to avoid reuse -->
 	const bool bBarbarian = isBarbarian();
-	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && !kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true))
+	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities. See KI#186. (GPT-5.6-Sol) -->
+	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && !kCity.hasActiveWorldWonder())
 	{
-		bRaze = true;
-		if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=ADVC_AWFUL_SITE population=%d era=%d closeness=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), kGame.getCurrentEra(), iCloseness, iNearestOwnCityDistance);
+		// bool const bShouldRazeBadCityLongTerm = AI_isAwfulSite(kCity, true)
+		bool const bShouldRazeBadCityLongTerm = !AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+		if (bShouldRazeBadCityLongTerm)
+		{
+			bRaze = true;
+			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance);
+		}
 	} // </advc.ctr>
 	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
 	bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
@@ -2209,7 +2217,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 			int const iRazeRandom = SyncRandNum(6);
 			iRazeValue += iRazeRandom;
 			// <!-- custom: Preserve the normal AdvCiv valuation result while exposing compact component deltas for review. (GPT-5.6-Sol) -->
-			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation, iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
+			if (bLogRazeDecision) logBBAI("RAZE_VALUE_COMPONENTS turn=%d player=%d city=%S distanceAndLocalPower=%d maintenance=%d population=%d personalityAndDomination=%d religionAssetsCultureExpansionAndEnemyPower=%d random=%d finalValue=%d threshold=0 financialTrouble=%d closeness=%d",
+				kGame.getGameTurn(), getID(), kCity.getName().GetCString(), iRazeValueAfterDistance, iRazeValueAfterMaintenance - iRazeValueAfterDistance, iRazeValueAfterPopulation - iRazeValueAfterMaintenance, iRazeValueAfterPersonalityAndDomination - iRazeValueAfterPopulation, iRazeValueBeforeRandom - iRazeValueAfterPersonalityAndDomination, iRazeRandom, iRazeValue, bFinancialTrouble, iCloseness);
 		} // End of !isBarbarian()
 
 		if(bLogRazeDecision)
@@ -13821,10 +13830,14 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
 	if (!bLib && !kToPlayer.isHuman() && kToPlayer.getTeam() != getTeam() &&
 		!kCity.isEverOwned(eToPlayer))
 	{
-		if (GET_PLAYER(eToPlayer).AI_isAwfulSite(kCity))
+		// <!-- custom: Replace Base AdvCiv's crude terrain-only AI_isAwfulSite veto with the SAS long-term evaluation, which considers intrinsic BFC quality and sustainable distance for the recipient. AI_cityTradeVal then evaluates the developed city's broader acquisition value. See KI#186. (GPT-5.6-Sol) -->
+		// bool const bBadCityToAcquireLongTermForRecipient = GET_PLAYER(eToPlayer).AI_isAwfulSite(kCity);
+		bool const bBadCityToAcquireLongTermForRecipient = !GET_PLAYER(eToPlayer).AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+		if (bBadCityToAcquireLongTermForRecipient)
 		{	// "We don't want to trade this" seems appropriate
 			return DENIAL_UNKNOWN;
 		}
+
 		iAcquireVal = GET_PLAYER(eToPlayer).AI_cityTradeVal(
 				kCity, eToPlayer, LIBERATION_WEIGHT_FULL);
 		if (iAcquireVal <= 0) // Increase this threshold a bit?
@@ -30455,86 +30468,154 @@ bool CvPlayerAI::AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const
 	return false;
 }
 
-/*  advc.ctr: Says whether kCity is in a spot where probably no city belongs.
-	This player is the AI civ considering to obtain the city.
-	Some overlap with CvPlayerAI::AI_foundValue, but it's difficult to make
-	that function work for plots with an actual city.
-	Tbd.: See if this can be replaced with a comparison between
-	AI_cityTradeVal and a threshold. */
-bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
-{
-	int const iEra = GC.getGame().getCurrentEra();
-	bool const bLogConquestRaze = (bConquest && gPlayerLogLevel >= 1);
-	// If the city has grown, the site has somewhat proved its usefulness.
-	int const iPopulationProofThreshold = 3 * iEra + 7 - (bConquest ? 2 : 0);
-	if (kCity.getPopulation() * 2 >= iPopulationProofThreshold)
-	{
-		if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=0 reason=POPULATION_PROVED_USEFUL population=%d era=%d populationX2=%d populationProofThreshold=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold);
-		return false;
-	}
+// <!-- custom: Base AdvCiv AI_isAwfulSite disabled and retained for reference. Its cruder absolute terrain veto was removed from active conquest and city-trade logic as part of replacing it with AI_isSASCityLikelyToBenefitUsLongTerm; see KI#186.
+// It said whether kCity was in a spot where probably no city belonged; this player was the AI civ considering obtaining the city. It overlapped with AI_foundValue because that function is difficult to use on a plot with an existing city, and included a TODO to replace this with AI_cityTradeVal. (GPT-5.6-Sol) -->
+// advc.ctr: Says whether kCity is in a spot where probably no city belongs. This player is the AI civ considering to obtain the city.
+// Some overlap with CvPlayerAI::AI_foundValue, but it's difficult to make that function work for plots with an actual city.
+// Tbd.: See if this can be replaced with a comparison betweenAI_cityTradeVal and a threshold.
+// bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity, bool bConquest) const
+// {
+// 	int const iEra = GC.getGame().getCurrentEra();
+// 	bool const bLogConquestRaze = (bConquest && gPlayerLogLevel >= 1);
+// 	// If the city has grown, the site has somewhat proved its usefulness.
+// 	int const iPopulationProofThreshold = 3 * iEra + 7 - (bConquest ? 2 : 0);
+// 	if (kCity.getPopulation() * 2 >= iPopulationProofThreshold)
+// 	{
+// 		if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=0 reason=POPULATION_PROVED_USEFUL population=%d era=%d populationX2=%d populationProofThreshold=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold);
+// 		return false;
+// 	}
 
-	scaled rDecentPlots = 0;
-	bool const bCountCoast = kCity.isCoastal();
-	int iOverlapOrImpassablePlots = 0;
-	int iThirdPartyCulturePlots = 0;
-	int iHighFoodPlots = 0;
-	int iDecentLandPlots = 0;
+// 	scaled rDecentPlots = 0;
+// 	bool const bCountCoast = kCity.isCoastal();
+// 	int iOverlapOrImpassablePlots = 0;
+// 	int iThirdPartyCulturePlots = 0;
+// 	int iHighFoodPlots = 0;
+// 	int iDecentLandPlots = 0;
+// 	int iBonusPlots = 0;
+// 	int iCountedCoastPlots = 0;
+// 	for (CityPlotIter it(kCity, false); it.hasNext(); ++it)
+// 	{
+// 		CvPlot const& p = *it;
+// 		if(p.getPlayerCityRadiusCount(kCity.getOwner()) > 1 || p.isImpassable())
+// 		{
+// 			if (bLogConquestRaze) iOverlapOrImpassablePlots++;
+// 			continue;
+// 		}
+// 		// Third-party culture
+// 		PlayerTypes eCulturalOwner = p.calculateCulturalOwner();
+// 		if(eCulturalOwner != NO_PLAYER && eCulturalOwner != getID() &&
+// 			eCulturalOwner != (bConquest ? kCity.getPreviousOwner() : kCity.getOwner()))
+// 		{
+// 			if (bLogConquestRaze) iThirdPartyCulturePlots++;
+// 			continue;
+// 		}
+// 		// Flood plains, oases
+// 		if(p.calculateNatureYield(YIELD_FOOD, getTeam()) >= 3)
+// 		{
+// 			rDecentPlots++;
+// 			if (bLogConquestRaze) iHighFoodPlots++;
+// 			continue;
+// 		}
+// 		// Not tundra, snow, desert, regardless of hill, forest or river
+// 		if(!p.isWater() && p.calculateNatureYield(YIELD_FOOD, getTeam(), true) +
+// 			p.calculateNatureYield(YIELD_PRODUCTION, getTeam(), true) +
+// 			// Rounded down
+// 			p.calculateNatureYield(YIELD_COMMERCE, getTeam(), true) / 2 >= 2)
+// 		{
+// 			rDecentPlots++;
+// 			if (bLogConquestRaze) iDecentLandPlots++;
+// 			continue;
+// 		}
+// 		BonusTypes eBonus = p.getNonObsoleteBonusType(getTeam());
+// 		if(eBonus != NO_BONUS)
+// 		{
+// 			rDecentPlots++;
+// 			if (bLogConquestRaze) iBonusPlots++;
+// 			continue;
+// 		}
+// 		// Coast is (almost) half-decent
+// 		if(bCountCoast && p.isWater() && p.isAdjacentToLand())
+// 		{
+// 			rDecentPlots += fixp(0.4);
+// 			if (bLogConquestRaze) iCountedCoastPlots++;
+// 		}
+// 	}
+// 	scaled rThresh(20, 3);
+// 	if (bConquest && kCity.getPopulation() >= iEra + 4)
+// 		rThresh--;
+// 	bool const bAwfulSite = (rDecentPlots < rThresh);
+// 	// <!-- custom: Base AdvCiv's awful-site result can force an immediate raze before normal valuation. Log its terrain count, exclusions, population safeguard, and threshold so close-city razes and later resettlement can be reviewed without changing behavior. (GPT-5.6-Sol) -->
+// 	if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=%d reason=PLOT_THRESHOLD population=%d era=%d populationX2=%d populationProofThreshold=%d decentPlotsX100=%d thresholdX100=%d highFoodPlots=%d decentLandPlots=%d bonusPlots=%d countedCoastPlots=%d overlapOrImpassablePlots=%d thirdPartyCulturePlots=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bAwfulSite, kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold, (100 * rDecentPlots).round(), (100 * rThresh).round(), iHighFoodPlots, iDecentLandPlots, iBonusPlots, iCountedCoastPlots, iOverlapOrImpassablePlots, iThirdPartyCulturePlots);
+// 	return bAwfulSite;
+// }
+
+bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) const
+{
+	// <!-- custom: Evaluate whether a conquered city is likely to produce durable net value for us, instead of using Base AdvCiv's AI_isAwfulSite terrain veto.
+	// Intrinsic quality uses the shared SAS potential-yield and food-pressure helpers.
+	// Both excessive economically dead BFC capacity and excessive net food pressure are required to fail, so surplus food from Flood Plains or improved bonuses can support weaker plots.
+	// Overlap and culture pressure are measured but do not erase intrinsic plot value.
+	// A same-area city beyond the tunable distance limit fails regardless of intrinsic quality because defending it can exhaust our units before a nearer rival captures the developed city.
+	// Razing makes that rival pay to settle and develop the site.
+	// Keep the thresholds XML-tunable and log both component results so later autoplay evidence can refine them. See KI#186. (GPT-5.6-Sol) -->
+	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE");
+	static int const iMaxVeryBadPlots = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS");
+	static int const iMaxLowFoodScore = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE");
+	static int const iMaxNearestOwnCityDistanceSameArea = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA");
+	static int const iMinWaterSizeForOcean = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+	bool const bOceanCoastal = kCity.plot()->isCoastalLand(iMinWaterSizeForOcean);
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(getID()) : 0);
+	int iVeryBadPlots = 0;
+	int iLowFoodScore = 0;
+	int iFoodSurplusPlots = 0;
+	int iFoodDeficitPlots = 0;
 	int iBonusPlots = 0;
-	int iCountedCoastPlots = 0;
+	int iOverlapPlots = 0;
+	int iImpassablePlots = 0;
+	int iThirdPartyCulturePlots = 0;
+	int iThirdPartyCulturePercentSum = 0;
+	int iFeatureHealthPercent = 0;
+	bool const bLogLongTermCityEval = (gPlayerLogLevel >= 1);
+	PlayerTypes const eExpectedCultureSource = (!bLogLongTermCityEval ? NO_PLAYER : (kCity.getOwner() == getID() ? kCity.getPreviousOwner() : kCity.getOwner()));
 	for (CityPlotIter it(kCity, false); it.hasNext(); ++it)
 	{
-		CvPlot const& p = *it;
-		if(p.getPlayerCityRadiusCount(kCity.getOwner()) > 1 || p.isImpassable())
+		CvPlot const& kPlot = *it;
+		BonusTypes const eBonus = kPlot.getBonusType(getTeam());
+		bool const bCanAssumeWaterBonusImprovement = kPlot.SAS_canAssumeWaterBonusImprovement(eBonus, getID(), *kCity.plot());
+		int const iPlotLowFoodScore = kPlot.SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+		iLowFoodScore += iPlotLowFoodScore;
+		int iBestPotentialYieldScore = 0;
+		if (kPlot.SAS_isVeryBadBFCPlot(eBonus, getID(), iAssumedSeaPlotFoodChange, iMinPotentialYieldScore, iBestPotentialYieldScore)) iVeryBadPlots++;
+		if (bLogLongTermCityEval)
 		{
-			if (bLogConquestRaze) iOverlapOrImpassablePlots++;
-			continue;
-		}
-		// Third-party culture
-		PlayerTypes eCulturalOwner = p.calculateCulturalOwner();
-		if(eCulturalOwner != NO_PLAYER && eCulturalOwner != getID() &&
-			eCulturalOwner != (bConquest ? kCity.getPreviousOwner() : kCity.getOwner()))
-		{
-			if (bLogConquestRaze) iThirdPartyCulturePlots++;
-			continue;
-		}
-		// Flood plains, oases
-		if(p.calculateNatureYield(YIELD_FOOD, getTeam()) >= 3)
-		{
-			rDecentPlots++;
-			if (bLogConquestRaze) iHighFoodPlots++;
-			continue;
-		}
-		// Not tundra, snow, desert, regardless of hill, forest or river
-		if(!p.isWater() && p.calculateNatureYield(YIELD_FOOD, getTeam(), true) +
-			p.calculateNatureYield(YIELD_PRODUCTION, getTeam(), true) +
-			// Rounded down
-			p.calculateNatureYield(YIELD_COMMERCE, getTeam(), true) / 2 >= 2)
-		{
-			rDecentPlots++;
-			if (bLogConquestRaze) iDecentLandPlots++;
-			continue;
-		}
-		BonusTypes eBonus = p.getNonObsoleteBonusType(getTeam());
-		if(eBonus != NO_BONUS)
-		{
-			rDecentPlots++;
-			if (bLogConquestRaze) iBonusPlots++;
-			continue;
-		}
-		// Coast is (almost) half-decent
-		if(bCountCoast && p.isWater() && p.isAdjacentToLand())
-		{
-			rDecentPlots += fixp(0.4);
-			if (bLogConquestRaze) iCountedCoastPlots++;
+			if (iPlotLowFoodScore < 0) iFoodSurplusPlots++;
+			else if (iPlotLowFoodScore > 0) iFoodDeficitPlots++;
+			if (eBonus != NO_BONUS) iBonusPlots++;
+			if (kPlot.getPlayerCityRadiusCount(getID()) > 1) iOverlapPlots++;
+			if (kPlot.isImpassable()) iImpassablePlots++;
+			FeatureTypes const eFeature = kPlot.getFeatureType();
+			if (eFeature != NO_FEATURE) iFeatureHealthPercent += GC.getInfo(eFeature).getHealthPercent();
+			int const iTotalCulture = kPlot.getTotalCulture();
+			if (iTotalCulture > 0)
+			{
+				int iThirdPartyCulture = iTotalCulture - kPlot.getCulture(getID());
+				if (eExpectedCultureSource != NO_PLAYER && eExpectedCultureSource != getID()) iThirdPartyCulture -= kPlot.getCulture(eExpectedCultureSource);
+				if (iThirdPartyCulture > 0)
+				{
+					iThirdPartyCulturePlots++;
+					iThirdPartyCulturePercentSum += (100 * iThirdPartyCulture) / iTotalCulture;
+				}
+			}
 		}
 	}
-	scaled rThresh(20, 3);
-	if (bConquest && kCity.getPopulation() >= iEra + 4)
-		rThresh--;
-	bool const bAwfulSite = (rDecentPlots < rThresh);
-	// <!-- custom: Base AdvCiv's awful-site result can force an immediate raze before normal valuation. Log its terrain count, exclusions, population safeguard, and threshold so close-city razes and later resettlement can be reviewed without changing behavior. (GPT-5.6-Sol) -->
-	if (bLogConquestRaze) logBBAI("RAZE_AWFUL_SITE_EVAL turn=%d player=%d city=%S result=%d reason=PLOT_THRESHOLD population=%d era=%d populationX2=%d populationProofThreshold=%d decentPlotsX100=%d thresholdX100=%d highFoodPlots=%d decentLandPlots=%d bonusPlots=%d countedCoastPlots=%d overlapOrImpassablePlots=%d thirdPartyCulturePlots=%d", GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bAwfulSite, kCity.getPopulation(), iEra, 2 * kCity.getPopulation(), iPopulationProofThreshold, (100 * rDecentPlots).round(), (100 * rThresh).round(), iHighFoodPlots, iDecentLandPlots, iBonusPlots, iCountedCoastPlots, iOverlapOrImpassablePlots, iThirdPartyCulturePlots);
-	return bAwfulSite;
+	bool const bIntrinsicSiteLikelyToBenefit = !(iVeryBadPlots > iMaxVeryBadPlots && iLowFoodScore > iMaxLowFoodScore);
+	CvCity const* pNearestOwnCitySameArea = GC.getMap().findCity(kCity.getX(), kCity.getY(), getID(), NO_TEAM, true, false, NO_TEAM, NO_DIRECTION, &kCity);
+	int const iNearestOwnCityDistanceSameArea = (pNearestOwnCitySameArea == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pNearestOwnCitySameArea->getX(), pNearestOwnCitySameArea->getY()));
+	bool const bSameAreaDistanceLikelyToBenefit = (pNearestOwnCitySameArea == NULL || iMaxNearestOwnCityDistanceSameArea <= 0 || iNearestOwnCityDistanceSameArea <= iMaxNearestOwnCityDistanceSameArea);
+	bool const bLikelyToBenefitUsLongTerm = (bIntrinsicSiteLikelyToBenefit && bSameAreaDistanceLikelyToBenefit);
+	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
+		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
+	return bLikelyToBenefitUsLongTerm;
 }
 
 // advc.104:
