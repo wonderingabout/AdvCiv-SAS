@@ -6,7 +6,7 @@
 #include "PlotRange.h"
 #include "CvArea.h"
 #include "CvInfo_City.h"
-// <!-- custom: Needed for settlement-specific bonus health/happiness from ordinary buildings, e.g. Harbor seafood health, without using broad AI_bonusVal trade logic. (GPT-5.5) -->
+// <!-- custom: Needed for settlement-specific bonus health/happiness from plausible buildings, e.g. Harbor seafood health and capped Incense Cathedral happiness, without using broad AI_bonusVal trade logic. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvInfo_Building.h"
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
@@ -2805,9 +2805,7 @@ bool AIFoundValue::isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const
 bool AIFoundValue::isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const
 {
 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
-	// <!-- custom: Settlement scoring should anticipate ordinary Granary/Harbor-style bonus health/happiness without importing full AI_bonusVal trade logic. Keep limited buildings, special-building chains, obsolete buildings, non-coastal water buildings, and late prerequisite eras out of this narrow long-term city-site value. See KI#178. (GPT-5.5) -->
-	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
-		return false;
+	// <!-- custom: Settlement scoring should anticipate ordinary Granary/Harbor-style and conservatively estimated special-building bonus health/happiness without importing full AI_bonusVal trade logic. Keep obsolete buildings, non-coastal water buildings, and prerequisites beyond the configured era out of this narrow long-term city-site value. Limited buildings are rejected by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
 	if (kBuilding.isWater() && !bCoastal)
 		return false;
 	TechTypes const eObsoleteTech = kBuilding.getObsoleteTech();
@@ -2822,6 +2820,20 @@ bool AIFoundValue::isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMax
 		if (eAndTech != NO_TECH && GC.getInfo(eAndTech).getEra() > iMaxPrereqEra)
 			return false;
 	}
+	SpecialBuildingTypes const eSpecialBuilding = kBuilding.getSpecialBuildingType();
+	if (eSpecialBuilding != NO_SPECIALBUILDING)
+	{
+		CvSpecialBuildingInfo const& kSpecialBuilding = GC.getInfo(eSpecialBuilding);
+		TechTypes const eSpecialObsoleteTech = kSpecialBuilding.getObsoleteTech();
+		if (eSpecialObsoleteTech != NO_TECH && GET_TEAM(eTeam).isHasTech(eSpecialObsoleteTech))
+			return false;
+		TechTypes const eSpecialPrereqTech = kSpecialBuilding.getTechPrereq();
+		if (eSpecialPrereqTech != NO_TECH && GC.getInfo(eSpecialPrereqTech).getEra() > iMaxPrereqEra)
+			return false;
+		TechTypes const eSpecialPrereqAnyoneTech = kSpecialBuilding.getTechPrereqAnyone();
+		if (eSpecialPrereqAnyoneTech != NO_TECH && GC.getInfo(eSpecialPrereqAnyoneTech).getEra() > iMaxPrereqEra)
+			return false;
+	}
 	return true;
 }
 
@@ -2833,7 +2845,14 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 		return 0;
 	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
 	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
+	static const int iReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT"));
+	static const int iNonReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_NON_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT"));
+	static const int iSpecialBuildingMaxValue = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_SPECIAL_BUILDING_HAPPY_HEALTH_MAX_VALUE"));
 	int iValue = 0;
+	int iReligiousSpecialBuildingHealthPoints = 0;
+	int iReligiousSpecialBuildingHappinessPoints = 0;
+	int iNonReligiousSpecialBuildingHealthPoints = 0;
+	int iNonReligiousSpecialBuildingHappinessPoints = 0;
 	CvCivilization const& kCiv = kPlayer.getCivilization();
 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
 	{
@@ -2844,8 +2863,33 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 		if (!isBonusBuildingEffectValued(eBuilding, iMaxPrereqEra, bCoastal))
 			continue;
 		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
-		iValue += std::max(0, kBuilding.getBonusHealthChanges(eBonus)) * iHealthValue + std::max(0, kBuilding.getBonusHappinessChanges(eBonus)) * iHappinessValue;
+		int const iHealthPoints = std::max(0, kBuilding.getBonusHealthChanges(eBonus));
+		int const iHappinessPoints = std::max(0, kBuilding.getBonusHappinessChanges(eBonus));
+		SpecialBuildingTypes const eSpecialBuilding = kBuilding.getSpecialBuildingType();
+		if (eSpecialBuilding == NO_SPECIALBUILDING)
+			iValue += iHealthPoints * iHealthValue + iHappinessPoints * iHappinessValue;
+		else
+		{
+			bool const bReligionLinked = (kBuilding.getReligionType() != NO_RELIGION || kBuilding.getPrereqReligion() != NO_RELIGION || kBuilding.getStateReligion() != NO_RELIGION || kBuilding.getHolyCity() != NO_RELIGION);
+			if (bReligionLinked)
+			{
+				iReligiousSpecialBuildingHealthPoints += iHealthPoints;
+				iReligiousSpecialBuildingHappinessPoints += iHappinessPoints;
+			}
+			else
+			{
+				iNonReligiousSpecialBuildingHealthPoints += iHealthPoints;
+				iNonReligiousSpecialBuildingHappinessPoints += iHappinessPoints;
+			}
+		}
 	}
+	int const iReligiousSpecialBuildingValue = (iReligiousSpecialBuildingHealthPoints + iReligiousSpecialBuildingHappinessPoints) * iReligiousSpecialBuildingValuePerPoint;
+	int const iNonReligiousSpecialBuildingValue = (iNonReligiousSpecialBuildingHealthPoints + iNonReligiousSpecialBuildingHappinessPoints) * iNonReligiousSpecialBuildingValuePerPoint;
+	int const iSpecialBuildingRawValue = iReligiousSpecialBuildingValue + iNonReligiousSpecialBuildingValue;
+	int const iSpecialBuildingValue = std::min(iSpecialBuildingRawValue, iSpecialBuildingMaxValue);
+	iValue += iSpecialBuildingValue;
+	IFLOG if (iSpecialBuildingRawValue != 0) logBBAI("Special-building bonus (%S): religiousHealth=%d religiousHappiness=%d nonReligiousHealth=%d nonReligiousHappiness=%d religiousValue=%d nonReligiousValue=%d raw=%d cap=%d value=%d",
+			GC.getInfo(eBonus).getDescription(), iReligiousSpecialBuildingHealthPoints, iReligiousSpecialBuildingHappinessPoints, iNonReligiousSpecialBuildingHealthPoints, iNonReligiousSpecialBuildingHappinessPoints, iReligiousSpecialBuildingValue, iNonReligiousSpecialBuildingValue, iSpecialBuildingRawValue, iSpecialBuildingMaxValue, iSpecialBuildingValue);
 	return iValue;
 }
 
@@ -2853,7 +2897,7 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
 {
 	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
-	// Score explicit new health/happiness and ordinary building health/happiness effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5) -->
+	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
 	// int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() && kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ? 80 : 20); // BtS
 	// int iCount = kPlayer.getNumTradeableBonuses(eBonus) == 0 + aiBonusCount[eBonus];
 	// int r = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount); // K-Mod
