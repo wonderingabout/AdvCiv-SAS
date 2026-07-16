@@ -364,6 +364,7 @@ void CvEventReporter::unitLost(CvUnit *pUnit)
 void CvEventReporter::unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
 {
 	// <!-- custom: forward actual capture creation to Python so battle history records captured workers/civilians instead of inferring from the earlier combatResult. (GPT-5.5) -->
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
 	m_kPythonEventMgr.reportUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
 }
 

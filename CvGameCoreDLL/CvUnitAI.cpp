@@ -866,6 +866,39 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
 		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
 }
 
+// <!-- custom: SASGameSummary showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
+// Trace only groups with at least 16 units and 20% of the owner's military at UNIT level 2; these diagnostic-only thresholds keep the log narrow and do not affect AI behavior.
+// Record persistent activity/mission state, incoming joiners, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. (GPT-5.6-Sol) -->
+static bool SAS_isLargeAttackCityStackDiagnostic(CvUnitAI const& kUnit)
+{
+	if (kUnit.AI_getUnitAIType() != UNITAI_ATTACK_CITY || kUnit.getGroup() == NULL)
+		return false;
+	int const iGroupUnits = kUnit.getGroup()->getNumUnits();
+	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	return (iGroupUnits >= 16 && 100 * iGroupUnits / std::max(1, iTotalMilitary) >= 20);
+}
+
+static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const* szAction, CvCity const* pTargetCity = NULL)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	if (pGroup == NULL)
+		return;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
+	CvUnitAI const* pMissionUnit = pGroup->AI_getMissionAIUnit();
+	int iWounded = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		if (pLoopUnit->getDamage() > 0) iWounded++;
+	}
+	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
+	int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP);
+	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) wars=%d anyWarPlan=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iWounded,
+		kUnit.getX(), kUnit.getY(), (kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(), SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()), (pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(),
+		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
+}
+
 // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
 // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
 // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
@@ -873,11 +906,12 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
 // change behavior. The same remote captured-city test is used below to stop upgrade waits from freezing a ready stack
 // that has a valid target. Logs showed Boston-style false negatives when a nearby owned city was also a captured/front
 // city, so the behavior test is based on distance from core rather than any nearby owned city. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
-static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns)
+static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns, bool bTurtle, bool bHuntBarbs, bool bHuntOnlyBarbs, int iBarbarianGarrison, int iWarStackNeeded, int iMinStackSize)
 {
 	CvSelectionGroup const* pGroup = kUnit.getGroup();
 	CvCity const* pCurrentCity = kUnit.getPlot().getPlotCity();
-	int const iTotalMilitaryUnits = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iTotalMilitaryUnits = kOwner.getNumMilitaryUnits();
 	int const iGroupMilitaryPercent = 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitaryUnits);
 	int iOwnedCitiesSameArea = 0;
 	int iOwnedCitiesWithin6 = 0;
@@ -887,6 +921,9 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
 	int iWoundedUnits = 0;
 	int iCanAttackUnits = 0;
 	int iCityCaptureUnits = 0;
+	int iQualifyingAttackUnits = 0;
+	int iQualifyingCityCaptureUnits = 0;
+	int iNoCombatLimitUnits = 0;
 	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
 	{
 		if (pLoopUnit->getDamage() > 0)
@@ -894,15 +931,34 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
 		if (pLoopUnit->canAttack())
 		{
 			iCanAttackUnits++;
-			if (!pLoopUnit->isNoCityCapture())
-				iCityCaptureUnits++;
+			if (!pLoopUnit->isNoCityCapture()) iCityCaptureUnits++;
+			if (!pLoopUnit->getUnitInfo().isMostlyDefensive())
+			{
+				iQualifyingAttackUnits++;
+				if (!pLoopUnit->isNoCityCapture()) iQualifyingCityCaptureUnits++;
+				if (pLoopUnit->combatLimit() >= 100) iNoCombatLimitUnits++;
+			}
 		}
 	}
-	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
+	// <!-- custom: ATTACK_CITY_PARKING diagnostics need this as a whole-unit threshold. Directly assigning AI_neededCityAttackersVsBarbarians() caused compile error C2440 because it returns scaled; its ceiling is also the minimum whole number of units that can satisfy the readiness comparison. (GPT-5.6-Sol) -->
+	int const iBarbarianAttackersNeeded = (bHuntOnlyBarbs ? kOwner.AI_neededCityAttackersVsBarbarians().ceil() : -1);
+	char const* szReadinessReason = "ready";
+	if (!bReadyToAttack)
+	{
+		if (bTurtle) szReadinessReason = "turtle";
+		else if (bHuntOnlyBarbs && pGroup->getNumUnits() < iBarbarianAttackersNeeded) szReadinessReason = "barbarian_below_min";
+		else if (bHuntOnlyBarbs && pGroup->getNumUnits() >= 3 * iBarbarianGarrison) szReadinessReason = "barbarian_above_max";
+		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iWarStackNeeded) szReadinessReason = "war_below_needed";
+		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iMinStackSize) szReadinessReason = "below_sas_min";
+		else szReadinessReason = "composition";
+	}
+	// <!-- custom: Large stacks logged ready=0 despite many apparent city-capturing units. Record the mutually exclusive readiness reason and the exact strategy, size, and composition inputs so barbarian-size rejection can be distinguished from turtle strategy, insufficient war-stack size, and the mostly-defensive/combat-limit filters before changing grouping behavior. This work remains inside the UNIT logging gate. (GPT-5.6-Sol) -->
+	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d readinessReason=%s turtle=%d alert1=%d huntBarbs=%d huntOnlyBarbs=%d sneakAttackReady=%d anyWarPlan=%d warStackNeeded=%d minStack=%d barbarianGarrison=%d barbarianAttackersNeeded=%d qualifyingAttack=%d qualifyingCityCapture=%d noCombatLimit=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
 		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitaryUnits, iGroupMilitaryPercent, iWoundedUnits, iCanAttackUnits, iCityCaptureUnits,
 		pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(), pCurrentCity->getPreviousOwner() != NO_PLAYER, pCurrentCity->getPreviousOwner() != NO_PLAYER && pCurrentCity->getOriginalOwner() != kUnit.getOwner(), bRemoteCapturedTrap, pCurrentCity->isConnectedToCapital(kUnit.getOwner()), GC.getGame().getGameTurn() - pCurrentCity->getGameTurnAcquired(), pCurrentCity->getPreviousOwner(), pCurrentCity->getOriginalOwner(), iOwnedCitiesSameArea, iOwnedCitiesWithin6, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea,
 		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getArea().getID()),
-		bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+		bReadyToAttack, szReadinessReason, bTurtle, kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1), bHuntBarbs, bHuntOnlyBarbs, GET_TEAM(kUnit.getTeam()).AI_isSneakAttackReady(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), iWarStackNeeded, iMinStackSize, iBarbarianGarrison, iBarbarianAttackersNeeded, iQualifyingAttackUnits, iQualifyingCityCaptureUnits, iNoCombatLimitUnits,
+		bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
 	if (bRemoteCapturedTrap)
 	{
 		// <!-- custom: Diagnostic-only follow-up for KI#155: upgrade-wait remote traps are fixed, but logs still showed remote captured stacks parking for joiners or with no target. Add city defense pressure, area target, and nearest revealed enemy-city distances so the next log review can distinguish useful staging from a stranded army before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
@@ -6042,6 +6098,8 @@ void CvUnitAI::AI_attackCityMove()
 
 	AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && SAS_isLargeAttackCityStackDiagnostic(*this));
+	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
 	bool const bLandWar = (isBarbarian() ?
 			// advc: moved up
@@ -6064,10 +6122,16 @@ void CvUnitAI::AI_attackCityMove()
 			return;
 		}*/ // <advc.299>
 		if (AI_singleUnitHeal(0, 0))
-			return; // </advc.299>
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_single_unit_heal");
+			return;
+		} // </advc.299>
 		// <advc.114e> (from MNAI)
 		if (AI_leaveAttack(1, 70, 150))
-			return; // </advc.114e>
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_leave_attack");
+			return;
+		} // </advc.114e>
 		/*if (bIgnoreFaster) {
 			// BBAI TODO: split out slow units ... will need to test to make sure this doesn't cause loops
 		}*/
@@ -6078,22 +6142,35 @@ void CvUnitAI::AI_attackCityMove()
 			CvSelectionGroupAI* pOldGroup = AI_getGroup();
 			pOldGroup->AI_separateNonAI(UNITAI_ATTACK_CITY);
 			if (pOldGroup != getGroup())
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_separate_non_attack_city");
 				return;
+			}
 		}
 		// note. this will eject a unit to defend the city rather than using the whole group
 		if (AI_guardCity(false))
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city");
 			return;
+		}
 		//if ((eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST))
 		if (bAssault) // K-Mod
 		{
 			if (AI_offensiveAirlift())
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_offensive_airlift");
 				return;
+			}
 		}
 	}
 
 	bool const bEnemyTerritory = isEnemy(getPlot()); // advc: renamed from "bAtWar"
 
 	bool bHuntBarbs = false;
+	bool bHuntOnlyBarbs = false;
+	int iBarbarianGarrison = -1;
+	int iWarStackNeeded = (isBarbarian() ? 3 : -1);
+	int iMinStackSize = -1;
 	bool bReadyToAttack = false;
 	if (isBarbarian())
 		bReadyToAttack = (getGroup()->getNumUnits() >= 3);
@@ -6101,33 +6178,20 @@ void CvUnitAI::AI_attackCityMove()
 	else if (!bTurtle)
 	{
 		int const iGroupSz = getGroup()->getNumUnits();
-		int iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
-		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) ||
-			iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor())
-		{
-			bHuntBarbs = true;
-		}
+		iWarStackNeeded = AI_stackOfDoomExtra();
+		static int const iSASMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+		iMinStackSize = iSASMinStackSize;
+		iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
+		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor()) bHuntBarbs = true;
 		//bReadyToAttack = (iGroupSz >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())); // BtS
 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
 			decide on the proper size of the attack stack. But if there is nothing else
 			to attack, it's easy. */
-		bool const bHuntOnlyBarbs = (bHuntBarbs &&
-				!GET_TEAM(getTeam()).AI_isSneakAttackReady() &&
-				GET_TEAM(getTeam()).getNumWars() <= 0);
+		bHuntOnlyBarbs = (bHuntBarbs && !GET_TEAM(getTeam()).AI_isSneakAttackReady() && GET_TEAM(getTeam()).getNumWars() <= 0);
 		// <!-- custom: simple sanity check - require minimum stack size before considering "ready to attack". Prevents premature wars where small stacks advance then retreat ("weird back and forth"). See KI#104 (Claude code Opus 4.5) -->
-		static int const iMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
-		if (!bHuntOnlyBarbs && iGroupSz >= AI_stackOfDoomExtra() &&
-			iGroupSz >= iMinStackSize)
-		{
-			bReadyToAttack = true;
-		}
-		else if (bHuntOnlyBarbs &&
-			iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() &&
-			// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
-			iGroupSz < 3 * iBarbarianGarrison)
-		{
-			bReadyToAttack = true;
-		}
+		if (!bHuntOnlyBarbs && iGroupSz >= iWarStackNeeded && iGroupSz >= iMinStackSize) bReadyToAttack = true;
+		// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
+		else if (bHuntOnlyBarbs && iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() && iGroupSz < 3 * iBarbarianGarrison) bReadyToAttack = true;
 	} // </advc.300>
 
 	if (bReadyToAttack)
@@ -6179,6 +6243,7 @@ void CvUnitAI::AI_attackCityMove()
 	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
 		0, true, false, bIgnoreFaster))
 	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_same_plot");
 		return;
 	}
 
@@ -6385,6 +6450,7 @@ void CvUnitAI::AI_attackCityMove()
 			}
 		}
 	}
+	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
 	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
 		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
 
@@ -6423,6 +6489,7 @@ void CvUnitAI::AI_attackCityMove()
 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
 			-1, -1, -1, -1, eMoveFlags, /*iMaxPath=*/6)) // was 4
 		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
 			return;
 		}
 	} // K-Mod end
@@ -6456,11 +6523,15 @@ void CvUnitAI::AI_attackCityMove()
 		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath,
 			true, false, bIgnoreFaster))
 		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_staging_range", pTargetCity);
 			return;
 		}
 	}
 	if (AI_heal(30, 1))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_30", pTargetCity);
 		return;
+	}
 
 	/*if (collateralDamage() > 0 && getPlot().getOwner() == getOwner()) {
 		if (AI_anyAttack(1, 45, eMoveFlags, 3, false, false))
@@ -6475,7 +6546,10 @@ void CvUnitAI::AI_attackCityMove()
 	/*	K-Mod (changed to allow cities, and to only use a single unit,
 		but it is still a questionable move) */
 	if (AI_anyAttack(1, 60, eMoveFlags | MOVE_SINGLE_ATTACK))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_opportunistic_attack", pTargetCity);
 		return;
+	}
 
 	// K-Mod - replacing some stuff I moved / removed from the BBAI code
 	if (pTargetCity != NULL && bTargetTooStrong &&
@@ -6573,13 +6647,11 @@ void CvUnitAI::AI_attackCityMove()
 				iMaxWaitTurns = (iPathTurns+1) / 3;
 			}
 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(
-					*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
+			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
 
 			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
 			{	// (the mission is just for debug feedback)
-				if (bLogAttackCityParking)
-					SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns);
+				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 						false, false, MISSIONAI_GROUP);
 				return;
@@ -6614,29 +6686,36 @@ void CvUnitAI::AI_attackCityMove()
 			if (iTargetCount * 5 > getGroup()->getNumUnits())
 			{
 				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-				int iJoiners = kOwner.AI_unitTargetMissionAIs(
-						*this, &eMissionAIType, 1, getGroup(), 2);
+				int iJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
 				if (iJoiners * 5 > getGroup()->getNumUnits())
 				{	// K-Mod (for debug feedback)
-					if (bLogAttackCityParking)
-						SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1);
+					if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 					getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 							false, false, MISSIONAI_GROUP);
 					return;
 				}
 				if (AI_moveToStagingCity())
+				{
+					if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_staging_city", pTargetCity);
 					return;
+				}
 			}
 		}
 	}
 
 	if (AI_heal(50, 3))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_50", pTargetCity);
 		return;
+	}
 
 	if (!bEnemyTerritory)
 	{
 		if (AI_heal())
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_any", pTargetCity);
 			return;
+		}
 		if (getGroup()->getNumUnits() == 1 && getTeam() != getPlot().getTeam())
 		{
 			if (AI_retreatToCity())
@@ -6647,7 +6726,10 @@ void CvUnitAI::AI_attackCityMove()
 	if (!bReadyToAttack && !noDefensiveBonus())
 	{
 		if (AI_guardCity(false, false, MAX_INT, eMoveFlags))
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city_not_ready", pTargetCity);
 			return;
+		}
 	}
 
 	if (bReadyToAttack /* advc.083: */ && !bTargetTooStrong)
@@ -6670,7 +6752,10 @@ void CvUnitAI::AI_attackCityMove()
 		{
 			// target city has already been calculated.
 			if (pTargetCity != NULL && AI_goToTargetCity(eMoveFlags, 12, pTargetCity))
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_barbarian_target", pTargetCity);
 				return;
+			}
 			// <advc.300>
 			int iSearchRange = 3;
 			if (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT)
@@ -6730,8 +6815,7 @@ void CvUnitAI::AI_attackCityMove()
 						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS);
 						if (bLogAttackCityParking)
 						{
-							if (!bSkipUpgradeWaitForReadyAttack)
-								SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns);
+							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 							int iEstimatedUpgradeCost = 0;
 							int iBestUpgradePriceMax = 0;
 							FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
@@ -6789,6 +6873,7 @@ void CvUnitAI::AI_attackCityMove()
 					if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
 						-1, -1, -1, -1, eMoveFlags, iLoadTurns, iMaxTransportTurns))
 					{
+						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_for_target", pTargetCity);
 						return;
 					}
 				}
@@ -6805,7 +6890,10 @@ void CvUnitAI::AI_attackCityMove()
 				if (!bTargetTooStrong)
 				{
 					if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+					{
+						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_target", pTargetCity);
 						return;
+					}
 				}
 
 				if (bAnyWarPlan)
@@ -6936,12 +7024,10 @@ void CvUnitAI::AI_attackCityMove()
 		if (6 * iTargetCount > getGroup()->getNumUnits())
 		{
 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(
-					*this, &eMissionAIType, 1, getGroup(), 2);
+			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
 			if (4*iNearbyJoiners > getGroup()->getNumUnits())
 			{
-				if (bLogAttackCityParking)
-					SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1);
+				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 				getGroup()->pushMission(MISSION_SKIP);
 				return;
 			}
@@ -7014,8 +7100,7 @@ void CvUnitAI::AI_attackCityMove()
 	// K-Mod end
 	if (AI_safety())
 		return;
-	if (bLogAttackCityParking)
-		SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1);
+	if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 	getGroup()->pushMission(MISSION_SKIP);
 }
 

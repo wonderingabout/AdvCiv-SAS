@@ -677,12 +677,12 @@ void CvUnit::doTurn()
 			if (GET_TEAM(getTeam()).isOpenBorders(eTeam))
 			{
 				testSpyIntercepted(kPlot.getOwner(), false,
-						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD));
+						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD), "TRAVEL");
 			}
 			else
 			{
 				testSpyIntercepted(kPlot.getOwner(), false,
-						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD));
+						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD), "TRAVEL");
 			}
 		}
 	}
@@ -6256,6 +6256,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 	{
 		pCity->setNumRealBuilding(eBuilding, pCity->getNumRealBuilding(eBuilding) + 1);
 		CvEventReporter::getInstance().buildingBuilt(pCity, eBuilding);
+		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonConstructed(this, pCity, eBuilding);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_CONSTRUCT);
@@ -6299,10 +6300,11 @@ bool CvUnit::discover()
 	if (!canDiscover(plot()))
 		return false;
 
-	TechTypes eDiscoveryTech = getDiscoveryTech();
+	TechTypes const eDiscoveryTech = getDiscoveryTech();
 	FAssertMsg(eDiscoveryTech != NO_TECH, "DiscoveryTech is not assigned a valid value");
+	int const iResearch = getDiscoverResearch(eDiscoveryTech);
 
-	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, getDiscoverResearch(eDiscoveryTech), getOwner());
+	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, iResearch, getOwner());
 
 	// K-Mod. If the AI bulbs something, let them reconsider their current research.
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -6312,6 +6314,7 @@ bool CvUnit::discover()
 
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_DISCOVER);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
 
 	kill(true);
 
@@ -6366,11 +6369,14 @@ bool CvUnit::hurry()
 {
 	if (!canHurry(plot()))
 		return false;
-	CvCity* pCity = getPlot().getPlotCity();
+	CvCity* const pCity = getPlot().getPlotCity();
+	int const iProduction = getHurryProduction(plot());
+	BuildingTypes const eBuilding = (pCity == NULL ? NO_BUILDING : pCity->getProductionBuilding());
 	if (pCity != NULL)
-		pCity->changeProduction(getHurryProduction(plot()));
+		pCity->changeProduction(iProduction);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_HURRY);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonHurried(this, pCity, eBuilding, iProduction);
 	kill(true);
 	return true;
 }
@@ -6417,9 +6423,12 @@ bool CvUnit::trade()
 {
 	if (!canTrade(plot()))
 		return false;
-	GET_PLAYER(getOwner()).changeGold(getTradeGold(plot()));
+	CvCity* const pCity = getPlot().getPlotCity();
+	int const iGold = getTradeGold(plot());
+	GET_PLAYER(getOwner()).changeGold(iGold);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_TRADE);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonTradeMission(this, pCity, iGold);
 	kill(true);
 	return true;
 }
@@ -6465,7 +6474,8 @@ bool CvUnit::greatWork()
 		pCity->setCultureUpdateTimer(0);
 		pCity->setOccupationTimer(0);
 
-		int iCultureToAdd = 100 * getGreatWorkCulture(plot());
+		int const iCulture = getGreatWorkCulture(plot());
+		int const iCultureToAdd = 100 * iCulture;
 		/*int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getInfo(GC.getGame().getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
 		for (int i = 0; i < iNumTurnsApplied; ++i)
 			pCity->changeCultureTimes100(getOwner(), iCultureToAdd / iNumTurnsApplied, true, true);
@@ -6476,6 +6486,7 @@ bool CvUnit::greatWork()
 		pCity->changeCultureTimes100(getOwner(), iCultureToAdd, true, true);
 		GET_PLAYER(getOwner()).AI_updateCommerceWeights(); // significant culture change may cause signficant weight changes.
 		// K-Mod end
+		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGreatWork(this, pCity, iCulture);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_GREAT_WORK);
@@ -6516,11 +6527,13 @@ bool CvUnit::infiltrate()
 {
 	if (!canInfiltrate(plot()))
 		return false;
-	int iPoints = getEspionagePoints(NULL);
+	int const iPoints = getEspionagePoints(NULL);
+	CvCity* const pCity = getPlot().getPlotCity();
 	GET_TEAM(getTeam()).changeEspionagePointsAgainstTeam(TEAMID(getPlot().getOwner()), iPoints);
 	GET_TEAM(getTeam()).changeEspionagePointsEver(iPoints);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_INFILTRATE);
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonInfiltrated(this, pCity, iPoints);
 	kill(true);
 	return true;
 }
@@ -6584,21 +6597,86 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 	else
 	{
 		CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
-		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod()))
+		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod(), "BEFORE_MISSION"))
 		{
 			return false;
 		}
 
-		if (GET_PLAYER(getOwner()).doEspionageMission(eMission, eTargetPlayer,
-			plot(), iData, this))
+		CvPlot* const pMissionPlot = plot();
+		bool const bLogEspionageMission = (gGameSummaryLogLevel >= 2);
+		int iMissionCost = -1;
+		int iEPBefore = -1;
+		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
+		RouteTypes eTargetRoute = NO_ROUTE;
+		UnitTypes eTargetUnit = NO_UNIT;
+		int iEffectValue = -1;
+		char const* szEffectKind = "-";
+		if (bLogEspionageMission)
 		{
+			CvCity* const pTargetCity = pMissionPlot->getPlotCity();
+			TeamTypes const eTargetTeam = TEAMID(eTargetPlayer);
+			iMissionCost = GET_PLAYER(getOwner()).getEspionageMissionCost(eMission, eTargetPlayer, pMissionPlot, iData, this);
+			iEPBefore = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam);
+			eTargetImprovement = pMissionPlot->getImprovementType();
+			eTargetRoute = pMissionPlot->getRouteType();
+			if ((kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0) && iData >= 0)
+			{
+				CvUnit const* pTargetUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
+				if (pTargetUnit != NULL)
+					eTargetUnit = pTargetUnit->getUnitType();
+			}
+			if (kMission.getDestroyProductionCostFactor() > 0 && pTargetCity != NULL)
+			{
+				iEffectValue = pTargetCity->getProduction();
+				szEffectKind = "productionDestroyed";
+			}
+			else if (kMission.getStolenGoldPercent() > 0 && pTargetCity != NULL)
+			{
+				iEffectValue = GET_PLAYER(getOwner()).getEspionageGoldQuantity(eMission, eTargetPlayer, pTargetCity);
+				szEffectKind = "goldStolen";
+			}
+			else if (kMission.getCityInsertCultureCostFactor() > 0 && pTargetCity != NULL)
+			{
+				iEffectValue = pTargetCity->cultureTimes100InsertedByMission(eMission);
+				szEffectKind = "cultureInsertedX100";
+			}
+			else if (kMission.getCityPoisonWaterCounter() > 0)
+			{
+				iEffectValue = kMission.getCityPoisonWaterCounter();
+				szEffectKind = "poisonTurns";
+			}
+			else if (kMission.getCityUnhappinessCounter() > 0)
+			{
+				iEffectValue = kMission.getCityUnhappinessCounter();
+				szEffectKind = "unhappinessTurns";
+			}
+			else if (kMission.getCityRevoltCounter() > 0)
+			{
+				iEffectValue = kMission.getCityRevoltCounter();
+				szEffectKind = "revoltTurns";
+			}
+			else if (kMission.getPlayerAnarchyCounter() > 0)
+			{
+				iEffectValue = kMission.getPlayerAnarchyCounter() * GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent() / 100;
+				szEffectKind = "anarchyTurns";
+			}
+			else if (kMission.getCounterespionageNumTurns() > 0)
+			{
+				iEffectValue = kMission.getCounterespionageNumTurns() * GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent() / 100;
+				szEffectKind = "counterespionageTurns";
+			}
+		}
+		if (GET_PLAYER(getOwner()).doEspionageMission(eMission, eTargetPlayer,
+			pMissionPlot, iData, this))
+		{
+			if (bLogEspionageMission) logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
 
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
 
-			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD))
+			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD, "AFTER_MISSION"))
 			{
 				setFortifyTurns(0);
 				setMadeAttack(true);
@@ -6631,14 +6709,14 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 	return false;
 }
 
-bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier)
+bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase)
 {
 	CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
 	if (kTargetPlayer.isBarbarian())
 		return false;
 
-	if (!SyncRandSuccess10000((100 + iModifier) *
-		getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission)))
+	int const iInterceptChanceX100 = (100 + iModifier) * getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission);
+	if (!SyncRandSuccess10000(iInterceptChanceX100))
 	{
 		return false;
 	}
@@ -6698,6 +6776,11 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_SURRENDER);
 
+	if (gGameSummaryLogLevel >= 2)
+	{
+		logSASGameSummarySpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100);
+		logSASGameSummaryGreatPersonDied(this, eTargetPlayer, "SPY_INTERCEPTED");
+	}
 	kill(true);
 	return true;
 }
@@ -6785,6 +6868,7 @@ bool CvUnit::goldenAge()
 	if (!canGoldenAge(plot()))
 		return false;
 
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGoldenAgeConsumed(this);
 	GET_PLAYER(getOwner()).killGoldenAgeUnits(this);
 	GET_PLAYER(getOwner()).changeGoldenAgeTurns(GET_PLAYER(getOwner()).getGoldenAgeLength());
 	GET_PLAYER(getOwner()).changeNumUnitGoldenAges(1);
