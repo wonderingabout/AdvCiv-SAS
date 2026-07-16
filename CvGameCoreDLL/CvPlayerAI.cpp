@@ -1860,15 +1860,18 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	}  // <advc.ctr>
 	// <!-- custom: store it once to avoid reuse -->
 	const bool bBarbarian = isBarbarian();
-	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities. See KI#186. (GPT-5.6-Sol) -->
-	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && !kCity.hasActiveWorldWonder())
+	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities.
+	// Base AdvCiv's active-World-Wonder exemption protected the city from this force-raze gate. Keep that intrinsic-site protection, but let the default-enabled XML option make excessive same-area distance override it. England otherwise kept remote Elephantine for its Eiffel Tower, committed 15 defenders, lost at least 7 there, and lost the city after 6 turns. See KI#186.2. (GPT-5.6-Sol) -->
+	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE");
+	bool const bActiveWorldWonder = kCity.hasActiveWorldWonder();
+	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && (!bActiveWorldWonder || bDistanceOverrideActiveWorldWonder))
 	{
 		// bool const bShouldRazeBadCityLongTerm = AI_isAwfulSite(kCity, true)
 		bool const bShouldRazeBadCityLongTerm = !AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
 		if (bShouldRazeBadCityLongTerm)
 		{
 			bRaze = true;
-			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance);
+			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d activeWorldWonder=%d distanceOverrideActiveWorldWonder=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance, bActiveWorldWonder, bDistanceOverrideActiveWorldWonder);
 		}
 	} // </advc.ctr>
 	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
@@ -30557,11 +30560,13 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
 	// Overlap and culture pressure are measured but do not erase intrinsic plot value.
 	// A same-area city beyond the tunable distance limit fails regardless of intrinsic quality because defending it can exhaust our units before a nearer rival captures the developed city.
 	// Razing makes that rival pay to settle and develop the site.
+	// The default-enabled World-Wonder option protects intrinsic quality but not excessive distance.
 	// Keep the thresholds XML-tunable and log both component results so later autoplay evidence can refine them. See KI#186. (GPT-5.6-Sol) -->
 	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE");
 	static int const iMaxVeryBadPlots = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS");
 	static int const iMaxLowFoodScore = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE");
 	static int const iMaxNearestOwnCityDistanceSameArea = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA");
+	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE");
 	static int const iMinWaterSizeForOcean = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
 	bool const bOceanCoastal = kCity.plot()->isCoastalLand(iMinWaterSizeForOcean);
 	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(getID()) : 0);
@@ -30608,13 +30613,15 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
 			}
 		}
 	}
-	bool const bIntrinsicSiteLikelyToBenefit = !(iVeryBadPlots > iMaxVeryBadPlots && iLowFoodScore > iMaxLowFoodScore);
+	bool const bRawIntrinsicSiteLikelyToBenefit = !(iVeryBadPlots > iMaxVeryBadPlots && iLowFoodScore > iMaxLowFoodScore);
+	bool const bIntrinsicSiteProtectedByActiveWorldWonder = (bDistanceOverrideActiveWorldWonder && kCity.hasActiveWorldWonder());
+	bool const bIntrinsicSiteLikelyToBenefit = (bRawIntrinsicSiteLikelyToBenefit || bIntrinsicSiteProtectedByActiveWorldWonder);
 	CvCity const* pNearestOwnCitySameArea = GC.getMap().findCity(kCity.getX(), kCity.getY(), getID(), NO_TEAM, true, false, NO_TEAM, NO_DIRECTION, &kCity);
 	int const iNearestOwnCityDistanceSameArea = (pNearestOwnCitySameArea == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pNearestOwnCitySameArea->getX(), pNearestOwnCitySameArea->getY()));
 	bool const bSameAreaDistanceLikelyToBenefit = (pNearestOwnCitySameArea == NULL || iMaxNearestOwnCityDistanceSameArea <= 0 || iNearestOwnCityDistanceSameArea <= iMaxNearestOwnCityDistanceSameArea);
 	bool const bLikelyToBenefitUsLongTerm = (bIntrinsicSiteLikelyToBenefit && bSameAreaDistanceLikelyToBenefit);
-	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
-		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
+	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d rawIntrinsicSiteLikelyToBenefit=%d intrinsicSiteProtectedByActiveWorldWonder=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
+		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bRawIntrinsicSiteLikelyToBenefit, bIntrinsicSiteProtectedByActiveWorldWonder, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
 	return bLikelyToBenefitUsLongTerm;
 }
 
