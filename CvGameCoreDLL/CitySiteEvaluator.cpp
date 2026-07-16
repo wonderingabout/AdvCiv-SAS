@@ -1079,7 +1079,7 @@ int AIFoundValue::evaluate()
 				int* const piBonusScoreBuildingHappyHealth = (bLogBonusScore ? &iBonusScoreBuildingHappyHealth : NULL);
 				int* const piBonusScoreAdjustPercent = (bLogBonusScore ? &iBonusScoreAdjustPercent : NULL);
 				int* const piBonusScoreWaterPenalty = (bLogBonusScore ? &iBonusScoreWaterPenalty : NULL);
-				int iBonusValue = nonYieldBonusValue(p, eBonus, bBarbarian ? true : bCanTradeBonus, bBarbarian ? true : bCanSoonTradeBonus, bEasyAccess, bCoastal, &aiBonusCount, iCultureModifier, piBonusScoreHappyHealth, piBonusScoreBuildingHappyHealth, piBonusScoreAdjustPercent, piBonusScoreWaterPenalty);
+				int iBonusValue = nonYieldBonusValue(p, eBonus, bBarbarian ? true : bCanTradeBonus, bEasyAccess, bCoastal, &aiBonusCount, iCultureModifier, piBonusScoreHappyHealth, piBonusScoreBuildingHappyHealth, piBonusScoreAdjustPercent, piBonusScoreWaterPenalty);
 				if (kSet.isStartingLoc())
 				{
 					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
@@ -2894,7 +2894,37 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
 }
 
 
-int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
+int AIFoundValue::calculateBonusConnectionEra(BonusTypes eBonus, CvPlot const& p) const
+{
+	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+	TechTypes const eTradeTech = kBonus.getTechCityTrade();
+	TechTypes const eRevealTech = kBonus.getTechReveal();
+	int const iTradeEra = (eTradeTech == NO_TECH ? 0 : GC.getInfo(eTradeTech).getEra());
+	int const iRevealEra = (eRevealTech == NO_TECH ? 0 : GC.getInfo(eRevealTech).getEra());
+	FeatureTypes const eFeature = p.getFeatureType();
+	int iEarliestConnectionEra = MAX_INT;
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eImprovement = kLoopBuild.getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+		if (kImprovement.isActsAsCity() || !kImprovement.isImprovementBonusMakesValid(eBonus) || !kImprovement.isImprovementBonusTrade(eBonus))
+			continue;
+		TechTypes const eBuildTech = kLoopBuild.getTechPrereq();
+		TechTypes const eFeatureTech = (eFeature == NO_FEATURE ? NO_TECH : kLoopBuild.getFeatureTech(eFeature));
+		int const iBuildEra = (eBuildTech == NO_TECH ? 0 : GC.getInfo(eBuildTech).getEra());
+		int const iFeatureEra = (eFeatureTech == NO_TECH ? 0 : GC.getInfo(eFeatureTech).getEra());
+		int const iConnectionEra = std::max(std::max(iTradeEra, iRevealEra), std::max(iBuildEra, iFeatureEra));
+		iEarliestConnectionEra = std::min(iEarliestConnectionEra, iConnectionEra);
+	}
+	FAssertMsg(iEarliestConnectionEra != MAX_INT, "Every visible bonus should have a non-Fort improvement that can connect it");
+	return (iEarliestConnectionEra == MAX_INT ? GC.getNumEraInfos() - 1 : iEarliestConnectionEra);
+}
+
+
+int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
 {
 	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
 	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
@@ -2911,6 +2941,7 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
 	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below. That path was replaced with explicit health/happiness settlement value; strategic need remains handled through AIObjective, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5) -->
 	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
 	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
+	static const int iConnectionEraValueLossPercent = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT");
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	int const iBuildingHappyHealthValue = calculateBonusBuildingHappyHealthValue(eBonus, bCoastal);
 	int const iHappyHealthValue = kBonus.getHealth() * iHealthValue + kBonus.getHappiness() * iHappinessValue + iBuildingHappyHealthValue;
@@ -3012,15 +3043,21 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
 		*piBuildingHappyHealthValue = (bSurplus ? 0 : iBuildingHappyHealthValue);
 	scaled r = iEffectiveHappyHealthValue;
 	scaled rAdjustment = (r == 0 ? 0 : 1);
-	// <!-- custom: Retain the old not-yet-tradeable and difficult-access reductions, but apply them to the new explicit settlement value. Surplus duplicates are zeroed here because local improvement yields and diversity are scored separately. See KI#178. (GPT-5.5) -->
+	// <!-- custom: Base AdvCiv gave only 70% value when a bonus was connectable through a currently researchable technology and about one third otherwise. That immediate-availability split was too harsh and arbitrary for long-term settlement value: save file 453 gave Incense only 70% immediately before Spain completed same-era Calendar on the founding turn.
+	// Keep full value when the earliest valid connection is in the current/earlier era, and lose an XML-tunable percent only per later era. Surplus duplicates remain zero because local improvement yields and diversity are scored separately. See KI#187. (GPT-5.6-Sol) -->
 	if (!bCanTrade)
 	{
 		IFLOG if(bSurplus) logBBAI("Surplus bonus");
 		if (bSurplus)
 			r = 0;
-		else if (bCanTradeSoon)
-			rAdjustment *= fixp(0.7);
-		else rAdjustment *= fixp(1/3.);
+		else if (r != 0)
+		{
+			int const iConnectionEra = calculateBonusConnectionEra(eBonus, p);
+			int const iConnectionEraDistance = std::max(0, iConnectionEra - (int)eEra);
+			int const iConnectionEraAdjustPercent = std::max(0, 100 - iConnectionEraDistance * iConnectionEraValueLossPercent);
+			rAdjustment *= scaled(iConnectionEraAdjustPercent, 100);
+			IFLOG logBBAI("Bonus connection timing (%S): currentEra=%d connectionEra=%d eraDistance=%d lossPerEra=%d timingPercent=%d", GC.getInfo(eBonus).getDescription(), eEra, iConnectionEra, iConnectionEraDistance, iConnectionEraValueLossPercent, iConnectionEraAdjustPercent);
+		}
 		// <advc.040>
 		if (!bEasyAccess)
 		{
@@ -4500,7 +4537,7 @@ scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
 	if (eBonus != NO_BONUS)
 	{
 		// It won't necessarily be the first instance of eBonus, but we also want to look a bit farther ahead than "soon"; that ought to even out.
-		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, bCanSoonTradeBonus, true, kPlot.isCoastalLand(-1), NULL, 100);
+		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, true, kPlot.isCoastalLand(-1), NULL, 100);
 		if (!bCanSoonImproveBonus)
 		{	/*	Midgame and late-game resources need to be (greatly) devalued though; b/c their reward is greatly delayed and b/c they're not supposed to steer starting positions much in any case. */
 			TechTypes eTech = GC.getInfo(eBonus).getTechImprove(p.isWater());

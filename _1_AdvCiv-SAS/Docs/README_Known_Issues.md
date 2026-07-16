@@ -6966,3 +6966,26 @@ The same save also tested whether the distance limit should be increased from 8 
 The default distance limit therefore remains 8. It should not be raised merely because a distance-9 city looks valuable or could theoretically anchor further conquest: the slightly larger allowance was enough to split a powerful army around an exposed capture and give the developed city back to a nearer rival. The limit remains XML-tunable for other maps and rulesets, but the tested default favors durable military concentration over speculative bridgeheads.
 
 Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+## 187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring
+
+Base AdvCiv reduced a city site's non-yield bonus value to 70% when the bonus was not connectable yet but its required technology was currently researchable, and to roughly one third otherwise. AdvCiv-SAS initially preserved these inherited discounts when KI#178 replaced broad trade-style `AI_bonusVal` scoring with explicit long-term health/happiness settlement value.
+
+The old split was not a good fit for permanent city-site evaluation. `canResearch()` only says that a technology can currently be selected; it does not measure whether the AI is researching it, how many turns remain, or how strategically distant the benefit is. Conversely, a visible early bonus could lose 30% despite requiring only another technology in the same era.
+
+Save-file 453 made this especially clear. Spain evaluated the Incense near Barcelona at only 70% because it did not yet have Calendar, then completed Calendar on the same turn that it founded Barcelona. The log therefore called the bonus merely "soon" connectable and reduced its explicit health/happiness value from 325 to 228 immediately before the required same-era technology arrived. The resulting Barcelona site was still good and reached population 10, 15 production, and 35 commerce by turn 150, but the inherited penalty itself did not describe the actual long-term delay.
+
+Replace the binary 70% / roughly-one-third rule with a simple XML-tunable era-distance adjustment:
+
+- an earliest valid connection in the current or an earlier era keeps 100% health/happiness settlement value;
+- each later era loses `SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT`, currently 15%;
+- therefore one era ahead receives 85%, two eras ahead 70%, and three eras ahead 55%;
+- the result is clamped only at 0% to avoid negative value in unusual modmods.
+
+The required connection era is the earliest era in which any valid non-Fort improvement can connect the bonus. For each valid improvement path, use the latest era among the bonus reveal technology, bonus city-trade technology, improvement build technology, and any technology needed to remove the plot's feature; then choose the earliest of those valid paths. This keeps the formula generic for XML changes and modmods instead of hardcoding Calendar resources or specific improvements.
+
+Most bonuses that are already visible in the current AdvCiv-SAS XML can be connected in the current era or earlier, so they now retain their full long-term health/happiness value even when the exact technology has not been completed. Local improvement yields remain handled separately by the existing improvement-availability and bonus-yield scoring paths, and difficult access from another landmass remains a separate inherited adjustment.
+
+Added detailed BBAI timing diagnostics with the current era, earliest connection era, era distance, XML loss per era, and resulting timing percentage for testing.
+
+Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.

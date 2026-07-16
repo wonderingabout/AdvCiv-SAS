@@ -957,6 +957,12 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
+	<!-- custom: Base AdvCiv reduced not-yet-connectable city-site bonus value to 70% when the required technology was currently researchable and about one third otherwise. This is too harsh and arbitrary for a permanent city: save file 453 valued Incense at only 70% immediately before Spain completed same-era Calendar on the founding turn.
+	Instead, health/happiness settlement value remains at 100% when the earliest valid connection is in the current/earlier era, then loses this percentage per later era (e.g. 15 gives 85% one era ahead, 70% two eras ahead). See KI#187. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
 	<!-- custom: Building-effect gate uses era indexes: 0 Ancient, 1 Classical, 2 Medieval, etc.; -1 disables building health/happiness effects. This lets settlement value count early ordinary buildings such as Granary/Harbor because we are likely to build them, while excluding late or expensive buildings such as Supermarket because the city may die, win, or lose before they matter. See KI#178. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA</DefineName>
