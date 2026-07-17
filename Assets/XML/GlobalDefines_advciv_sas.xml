@@ -2935,7 +2935,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104 (GPT-5.2-Codex + Claude code Opus 4.5) -->
+	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. Also acts as the minimum city-assault nucleus retained when a peaceful army has no target or war plan; the estimated Barbarian requirement can retain more, while excess suitable units return to general military duties until a target appears. See KI#104 and KI#188.3. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
 		<iDefineIntVal>9</iDefineIntVal>
