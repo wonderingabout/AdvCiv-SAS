@@ -1376,6 +1376,10 @@ bool CvUnitAI::AI_update()
 				return false;
 		}
 	} // </advc.139>
+	// <!-- custom: Targeted emergency city reinforcements of several UnitAI types could immediately rejoin offensive groups and receive another assignment before reaching their city.
+	// Continue a still-useful targeted guard-city mission centrally before UnitAI-specific movement, without routing ordinary stationary garrisons through the emergency response. Evacuation above and the usual danger, shortage, incoming-unit, path, and feasibility checks still release obsolete or hopeless assignments. (GPT-5.6-Sol) -->
+	if (getDomainType() == DOMAIN_LAND && !isBarbarian() && AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY && AI_getGroup()->AI_getMissionAIPlot() != NULL && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+		return false;
 
 	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses, chatgpt 5 said it's also fine, check if accurate to be sure -->
 	CvGame const& kGame = GC.getGame();
@@ -5710,7 +5714,6 @@ void CvUnitAI::AI_attackMove()
 		{
 			return;
 		}
-
 		/* if (!getPlot().isOwned()) {
 			// Group with settler after naval drop
 			if (AI_groupMergeRange(UNITAI_SETTLE, 2, true, false, false))
@@ -5764,6 +5767,19 @@ void CvUnitAI::AI_attackMove()
 		{
 			return;
 		}
+		// <!-- custom: A backstab could leave endangered cities short of defenders while general attackers continued an expedition abroad.
+		// In a defensive land area, first let the whole group counter a reachable invader; otherwise detach enough suitable defenders to fill a realistic shortage within three turns.
+		// Safe cities and hopeless defenses do not interrupt the expedition. (GPT-5.6-Sol) -->
+		bool const bLogDefensePriority = (gUnitLogLevel >= 2);
+		int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
+		int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
+		if (!isBarbarian() && getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE && AI_defendTerritory(65, NO_MOVEMENT_FLAGS, 3, true))
+		{
+			if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, getArea().getAreaAIType(getTeam()));
+			return;
+		}
+		if (!isBarbarian() && AI_guardCity(false, true, 3, NO_MOVEMENT_FLAGS, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+			return;
 		if (gUnitLogLevel >= 2 && !bDanger && getGroup()->canDefend()) SAS_logAttackDefenseReinforcementCandidate(*this, kOwner, GET_TEAM(getTeam()));
 		if (!bDanger && SAS_createMissingBarbarianCityExpeditionLeader(*this))
 			return;
@@ -6360,7 +6376,6 @@ void CvUnitAI::AI_attackCityMove()
 			}
 		}
 	}
-
 	bool const bEnemyTerritory = isEnemy(getPlot()); // advc: renamed from "bAtWar"
 
 	bool bHuntBarbs = false;
@@ -6496,6 +6511,19 @@ void CvUnitAI::AI_attackCityMove()
 		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_same_plot");
 		return;
 	}
+
+	// <!-- custom: Ready city-assault stacks previously chose another enemy city before K-Mod's defensive-area checks, even after a backstab endangered an underdefended city at home.
+	// Counter a reachable invader or detach enough defenders for a realistic three-turn rescue before selecting the next offensive target. The rest of a foreign expedition can continue. (GPT-5.6-Sol) -->
+	bool const bLogDefensePriority = (gUnitLogLevel >= 2);
+	int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
+	int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
+	if (!isBarbarian() && eAreaAI == AREAAI_DEFENSIVE && AI_defendTerritory(65, MOVE_AVOID_ENEMY_WEIGHT_2, 3, true))
+	{
+		if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, eAreaAI);
+		return;
+	}
+	if (!isBarbarian() && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+		return;
 
 	CvCity* pTargetCity = NULL;
 	if (isBarbarian())
@@ -6919,10 +6947,11 @@ void CvUnitAI::AI_attackCityMove()
 			}
 			else if (!isBarbarian() && eAreaAI == AREAAI_DEFENSIVE)
 			{
+				// <!-- custom: Run K-Mod's three-turn invader check before target selection so ready stacks also respond. Preserve the old location below as disabled reference. (GPT-5.6-Sol) -->
 				// Use smaller attack city stacks on defense
 				// K-Mod
-				if (AI_defendTerritory(65, eMoveFlags, 3))
-					return;
+				//if (AI_defendTerritory(65, eMoveFlags, 3))
+				//	return;
 				// K-Mod end
 				if (AI_guardCity(false, true, 3, eMoveFlags))
 					return;
@@ -13890,10 +13919,7 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			kOwner.AI_unitTargetMissionAIs(*pLoopUnit, MISSIONAI_GROUP, getGroup()) <=
 			iEffectiveMaxGroup + (bEffectiveStackOfDoom ? AI_stackOfDoomExtra() : 0))
 			&&
-			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY ||
-			!pLoopGroup->getPlot().isCity() ||
-			pLoopGroup->getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) >
-			pLoopGroup->getPlot().AI_getPlotCity()->AI_minDefenders())
+			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY || !pLoopGroup->getPlot().isCity() || pLoopGroup->getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) > pLoopGroup->getPlot().AI_getPlotCity()->AI_minDefenders())
 			)
 		{
 			FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
@@ -14449,10 +14475,13 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 	I've deleted the bulk of the old code, and rewritten it
 	to be much much simpler - and also better. */
 // <advc.300> Go up to this much beyond defensive needs if no city needs defenders <!-- custom: hoisted from multiline signature between `eFlags` and `iExtraDefenders` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags, int iExtraDefenders)
+// <!-- custom: Added bDangerOnly and bFillShortfall so threatened-city responses can ignore routine shortages and detach enough defenders without changing ordinary guard assignments. (GPT-5.6-Sol) -->
+bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags, int iExtraDefenders, bool bDangerOnly, bool bFillShortfall)
 {
 	// Only affects the city search
 	FAssert(iExtraDefenders >= 0 && bSearch || iExtraDefenders == 0); // </advc.300>
+	FAssert(!bDangerOnly || bSearch);
+	FAssert(!bFillShortfall || bDangerOnly);
 
 	PROFILE_FUNC();
 
@@ -14461,11 +14490,18 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 
 	CvPlot const* pEndTurnPlot = NULL;
 	CvPlot const* pBestGuardPlot = NULL;
+	int iBestDefendersNeeded = -1;
+	int iBestDefendersHave = -1;
+	int iBestIncomingDefenders = -1;
+	int iBestDefendersWant = -1;
+	int iBestPathTurns = -1;
 
 	CvPlot const& kPlot = getPlot();
+	CvPlot* pSourcePlot = plot();
+	CvPlot const* pExistingGuardMissionPlot = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
 	CvCityAI const* pCity = kPlot.AI_getPlotCity();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	if (pCity != NULL && pCity->getOwner() == getOwner())
+	if (pCity != NULL && pCity->getOwner() == getOwner() && (!bDangerOnly || pCity->AI_isDanger()))
 	{
 		int iExtra = -1; // additional defenders needed.
 		if (!bLeave || pCity->AI_isDanger())
@@ -14494,6 +14530,11 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			bSearch = false;
 			pEndTurnPlot = &kPlot;
 			pBestGuardPlot = &kPlot;
+			iBestDefendersNeeded = pCity->AI_neededDefenders();
+			iBestDefendersHave = iHave;
+			iBestIncomingDefenders = 0;
+			iBestDefendersWant = iNeed - iHave;
+			iBestPathTurns = 0;
 		}
 	}
 
@@ -14503,6 +14544,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
 		FOR_EACH_CITYAI(pLoopCity, kOwner)
 		{
+			if (bDangerOnly && !pLoopCity->AI_isDanger())
+				continue;
 			/*if (!AI_plotValid(pLoopCity->plot()))
 				continue;*/
 			// advc.opt: This function is only called for land units; the BBAI check suffices.
@@ -14530,12 +14573,12 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 				within 3 tiles of the city. If this stack is farther away than that,
 				it'll probably not arrive in time to save the city, but it might,
 				or could quickly retake the city. */
-			int const iDefendersWant = iDefendersNeeded - iDefendersHave
-					+ iExtraDefenders; // advc.300
+			int const iIncomingDefenders = (bDangerOnly ? kOwner.AI_plotTargetMissionAIs(pLoopCity->getPlot(), MISSIONAI_GUARD_CITY, getGroup()) : 0);
+			int const iDefendersWant = iDefendersNeeded - iDefendersHave + iExtraDefenders - iIncomingDefenders; // advc.300
 			bool const bMoreNeeded = (iDefendersNeeded > iDefendersHave); // advc.300
 			if (iDefendersWant <= 0) // No functional change from BtS
 				continue;
-			if (pLoopCity->AI_isEvacuating())
+			if (!bFillShortfall && pLoopCity->AI_isEvacuating())
 			{
 				bool const bRejectEvacuatingCity = (iDefendersWant > fixp(0.75) * getGroup()->getNumUnits());
 				if (gEvacuationLogLevel >= 3) logBBAI("    EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d", (bRejectEvacuatingCity ? "reject" : "allow"), GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(), getGroup()->getNumUnits(), iDefendersNeeded, iDefendersHave, iDefendersWant, iExtraDefenders);
@@ -14561,6 +14604,16 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			}
 			if (iPathTurns > iMaxPath)
 				continue;
+			// <!-- custom: Threat-only expedition recalls must not feed nearly an entire group into a defense whose stated shortage it cannot fill.
+			// The existing evacuation rule inspired the same three-quarter feasibility gate for every new endangered-city assignment. Already-targeted reinforcements must continue their collective rescue instead of each resulting singleton rejecting the remaining shortage. (GPT-5.6-Sol) -->
+			int const iGroupUnits = getGroup()->getNumUnits();
+			if (bFillShortfall && pExistingGuardMissionPlot != pLoopCity->plot() && ((iGroupUnits == 1 && iDefendersWant > 1) || (iGroupUnits > 1 && iDefendersWant > fixp(0.75) * iGroupUnits)))
+			{
+				if (gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_REJECT turn=%d player=%d %S reason=shortage_too_large unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+					pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iDefendersNeeded, iDefendersHave, iIncomingDefenders, iDefendersWant, iPathTurns, iMaxPath, pLoopCity->AI_isEvacuating());
+				continue;
+			}
 
 			int iValue = //1000 *
 					(bMoreNeeded ? 1000 : 500) * // advc.300
@@ -14571,8 +14624,13 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 				iBestValue = iValue;
 				pEndTurnPlot = &getPathEndTurnPlot();
 				pBestGuardPlot = pLoopCity->plot();
+				iBestDefendersNeeded = iDefendersNeeded;
+				iBestDefendersHave = iDefendersHave;
+				iBestIncomingDefenders = iIncomingDefenders;
+				iBestDefendersWant = iDefendersWant;
+				iBestPathTurns = iPathTurns;
 				FAssert(!atPlot(pEndTurnPlot));
-				if (iMaxPath == 1 || iBestValue >= 500)
+				if (iMaxPath == 1 || (!bDangerOnly && iBestValue >= 500))
 					break; // we found a good city. No need to waste any more time looking.
 			}
 		}
@@ -14582,33 +14640,51 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		return false;
 
 	CvCityAI const* pBestGuardCityForEvacuationLog = pBestGuardPlot->AI_getPlotCity();
+	bool const bContinuingGuardCity = (pExistingGuardMissionPlot == pBestGuardPlot);
 	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestGuardCityForEvacuationLog->getName().GetCString(), pBestGuardCityForEvacuationLog->getID(), pBestGuardCityForEvacuationLog->getX(), pBestGuardCityForEvacuationLog->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(), getGroup()->getID(), getGroup()->getNumUnits());
-	CvSelectionGroup* pOldGroup = getGroup();
-	CvUnit* pEjectedUnit = AI_getGroup()->AI_ejectBestDefender(plot());
-	if (pEjectedUnit == NULL)
+	// <!-- custom: The old code stored CvSelectionGroup only for its final comparison. Filling a shortage calls AI_ejectBestDefender repeatedly, so retain AI_getGroup's AI type while preserving the same group pointer. (GPT-5.6-Sol) -->
+	CvSelectionGroupAI* pOldGroup = AI_getGroup();
+	int const iOriginalGroupId = pOldGroup->getID();
+	int const iOriginalGroupUnits = pOldGroup->getNumUnits();
+	int const iDefendersToSend = (bFillShortfall ? std::min(iBestDefendersWant, std::max(1, iOriginalGroupUnits - 1)) : 1);
+	bool bThisUnitEjected = false;
+	bool bCurrentUnitCommitted = false;
+	for (int i = 0; i < iDefendersToSend; i++)
 	{
-		FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
-		pEjectedUnit = this;
-		if (getGroup()->getNumUnits() > 0)
-			joinGroup(NULL);
+		CvUnit* pEjectedUnit = pOldGroup->AI_ejectBestDefender(pSourcePlot);
+		if (pEjectedUnit == NULL)
+		{
+			FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
+			pEjectedUnit = this;
+			if (getGroup()->getNumUnits() > 0)
+				joinGroup(NULL);
+		}
+		FAssert(pEjectedUnit != NULL);
+		bThisUnitEjected = (bThisUnitEjected || pEjectedUnit == this);
+		bCurrentUnitCommitted = (bCurrentUnitCommitted || pEjectedUnit->getGroup() == pOldGroup || pEjectedUnit == this);
+		// If the unit is not suited for defense, do not use MISSIONAI_GUARD_CITY.
+		// <!-- custom: The explicit threatened-city response can use mobile attackers as emergency reinforcements despite their lack of defensive bonuses.
+		// Retain MISSIONAI_GUARD_CITY so they continue toward the city and other groups count them as incoming instead of duplicating the same assignment. Preserve the old behavior for ordinary guard calls. (GPT-5.6-Sol) -->
+		MissionAITypes const eMissionAI = (bDangerOnly || !pEjectedUnit->noDefensiveBonus() ? MISSIONAI_GUARD_CITY : NO_MISSIONAI);
+		if (bDangerOnly && gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d %S continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S target=(%d,%d)",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), bContinuingGuardCity, iOriginalGroupId, pEjectedUnit->getID(), pEjectedUnit->getName(0).GetCString(), SAS_getUnitTypeName(pEjectedUnit->getUnitType()), SAS_getUnitAITypeName(pEjectedUnit->AI_getUnitAIType()), pEjectedUnit->noDefensiveBonus(), eMissionAI, (eMissionAI == MISSIONAI_GUARD_CITY), pSourcePlot->getX(), pSourcePlot->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(),
+			(pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()), pBestGuardPlot->getX(), pBestGuardPlot->getY());
+		if (pEjectedUnit->at(*pBestGuardPlot))
+		{
+			// <!-- custom: Keep the explicit city target for emergency defenders after arrival so central continuation protects them until the danger or shortage ends. Ordinary guard calls retain their targetless K-Mod mission. (GPT-5.6-Sol) -->
+			pEjectedUnit->getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, eMissionAI, (bDangerOnly ? pBestGuardPlot : NULL));
+		}
+		else
+		{
+			FAssert(bSearch);
+			FAssert(!pEjectedUnit->at(*pEndTurnPlot));
+			pEjectedUnit->pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false, eMissionAI, pBestGuardPlot);
+		}
 	}
-	FAssert(pEjectedUnit != NULL);
-	// If the unit is not suited for defense, do not use MISSIONAI_GUARD_CITY.
-	MissionAITypes eMissionAI = (pEjectedUnit->noDefensiveBonus() ?
-			NO_MISSIONAI : MISSIONAI_GUARD_CITY);
-	if (at(*pBestGuardPlot))
-	{
-		pEjectedUnit->getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
-				false, false, eMissionAI, 0);
-	}
-	else
-	{
-		FAssert(bSearch);
-		FAssert(!at(*pEndTurnPlot));
-		pEjectedUnit->pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
-				eMissionAI, pBestGuardPlot);
-	}
-	return (pEjectedUnit->getGroup() == pOldGroup || pEjectedUnit == this);
+	if (bDangerOnly && gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=%s unitAI=%d originalGroupId=%d originalGroupUnits=%d defendersDetached=%d remainingGroupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), (bContinuingGuardCity ? "continue_guard_city" : (bThisUnitEjected ? "redirect_group_head" : "split_defenders_continue_expedition")), AI_getUnitAIType(), iOriginalGroupId, iOriginalGroupUnits, iDefendersToSend, pOldGroup->getNumUnits(), pSourcePlot->getX(), pSourcePlot->getY(),
+		(pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()), pBestGuardPlot->getX(), pBestGuardPlot->getY(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestDefendersWant, iBestPathTurns, iMaxPath, (pBestGuardCityForEvacuationLog == NULL ? 0 : pBestGuardCityForEvacuationLog->AI_isEvacuating()));
+	return bCurrentUnitCommitted;
 }
 
 

@@ -136,7 +136,8 @@ protected:
 	bool AI_guardCityBestDefender();
 	bool AI_guardCityOnlyDefender(); // K-Mod
 	bool AI_guardCityMinDefender(bool bSearch = true);
-	bool AI_guardCity(bool bLeave = false, bool bSearch = false, int iMaxPath = MAX_INT, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iExtraDefenders = 0); // advc.300
+	// <!-- custom: Added bDangerOnly and bFillShortfall so threatened-city responses can ignore routine shortages and detach enough defenders without changing ordinary guard assignments. (GPT-5.6-Sol) -->
+	bool AI_guardCity(bool bLeave = false, bool bSearch = false, int iMaxPath = MAX_INT, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iExtraDefenders = 0, bool bDangerOnly = false, bool bFillShortfall = false); // advc.300
 	bool AI_guardCityAirlift();
 	// <K-Mod>
 	bool AI_guardCoast(bool bPrimaryOnly = false, MovementFlags eFlags = NO_MOVEMENT_FLAGS, int iMaxPath = -1); // </K-Mod>
