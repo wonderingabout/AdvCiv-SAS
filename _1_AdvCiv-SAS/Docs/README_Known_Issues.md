@@ -227,6 +227,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting)\
 [186 - (Fixed/Improved) Base AdvCiv `AI_isAwfulSite` could cause economically wasteful captured-city raze/resettle cycles and destroy valuable population and buildings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings)\
 [186.2 - (Fixed/Improved) Base AdvCiv active-World-Wonder exemption could make the AI retain remote captured cities, exhaust defenders, and return the preserved Wonder to a nearer rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1862---fixedimproved-base-advciv-active-world-wonder-exemption-could-make-the-ai-retain-remote-captured-cities-exhaust-defenders-and-return-the-preserved-wonder-to-a-nearer-rival)\
+[187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#187---fixedimproved-base-advciv-excessively-devalued-soon-connectable-bonuses-in-ai-city-site-scoring)\
+[188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6987,5 +6989,34 @@ The required connection era is the earliest era in which any valid non-Fort impr
 Most bonuses that are already visible in the current AdvCiv-SAS XML can be connected in the current era or earlier, so they now retain their full long-term health/happiness value even when the exact technology has not been completed. Local improvement yields remain handled separately by the existing improvement-availability and bonus-yield scoring paths, and difficult access from another landmass remains a separate inherited adjustment.
 
 Added detailed BBAI timing diagnostics with the current era, earliest connection era, era distance, XML loss per era, and resulting timing percentage for testing.
+
+Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+## 188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1r__V2DklSbDwdxqCrmbvILlGSApYo6sA?usp=sharing).
+
+SASGameSummary and BBAI logging exposed a major military-efficiency failure. Strong AIs could accumulate most of their army in one city-attack group while at peace, often inside a city, yet count very few units as an active field army. In the baseline save-file 453 run, the largest observed groups included 201 Scandinavian units (82% of its military), 95 Aztec units (65%), and 62 Sumerian units (77%). Sumer also had only 2 units counted as field army around turn 190 while a large concentration remained in Susa after conquest.
+
+This was not harmless preparation. An army sitting together for many turns still costs maintenance, loses the opportunity to capture weak nearby Barbarian cities or pressure rivals, and lets opponents catch up to a temporary military advantage. It can also leave the rest of the empire inflexible: most units are nominally available, but concentrated in a group that has decided neither to attack nor to disperse.
+
+The primary cause was an unfinished Base AdvCiv rule in `CvUnitAI::AI_attackCityMove` (`advc.300`). When an AI was at peace, not ready for a sneak attack, and effectively hunting only Barbarian cities, Base AdvCiv accepted a stack only below three times the estimated Barbarian garrison. Its own nearby comment already said that an oversized stack should perhaps be split. Instead, exceeding the maximum made the stack "not ready." The generic not-ready behavior could then wait for or attract still more units, making the exact condition that blocked movement progressively worse.
+
+K-Mod grouping behavior amplified this Base AdvCiv problem. `AI_omniGroup` can merge multiple UnitAI roles into an attack-city group and can add a stack-of-doom allowance. Initially capping only the obvious `AI_attackCityMove` grouping calls reduced but did not remove repeated merge/split behavior. A dedicated diagnostic later recorded 166 grouping decisions that would bypass the expedition cap: 113 came from `UNITAI_COUNTER`, 48 from other `UNITAI_ATTACK_CITY` groups through late fallback grouping, and 5 from `UNITAI_CITY_DEFENSE`. This proved that caller-by-caller caps would remain fragile.
+
+A separate K-Mod role-coordination issue could prevent an expedition from forming at all. SASGameSummary found early armies with 9-14 `UNITAI_ATTACK` units in an area but no `UNITAI_ATTACK_CITY` unit. Those broad attackers could capture cities, but K-Mod normally separates friendly-territory `UNITAI_ATTACK` groups of four or more down to two units and only occasionally directs them toward cities. Without one attack-city leader, substantial raw military strength could therefore remain fragmented instead of becoming a coordinated expedition.
+
+The fix addresses both failures:
+
+- The former three-times-garrison boundary is preserved as an XML-tunable expedition maximum, with the estimated attackers needed as the minimum useful cap.
+- Oversized groups are partitioned into independently useful expeditions instead of being marked not ready. Actual attack and city-capture capability counts regardless of UnitAI label, and splitting proceeds only when the original group has enough total capability to provision the planned expeditions. `splitGroup` preserves proportional UnitAI and unit-type composition.
+- The peaceful expedition cap is enforced centrally inside `AI_omniGroup` whenever any UnitAI tries to group with `UNITAI_ATTACK_CITY`. This covers current and future callers instead of depending on each caller to duplicate the cap. Active wars, sneak-attack readiness, turtle strategy, and contexts not focused on Barbarian hunting retain normal wartime grouping and stack-of-doom behavior.
+- If an area has enough floating `UNITAI_ATTACK` units and a reachable Barbarian city but no `UNITAI_ATTACK_CITY` unit, one suitable attacker that can capture cities and has positive attack-city value becomes the missing leader. Ordinary city-defense claims still run first.
+
+The iterative diagnostics also verified why central enforcement was necessary. Early versions produced 1,154 repeated split rows because groups immediately reunited; capping one same-plot path reduced this only to 1,010, broader attack-city caller caps to 388/385, and a diagnostic run still found the three bypassing UnitAI sources above. After centralizing the cap, the confirming `BBAI_20260717T061839Z_load1.log` contained only 23 split events across turns 102-271. They were isolated responses to genuine oversized groups or later changes in the dynamic cap, not the previous turn-after-turn 5+1 merge/split loop.
+
+The same confirming `SASGameSummary_20260717T061839Z_load1.log` showed Scythian, Minoan, Khoisan, and Libyan captured on turns 70, 77, 90, and 123. No parking row used `readinessReason=barbarian_above_max`; 171 of 182 logged parking decisions considered the stack ready. Large concentration remained possible when appropriate: Scandinavia still had a 159-unit attack-city group at turn 270, then partitioned it once the peaceful Barbarian-only branch processed it. Sumer still had 78 field-army units at turn 270 and won the Space Race on turn 273, providing a useful sanity check that the fix did not broadly fragment normal military strength.
+
+The main tuning points are `SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER` and `SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE`. The first controls peaceful expedition size; the second can disable the missing-leader conversion for compatibility testing.
 
 Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
