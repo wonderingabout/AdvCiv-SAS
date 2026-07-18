@@ -3134,6 +3134,19 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Combined effective enemy power required before AdvCiv-SAS forces emergency peace in a multi-front war. 100 means parity with our power. The extra-war threat define below raises the effective danger of splitting our army across more than two fronts; ordinary UWAI peace evaluation still applies below this emergency threshold. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD</DefineName>
+		<iDefineIntVal>160</iDefineIntVal>
+	</Define>
+	<!-- custom: Percent by which each major war beyond two increases the combined enemy-power threat used for emergency peace. At 25, three wars require more than 128% raw combined enemy power, four require more than about 107%, and five require more than about 91% to exceed the default 160 threshold. Because this multiplies actual enemy power instead of adding a fixed danger per rival, many nearly powerless enemies do not force peace. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>

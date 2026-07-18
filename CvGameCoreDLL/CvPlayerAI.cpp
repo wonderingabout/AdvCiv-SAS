@@ -871,6 +871,9 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
 {
 	FAssert(!isHuman());
 	CvPlayerAI& kOther = GET_PLAYER(eOther);
+	// <!-- custom: UWAI now avoids ordinary peace with configured victory threats, but retain this shared pre-check for other AI peace callers. CvDeal still has the final safety guard for human and unusual trade paths. This fixed negotiations returning success for treaties that the final guard rejected. (GPT-5.6-Sol) -->
+	if (isSASUWAIVictoryDenialPeaceThreat(getTeam()) || isSASUWAIVictoryDenialPeaceThreat(kOther.getTeam()))
+		return false;
 	TechTypes eBestReceiveTech = NO_TECH;
 	TechTypes eBestGiveTech = NO_TECH;
 	int iReceiveGold = 0;

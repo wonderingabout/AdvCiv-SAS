@@ -106,23 +106,6 @@ namespace
 				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
 	}
 
-	bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL)
-	{
-		static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
-		if (!bSASUWAIVictoryDenialEnable)
-			return false;
-		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
-		int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
-		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
-		if (piVictoryCountdown != NULL)
-			*piVictoryCountdown = iCountdown;
-		if (piMaxVictoryStage != NULL)
-			*piMaxVictoryStage = iMaxVictoryStage;
-		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
-		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
-		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
-	}
-
 	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
 	{
 		int iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage;
@@ -317,6 +300,12 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 		for peace deals, and I don't think AI_dealValue will work correctly when
 		no longer at war. */
 	bool const bMakingPeace = ::atWar(eFirstTeam, eSecondTeam);
+	bool const bSurrender = bMakingPeace && (isVassalTrade(kFirstList) || isVassalTrade(kSecondList));
+	// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard. Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals; later runs showed stage-4 and configured stage-3 Space threats also making peace before the disruption window.
+	// This safety guard formerly ran after the deal was logged and its trade value was processed. A fresh Pangaea diagnostic run therefore produced 57 ineffective treaty deals that AI_negotiatePeace reported as successful while the guard kept the teams at war.
+	// Reject non-surrender peace before logging or processing the bundle while either side remains a configured victory threat. UWAI now uses the shared threat test to avoid proposing the same blocked treaty through its ordinary peace path. (GPT-5.5 + GPT-5.6-Sol) -->
+	if (bMakingPeace && !bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
+		return;
 	bool bUpdateAttitude = false;
 	// advc.ctr:
 	bool const bAIRequest = (bPeaceTreaty && !bPeaceTreatyFromTrade && !bMakingPeace);
@@ -353,13 +342,6 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			Note: the original code didn't bump units for vassal trades. This can
 			erroneously allow the vassal's units to stay in the master's land. */
 		// <advc.039>
-		bool bSurrender = isVassalTrade(kFirstList) || isVassalTrade(kSecondList);
-		// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard.
-		// Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals, and a later run showed stage-4 anti-spaceship wars against Egypt ending before countdown started.
-		// Save-file 450's Arabia branch and save-file 452's Churchill win showed that stage-3 Space near completion can also be dangerous before the final countdown.
-		// Block non-surrender peace here, just before makePeace, while either side is still a countdown, stage-4, or configured stage-3 Space victory threat. (GPT-5.5) -->
-		if (!bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
-			return;
 		bool bDone = false;
 		if(!bSurrender && GC.getDefineBOOL(CvGlobals::ANNOUNCE_REPARATIONS))
 		{

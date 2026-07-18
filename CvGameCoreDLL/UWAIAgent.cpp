@@ -487,12 +487,59 @@ bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
 				bScheme = false;
 		}
 		std::sort(aPlans.begin(), aPlans.end());
+		TeamTypes ePreferredEmergencyPeaceTarget = NO_TEAM;
+		int iPreferredEmergencyPeaceUtility = 0;
+		int iPreferredEmergencyPeaceReluctance = MIN_INT;
+		int const iMajorWars = kAgent.getNumWars(true, true);
+		int const iEnemyPowerPercent = (iMajorWars >= 2 ? kAgent.AI_getEnemyPowerPercent(true) : 0);
+		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
+		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT");
+		int const iAdjustedEnemyPowerPercent = iEnemyPowerPercent * (100 + std::max(0, iMajorWars - 2) * iExtraWarThreatPercent) / 100;
+		bool const bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
+		if (bEmergencyPeaceMode)
+		{
+			bool const bAgentVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(kAgent.getID());
+			TeamTypes eLowestUtilityTarget = NO_TEAM;
+			int iLowestUtility = 0;
+			for (size_t i = 0; i < aPlans.size(); i++)
+			{
+				TeamTypes const eTarget = aPlans[i].eTarget;
+				if (!kAgent.isAtWar(eTarget) || !kAgent.canChangeWarPeace(eTarget))
+					continue;
+				// <!-- custom: Capitulation remains possible, but ordinary peace is intentionally unavailable while either side is a configured victory threat. Skip those wars when choosing where the emergency peace override can actually help. (GPT-5.6-Sol) -->
+				if (bAgentVictoryThreat || isSASUWAIVictoryDenialPeaceThreat(eTarget))
+					continue;
+				if (eLowestUtilityTarget == NO_TEAM)
+				{
+					eLowestUtilityTarget = eTarget;
+					iLowestUtility = aPlans[i].iU;
+					// <!-- custom: A newly declared dangerous war cannot negotiate immediately. Preserve the other wars briefly so the AI first tries the preferred opponent instead of abandoning an easy conquest on the declaration turn. (GPT-5.6-Sol) -->
+					if (kAgent.AI_getAtWarCounter(eTarget) <= 2)
+						break;
+				}
+				int const iReluctance = GET_TEAM(eTarget).uwai().reluctanceToPeace(kAgent.getID(), false);
+				if (iReluctance > iMaxReparationUtility)
+					continue;
+				ePreferredEmergencyPeaceTarget = eTarget;
+				iPreferredEmergencyPeaceUtility = aPlans[i].iU;
+				iPreferredEmergencyPeaceReluctance = iReluctance;
+				break;
+			}
+			if (ePreferredEmergencyPeaceTarget == NO_TEAM && eLowestUtilityTarget != NO_TEAM && kAgent.AI_getAtWarCounter(eLowestUtilityTarget) <= 2)
+			{
+				ePreferredEmergencyPeaceTarget = eLowestUtilityTarget;
+				iPreferredEmergencyPeaceUtility = iLowestUtility;
+				iPreferredEmergencyPeaceReluctance = MIN_INT;
+			}
+			if (gWarLogLevel >= 1) logBBAI("WAR_EMERGENCY_PEACE_TARGET turn=%d background=%d agentTeam=%d preferredTarget=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d preferredUtility=%d preferredReluctance=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), ePreferredEmergencyPeaceTarget, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, iPreferredEmergencyPeaceUtility, iPreferredEmergencyPeaceReluctance);
+		}
 		bPlanChanged = false;
 
 		for (size_t i = 0; i < aPlans.size(); i++)
 		{
-			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU,
-					aPlans[i].iPrepTurns, aPlans[i].bNaval);
+			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU, aPlans[i].iPrepTurns, aPlans[i].bNaval,
+					iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance);
 			if (bPlanChanged)
 			{
 				aeChangedTargets.insert(aPlans[i].eTarget);
@@ -617,8 +664,8 @@ void UWAI::Team::alignAreaAI(bool bNaval)
 }
 
 
-// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. (GPT-5.6-Sol) -->
-bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval)
+// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. Added the emergency-peace measurements, preferred target and cached reluctance so multi-war danger is computed once and first seeks feasible peace in the least valuable war instead of forcing peace against every opponent. (GPT-5.6-Sol) -->
+bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -632,7 +679,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 	if (bAtWar)
 	{
 		FAssert(eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL);
-		if (!considerPeace(eTarget, iU))
+		if (!considerPeace(eTarget, iU, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance))
 			return false;
 		considerPlanTypeChange(eTarget, iU);
 		/*  Changing between attacked_recent, limited and total is unlikely
@@ -750,7 +797,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 }
 
 
-bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	int const iInitialU = iU;
@@ -776,17 +823,43 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
 	//
 	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
-	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+	// const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
 
 	// Combined enemy power vs us (100 = parity)
-	const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
+	// const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
 
 	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace which would be bit boring too if i may say or waste potential) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd so treat it as an emergency) -->
-	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
-	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover. (GPT-5.6-Sol) -->
-	if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d attitude=%d attitudeValue=%d",
-			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace,
-			kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
+	// const bool bEmergencyPeaceMode = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
+	// <!-- custom: KI#65's SAS rule treated any three wars as an emergency, so save-file 450 Carthage abandoned a four-turn war against two-city Holy Rome despite having 16 cities and all three enemies together contributing only 70% effective power. Multiply actual combined enemy power by a tunable pressure for each front beyond two instead: several meaningful enemies remain dangerous, but any number of nearly powerless enemies cannot force peace. The values were computed once in reviewWarPlans and passed through reviewPlan. (GPT-5.6-Sol) -->
+	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
+	const bool bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
+	// <!-- custom: The old KI#65 override applied independently to every war. Fresh Pangaea runs showed Arabia abandoning a profitable war against a 34%-power rival and Shaka making peace with a one-city 16%-power rival because a more dangerous new enemy had appeared.
+	// reviewWarPlans already sorts wars from lowest to highest continuation utility. After briefly giving a new preferred war time to become negotiable, force emergency peace only for the lowest-utility opponent willing to accept and preserve the better wars; if peace succeeds, the repeated review recalculates whether another emergency remains. (GPT-5.6-Sol) -->
+	const bool bEmergencyPeace = (bEmergencyPeaceMode && eTarget == ePreferredEmergencyPeaceTarget);
+	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover.
+	// Target thinness, simultaneous enemies and army location also show whether continuing can exploit a weak/distracted rival or would merely prolong a stalemate. Keep the unit scan inside the level-2 gate. (GPT-5.6-Sol) -->
+	if (gWarLogLevel >= 2)
+	{
+		const int iOurPower = std::max(1, kAgent.getPower(true));
+		const int iTargetTotalPower = kTarget.getPower(true);
+		const int iTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
+		const int iOurCities = kAgent.getNumCities();
+		const int iTargetCities = kTarget.getNumCities();
+		const int iOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
+		const int iTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
+		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
+		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d emergencyPeaceMode=%d preferredEmergencyPeaceTarget=%d emergencyPeace=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWarSuccess=%d targetWarSuccess=%d warSuccessDelta=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d nearestCityDistance=%d attitude=%d attitudeValue=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, bEmergencyPeaceMode, ePreferredEmergencyPeaceTarget, bEmergencyPeace,
+				iOurPower, iTargetTotalPower, iTargetDefensivePower, (100 * iTargetDefensivePower) / iOurPower, iOurCities, iTargetCities, (100 * iOurPower) / std::max(1, iOurCities), (100 * iTargetTotalPower) / std::max(1, iTargetCities), iOurWarSuccess, iTargetWarSuccess, iOurWarSuccess - iTargetWarSuccess, kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
+	}
+	if (bEmergencyPeaceMode && ePreferredEmergencyPeaceTarget != NO_TEAM && !bEmergencyPeace)
+	{
+		m_pReport->log("Preserving this war while emergency peace is sought against the lower-utility target");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeaceMode=1 preferredEmergencyPeaceTarget=%d sought=0 reason=preserve_better_war",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget);
+		return true;
+	}
 
 	if (bEmergencyPeace)
 	{
@@ -860,10 +933,20 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
 		return true; // Can't contact them for capitulation either
 	}
-	scaled rPeaceProb;
+	scaled rPeaceProb = 0;
 	bool bOfferPeace = true;
-	int iTheirReluct = MIN_INT; // Costly, don't compute this sooner than necessary.
-	if (bHuman)
+	// <!-- custom: Emergency selection already had to compute the preferred target's costly willingness to negotiate; reuse it here instead of evaluating the same peace twice. (GPT-5.6-Sol) -->
+	int iTheirReluct = (bEmergencyPeace ? iPreferredEmergencyPeaceReluctance : MIN_INT);
+	// <!-- custom: CvDeal's final victory-denial guard formerly rejected the treaty after AI_negotiatePeace returned success, so UWAI repeated an ineffective peace deal every turn. Skip ordinary peace here while retaining the later capitulation check; surrender is intentionally exempt from victory-denial refusal. (GPT-5.6-Sol) -->
+	bool const bVictoryDenialPeaceBlocked = (isSASUWAIVictoryDenialPeaceThreat(kAgent.getID()) || isSASUWAIVictoryDenialPeaceThreat(eTarget));
+	if (bVictoryDenialPeaceBlocked)
+	{
+		bOfferPeace = false;
+		m_pReport->log("Ordinary peace blocked while either side remains a configured victory threat");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=victory_denial_treaty_blocked",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
+	}
+	else if (bHuman)
 	{
 		int const iContactDelay = kAgentPlayer.
 				AI_getContactTimer(kTargetPlayer.getID(), CONTACT_PEACE_TREATY);
@@ -894,7 +977,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 				and wouldn't matter b/c we don't speed-adjust peace rolls.) */
 			rPeaceProb = scaled(1, iContactRand); // 5 to 10%
 			// Adjust probability based on whether peace looks like win-win or zero-sum
-			iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
+			if (iTheirReluct == MIN_INT)
+				iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
 			scaled rWinWinFactor = scaled(iTheirReluct + iU, -15);
 			if (rWinWinFactor < 0)
 			{
@@ -917,7 +1001,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	}
 
 	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
-	if (bEmergencyPeace)
+	if (bEmergencyPeace && bOfferPeace)
 	{
 		rPeaceProb = fixp(1); // 100%
 	}
@@ -927,8 +1011,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 		m_pReport->log("Probability for peace negotiation: %d percent",
 				rPeaceProb.getPercent());
 		bool const bRandomlySkipped = SyncRandSuccess(1 - rPeaceProb);
-		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
-				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
+		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
 		if (bRandomlySkipped)
 		{
 			m_pReport->log("Peace negotiation randomly skipped");
@@ -981,6 +1065,23 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 						iTradeVal);
 			}
 			bool bPeace = false;
+			// <!-- custom: AI_negotiatePeace clears the war plan, counter and war-success state when peace succeeds. Cache the pre-negotiation values so the result row describes the decision that ended the war instead of logging reset zeros.
+			// A fresh Pangaea diagnostic run also showed that the victory-denial deal guard can reject a treaty after AI_negotiatePeace returns true. Log the post-call war state separately so blocked treaties are not mistaken for completed peace. (GPT-5.6-Sol) -->
+			WarPlanTypes eLoggedWarPlan = NO_WARPLAN;
+			int iLoggedAtWarCounter = -1, iLoggedOurPower = -1, iLoggedTargetDefensivePower = -1, iLoggedTargetPowerPercent = -1;
+			int iLoggedOurCities = -1, iLoggedTargetCities = -1, iLoggedOurWarSuccess = -1, iLoggedTargetWarSuccess = -1;
+			if (gWarLogLevel >= 1)
+			{
+				eLoggedWarPlan = kAgent.AI_getWarPlan(eTarget);
+				iLoggedAtWarCounter = kAgent.AI_getAtWarCounter(eTarget);
+				iLoggedOurPower = std::max(1, kAgent.getPower(true));
+				iLoggedTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
+				iLoggedTargetPowerPercent = (100 * iLoggedTargetDefensivePower) / iLoggedOurPower;
+				iLoggedOurCities = kAgent.getNumCities();
+				iLoggedTargetCities = kTarget.getNumCities();
+				iLoggedOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
+				iLoggedTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
+			}
 			if (!isInBackground())
 			{
 				bPeace = kAgentPlayer.AI_negotiatePeace(kTargetPlayer.getID(),
@@ -993,16 +1094,17 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 				else m_pReport->log("Failed to find a peace offer");
 			}
 			else m_pReport->log("Peace negotiation %s", (bPeace ? "succeeded" : "failed"));
-			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d succeeded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
-					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
-					kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round());
+			bool const bWarEnded = !kAgent.isAtWar(eTarget);
+			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d negotiationReturnedSuccess=%d warEnded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eLoggedWarPlan), iInitialU, iU, rPeaceThresh.round(), iLoggedAtWarCounter, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
+					bWarEnded, iLoggedOurPower, iLoggedTargetDefensivePower, iLoggedTargetPowerPercent, iLoggedOurCities, iLoggedTargetCities, iLoggedOurWarSuccess, iLoggedTargetWarSuccess);
 			return !bPeace;
 		}
 		else
 		{
 			m_pReport->log("No peace negotiation attempted; they're too reluctant");
-			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d succeeded=0 reason=target_reluctant",
-					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
+			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d negotiationReturnedSuccess=0 warEnded=0 reason=target_reluctant",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
 		}
 	}
 	if (considerCapitulation(eTarget, iU, iTheirReluct))
