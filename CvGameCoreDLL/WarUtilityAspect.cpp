@@ -14,6 +14,7 @@
 #include "CvArea.h"
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Building.h" // Just for vote-related info
+#include "BBAILog.h" // <!-- custom: Log the exact reason when the AdvCiv-SAS faraway-war hard reject removes a proposed target. (GPT-5.6-Sol) -->
 
 using std::vector;
 using std::pair;
@@ -2902,24 +2903,31 @@ int Risk::preEvaluate()
 	static const int MAX_LAND_TURNS = 3;
 	static const int MAX_SEA_TURNS  = 12;
 
-	const bool bNaval = m_kParams.isNaval();
-
-	int minContact = INT_MAX;
-	for (int i = 0; i < ourCache().numCities(); ++i)
+	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
+	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
+	const TeamTypes eTarget = m_kParams.getTarget();
+	if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
 	{
-		UWAICache::City& c = ourCache().cityAt(i);
-		if (c.city().getTeam() != m_kParams.getTarget()) continue;  // target-specific
-		if (!c.canReach()) continue;                     // unreachable from our pov
-		if (!bNaval && !c.canReachByLand()) continue;    // land war needs land path
-		minContact = std::min(minContact, c.getDistance()); // ~turns incl. roads
+		const bool bNaval = m_kParams.isNaval();
+		int iMinContact = INT_MAX;
+		for (int i = 0; i < ourCache().numCities(); ++i)
+		{
+			UWAICache::City& kCity = ourCache().cityAt(i);
+			if (kCity.city().getTeam() != eTarget) continue; // Target-specific
+			if (!kCity.canReach()) continue;
+			if (!bNaval && !kCity.canReachByLand()) continue;
+			iMinContact = std::min(iMinContact, kCity.getDistance()); // Approximate turns including roads
+		}
+		const int iCanTrainCargo = (bNaval ? ourCache().canTrainAnyCargo() : -1);
+		const bool bNoLift = (bNaval && iCanTrainCargo == 0);
+		const int iMaxTurns = (bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS);
+		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
+		{
+			if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
+			return -100000; // kill this (agent,target) war plan
+		}
 	}
-
-	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
-	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
-
-	// <!-- custom: This older AdvCiv-SAS hard reject is a war-scenario guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent because UWAI computes final utility as war minus peace; e.g. -78 - (-105438) became +105360 in BBAI testing. See KI#183. (GPT-5.5) -->
-	if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
-		return -100000; // kill this (agent,target) war plan
 
 	// --- END RPE FILTER ---
 

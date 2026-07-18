@@ -6753,7 +6753,7 @@ PEACE RISK count=53839 avg=-104994.2 min=-105393 max=-104980
 WAR   RISK count=45897 avg=-104999.7 min=-105394 max=-178
 ```
 
-The fix keeps the faraway-war hard reject for actual war scenarios but prevents it from firing during the recursive peace scenario:
+The initial fix kept the faraway-war hard reject for war scenarios but prevented it from firing during the recursive peace scenario:
 
 ```cpp
 if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
@@ -6767,11 +6767,22 @@ positive final: 0
 negative final: 72704
 ```
 
-The remaining high rows were `WAR RISK` rejects only, meaning the guard now works in the intended direction: bad faraway/unreachable war scenarios are unattractive instead of making wars look artificially excellent.
+The remaining high rows were `WAR RISK` rejects only, confirming that the peace-scenario sign flip had disappeared.
+
+A later save-file 450 investigation found a second scope problem in the same AdvCiv-SAS guard: "war scenario" included wars already in progress, although the hard reject was intended only to prevent starting a distant or unreachable war. After Sumer captured New York on turn 79, Lincoln's remaining cities were beyond the three-turn land limit. The guard therefore added `-100000` to Sumer's ongoing-war evaluation despite Sumer having 5 cities against 2, twice Lincoln's power, and 29 war success against 7; this produced `initialUtility=-104901`, a nominal 963% peace probability, and peace on turn 80. Overall, 446 of 777 peace reviews were contaminated by the same hard reject.
+
+The guard now evaluates distance and naval lift only before war begins. Normal UWAI utility decides whether an existing war remains worthwhile:
+
+```cpp
+if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget) && (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift))
+	return -100000;
+```
+
+Two deterministic confirming runs removed all `-105000`-scale ongoing-war utilities. Sumer's war with Lincoln lasted 47 turns instead of 2; it remained active but eventually accepted peace at ordinary utility `-15` after failing to capture another city, and other AI attackers eliminated Lincoln later on turn 211. Across the run, median completed-war duration rose from 5 to 8 turns and wars ending within four turns fell from 13 to 8. This preserves the intended pre-war safeguard without forcing a stronger conqueror to stop merely because the next enemy city is farther away.
 
 The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
 
-Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+Fixed with the help of GPT-5.5 and GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 ## 184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact
 

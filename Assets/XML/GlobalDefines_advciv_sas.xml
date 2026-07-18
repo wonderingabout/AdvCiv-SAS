@@ -1406,7 +1406,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, preparation review/cancellation causes and severity, target switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
+	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, target power per city and armies committed elsewhere, ranked-candidate rolls, preparation review/cancellation causes and severity, target switches, direct-war adoption, declaration context, and peace-review/negotiation causes can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
