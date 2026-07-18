@@ -3577,8 +3577,7 @@ void Distraction::evaluate()
 	FAssert(!m_kParams.isIgnoreDistraction());
 	int const iWarDuration = kOurTeam.AI_getAtWarCounter(eTheirTeam);
 	// Utility ignoring Distraction cost
-	scaled const rWarUtilityVsThem = normalizeUtility(
-			ourCache().warUtilityIgnoringDistraction(eTheirTeam));
+	scaled const rWarUtilityVsThem = normalizeUtility(ourCache().warUtilityIgnoringDistraction(eTheirTeam));
 	scaled rDistractionCost;
 	int iAltWars = 0;
 	scaled rTotalOpportunityCost;
@@ -3625,8 +3624,7 @@ void Distraction::evaluate()
 				(sponsored or diplo vote) to declare war on eThey. (Not possible:
 				preparations against eAltTarget and eThey at the same time.) */
 				rDistractionCost += rWarUtilityVsAlt;
-				log("%d extra cost for distraction from war in preparation",
-						rWarUtilityVsAlt.uround());
+				log("%d extra cost for distraction from war in preparation", rWarUtilityVsAlt.uround());
 			}
 			// NB: Imminent war against eAltTarget is covered by UWAI::Team::considerPeace
 		}
@@ -3673,6 +3671,26 @@ void Distraction::evaluate()
 			log("Adjusted cost for all (%d) potential wars: %d", iAltWars,
 					rOverallOpportunityCost.uround());
 			rDistractionCost += rOverallOpportunityCost;
+		}
+	}
+	// <!-- custom: Base AdvCiv UWAI could abandon a decisively successful war because alternative-war opportunities outweighed the current war.
+	// In save file 452, Mali still had 7 cities vs Maya's 3, 891 vs 397 power and an 83-point war-success lead, while the current war remained profitable before Distraction; nevertheless, a new India preparation raised Distraction from -18 to -96 and caused immediate peace.
+	// The first prototype capped only the preparation-specific portion, reducing Distraction to -75, but Mali still accepted peace on the next turn. A 50-percent cap on the whole cost kept Mali at war long enough to capture another city, but its turn-161 review remained negative and only skipped peace by chance. When the current enemy is clearly weaker and losing, apply the stricter tunable cap relative to the cached positive value of the current war; effort, risk, war weariness and emergency multi-war peace remain unchanged. (GPT-5.6-Sol) -->
+	if (rDistractionCost > 0 && rWarUtilityVsThem > 0 && kOurTeam.getNumCities() > kTheirTeam.getNumCities())
+	{
+		static int const iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_TARGET_POWER_PERCENT");
+		static int const iMaxCostPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_COST_PERCENT");
+		int const iTargetPowerPercent = 100 * kTheirTeam.getPower(true) / std::max(1, kOurTeam.getPower(true));
+		scaled const rWarSuccessLead = kOurTeam.AI_getWarSuccess(eTheirTeam) - kTheirTeam.AI_getWarSuccess(eOurTeam);
+		if (iTargetPowerPercent <= iMaxTargetPowerPercent && rWarSuccessLead >= GC.getWAR_SUCCESS_CITY_CAPTURING())
+		{
+			scaled const rOldDistractionCost = rDistractionCost;
+			rDistractionCost.decreaseTo(rWarUtilityVsThem * per100(iMaxCostPercent));
+			if (rDistractionCost < rOldDistractionCost)
+			{
+				log("Distraction reduced from %d to %d: current war utility %d, target power %d percent, war-success lead %d",
+						rOldDistractionCost.round(), rDistractionCost.round(), rWarUtilityVsThem.round(), iTargetPowerPercent, rWarSuccessLead.round());
+			}
 		}
 	}
 	/*	If we expect to knock them out, the current war may be over before the

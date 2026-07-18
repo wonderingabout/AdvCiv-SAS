@@ -46,6 +46,44 @@ namespace
 		return (iUtility >= iThreshold || iUtility <= -iThreshold);
 	}
 
+	bool isSASSuspiciousPeaceLead(WarEvalParameters const& kParams)
+	{
+		if (!kParams.isConsideringPeace())
+			return false;
+		CvTeamAI& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI& kTarget = GET_TEAM(kParams.getTarget());
+		return (kAgent.isAtWar(kTarget.getID()) && kAgent.getNumCities() > kTarget.getNumCities() &&
+			kAgent.getPower(true) * 2 >= kTarget.getPower(true) * 3 &&
+			kAgent.AI_getWarSuccess(kTarget.getID()) >= kTarget.AI_getWarSuccess(kAgent.getID()) + 25);
+	}
+
+	void logSASBBAISuspiciousPeaceScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
+	{
+		CvTeamAI& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI& kTarget = GET_TEAM(kParams.getTarget());
+		ostringstream componentList;
+		bool bFirstComponent = true;
+		for (size_t i = 0; i < aiAspectUtilities.size(); i++)
+		{
+			if (aiAspectUtilities[i] == 0)
+				continue;
+			if (!bFirstComponent)
+				componentList << ",";
+			componentList << asAspectNames[i].GetCString() << ":" << aiAspectUtilities[i];
+			bFirstComponent = false;
+		}
+		logBBAI("WAR_PEACE_UTILITY_SCENARIO turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d components=\"%s\"",
+				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getPower(true), kTarget.getPower(true), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(kTarget.getID()).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), componentList.str().c_str());
+	}
+
+	void logSASBBAISuspiciousPeaceFinal(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility)
+	{
+		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
+		logBBAI("WAR_PEACE_UTILITY turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d",
+				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities());
+	}
+
 	void logSASBBAIHighWarUtilityScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
 	{
 		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
@@ -96,7 +134,7 @@ WarEvaluator::WarEvaluator(WarEvalParameters& kWarEvalParams, bool bUseCache)
 :	m_kParams(kWarEvalParams), m_kReport(m_kParams.getReport()),
 	m_kAgent(GET_TEAM(m_kParams.getAgent())),
 	m_kTarget(GET_TEAM(m_kParams.getTarget())),
-	m_bUseCache(bUseCache), m_bPeaceScenario(false)
+	m_bPeaceScenario(false), m_bUseCache(bUseCache), m_bSASLogSuspiciousPeace(false)
 {
 	static bool bInitCache = true;
 	if (bInitCache)
@@ -325,6 +363,9 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 	for (MemberIter itMember(m_kAgent.getID()); itMember.hasNext(); ++itMember)
 		evaluate(itMember->getID(), apAspects);
 	bool const bSASHighUtilityLog = (gWarLogLevel >= 3 && getSASHighWarUtilityLogThreshold() > 0);
+	// <!-- custom: Save-file 452 showed Mali seeking peace immediately after capturing two Maya cities despite leading heavily in cities, power and war success. For similarly dominant wars, retain each utility aspect for both scenarios so a sudden reversal can be traced without enabling broad level-3 UWAI spam. (GPT-5.6-Sol) -->
+	bool const bSASSuspiciousPeaceLog = (m_bSASLogSuspiciousPeace && isSASSuspiciousPeaceLead(m_kParams));
+	bool const bSASAspectLog = (bSASHighUtilityLog || bSASSuspiciousPeaceLog);
 	std::vector<CvString> asAspectNames;
 	std::vector<int> aiAspectUtilities;
 	int iU = 0;
@@ -332,7 +373,7 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 	{
 		int iDelta = apAspects[i]->utility();
 		iU += iDelta;
-		if (bSASHighUtilityLog)
+		if (bSASAspectLog)
 		{
 			asAspectNames.push_back(apAspects[i]->aspectName());
 			aiAspectUtilities.push_back(iDelta);
@@ -342,6 +383,8 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 		delete apAspects[i];
 	}
 	m_kReport.log("Bottom line: %d\n", iU);
+	if (bSASSuspiciousPeaceLog)
+		logSASBBAISuspiciousPeaceScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
 	if (bSASHighUtilityLog && isSASHighWarUtility(iU))
 		logSASBBAIHighWarUtilityScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
 	if (!m_bPeaceScenario)
@@ -350,6 +393,8 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 		int const iPeaceScenarioUtility = evaluate(NO_WARPLAN, false, iPreparationTime); // Required for final war-minus-peace utility; stored only so high-utility diagnostics can show both sides.
 		iU -= iPeaceScenarioUtility;
 		m_kReport.log("Utility war minus peace: %d\n", iU);
+		if (bSASSuspiciousPeaceLog)
+			logSASBBAISuspiciousPeaceFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
 		if (bSASHighUtilityLog && isSASHighWarUtility(iU))
 			logSASBBAIHighWarUtilityFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
 		// Restore params (changed by recursive call)

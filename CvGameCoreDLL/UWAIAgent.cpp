@@ -472,6 +472,7 @@ bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
 				continue;
 			WarEvalParameters params(kAgent.getID(), eTarget, *m_pReport);
 			WarEvaluator eval(params);
+			if (gWarLogLevel >= 2 && kAgent.isAtWar(eTarget)) eval.enableSASBBAISuspiciousPeaceLog();
 			int iU = eval.evaluate(eWP);
 			// <!-- custom: doScheme adds victory-denial urgency when selecting a target. Preserve that value during later reviews too; otherwise UWAI can select a rival for being close to victory and cancel the same preparation after evaluating it without the urgency boost. Save-file 452 reproduced this repeatedly against India. See KI#189. (GPT-5.6-Sol) -->
 			if (!kAgent.isAtWar(eTarget))
@@ -997,7 +998,21 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 	else
 	{
 		FAssert(iU < rPeaceThresh);
-		rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
+		// Base AdvCiv: rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
+		// <!-- custom: Base AdvCiv gave every negative AI-vs-AI review a random chance to initiate peace. Repeated marginal rolls increasingly risked abandoning useful pressure, while clearly bad wars could wait several turns before seeking peace; volatile one-turn utility also made the outcome depend on whether a roll happened during a temporary dip.
+		// In save file 452, a 15-point prototype immediately ended Egypt's advantageous Japan war at -32. With a 40-point margin, utility rebounded to +87 one turn later, Egypt captured population-7 Tokyo, then accepted Japan's peace request on turn 175 after costly attrition. Mali likewise held a -7 dip, but accepted India's request one turn later, so the margin did not prevent later rational peace.
+		// Treat a smaller deficit as insufficient reason to initiate peace, but seek peace immediately once it reaches the tunable decisive margin. The opponent can still propose an acceptable treaty, and emergency peace remains immediate; human contact retains personality-based pacing. (GPT-5.6-Sol) -->
+		static int const iDecisivePeaceMargin = GC.getDefineINT("SAS_UWAI_AI_PEACE_DECISIVE_UTILITY_MARGIN");
+		scaled const rPeaceUtilityDeficit = rPeaceThresh - iU;
+		if (rPeaceUtilityDeficit >= iDecisivePeaceMargin)
+			rPeaceProb = fixp(1);
+		else
+		{
+			bOfferPeace = false;
+			m_pReport->log("No AI peace initiated b/c utility deficit %d is below decisive margin %d", rPeaceUtilityDeficit.round(), iDecisivePeaceMargin);
+			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d utilityDeficit=%d decisiveMargin=%d emergencyPeace=%d sought=0 reason=utility_deficit_below_decisive_margin",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), rPeaceUtilityDeficit.round(), iDecisivePeaceMargin, bEmergencyPeace);
+		}
 	}
 
 	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
@@ -1010,7 +1025,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 	{
 		m_pReport->log("Probability for peace negotiation: %d percent",
 				rPeaceProb.getPercent());
-		bool const bRandomlySkipped = SyncRandSuccess(1 - rPeaceProb);
+		bool const bRandomlySkipped = (rPeaceProb < 1 && SyncRandSuccess(1 - rPeaceProb));
 		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
 		if (bRandomlySkipped)

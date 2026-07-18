@@ -3144,6 +3144,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT</DefineName>
 		<iDefineIntVal>25</iDefineIntVal>
 	</Define>
+	<!-- custom: AI-vs-AI peace is initiated immediately once war utility falls this far below the existing context-sensitive peace threshold. Smaller deficits no longer receive repeated random rolls, which could eventually abandon useful pressure merely through repeated chances; the opponent can still propose an acceptable treaty. A 15-point prototype immediately ended two advantageous wars at -19 and -32. With 40, Egypt's -32 rebounded to +87 one turn later, Egypt captured another city, then rationally accepted Japan's later request after costly attrition; clearly losing reviews in the same run were generally -44 to below -400. Emergency peace remains immediate, and human peace contact retains personality-based pacing. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_AI_PEACE_DECISIVE_UTILITY_MARGIN</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum enemy power relative to ours for limiting how strongly alternative-war opportunities can pressure UWAI to abandon the current war. This also requires fewer enemy cities, positive current-war utility before Distraction, and a war-success lead worth at least WAR_SUCCESS_CITY_CAPTURING. At 50, an opponent above half our power uses ordinary Base AdvCiv Distraction valuation. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_TARGET_POWER_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum Distraction opportunity cost while the current war passes the decisive-advantage gates above, as percent of that war's cached positive utility before Distraction. A 50-percent prototype still left Mali's turn-161 peace review at -21 and a 14-percent chance to abandon its successful Maya war; 15 preserves a modest opportunity cost without letting a new preparation erase a clearly winning current war. Effort, risk, war weariness and emergency multi-war peace remain valued separately. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_COST_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
 
 
 
