@@ -94,10 +94,12 @@ private:
 	void reset();
 	/*	Abandon wars in preparation, switch plans or targets and consider peace.
 		Returns false if scheming should be skipped this turn. */
-	bool reviewWarPlans();
+	// <!-- custom: Return changed targets so same-turn scheming cannot immediately recreate a plan that this review just canceled or replaced. (GPT-5.6-Sol) -->
+	bool reviewWarPlans(std::set<TeamTypes>& aeChangedTargets);
 	/*	Review plan vs. eTarget. Returns true if plan continues unchanged,
 		false if any change (abandoned, peace made, target changed). */
-	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns);
+	// <!-- custom: Added bNaval so reviewing an existing preparation uses the same land/naval victory-denial direct-war gate as its initial target evaluation. (GPT-5.6-Sol) -->
+	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval);
 	// All these return true if the war plan remains unchanged, false otherwise.
 	bool considerPeace(TeamTypes eTarget, int iU);
 	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace);
@@ -105,9 +107,11 @@ private:
 	bool considerPlanTypeChange(TeamTypes eTarget, int iU);
 	bool considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
 	bool considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining);
-	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
+	// <!-- custom: Added iVictoryDenialBoost so preparation and direct-war utility retain the same victory-denial value when they are compared. (GPT-5.6-Sol) -->
+	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining, int iVictoryDenialBoost);
 
-	void scheme(); // Consider new war plans
+	// <!-- custom: Added aeChangedTargets to skip only targets whose plans changed earlier in this turn; other new war opportunities remain available. (GPT-5.6-Sol) -->
+	void scheme(std::set<TeamTypes> const& aeChangedTargets); // Consider new war plans
 	void alignAreaAI(bool bNaval);
 	int peaceThreshold(TeamTypes eTarget) const;
 	scaled limitedWarWeight() const;

@@ -1406,7 +1406,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI target choice, preparation switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5) -->
+	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, preparation review/cancellation causes and severity, target switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -3173,6 +3173,21 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum severity required to abandon a war preparation whose utility has become negative. UWAI instead treated this severity as a new random cancellation chance every review, so even mildly negative plans were eventually canceled without circumstances changing. 100 keeps preparing unless the old personality- and game-speed-adjusted formula reaches its maximum; lower values abandon questionable plans sooner. Save-file 452 diagnostics showed 38 checks at 100 severity compared with 69 cancellations caused by repeated rolls. See KI#189. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum war-plan age before negative-utility severity alone may cancel a preparation. Save-file 452 testing showed the first deterministic version could cancel at age 1 after a transient utility drop, then select the same target again next turn; 3 gives the plan two full reviews to settle. This does not delay illegal-target, preparation-deadline, or imminent-war cancellations. See KI#189. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum relative advantage score required to switch an existing war preparation to the best alternative target. UWAI used the score as a random chance on every review, making target choice unstable; 50 requires a materially better target, while 0 accepts any alternative that has higher utility. Save-file 452 diagnostics would accept 15 of 71 real comparisons at 50 instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_PREPARATION_TARGET_SWITCH_MIN_ADVANTAGE_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
 
 
