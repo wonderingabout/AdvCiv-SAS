@@ -3170,6 +3170,11 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: UWAI rolls independently for each eligible war target, so rejecting a strong target can fall through to a much worse one. When enabled, roll only the target with the highest final drive after personality hesitation and the existing eligibility/local-target guards; if that roll fails, begin no war preparation this turn. This preserves uncertain war timing without letting randomness choose an inferior rival. Set to 0 to restore Base AdvCiv/UWAI target fall-through. See WAR_TARGET_SELECTION_ROLL logging. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>

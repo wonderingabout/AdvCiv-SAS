@@ -17851,7 +17851,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
 	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
 	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
-	bool bHasSpaceThreatTarget = false;
+	bool bLogSpaceTargetChosen = false;
 	CvCity* pBestSpaceCapital = NULL;
 	int iBestSpaceCapitalCountdown = -1;
 	int iBestSpaceCapitalPartsPercent = -1;
@@ -17888,22 +17888,22 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 		{
 			continue;
 		}
+		// <!-- custom: A Space-capital emergency exists only against a team this group is already fighting; capturing a capital before launch instead preserves the team-wide spaceship parts. See KI#190. (GPT-5.6-Sol) -->
 		int iSpaceStage = -1;
 		bool const bAtWarWithTarget = kOurTeam.isAtWar(kTargetPlayer.getTeam());
 		if (bLogSpaceTargetChoice && bAtWarWithTarget)
 			iSpaceStage = getSASTeamSpaceVictoryStage(kTargetPlayer.getTeam());
-		bool const bSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget &&
-			(iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
+		bool const bLogSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget && (iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
 		int const iSpaceCountdown = (bSpaceCapitalRush && bAtWarWithTarget ? GET_TEAM(kTargetPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
 		bool const bSpaceCapitalRushTarget = (iSpaceCountdown >= 0);
-		if (bSpaceThreatTarget)
-			bHasSpaceThreatTarget = true;
+		if (bLogSpaceThreatTarget)
+			bLogSpaceTargetChosen = true;
 		FOR_EACH_CITY_VAR(pLoopCity, kTargetPlayer)
 		{
 			if (!pLoopCity->isArea(getArea()))
 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
 			{
-				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 				continue;
 			}
@@ -17966,7 +17966,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 
 				if (iPathTurns >= iMaxPathTurns)
 				{
-					if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+					if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 					continue;
 				}
@@ -17994,7 +17994,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
 						{
-							if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+							if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
 								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns, iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 							continue;
 						}
@@ -18119,8 +18119,10 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 				// (already taken into account.)
 
 				iValue /= 8 + SQR(iPathTurns); // was 4+
-				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
 					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(), iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence, pLoopCity == pTargetCity);
+				// <!-- custom: Ordinary city value can favor an easy non-capital even though only the current capital can cancel an active launch countdown.
+				// Rank reachable launched-spaceship capitals separately by deadline, completion, travel time, and then ordinary value so the best emergency target can override ordinary selection below. See KI#190. (GPT-5.6-Sol) -->
 				if (bSpaceCapitalRushTarget && pLoopCity->isCapital())
 				{
 					int const iSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam());
@@ -18189,7 +18191,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 			iBestTotalOffence = iBestSpaceCapitalTotalOffence;
 		}
 	}
-	if (bHasSpaceThreatTarget) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
+	if (bLogSpaceTargetChosen) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
 		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsPercent(pBestCity->getTeam())), (pBestCity == NULL ? -1 : GET_TEAM(pBestCity->getTeam()).AI_getLowestVictoryCountdown()), iBestBaseValue, iBestValue, iBestPathTurns, iBestEnemyDefence, iOurOffence, iBestOffenceEnRoute, iBestTotalOffence);
 
 	return pBestCity;
