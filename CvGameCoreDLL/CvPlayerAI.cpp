@@ -3400,7 +3400,9 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize, bool bI
 			} // </advc.104d>
 			if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE4))
 			{
-				iValue += 10; // was 20
+				// <!-- custom: Base AdvCiv reduced this pre-launch capital priority from 20 to 10. Make the current value tunable before testing whether anti-spaceship armies should focus more strongly on the capital, whose loss resets spaceship progress. Default 10 preserves Base AdvCiv behavior. (GPT-5.6-Sol) -->
+				static int const iSpace4CapitalTargetValueBonus = GC.getDefineINT("SAS_AI_SPACE4_CAPITAL_TARGET_VALUE_BONUS");
+				iValue += iSpace4CapitalTargetValueBonus;
 				if (GET_TEAM(kCity.getTeam()).
 					getVictoryCountdown(kGame.getSpaceVictory()) >= 0)
 				{

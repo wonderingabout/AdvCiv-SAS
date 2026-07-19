@@ -6662,23 +6662,32 @@ void CvUnitAI::AI_attackCityMove()
 	}
 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
 	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
+	bool const bLaunchedSpaceCapitalTarget = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && pTargetCity != NULL && pTargetCity->isCapital());
+	int const iSpaceCapitalCountdown = (bLaunchedSpaceCapitalTarget ? GET_TEAM(pTargetCity->getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
+	int iSpaceCapitalPathTurns = -1;
+	bool const bSpaceCapitalEmergency = (iSpaceCapitalCountdown >= 0 && generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iSpaceCapitalPathTurns) && iSpaceCapitalPathTurns <= iSpaceCapitalCountdown);
+	bool const bSpaceCapitalMustAttackNow = (bSpaceCapitalEmergency && iSpaceCapitalPathTurns >= iSpaceCapitalCountdown);
 
 	/*	K-Mod. This is used to prevent the AI from oscillating
 		between moving to attack moving to pillage. */
 	bool bTargetTooStrong = false;
 	// advc.114c: Moved up. Target strength ratio for city attack.
 	int iAttackRatio = -1;
+	// <!-- custom: A save-file 450 army reached Delhi but repeatedly declined both its adjacent assault and further movement. Preserve K-Mod's immediate and projected readiness values for the launched-capital diagnostic below so testing can identify which assessment disagreed. (GPT-5.6-Sol) -->
+	int iSpaceCapitalImmediateCompare = -1;
+	int iSpaceCapitalPostBombardCompare = -1;
+	int iSpaceCapitalAttackRatioSkipBombard = -1;
+	int iSpaceCapitalBombardTurns = -1;
 
 	int iStepDistToTarget = MAX_INT;
 	// K-Mod note.: I've rearranged some parts of the code below, sometimes without comment.
 	if (pTargetCity != NULL)
 	{
-		int iComparePostBombard =
-				/*	advc.159: Avoid overflow when applying the modifier below.
-					Will only get compared with attack ratio percentages, which
-					should be 3-digit numbers. So 10k is a huge ceiling. */
-				std::min(10000,
-				AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
+		/* advc.159: Avoid overflow when applying the modifier below. Will only get compared with attack ratio percentages, which should be 3-digit numbers. So 10k is a huge ceiling. */
+		int const iCompareNow = std::min(10000, AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
+		int iComparePostBombard = iCompareNow;
 		int iBombardTurns = AI_getGroup()->AI_getBombardTurns(pTargetCity);
 		// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
 		{
@@ -6736,10 +6745,20 @@ void CvUnitAI::AI_attackCityMove()
 		} // K-Mod end
 
 		bTargetTooStrong = (iComparePostBombard < iAttackRatio);
+		if (bSpaceCapitalEmergency)
+		{
+			iSpaceCapitalImmediateCompare = iCompareNow;
+			if (gWarLogLevel >= 2)
+			{
+				iSpaceCapitalPostBombardCompare = iComparePostBombard;
+				iSpaceCapitalAttackRatioSkipBombard = iAttackRatioSkipBombard;
+				iSpaceCapitalBombardTurns = iBombardTurns;
+			}
+		}
 		if (iStepDistToTarget <= 2)
 		{	// K-Mod. I've rearranged and rewritten most of this block - removing the bbai code.
 
-			if (bTargetTooStrong)
+			if (bTargetTooStrong && !bSpaceCapitalEmergency)
 			{
 				if (AI_stackVsStack(2, iAttackRatio, 80, eMoveFlags))
 					return;
@@ -6806,7 +6825,7 @@ void CvUnitAI::AI_attackCityMove()
 			{
 				/*	Consider getting into a better position for attack.
 					only if we don't already have overwhelming force */
-				if (iComparePostBombard < GC.getDefineINT(
+				if (!bSpaceCapitalMustAttackNow && iComparePostBombard < GC.getDefineINT(
 					CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) &&
 					(iComparePostBombard < iAttackRatioSkipBombard ||
 					2 * pTargetCity->getDefenseDamage() < GC.getMAX_CITY_DEFENSE_DAMAGE() ||
@@ -6830,7 +6849,7 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 				}
 				// we're satisfied with our position already. But we still want to consider bombarding.
-				else if (iComparePostBombard >= iAttackRatio && AI_bombardCity())
+				else if (!bSpaceCapitalMustAttackNow && iComparePostBombard >= iAttackRatio && AI_bombardCity())
 					return;
 
 				if (iComparePostBombard >= iAttackRatio)
@@ -6847,6 +6866,36 @@ void CvUnitAI::AI_attackCityMove()
 				return;
 			}
 		}
+	}
+	// <!-- custom: BBAI save-file 450 testing showed the launched-capital override selecting Cahokia from countdown 12 onward, but ordinary K-Mod execution spent the available turns on opportunistic attacks, regrouping and healing. A 22-unit army reached two path turns from Cahokia, became fully wounded fighting elsewhere, retreated to heal and failed to stop the Space victory.
+	// Once a launched capital is reachable within its countdown, preserve the adjacent bombard/attack checks above but otherwise move toward it immediately. If its immediate strength remains below the normal attack threshold after those checks, an army within one path turn holds to heal and receive reinforcements, avoiding an adjacent stall caused by K-Mod's higher projected post-bombard ratio; it forces an unfavorable final assault only when no countdown slack remains. Generic recovery or secondary opportunities can resume if the capital falls and resets the spaceship. See KI#190. (GPT-5.6-Sol) -->
+	if (bSpaceCapitalEmergency)
+	{
+		int const iSourceX = getX();
+		int const iSourceY = getY();
+		bool const bSpaceCapitalImmediatelyReady = (iSpaceCapitalImmediateCompare >= iAttackRatio);
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_READINESS turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d stepDistance=%d immediateCompare=%d postBombardCompare=%d attackRatio=%d skipBombardRatio=%d targetTooStrong=%d bombardTurns=%d canBombard=%d defenseDamage=%d maxDefenseDamage=%d defenseModifier=%d",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns, iStepDistToTarget, iSpaceCapitalImmediateCompare, iSpaceCapitalPostBombardCompare, iAttackRatio, iSpaceCapitalAttackRatioSkipBombard, bTargetTooStrong, iSpaceCapitalBombardTurns, getGroup()->canBombard(getPlot()), pTargetCity->getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), pTargetCity->getDefenseModifier(false));
+		if (iStepDistToTarget == 1 && bSpaceCapitalMustAttackNow)
+		{
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=force_final_assault",
+				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+			if (AI_stackAttackCity(1))
+				return;
+		}
+		if (iSpaceCapitalPathTurns <= 1 && !bSpaceCapitalImmediatelyReady && !bSpaceCapitalMustAttackNow)
+		{
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=hold_within_one_turn_for_recovery_or_reinforcements",
+				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
+			return;
+		}
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+		if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+			return;
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack_failed",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
 	}
 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
 	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
@@ -13966,7 +14015,7 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 	int iEffectiveMaxGroup = iMaxGroup;
 	bool bEffectiveStackOfDoom = bStackOfDoom;
 	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
-	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the normal minimum city-assault stack and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
+	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the separately tunable peaceful city-assault nucleus and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
 	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
 	{
 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
@@ -13975,8 +14024,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			int iActualGroupMax = -1;
 			if (!kTeam.AI_isAnyWarPlan())
 			{
-				static int const iMinAttackCityStack = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
-				iActualGroupMax = std::max(iMinAttackCityStack, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+				static int const iTargetlessPeacefulGroupMinUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
+				iActualGroupMax = std::max(iTargetlessPeacefulGroupMinUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
 			}
 			else
 			{
@@ -17796,6 +17845,27 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // advc
 	// K-Mod
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Capturing the current capital resets spaceship projects only during an active launch countdown; before launch, the completed projects survive capital relocation. BBAI save-file 450 testing confirmed that a hard pre-launch override made armies chase England's successive capitals while its spaceship progress remained intact.
+	// When enabled, keep one separately ranked reachable capital objective after launch, when its capture can actually stop the imminent Space victory. Base AdvCiv's ordinary pre-launch capital preference remains unchanged, and its existing enough-offence-en-route check can leave additional armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
+	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+	bool bHasSpaceThreatTarget = false;
+	CvCity* pBestSpaceCapital = NULL;
+	int iBestSpaceCapitalCountdown = -1;
+	int iBestSpaceCapitalPartsPercent = -1;
+	int iBestSpaceCapitalBaseValue = -1;
+	int iBestSpaceCapitalValue = -1;
+	int iBestSpaceCapitalPathTurns = -1;
+	int iBestSpaceCapitalEnemyDefence = -1;
+	int iBestSpaceCapitalOffenceEnRoute = -1;
+	int iBestSpaceCapitalTotalOffence = -1;
+	int iBestBaseValue = -1;
+	int iBestPathTurns = -1;
+	int iBestEnemyDefence = -1;
+	int iBestOffenceEnRoute = -1;
+	int iBestTotalOffence = -1;
 	int iOurOffence = -1; // We calculate this for the first city only.
 	CvUnit* pBestTransport = NULL;
 	/*	iLoadTurns < 0 implies we should look for a transport;
@@ -17818,11 +17888,23 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 		{
 			continue;
 		}
+		int iSpaceStage = -1;
+		bool const bAtWarWithTarget = kOurTeam.isAtWar(kTargetPlayer.getTeam());
+		if (bLogSpaceTargetChoice && bAtWarWithTarget)
+			iSpaceStage = getSASTeamSpaceVictoryStage(kTargetPlayer.getTeam());
+		bool const bSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget &&
+			(iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
+		int const iSpaceCountdown = (bSpaceCapitalRush && bAtWarWithTarget ? GET_TEAM(kTargetPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
+		bool const bSpaceCapitalRushTarget = (iSpaceCountdown >= 0);
+		if (bSpaceThreatTarget)
+			bHasSpaceThreatTarget = true;
 		FOR_EACH_CITY_VAR(pLoopCity, kTargetPlayer)
 		{
 			if (!pLoopCity->isArea(getArea()))
 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
 			{
+				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 				continue;
 			}
 			if (!AI_mayAttack(kTargetPlayer.getTeam(), pLoopCity->getPlot()))
@@ -17883,7 +17965,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 				}
 
 				if (iPathTurns >= iMaxPathTurns)
+				{
+					if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 					continue;
+				}
 				/*	If city is visible and our force already in position
 					is dominantly powerful or we have a huge force
 					already on the way, pick a different target */
@@ -17907,7 +17993,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 								GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO)) /
 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
+						{
+							if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns, iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 							continue;
+						}
 					}
 				}
 				if (iOurOffence == -1)
@@ -17921,10 +18011,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 				FAssert(iOurOffence > 0);
 				int iTotalOffence = iOurOffence + iOffenceEnRoute;
 
-				int iValue = 0;
-				if (AI_getUnitAIType() == UNITAI_ATTACK_CITY) //lemming?
-					iValue = kOwner.AI_targetCityValue(*pLoopCity, false, false);
-				else iValue = kOwner.AI_targetCityValue(*pLoopCity, true, true);
+				int const iBaseValue = (AI_getUnitAIType() == UNITAI_ATTACK_CITY ? // lemming?
+					kOwner.AI_targetCityValue(*pLoopCity, false, false) : kOwner.AI_targetCityValue(*pLoopCity, true, true));
+				int iValue = iBaseValue;
 				// adjust value based on defensive bonuses
 				{
 					int iMod = std::min(8, AI_getGroup()->AI_getBombardTurns(pLoopCity)) *
@@ -18030,10 +18119,47 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 				// (already taken into account.)
 
 				iValue /= 8 + SQR(iPathTurns); // was 4+
+				if (bSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
+					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(), iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence, pLoopCity == pTargetCity);
+				if (bSpaceCapitalRushTarget && pLoopCity->isCapital())
+				{
+					int const iSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam());
+					bool const bCanArriveBeforeVictory = (iPathTurns <= iSpaceCountdown);
+					bool const bMoreUrgent = (pBestSpaceCapital == NULL ||
+						iSpaceCountdown < iBestSpaceCapitalCountdown ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent > iBestSpaceCapitalPartsPercent) ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns < iBestSpaceCapitalPathTurns) ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns == iBestSpaceCapitalPathTurns && iValue > iBestSpaceCapitalValue));
+					if (bCanArriveBeforeVictory && bMoreUrgent)
+					{
+						pBestSpaceCapital = pLoopCity;
+						iBestSpaceCapitalCountdown = iSpaceCountdown;
+						iBestSpaceCapitalPartsPercent = iSpaceshipPartsPercent;
+						iBestSpaceCapitalValue = iValue;
+						iBestSpaceCapitalPathTurns = iPathTurns;
+						if (bLogSpaceTargetChoice)
+						{
+							iBestSpaceCapitalBaseValue = iBaseValue;
+							iBestSpaceCapitalEnemyDefence = iEnemyDefence;
+							iBestSpaceCapitalOffenceEnRoute = iOffenceEnRoute;
+							iBestSpaceCapitalTotalOffence = iTotalOffence;
+						}
+					}
+					else if (!bCanArriveBeforeVictory && bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S countdown=%d pathTurns=%d reason=cannot_arrive_before_victory",
+						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), iSpaceCountdown, iPathTurns);
+				}
 				if (iValue > iBestValue)
 				{
 					iBestValue = iValue;
 					pBestCity = pLoopCity;
+					if (bLogSpaceTargetChoice)
+					{
+						iBestBaseValue = iBaseValue;
+						iBestPathTurns = iPathTurns;
+						iBestEnemyDefence = iEnemyDefence;
+						iBestOffenceEnRoute = iOffenceEnRoute;
+						iBestTotalOffence = iTotalOffence;
+					}
 				}
 			} // end if revealed.
 			/*	K-Mod. If no city in the area is revealed,
@@ -18048,6 +18174,23 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
 			// K-Mod end
 		}
 	}
+	if (pBestSpaceCapital != NULL)
+	{
+		if (bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_TARGET turn=%d player=%d groupId=%d groupUnits=%d ordinaryPlayer=%d ordinaryCity=%S ordinaryValue=%d capitalPlayer=%d capital=%S capitalValue=%d countdown=%d spaceshipPartsPercent=%d pathTurns=%d action=%s",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), iBestValue, pBestSpaceCapital->getOwner(), pBestSpaceCapital->getName().GetCString(), iBestSpaceCapitalValue, iBestSpaceCapitalCountdown, iBestSpaceCapitalPartsPercent, iBestSpaceCapitalPathTurns, (pBestCity == pBestSpaceCapital ? "already_selected" : "override_ordinary_target"));
+		pBestCity = pBestSpaceCapital;
+		iBestValue = iBestSpaceCapitalValue;
+		if (bLogSpaceTargetChoice)
+		{
+			iBestBaseValue = iBestSpaceCapitalBaseValue;
+			iBestPathTurns = iBestSpaceCapitalPathTurns;
+			iBestEnemyDefence = iBestSpaceCapitalEnemyDefence;
+			iBestOffenceEnRoute = iBestSpaceCapitalOffenceEnRoute;
+			iBestTotalOffence = iBestSpaceCapitalTotalOffence;
+		}
+	}
+	if (bHasSpaceThreatTarget) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
+		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsPercent(pBestCity->getTeam())), (pBestCity == NULL ? -1 : GET_TEAM(pBestCity->getTeam()).AI_getLowestVictoryCountdown()), iBestBaseValue, iBestValue, iBestPathTurns, iBestEnemyDefence, iOurOffence, iBestOffenceEnRoute, iBestTotalOffence);
 
 	return pBestCity;
 }

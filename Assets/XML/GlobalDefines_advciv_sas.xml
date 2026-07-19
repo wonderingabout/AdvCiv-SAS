@@ -2935,9 +2935,17 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. Also acts as the minimum city-assault nucleus retained when a peaceful army has no target or war plan; the estimated Barbarian requirement can retain more, while excess suitable units return to general military duties until a target appears. See KI#104 and KI#188.3. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6-Sol) -->
+	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104. (GPT-5.2-Codex + Claude code Opus 4.5) -->
 	<Define>
 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+		<iDefineIntVal>9</iDefineIntVal>
+	</Define>
+
+
+
+	<!-- custom: Minimum city-assault group retained while an AI is at peace without a target or war plan. The estimated number of attackers needed against Barbarian cities can retain more; excess suitable units return to general military duties until a target appears. Minimum 1. See KI#188.3. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS</DefineName>
 		<iDefineIntVal>9</iDefineIntVal>
 	</Define>
 	<!-- custom: While at peace and not yet ready for a sneak attack, cap each barbarian-city expedition at this multiple of the estimated garrison (minus one, preserving base AdvCiv's former `< 3 * garrison` boundary). Actual attack and city-capture capability counts regardless of UnitAI role; oversized capable groups are split into independently useful expeditions instead of being marked not ready and attracting still more joiners. The estimated attackers needed remains the minimum cap. BBAI testing found single groups holding 65-82% of an empire's military under the old feedback loop. Minimum 1. See KI#188. (GPT-5.6-Sol) -->
@@ -3299,6 +3307,16 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Additive ordinary target-city value for the capital of an AI at Space victory stage 4 before its launch countdown begins. Base AdvCiv hardcoded 10 (reduced from 20). Focused save-file 450 diagnostics showed that changing this alone cannot solve anti-spaceship targeting because downstream distance and tactical multipliers could favor a nearby city by 249333 to 3477. Keep 10 as the ordinary pre-launch preference; the separate emergency capital-rush rule below applies only after launch. See KI#190. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_SPACE4_CAPITAL_TARGET_VALUE_BONUS</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: When enabled, city-assault armies at war with a rival whose spaceship has launched treat its reachable capital as an emergency objective instead of comparing it with ordinary conquest value. Capturing or razing the current capital during the active countdown resets the spaceship projects and stops the imminent victory; before launch, completed projects survive capital relocation, so ordinary target scoring remains in charge. A group only overrides its target when its path can arrive within the remaining countdown, then moves directly instead of spending that countdown on ordinary regrouping, healing retreats, opportunistic combat, reinforcement waits or upgrade waits. An army below its immediate attack threshold holds as soon as it is within one path turn to recover and receive reinforcements, avoiding exposure beside the city when possible; it advances and forces its assault only when no countdown slack remains. Base AdvCiv's existing enough-offence-en-route check can leave surplus armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
 
