@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 ### SAS game summary log
 
-`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
 

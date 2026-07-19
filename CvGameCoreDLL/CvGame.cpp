@@ -6424,9 +6424,14 @@ void CvGame::doGlobalWarming()
 	PROFILE_FUNC();
 
 	// Calculate change in GW index
-	int iGlobalWarmingValue = calculateGlobalPollution();
-	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
-	iGlobalWarmingDefense += calculateGwLandDefence(); // defence from features (forests & jungles)
+	bool const bLogMapHistory = (gGameSummaryLogLevel >= 2);
+	int iGlobalWarmingIndexBefore = -1;
+	if (bLogMapHistory) iGlobalWarmingIndexBefore = getGlobalWarmingIndex();
+	// <!-- custom: The inherited logic already calculated pollution, the natural sustainability threshold and feature defense here. Keep the two defense components in separate locals for the environmental row, then add them exactly as before; this adds no calculation when logging is disabled. (GPT-5.6-Sol) -->
+	int const iGlobalWarmingValue = calculateGlobalPollution();
+	int const iSustainabilityThreshold = calculateGwSustainabilityThreshold();
+	int const iLandDefense = calculateGwLandDefence();
+	int const iGlobalWarmingDefense = iSustainabilityThreshold + iLandDefense;
 	changeGlobalWarmingIndex(iGlobalWarmingValue - iGlobalWarmingDefense);
 
 	// check if GW has 'activated'.
@@ -6508,6 +6513,8 @@ void CvGame::doGlobalWarming()
 		TerrainTypes const eTerrain = pPlot->getTerrainType();
 		FeatureTypes const eFeature = pPlot->getFeatureType();
 		ImprovementTypes const eImprov = pPlot->getImprovementType();
+		SASGameSummaryPlotState kOldPlotState;
+		if (bLogMapHistory) kOldPlotState = SASGameSummaryPlotState(*pPlot);
 		// Just for the announcements
 		PreGWPlot preGWPlot(pPlot, eTerrain, eFeature, eImprov);
 		bool bProtectFeature = false;
@@ -6611,12 +6618,15 @@ void CvGame::doGlobalWarming()
 				FAssert(!bProtectFeature);
 			}
 			aChangedPlots.push_back(preGWPlot);
+			if (bLogMapHistory) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
 			// Do the announcements in a separate loop
 			// </advc.055>
 			changeGwEventTally(1);
 		}
 	}
 	updateGwPercentAnger();
+	int iGlobalWarmingIndexBeforeRestoration = -1;
+	if (bLogMapHistory) iGlobalWarmingIndexBeforeRestoration = getGlobalWarmingIndex();
 	if (getGlobalWarmingIndex() > 0)
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -6625,6 +6635,8 @@ void CvGame::doGlobalWarming()
 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
 				iGlobalWarmingRestorationRate/100);
 	}
+	// <!-- custom: doGlobalWarming already computes these values every turn. Reuse them for a single low-cost environmental-status row instead of rescanning the map between periodic snapshots. (GPT-5.6-Sol) -->
+	if (bLogMapHistory) logSASGameSummaryEnvironmentTurn(iGlobalWarmingValue, iSustainabilityThreshold, iLandDefense, iGlobalWarmingIndexBefore, iGlobalWarmingIndexBeforeRestoration, getGlobalWarmingIndex(), iGlobalWarmingRolls, getGwEventTally());
 	// <advc.055>
 	/*	advc.706 (note): These will be shortlived INFO-type messages,
 		no need to store those at AI players. */

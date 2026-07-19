@@ -7180,7 +7180,7 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 Base AdvCiv UWAI ranked eligible rivals, but then rolled separately for each one until a roll succeeded. This mixed two different decisions: whether the AI was willing to prepare any war and which rival was strategically best. If the preferred target failed its roll, a much weaker later candidate could still succeed by chance.
 
-The clearest save-file 450 example occurred on turn 215. China rated Ethiopia at 68% war drive and distance 4, England at 7% and distance 5, and India at only 5% and distance 11. The first two rolls failed and the third succeeded, so China prepared against faraway India despite rating nearby Ethiopia far higher.
+The clearest save-file 450 example occurred on turn 215. China rated Ethiopia at 68% war drive, distance 4 and 51% of China's power; England at 7%, distance 5 and 59% power; and India at only 5%, distance 11 and 38% power. The first two rolls failed and the third succeeded, so China prepared against faraway India despite rating nearby Ethiopia far higher.
 
 With `SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE` enabled, UWAI now finds the highest final adjusted drive after its existing eligibility, personality, and local-target checks, then rolls only that target. If the roll fails, the AI does not prepare a war that turn instead of falling through to a rival it judged worse. The personality roll therefore still decides whether to begin a war preparation, but random chance no longer substitutes an inferior target. Disabling the define restores the inherited independent rolls.
 

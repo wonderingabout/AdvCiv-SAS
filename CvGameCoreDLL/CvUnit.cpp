@@ -3098,7 +3098,11 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 		if (!szFeature.IsEmpty())
 		{
 			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
+			bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+			SASGameSummaryPlotState kOldPlotState;
+			if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
 			kPlot.setFeatureType(eNewFeature);
+			if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "unitTriggeredFeatureChanges", "UNIT_TRIGGERED_FEATURE_CHANGE", true);
 		}
 		// spawn birds if trees present - JW
 		if (isActiveOwned() && !kPlot.isOwned() &&
@@ -4986,6 +4990,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
 			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
 			{
+				bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+				SASGameSummaryPlotState kOldPlotState;
+				if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kTarget);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
@@ -5012,6 +5019,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 					kTarget.setImprovementType(GC.getInfo(kTarget.getImprovementType()).
 							getImprovementPillage());
 				}
+				if (bLogPlotChange) recordSASGameSummaryPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
 			}
 			else
 			{
@@ -5276,6 +5284,9 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	}
 	ImprovementTypes const eOldImprovement = kPlot.getImprovementType();
 	RouteTypes const eOldRoute = kPlot.getRouteType();
+	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldPlotState;
+	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
 	// <advc.111>
 	bool bPillaged = false;
 	if (getDestructibleStructureAt(kPlot, false, bForceImprovement) == STRUCTURE_ROUTE)
@@ -5296,7 +5307,10 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	/*	advc.111: (Could just compare old with current, but that wouldn't catch
 		improvements that replace themselves upon being pillaged.) */
 	if (bPillaged)
+	{
+		if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
 		CvEventReporter::getInstance().unitPillage(this, eOldImprovement, eOldRoute, getOwner());
+	}
 	return true;
 }
 
@@ -6604,6 +6618,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 
 		CvPlot* const pMissionPlot = plot();
 		bool const bLogEspionageMission = (gGameSummaryLogLevel >= 2);
+		SASGameSummaryPlotState kOldPlotState;
+		if (bLogEspionageMission) kOldPlotState = SASGameSummaryPlotState(*pMissionPlot);
 		int iMissionCost = -1;
 		int iEPBefore = -1;
 		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
@@ -6669,7 +6685,11 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 		if (GET_PLAYER(getOwner()).doEspionageMission(eMission, eTargetPlayer,
 			pMissionPlot, iData, this))
 		{
-			if (bLogEspionageMission) logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
+			if (bLogEspionageMission)
+			{
+				recordSASGameSummaryPlotChange(*pMissionPlot, kOldPlotState, "espionage", "ESPIONAGE", true);
+				logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
+			}
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
 

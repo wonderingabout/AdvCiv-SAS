@@ -14,6 +14,7 @@
 #include "CvGameTextMgr.h"
 #include "CvBugOptions.h" // advc.060
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameSummaryLog.h" // <!-- custom: City removal can restore a natural feature on its plot; preserve that non-routine map change in SASGameSummary. (GPT-5.6-Sol) -->
 
 
 CvCity::CvCity() // advc.003u: Merged with the deleted reset function
@@ -174,6 +175,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	updateCultureLevel(false);
 
 	CvPlot& kPlot = getPlot();
+	bool const bLogCityPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldCityPlotState;
+	if (bLogCityPlotChange) kOldCityPlotState = SASGameSummaryPlotState(kPlot);
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
@@ -205,6 +209,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	kPlot.setImprovementType(NO_IMPROVEMENT);
 	kPlot.updateCityRoute(false);
+	if (bLogCityPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldCityPlotState, "cityPlotChanges", "CITY_FOUNDED", true);
 
 	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
 	{
@@ -375,6 +380,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.001>
 
+	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldPlotState;
+	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
 	kPlot.setPlotCity(NULL);
 	kPlot.setRuinsName(getName()); // advc.005c
 
@@ -438,6 +446,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.106>
 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
+	if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
 	CvEventReporter::getInstance().cityLost(this);
 	kOwner.deleteCity(getID());
 
@@ -12838,7 +12847,11 @@ void CvCity::applyEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredD
 								"AS2D_PILLAGED", MESSAGE_TYPE_INFO,
 								GC.getInfo(pPlot->getImprovementType()).getButton(),
 								eColorRed);
+						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+						SASGameSummaryPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
+						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iNumPillaged++;
 						break;
 					}

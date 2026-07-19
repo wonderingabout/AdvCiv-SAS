@@ -429,7 +429,11 @@ void CvPlot::doImprovement()
 		if (getUpgradeProgress() >= GC.getGame().
 			getImprovementUpgradeTime(getImprovementType()) * 100)
 		{
+			bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+			SASGameSummaryPlotState kOldState;
+			if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 			setImprovementType(eImprovementUpgrade);
+			if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "improvementUpgrades", "IMPROVEMENT_UPGRADE", true);
 		}
 	}
 }
@@ -846,6 +850,9 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
+		bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+		SASGameSummaryPlotState kOldPlotState;
+		if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(p);
 
 		// (if we remove roads, don't remove them on the city... XXX)
 
@@ -872,6 +879,7 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 						} // </advc.650>
 						p.setImprovementType(NO_IMPROVEMENT);
 						p.setFeatureType(eNUKE_FEATURE);
+						if (bLogPlotChange) recordSASGameSummaryPlotChange(p, kOldPlotState, "nuclearDamage", "NUCLEAR_FALLOUT", true);
 					}
 				}
 			}
@@ -3158,7 +3166,11 @@ void CvPlot::removeGoody()
 	// <advc>
 	if (!isGoody())
 		return; // </advc>
+	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 	setImprovementType(NO_IMPROVEMENT);
+	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "goodyHutsRemoved", "GOODY_HUT_REMOVED", true);
 	/*	<advc.001> This works around an issue w/ Debug mode: The EXE does (apparently)
 		not update the layout of plots unrevealed to the active player (AP).
 		So when a rival of the AP enters a goody hut previously revealed to the AP
@@ -6419,6 +6431,8 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 	}
 	if (bOldValue != bNewValue) // </advc.124>
 	{
+		// <!-- custom: Buffer permanent map revelation by team and flush it once per turn. This preserves exact exploration coordinates without producing one log row for every newly revealed plot. (GPT-5.6-Sol) -->
+		if (bNewValue && gGameSummaryLogLevel >= 2) recordSASGameSummaryPlotRevealed(*this, eTeam);
 		if (eTeam == getActiveTeam())
 		{
 			updateSymbols();
@@ -6579,6 +6593,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 
 	m_aiBuildProgress.set(eBuild, 0);
 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 
 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
 	{
@@ -6630,6 +6647,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, /*TeamTypes eTe
 
 		setFeatureType(NO_FEATURE);
 	}
+	// <!-- custom: Completed worker builds can change an improvement, route and feature together. Buffer one coordinate for the whole build rather than logging each underlying plot setter separately. (GPT-5.6-Sol) -->
+	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "workerBuilds", "WORKER_BUILD", false);
 
 	return true;
 }
@@ -7148,7 +7167,13 @@ void CvPlot::doFeature()
 			// UNOFFICIAL_PATCH, Gamespeed scaling, 03/04/10, jdog5000
 			int iRoll = 100 * GC.getGame().getSpeedPercent();
 			if (SyncRandNum(iRoll) < iProbability) // UNOFFICIAL_PATCH: END
+			{
+				bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+				SASGameSummaryPlotState kOldState;
+				if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 				setFeatureType(NO_FEATURE);
+				if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_DISAPPEARANCE", true);
+			}
 		}
 	}
 	else if (!isUnit() && !isImproved())
@@ -7193,7 +7218,11 @@ void CvPlot::doFeature()
 					getX(), getY()) < iProbability) // advc.007: Log coordinates
 				// UNOFFICIAL_PATCH: END
 				{
+					bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+					SASGameSummaryPlotState kOldState;
+					if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 					setFeatureType(eLoopFeature);
+					if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "naturalFeatureChanges", "FEATURE_GROWTH", true);
 					CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
 					if (pCity != NULL &&
 						/*	advc.106: K-Mod had added an isVisible check,
@@ -8117,6 +8146,9 @@ bool CvPlot::canApplyEvent(EventTypes eEvent) const
 void CvPlot::applyEvent(EventTypes eEvent)
 {
 	CvEventInfo& kEvent = GC.getInfo(eEvent);
+	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+	SASGameSummaryPlotState kOldState;
+	if (bLogPlotChange) kOldState = SASGameSummaryPlotState(*this);
 	if (kEvent.getFeatureChange() > 0)
 	{
 		if (NO_FEATURE != kEvent.getFeature())
@@ -8155,6 +8187,8 @@ void CvPlot::applyEvent(EventTypes eEvent)
 		if (iChange != 0)
 			GC.getMap().setPlotExtraYield(*this, eLoopYield, iChange);
 	}
+	// <!-- custom: A random event can change several properties of one plot. Preserve one combined before/after record instead of treating its feature, resource, improvement and route effects as unrelated changes. (GPT-5.6-Sol) -->
+	if (bLogPlotChange) recordSASGameSummaryPlotChange(*this, kOldState, "randomEvents", "RANDOM_EVENT", true);
 }
 
 

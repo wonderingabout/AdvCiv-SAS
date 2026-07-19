@@ -14,7 +14,24 @@ void startSASGameSummaryLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
+// <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes. The empty constructor lets caller-gated hooks avoid the map lookups when game-summary logging is disabled. (GPT-5.6-Sol) -->
+struct SASGameSummaryPlotState
+{
+	SASGameSummaryPlotState();
+	explicit SASGameSummaryPlotState(CvPlot const& kPlot);
+	TerrainTypes eTerrain;
+	FeatureTypes eFeature;
+	BonusTypes eBonus;
+	ImprovementTypes eImprovement;
+	RouteTypes eRoute;
+	int aiExtraYield[NUM_YIELD_TYPES];
+};
 void logSASGameSummaryTurn(int iGameTurn);
+// <!-- custom: Plot changes and permanent team exploration are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. The environment hook receives values already computed by CvGame::doGlobalWarming so it adds no map scan. (GPT-5.6-Sol) -->
+void flushSASGameSummaryTurnChanges(int iGameTurn);
+void recordSASGameSummaryPlotChange(CvPlot const& kPlot, SASGameSummaryPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed);
+void recordSASGameSummaryPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam);
+void logSASGameSummaryEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
 void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer);
 void logSASGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
 void logSASGameSummaryCityBuilt(CvCity const* pCity);
@@ -30,6 +47,8 @@ void logSASGameSummaryGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, in
 void logSASGameSummaryAnarchy(PlayerTypes ePlayer, bool bStart);
 void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
 void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+// <!-- custom: Added the victory type so SASGameSummary can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
+void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory);
 void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
 void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
 void logSASGameSummaryRunStatus(char const* szReason);

@@ -16430,7 +16430,11 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
 								eColorRed);
+						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
+						SASGameSummaryPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
+						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iDone++;
 						break;
 					}
@@ -17903,6 +17907,8 @@ void CvPlayer::launch(VictoryTypes eVictory)
 
 	kTeam.finalizeProjectArtTypes();
 	kTeam.setVictoryCountdown(eVictory, kTeam.getVictoryDelay(eVictory));
+	// <!-- custom: Project completion alone did not reveal when a spaceship actually launched or when it would arrive. Record the explicit launch after its countdown is set so SASGameSummary can preserve the exact travel time, arrival turn, success chance, and component state. (GPT-5.6-Sol) -->
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryVictoryLaunched(getID(), eVictory);
 
 	//gDLL->getEngineIFace()->AddLaunch(getID());
 	// K-Mod. The spaceship launch causes pitboss to crash

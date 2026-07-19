@@ -182,6 +182,8 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
 void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
+	// <!-- custom: Plot changes and exploration are collected during the turn so SASGameSummary writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its plot changes are included too. (GPT-5.6-Sol) -->
+	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(iGameTurn);
 	// <!-- custom: Periodic game-summary snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
 	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASGameSummaryTurn(iGameTurn);
 }
