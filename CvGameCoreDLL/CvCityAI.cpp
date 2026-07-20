@@ -137,6 +137,97 @@ static bool SAS_isSettlerProductionCandidate(UnitTypes eUnit, UnitAITypes eUnitA
 }
 
 
+// <!-- custom: Diagnose when the player knows a worthwhile overseas settlement or conquest opportunity but may lack transport capacity. This connects city/site value, distance, military availability, fleet capacity, map type, war state, and production constraints before changing the land-heavy naval suppression that prevented an earlier 10-20-Galleon overbuild.
+// Call only inside the Overseas-transport level-2 gate because evaluating foreign cities is diagnostic work. Reuse the normal target-city value and SAS long-term-benefit evaluation so logging does not invent a competing strategic heuristic. (GPT-5.6-Sol) -->
+static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea const* pWaterArea, int iNumWaterAreaCitySites, int iWaterAreaBestFoundValue, int iSettlerBuildMinFoundValue, int iWaterPercent, int iBuildUnitProb, int iUnitSpending, bool bFinancialTrouble, bool bDanger, bool bLandWar, bool bAssault)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+	CvCity const* pBestTarget = NULL;
+	CvArea const* pBestTargetWaterArea = NULL;
+	int iKnownRevealedOtherAreaCities = 0;
+	int iNotDeducedCandidates = 0;
+	int iNoncoastalCandidates = 0;
+	int iNoSharedPortCandidates = 0;
+	int iKnownCoastalOtherAreaCandidates = 0;
+	int iLongTermCandidates = 0;
+	int iBestTargetValue = -1;
+	int iBestStepDistance = -1;
+	int iBestScore = MIN_INT;
+	// <!-- custom: Use ALIVE rather than CIV_ALIVE so the diagnostic includes Barbarian island cities; CIV_ALIVE deliberately excludes the Barbarian player. (GPT-5.6-Sol) -->
+	for (PlayerIter<ALIVE,NOT_SAME_TEAM_AS> itTarget(kCity.getTeam()); itTarget.hasNext(); ++itTarget)
+	{
+		if (!itTarget->isBarbarian() && !kTeam.AI_mayAttack(itTarget->getTeam()))
+			continue;
+		FOR_EACH_CITY(pTargetCity, *itTarget)
+		{
+			if (pTargetCity->isArea(kCity.getArea()) || !pTargetCity->isRevealed(kCity.getTeam()))
+				continue;
+			iKnownRevealedOtherAreaCities++;
+			// <!-- custom: A revealed Barbarian city is already known exactly; AI_deduceCitySite is intended to limit inference about rival cities hidden by fog and excluded every logged Barbarian island target. (GPT-5.6-Sol) -->
+			if (!pTargetCity->isBarbarian() && !kPlayer.AI_deduceCitySite(*pTargetCity))
+			{
+				iNotDeducedCandidates++;
+				continue;
+			}
+			CvArea const* pTargetWaterArea = pTargetCity->waterArea(true);
+			CvArea const* pTargetSecondWaterArea = pTargetCity->secondWaterArea();
+			if (pTargetWaterArea == NULL && pTargetSecondWaterArea == NULL)
+			{
+				iNoncoastalCandidates++;
+				continue;
+			}
+			CvArea const* pSharedWaterArea = NULL;
+			FOR_EACH_CITY(pOwnCity, kPlayer)
+			{
+				CvArea const* pOwnWaterArea = pOwnCity->waterArea(true);
+				CvArea const* pOwnSecondWaterArea = pOwnCity->secondWaterArea();
+				if (pTargetWaterArea != NULL && (pTargetWaterArea == pOwnWaterArea || pTargetWaterArea == pOwnSecondWaterArea))
+					pSharedWaterArea = pTargetWaterArea;
+				else if (pTargetSecondWaterArea != NULL && (pTargetSecondWaterArea == pOwnWaterArea || pTargetSecondWaterArea == pOwnSecondWaterArea))
+					pSharedWaterArea = pTargetSecondWaterArea;
+				if (pSharedWaterArea != NULL)
+					break;
+			}
+			if (pSharedWaterArea == NULL)
+			{
+				iNoSharedPortCandidates++;
+				continue;
+			}
+			iKnownCoastalOtherAreaCandidates++;
+			if (!kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity))
+				continue;
+			iLongTermCandidates++;
+			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
+			int const iStepDistance = stepDistance(kCity.getX(), kCity.getY(), pTargetCity->getX(), pTargetCity->getY());
+			int const iScore = 100 * iTargetValue - iStepDistance;
+			if (iScore <= iBestScore)
+				continue;
+			pBestTarget = pTargetCity;
+			pBestTargetWaterArea = pSharedWaterArea;
+			iBestTargetValue = iTargetValue;
+			iBestStepDistance = iStepDistance;
+			iBestScore = iScore;
+		}
+	}
+	if (iNumWaterAreaCitySites <= 0 && pBestTarget == NULL)
+		return;
+	CvCity const* pNearestOwnCity = (pBestTarget == NULL ? NULL : GC.getMap().findCity(pBestTarget->getX(), pBestTarget->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pBestTarget));
+	PlayerTypes const eTargetOwner = (pBestTarget == NULL ? NO_PLAYER : pBestTarget->getOwner());
+	TeamTypes const eTargetTeam = (pBestTarget == NULL ? NO_TEAM : pBestTarget->getTeam());
+	int const iTargetPowerPercent = (eTargetOwner == NO_PLAYER ? -1 : 100 * GET_PLAYER(eTargetOwner).getPower() / std::max(1, kPlayer.getPower()));
+	int const iTargetAttitude = (eTargetOwner == NO_PLAYER || pBestTarget->isBarbarian() ? -1 : kPlayer.AI_getAttitudeVal(eTargetOwner));
+	CvArea const* pRelevantTransportWaterArea = (pBestTargetWaterArea == NULL ? pWaterArea : pBestTargetWaterArea);
+	int const iWaterAssaultTransports = (pRelevantTransportWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pRelevantTransportWaterArea, UNITAI_ASSAULT_SEA));
+	int const iWaterSettlerTransports = (pRelevantTransportWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pRelevantTransportWaterArea, UNITAI_SETTLER_SEA));
+	CvGame const& kGame = GC.getGame();
+	logBBAI("      OVERSEAS_TRANSPORT_OPPORTUNITY turn=%d player=%d %S capital=%S capital=(%d,%d) landArea=%d waterArea=%d mapWaterPercent=%d landHeavyMap=%d navalHeavyMap=%d waterSites=%d waterBest=%d settlerBuildMin=%d knownRevealedOtherAreaCities=%d notDeducedCities=%d noncoastalCities=%d noSharedPortCities=%d knownCoastalOtherAreaCities=%d longTermCities=%d target=%S targetOwner=%d targetTeam=%d targetBarbarian=%d target=(%d,%d) targetArea=%d targetWaterArea=%d targetPop=%d targetDefenders=%d targetValue=%d targetStepDistance=%d targetNearestOwnCity=%S targetNearestOwnCityDistance=%d targetPowerPercent=%d targetAttitude=%d targetAtWar=%d targetWarPlan=%d assaultTransportsWater=%d assaultTransportsTotal=%d assaultCargoCapacity=%d assaultTransportsTraining=%d settlerTransportsWater=%d settlerTransportsTotal=%d settlerCargoCapacity=%d settlerTransportsTraining=%d areaAttackUnits=%d areaAttackCityUnits=%d totalMilitary=%d buildUnitProb=%d unitSpending=%d maxUnitSpending=%d enemyPowerPercent=%d wars=%d anyWarPlan=%d financialTrouble=%d danger=%d landWar=%d assault=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getArea().getID(), (pWaterArea == NULL ? -1 : pWaterArea->getID()), iWaterPercent, kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iKnownRevealedOtherAreaCities, iNotDeducedCandidates, iNoncoastalCandidates, iNoSharedPortCandidates, iKnownCoastalOtherAreaCandidates, iLongTermCandidates,
+		(pBestTarget == NULL ? L"-" : pBestTarget->getName().GetCString()), eTargetOwner, eTargetTeam, (pBestTarget == NULL ? 0 : pBestTarget->isBarbarian()), (pBestTarget == NULL ? -1 : pBestTarget->getX()), (pBestTarget == NULL ? -1 : pBestTarget->getY()), (pBestTarget == NULL ? -1 : pBestTarget->getArea().getID()), (pBestTargetWaterArea == NULL ? -1 : pBestTargetWaterArea->getID()), (pBestTarget == NULL ? -1 : pBestTarget->getPopulation()), (pBestTarget == NULL ? -1 : pBestTarget->getPlot().plotCount(PUF_canDefend)), iBestTargetValue, iBestStepDistance, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL || pBestTarget == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pBestTarget->getX(), pBestTarget->getY())), iTargetPowerPercent, iTargetAttitude, (eTargetTeam == NO_TEAM ? 0 : kTeam.isAtWar(eTargetTeam)), (eTargetTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eTargetTeam)),
+		iWaterAssaultTransports, kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA), kPlayer.AI_countCargoSpace(UNITAI_ASSAULT_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_ASSAULT_SEA), iWaterSettlerTransports, kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA), kPlayer.AI_countCargoSpace(UNITAI_SETTLER_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLER_SEA), kPlayer.AI_totalAreaUnitAIs(kCity.getArea(), UNITAI_ATTACK), kPlayer.AI_totalAreaUnitAIs(kCity.getArea(), UNITAI_ATTACK_CITY), kPlayer.getNumMilitaryUnits(), iBuildUnitProb, iUnitSpending, kPlayer.AI_maxUnitCostPerMil(&kCity.getArea(), iBuildUnitProb), kTeam.AI_getEnemyPowerPercent(true), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), bFinancialTrouble, bDanger, bLandWar, bAssault);
+}
+
+
 static void SAS_logSettlerBuildDecision(CvCityAI const& kCity, char const* szSource, char const* szResult, UnitTypes eUnit, UnitAITypes eUnitAI, int iOdds, int iValue)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
@@ -1049,6 +1140,7 @@ void CvCityAI::AI_chooseProduction()
 			kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue,
 			*pWaterSettlerArea, &kArea);
 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+	if (gOverseasTransportLogLevel >= 2 && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
 
 	bool bCapitalArea = false;
 	int iNumCapitalAreaCities = 0;
@@ -1634,7 +1726,7 @@ void CvCityAI::AI_chooseProduction()
 					// </advc.017b>
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses early settler sea", sCityName);
+						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses early settler sea", sCityName);
 						return;
 					}
 				}
@@ -2316,11 +2408,14 @@ void CvCityAI::AI_chooseProduction()
 						iSettlerSeaNeeded = 0; // </advc.017b>
 				}
 
-				if (kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) < iSettlerSeaNeeded)
+				int const iSettlerSeaExisting = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA);
+				if (gOverseasTransportLogLevel >= 2 && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
+					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())), kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
+				if (iSettlerSeaExisting < iSettlerSeaNeeded)
 				{
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses main settler sea", sCityName);
+						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses main settler sea", sCityName);
 						return;
 					}
 				}
@@ -2682,7 +2777,7 @@ void CvCityAI::AI_chooseProduction()
 
 		if (bBuildAssault)
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses build assault", sCityName);
+			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses build assault", sCityName);
 
 			UnitTypes eBestAssaultUnit = NO_UNIT;
 			if (pAssaultWaterArea != NULL)
@@ -17039,7 +17134,6 @@ void CvCityAI::AI_barbChooseProduction()
 	const int iNumCities = kPlayer.getNumCities();
 	int const iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 	int const iNeededWorkers = kPlayer.AI_neededWorkers(getArea());
-
 	int iBuildUnitProb = AI_buildUnitProb();
 
 	if (!AI_isDefended(kPlot.plotCount(
@@ -17145,7 +17239,7 @@ void CvCityAI::AI_barbChooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_ATTACK_CITY))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose attack city for transports", sCityName);
+			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose attack city for transports", sCityName);
 			return;
 		}
 	}
@@ -17158,7 +17252,7 @@ void CvCityAI::AI_barbChooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose transport", sCityName);
+					if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose transport", sCityName);
 					return;
 				}
 			}
@@ -18394,8 +18488,9 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
 	//iUnimprovedWorkedPlotCount += (std::min(iUnimprovedUnworkedPlotCount, iFutureWork)+1) / 2
 	// K-Mod end
 	// <advc.113> Replacing the line above
-	// <!-- custom: The rounded reserve formula added Worker demand even when the city's landmass had no unimproved plot that a Worker could improve. This made one-tile Bactra build a Worker that remained idle; apply the reserve only when at least one real future task exists. See KI#192. (GPT-5.6-Sol) -->
-	if (iUnimprovedUnworkedPlotCount > 0)
+	// <!-- custom: The rounded reserve formula added Worker demand even when a civilization city's landmass had no unimproved plot that a Worker could improve. This made one-tile Bactra build a Worker that remained idle; apply the reserve only when at least one real future task exists.
+	// Barbarian cities need the old reserve because their best-build cache remains empty until they have a Worker. Applying the civilization gate to them produced zero Barbarian Workers and left every tested Barbarian island unimproved, whereas the preceding run's Workers improved Goth, Scythian, Bactrian and other cities. See KI#192. (GPT-5.6-Sol) -->
+	if (kOwner.isBarbarian() || iUnimprovedUnworkedPlotCount > 0)
 	{
 		iUnimprovedWorkedPlotCount +=
 				(scaled(std::min(iUnimprovedUnworkedPlotCount, iFutureWork) + 1, 2) *

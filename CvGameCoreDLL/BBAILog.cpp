@@ -22,7 +22,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
 // <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-summary run reports are handled independently in SASGameSummaryLog.cpp. (GPT-5.5? + GPT-5.5) -->
 bool isSASBBAILogEnabled()
 {
-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIOverseasTransportLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
 	return bEnabled;
 }
 
@@ -67,6 +67,13 @@ int getSASBBAICitizenLogLevel()
 int getSASBBAIUnitLogLevel()
 {
 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_UNIT_LOG_LEVEL") : 0);
+	return iLevel;
+}
+
+// <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging notably so naval opportunity, capacity, pickup, and launch decisions can be tested together. (GPT-5.6-Sol) -->
+int getSASBBAIOverseasTransportLogLevel()
+{
+	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL") : 0);
 	return iLevel;
 }
 
@@ -250,8 +257,8 @@ static void logSASBBAIGameState(const char* szRowType)
 // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
 static void logSASBBAILogSettings()
 {
-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
 }
 
 // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->

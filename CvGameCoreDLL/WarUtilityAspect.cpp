@@ -2923,7 +2923,7 @@ int Risk::preEvaluate()
 		const int iMaxTurns = (bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS);
 		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
 		{
-			if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
 					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
 			return -100000; // kill this (agent,target) war plan
 		}

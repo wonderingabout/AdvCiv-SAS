@@ -1199,7 +1199,7 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
 		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
 }
 
-// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the UNIT level-2 large-stack gate. (GPT-5.6-Sol) -->
+// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the Overseas-transport level-2 large-stack gate. (GPT-5.6-Sol) -->
 static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags, int iMaxPath)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
@@ -5432,7 +5432,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 			// <!-- custom: The collision rule excluded the only Worker in an owned area, so a Worker that had finished developing a secondary island could never request transport home.
 			// Zero calculated demand now identifies that completed area. Let its lone Worker seek a Settler transport deterministically, while retaining the old probabilistic redistribution elsewhere. See KI#192. (GPT-5.6-Sol) -->
 			bool const bEvacuateCompletedArea = (iAreaCities > 0 && iNeededWorkersInArea <= 0 && iAreaWorkers > 0);
-			int const iWorkerArea = (gWorkerLogLevel >= 3 && bEvacuateCompletedArea ? getArea().getID() : -1);
+			int const iWorkerArea = ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea ? getArea().getID() : -1);
 			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
 			if (pCity != NULL)
 			{
@@ -5451,17 +5451,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					UNITAI_WORKER, // Fill up boats which already have workers
 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
 				{
-					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
 					return;
 				}
 				// Avoid filling a galley which has just a settler in it, reduce chances for other ships
 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
 				{
-					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
 					return;
 				} // BETTER_BTS_AI_MOD: END
-				if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
 				rLoadProb = 0; // advc.113: OK to scrap
 			}
 		}
@@ -6472,7 +6472,9 @@ void CvUnitAI::AI_attackCityMove()
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
 	bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
-	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && SAS_isLargeAttackCityStackDiagnostic(*this));
+	bool const bLargeAttackCityStackDiagnostic = ((gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2) && SAS_isLargeAttackCityStackDiagnostic(*this));
+	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
+	bool const bLogAssaultTransportFailure = (gOverseasTransportLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
 	bool const bLandWar = (isBarbarian() ?
@@ -6987,7 +6989,7 @@ void CvUnitAI::AI_attackCityMove()
 			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
 			return;
 		}
-		if (bLogLargeAttackCityStack) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
+		if (bLogAssaultTransportFailure) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
 	} // K-Mod end
 	{
 		int iMaxGroupPath = 2;
@@ -11070,6 +11072,25 @@ void CvUnitAI::AI_assaultSeaMove()
 	//bLandWar = !bBarbarian && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
 	bool bLandWar = !bBarbarian && kOwner.AI_isLandWar(getArea()); // K-Mod
 	bool const bInPort = GET_TEAM(getTeam()).isBase(getPlot()); // advc (was bCity)
+	// <!-- custom: Save file 450 showed a nearby profitable Barbarian island remaining untouched for almost 100 turns after an assault transport became available.
+	// Log the transport's load thresholds and pickup/launch decisions to distinguish insufficient cargo capacity from units failing to board or a loaded fleet rejecting every target.
+	// Distinguish raw local unit totals from units actually available on the transport plot and cargo already assigned to this transport. Keep all added state computation inside the Overseas-transport level-2 gate. (GPT-5.6-Sol) -->
+	bool const bLogAssaultSea = (gOverseasTransportLogLevel >= 2);
+	if (bLogAssaultSea)
+	{
+		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
+		CvArea const* pUnitWaterArea = getPlot().waterArea(true);
+		MissionAITypes eLoadAssault = MISSIONAI_LOAD_ASSAULT;
+		int const iIncomingCargo1 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 1);
+		int const iIncomingCargo3 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 3);
+		int const iIncomingCargo7 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 7);
+		logBBAI("    ASSAULT_SEA_MOVE_STATE turn=%d player=%d %S unitId=%d unit=%S unitAge=%d groupId=%d groupUnits=%d transports=%d cargo=%d cargoSpace=%d empty=%d full=%d escorts=%d at=(%d,%d) city=%S landArea=%d waterArea=%d areaAI=%d inPort=%d landWar=%d noWarPlans=%d missionAI=%d missionTarget=(%d,%d) reinforcementThreshold=%d invasionThreshold=%d plotAttackCity=%d plotAttack=%d plotCounter=%d plotAvailableAttackCity=%d plotAvailableAttack=%d plotAvailableCounter=%d incomingCargo1=%d incomingCargo3=%d incomingCargo7=%d areaAttackCity=%d areaAttack=%d totalAssaultTransports=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), GC.getGame().getGameTurn() - getGameTurnCreated(), getGroup()->getID(), getGroup()->getNumUnits(), getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA), iCargo, getGroup()->getCargoSpace(), bEmpty, bFull, iEscorts,
+			getX(), getY(), (getPlot().getPlotCity() == NULL ? L"-" : getPlot().getPlotCity()->getName().GetCString()), getArea().getID(), (pUnitWaterArea == NULL ? -1 : pUnitWaterArea->getID()), eAreaAIType, bInPort, bLandWar, bNoWarPlans, AI_getGroup()->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iTargetReinforcementSize, iTargetInvasionSize,
+			getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK_CITY, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_COUNTER, -1, getOwner()),
+			getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK_CITY, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_COUNTER, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), iIncomingCargo1, iIncomingCargo3, iIncomingCargo7,
+			kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK), kOwner.AI_totalUnitAIs(UNITAI_ASSAULT_SEA));
+	}
 
 	// Plot danger case handled above
 
@@ -11514,11 +11535,18 @@ void CvUnitAI::AI_assaultSeaMove()
 			}
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaReinforce(true))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=reinforce_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
+			}
 
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaTransport(true))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=attack_barbarian_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
+			}
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_reinforcement_or_barbarian_target cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 		}
 	}  // <advc.046>
 	bool bHasCargo = getGroup()->hasCargo(); // Moved up
@@ -11527,9 +11555,9 @@ void CvUnitAI::AI_assaultSeaMove()
 		when no naval attack is planned (!bAttack). */
 	bool const bGoodCity = (getPlot().isCity() && getPlot().getTeam() == getTeam() &&
 			GET_TEAM(getTeam()).AI_isPrimaryArea(getPlot().getArea()));
-	if((bGoodCity || !bHasCargo) && !bAttack &&
-		AI_pickupStranded())
+	if ((bGoodCity || !bHasCargo) && !bAttack && AI_pickupStranded())
 	{
+		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 		return;
 	} // </advc.046>
 	if ((bFull || bReinforce) && !bAttack)
@@ -11550,28 +11578,53 @@ void CvUnitAI::AI_assaultSeaMove()
 	{
 		bool bHasOneLoad = (getGroup()->getCargo() >= cargoSpace());
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_ATTACK, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_COUNTER, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_counter cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city_unlimited_path cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 			return;
+		}
 		if (!bHasCargo)
 		{
 			if(AI_pickupStranded(UNITAI_ATTACK_CITY))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack_city cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if(AI_pickupStranded(UNITAI_ATTACK))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if(AI_pickupStranded(UNITAI_COUNTER))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_counter cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if (getGroup()->countNumUnitAIType(AI_getUnitAIType()) == 1)
 			{
 				// Try picking up anything
 				if(AI_pickupStranded())
+				{
+					if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_any_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 					return;
+				}
 			}
 		}
+		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_pickup_found cargo=%d cargoSpace=%d attackCityArea=%d attackArea=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK));
 	}
 
 	//if (bInPort && bLandWar && getGroup()->hasCargo())
@@ -14325,7 +14378,7 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, in
 			int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
 			if (iWorkersExisting >= iWorkersNeeded)
 			{
-				if (gUnitLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+				if (gOverseasTransportLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
 				continue;
 			}
 		}
@@ -21281,7 +21334,7 @@ void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationAre
 			}
 		}
 	}
-	if (gUnitLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+	if (gOverseasTransportLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
 }
 
 /*  advc: Renamed. This function is currently only used by UNITAI_SETTLER_SEA,
@@ -23828,8 +23881,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	// <!-- custom: AI_workerMove reaches this function only after every productive local Worker action has failed. Base AdvCiv considered a unit able to reach one of its owner's cities non-stranded, so a Worker on a completed owned island never advertised itself to the existing naval rescue system.
 	// Treat zero-demand Workers as stranded here, but preserve the earlier Settler-plus-city-site exception because that Worker can soon serve the new city. Empty Settler transports can then collect the Worker through AI_pickupStranded without interrupting an active settlement mission. See KI#192. (GPT-5.6-Sol) -->
-	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER &&
-		getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
+	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER && getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
 
 	// return false if the group is not stranded.
 	int iDummy=-1;
@@ -23912,7 +23964,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 
 		if (pMissionPlot != NULL)
 		{
-			if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
+			if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
 					MISSIONAI_STRANDED, pMissionPlot);
 			return true;
@@ -23932,7 +23984,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 				(slow) official function to actually issue the load command. */
 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
 			{
-				if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 				return true;
 			}
 			else // if that didn't do it, nothing will
@@ -23941,7 +23993,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 	}
 
 	// raise the 'stranded' flag, and wait to be rescued.
-	if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 			false, false, MISSIONAI_STRANDED, plot());
 	return true;
@@ -24227,7 +24279,7 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 		if(getGroup()->hasCargo())
 			return false;
 	} // </advc.046>
-	if (gWorkerLogLevel >= 3 && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
+	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
 		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
 	{
 		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)", GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0), pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(), GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());

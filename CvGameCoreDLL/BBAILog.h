@@ -21,6 +21,7 @@ int getSASBBAIWarLogLevel();
 int getSASBBAICityLogLevel();
 int getSASBBAICitizenLogLevel();
 int getSASBBAIUnitLogLevel();
+int getSASBBAIOverseasTransportLogLevel();
 int getSASBBAIGreatGeneralLogLevel();
 int getSASBBAISettlerLogLevel();
 int getSASBBAIFoundLogLevel();
@@ -43,6 +44,7 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded 
 #define gCityLogLevel getSASBBAICityLogLevel()
 #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
 #define gUnitLogLevel getSASBBAIUnitLogLevel()
+#define gOverseasTransportLogLevel getSASBBAIOverseasTransportLogLevel() // <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging. (GPT-5.6-Sol) -->
 #define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
 #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
 #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c

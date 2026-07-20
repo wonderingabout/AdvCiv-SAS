@@ -16143,8 +16143,9 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 		population growth and new techs, and try to err on the side of too
 		many Workers (b/c the AI is pretty bad at sharing them between cities). */
 	// <!-- custom: A Worker that had legitimately developed a secondary landmass remained there forever after completing every useful task because Base AdvCiv forced every revealed area above 3 tiles to retain one Worker.
-	// Preserve that reserve in the primary area, but let a secondary area reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
-	bool const bKeepAreaWorkerReserve = (AI_isPrimaryArea(kArea) || iCount > 0);
+	// Preserve that reserve in the primary area. Also preserve it for Barbarians, whose separate islands do not use a civilization's transport and reassignment system; otherwise their island cities remained unimproved after this change.
+	// A civilization's secondary area can still reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
+	bool const bKeepAreaWorkerReserve = (isBarbarian() || AI_isPrimaryArea(kArea) || iCount > 0);
 	iCount = (iCount * (100 + GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT))) / 100;
 	iCount += 1;
 	iCount /= 3;
