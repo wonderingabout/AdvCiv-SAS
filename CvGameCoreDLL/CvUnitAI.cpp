@@ -740,7 +740,37 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnit
 	return eBestUnit;
 }
 
-static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
+// <!-- custom: BBAI save-file 450 testing showed Hannibal spending 16 turns mobilizing, travelling to, capturing, and razing distant population-5 Libyan; Shaka then settled the exact plot 10 turns later. Another ready army preparing a real war selected Scythian 10 path turns away, but Arabia razed it first. Such expeditions waste our army's tempo while removing Barbarian pressure and clearing land for a nearer rival.
+// Preserve quick raids and cities likely to benefit us long-term. Reject only a farther Barbarian city that the shared conquest/retention evaluation says we should not keep; this makes the nearer rival spend its own units, Settler, development time, and maintenance instead. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
+static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const& kCity, MovementFlags eMoveFlags, int iMaxPathTurns, char const* szContext, int iKnownPathTurns = -1)
+{
+	if (!kCity.isBarbarian()) return false;
+	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS"));
+	if (iMaxDisposablePathTurns <= 0) return false;
+	int iPathTurns = iKnownPathTurns;
+	bool const bPathable = (iKnownPathTurns >= 0 || kUnit.generatePath(kCity.getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns));
+	if (bPathable && iPathTurns <= iMaxDisposablePathTurns) return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	bool const bLikelyToBenefitUsLongTerm = kOwner.AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+	bool const bReject = !bLikelyToBenefitUsLongTerm;
+	if (gUnitLogLevel >= 2)
+	{
+		// <!-- custom: This evaluation can run for many armies every turn. Log only the first result and later keep/reject transitions for each player and Barbarian city; this reduced save-file 450's 4,679 repetitive prototype rows to 19 in the identical confirming run. (GPT-5.6-Sol) -->
+		static std::map<std::pair<int,int>,std::pair<int,bool> > aLastLoggedState;
+		std::pair<int,int> const key(kUnit.getOwner(), kCity.getID());
+		std::map<std::pair<int,int>,std::pair<int,bool> >::const_iterator const itLast = aLastLoggedState.find(key);
+		if (itLast == aLastLoggedState.end() || itLast->second.first != kCity.getGameTurnFounded() || itLast->second.second != bReject)
+		{
+			aLastLoggedState[key] = std::make_pair(kCity.getGameTurnFounded(), bReject);
+			logBBAI("    BARB_CITY_DISTANT_DISPOSABLE_EVAL turn=%d player=%d %S context=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) target=%S target=(%d,%d) targetPop=%d pathTurns=%d maxDisposablePathTurns=%d likelyToBenefitUsLongTerm=%d reject=%d wars=%d anyWarPlan=%d",
+				GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szContext, kUnit.getID(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), iPathTurns, iMaxDisposablePathTurns, bLikelyToBenefitUsLongTerm, bReject, GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
+		}
+	}
+	return bReject;
+}
+
+// <!-- custom: Apply the distant-disposable gate for behavioral callers; the opportunity diagnostic passes false so it can still report physically pathable cities without filtering or duplicating the decision log. (GPT-5.6-Sol) -->
+static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, bool bApplyDistantDisposableGate, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvCity const* pBestOverallBarbCity = NULL;
@@ -775,6 +805,9 @@ static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementF
 		if (!bPath)
 			continue;
 		iPathableCandidateCount++;
+		// <!-- custom: Behavioral callers exclude a distant city we expect to raze before it can win this picker's ranking; the diagnostic caller passes false above to preserve its raw opportunity report. See KI#188.5. (GPT-5.6-Sol) -->
+		if (bApplyDistantDisposableGate && SAS_isDistantDisposableBarbarianTarget(kUnit, *pBarbCity, eMoveFlags, iMaxPathTurns, "pathable_barbarian_picker", iPathTurns))
+			continue;
 		int const iPathableValue = iTargetValue * 100 - 10 * iPathTurns - iStepDistance;
 		if (iPathableValue > iBestPathableValue)
 		{
@@ -1069,7 +1102,7 @@ static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
 	int iStepDistance = -1;
 	int iDefenders = -1;
 	int iValue = MIN_INT;
-	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
+	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, true, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
 	if (pTargetCity == NULL)
 		return false;
 	if (gUnitLogLevel >= 2)
@@ -1102,7 +1135,7 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
 	int iBestPathableValue = MIN_INT;
 	int iCandidateCount = 0;
 	int iPathableCandidateCount = 0;
-	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
+	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, false, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
 	if (pBestOverallBarbCity == NULL)
 		return;
 	int iTargetPathTurns = -1;
@@ -6522,7 +6555,10 @@ void CvUnitAI::AI_attackCityMove()
 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
 			decide on the proper size of the attack stack. But if there is nothing else
 			to attack, it's easy. */
-		bHuntOnlyBarbs = (bHuntBarbs && !GET_TEAM(getTeam()).AI_isSneakAttackReady() && GET_TEAM(getTeam()).getNumWars() <= 0);
+		// <!-- custom: Base AdvCiv treated the preparation period before sneak-attack readiness as Barbarian-only even when a real war plan already existed.
+		// In save file 450, Hannibal consequently prepared to attack nearby Willem at 54% of his power while a city-assault group still targeted Barbarian Scythian about 10 turns away; Arabia captured and razed Scythian first.
+		// Require no war plan so the group instead uses real-war readiness and remains available for the planned campaign. See KI#188.4. (GPT-5.6-Sol) -->
+		bHuntOnlyBarbs = (bHuntBarbs && !bAnyWarPlan && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0);
 		if (bHuntOnlyBarbs)
 		{
 			iBarbarianAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
@@ -6658,6 +6694,11 @@ void CvUnitAI::AI_attackCityMove()
 			(!bInCity && getGroup()->getNumUnits() > 1))
 		{
 			pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, bHuntBarbs);
+			// <!-- custom: If normal selection chose a distant Barbarian city we expect to raze, retry without Barbarian candidates so a real war target can replace it; without one, later targetless logic keeps the army available for defense or future opportunities. See KI#188.5. (GPT-5.6-Sol) -->
+			if (pTargetCity != NULL && SAS_isDistantDisposableBarbarianTarget(*this, *pTargetCity, eMoveFlags, MAX_INT, "normal_target_picker"))
+			{
+				pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, false);
+			}
 		}
 	}
 	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
@@ -7433,7 +7474,7 @@ void CvUnitAI::AI_attackCityMove()
 				// <!-- custom: note: if (AI_goToTargetBarbCity(12)) caused a compile error, fixed with the help of GPT-5.5 thanks -->
 				// 1>..\CvUnitAI.cpp(6341): error C3861: 'AI_goToTargetBarbCity': identifier not found, even with argument-dependent lookup
 				// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
-				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
+				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, true, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
 				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
 				{
 					if (bLogBarbFallback)

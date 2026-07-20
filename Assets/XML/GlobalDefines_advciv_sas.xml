@@ -2958,6 +2958,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: A Barbarian city farther than this many path turns is attacked only if AI_isSASCityLikelyToBenefitUsLongTerm says it is worth keeping. A quick raid can repay its mobilization and combat costs, but travelling farther to raze a city wastes army tempo and removes Barbarian pressure for the nearer rival, who then receives a cleared settlement site. Save-file 450 testing showed Hannibal spending 16 turns taking population-5 Libyan before razing it; Shaka settled the exact plot 10 turns later. Set to 0 to disable this gate. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
