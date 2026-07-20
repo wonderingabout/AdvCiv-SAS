@@ -13556,6 +13556,59 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 		if (eChangedUnit != NO_UNIT && eChangedUnitAI != NO_UNITAI)
 		{
+			// <!-- custom: Central area-usefulness gate immediately before AI unit production. This covers every ordinary AI_chooseUnit path after substitutions have resolved the final UnitAI, independently of the optional SAS unit-optimization block.
+			// Free/scripted units and the human production governor remain separate. See KI#192. (GPT-5.6-Sol) -->
+			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+			if (eChangedUnitAI == UNITAI_EXPLORE)
+			{
+				// <!-- custom: A land Explorer cannot benefit a tiny or fully explored landmass. (GPT-5.6-Sol) -->
+				int const iNeededAreaExplorers = kOwner.AI_neededExplorers(getArea());
+				int const iAreaExplorers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_EXPLORE);
+				if (iNeededAreaExplorers <= iAreaExplorers)
+				{
+					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=EXPLORE result=REJECT needed=%d existing=%d area=%d areaTiles=%d unrevealed=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaExplorers, iAreaExplorers, getArea().getID(), getArea().getNumTiles(), getArea().getNumUnrevealedTiles(getTeam()));
+					return false;
+				}
+			}
+			else if (eChangedUnitAI == UNITAI_WORKER)
+			{
+				// <!-- custom: Nongoma produced a Worker on a one-tile island where it could not perform any build. (GPT-5.6-Sol) -->
+				int const iNeededAreaWorkers = kOwner.AI_neededWorkers(getArea());
+				int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
+				if (iNeededAreaWorkers <= iAreaWorkers)
+				{
+					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=WORKER result=REJECT needed=%d existing=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaWorkers, iAreaWorkers, getArea().getID(), getArea().getNumTiles());
+					return false;
+				}
+			}
+			else if (eChangedUnitAI == UNITAI_SPY)
+			{
+				// <!-- custom: An isolated colony needs a known rival city or an adjacent Spy transport before producing a land Spy. (GPT-5.6-Sol) -->
+				bool const bPrimaryArea = kOwner.AI_isPrimaryArea(getArea());
+				bool bForeignCityInArea = false;
+				for (PlayerIter<MAJOR_CIV,KNOWN_TO> itOther(kOwner.getTeam()); !bPrimaryArea && itOther.hasNext(); ++itOther)
+				{
+					if (itOther->getTeam() != getTeam() && getArea().getCitiesPerPlayer(itOther->getID()) > 0)
+					{
+						bForeignCityInArea = true;
+						break;
+					}
+				}
+				int iSpyTransports = 0;
+				if (!bForeignCityInArea && !bPrimaryArea)
+				{
+					CvArea const* pPrimarySpyWaterArea = waterArea(true);
+					CvArea const* pSecondSpyWaterArea = secondWaterArea();
+					iSpyTransports = (pPrimarySpyWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pPrimarySpyWaterArea, UNITAI_SPY_SEA));
+					if (pSecondSpyWaterArea != NULL && pSecondSpyWaterArea != pPrimarySpyWaterArea) iSpyTransports += kOwner.AI_totalWaterAreaUnitAIs(*pSecondSpyWaterArea, UNITAI_SPY_SEA);
+				}
+				if (!bForeignCityInArea && !bPrimaryArea && iSpyTransports <= 0)
+				{
+					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=SPY result=REJECT foreignCityInArea=%d primaryArea=%d spyTransports=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), bForeignCityInArea, bPrimaryArea, iSpyTransports, getArea().getID(), getArea().getNumTiles());
+					return false;
+				}
+			}
+
 			if (SAS_isSettlerProductionCandidate(eChangedUnit, eChangedUnitAI))
 			{
 				// <!-- custom: Central AI Settler production gate, deliberately placed immediately before pushOrder. Higher-level code may skip weak Settler candidates for efficiency, but this pre-push check is the normal safety net for direct or future AI_chooseUnit paths after the concrete unit has been resolved.
@@ -13573,7 +13626,6 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 			}
 			if (gWorkerSeaLogLevel >= 2 && eChangedUnitAI == UNITAI_WORKER_SEA)
 			{
-				CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 				CvArea const* pWaterArea = waterArea(true);
 				int const iNeededSeaWorkers = (pWaterArea == NULL ? 0 : AI_neededSeaWorkers());
 				int const iExistingSeaWorkers = (pWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA));
@@ -18342,11 +18394,15 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
 	//iUnimprovedWorkedPlotCount += (std::min(iUnimprovedUnworkedPlotCount, iFutureWork)+1) / 2
 	// K-Mod end
 	// <advc.113> Replacing the line above
-	iUnimprovedWorkedPlotCount +=
-			(scaled(std::min(iUnimprovedUnworkedPlotCount, iFutureWork) + 1, 2) *
-			per100((GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT) + 100 +
-			// Flavor was previously counted in CvPlayerAI::AI_neededWorkers
-			2 * kOwner.AI_getFlavorValue(FLAVOR_GROWTH)))).round();
+	// <!-- custom: The rounded reserve formula added Worker demand even when the city's landmass had no unimproved plot that a Worker could improve. This made one-tile Bactra build a Worker that remained idle; apply the reserve only when at least one real future task exists. See KI#192. (GPT-5.6-Sol) -->
+	if (iUnimprovedUnworkedPlotCount > 0)
+	{
+		iUnimprovedWorkedPlotCount +=
+				(scaled(std::min(iUnimprovedUnworkedPlotCount, iFutureWork) + 1, 2) *
+				per100((GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT) + 100 +
+				// Flavor was previously counted in CvPlayerAI::AI_neededWorkers
+				2 * kOwner.AI_getFlavorValue(FLAVOR_GROWTH)))).round();
+	}
 	// </advc.113>
 	iWorkersNeeded += 2 * iUnimprovedWorkedPlotCount;
 

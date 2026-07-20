@@ -14305,6 +14305,23 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, in
 		UnitAITypes eTransportAI = pTransport->AI_getUnitAIType();
 		if (eUnitAI != NO_UNITAI && eTransportAI != eUnitAI)
 			continue;
+		// <!-- custom: After a Settler transport left an unnecessary Worker on its origin landmass, general Worker logic repeatedly loaded it onto the same transport again.
+		// Reject that reload while the transport still targets another landmass with no unmet Worker demand.
+		// Move the existing target-plot lookup here so the later legacy transport check can reuse it. (GPT-5.6-Sol) -->
+		CvPlot const* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
+		if (AI_getUnitAIType() == UNITAI_WORKER && eTransportAI == UNITAI_SETTLER_SEA &&
+			pTransport->AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND &&
+			pUnitTargetPlot != NULL && !pUnitTargetPlot->isArea(getArea()))
+		{
+			CvArea const& kDestinationArea = pUnitTargetPlot->getArea();
+			int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
+			int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+			if (iWorkersExisting >= iWorkersNeeded)
+			{
+				if (gUnitLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+				continue;
+			}
+		}
 
 		int iCargoSpaceAvailable = pTransport->cargoSpaceAvailable(
 				getSpecialUnitType(), getDomainType());
@@ -14340,7 +14357,6 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, in
 						continue;
 					} // </advc.046>
 					//if (!pLoopUnit->getPlot().isVisibleEnemyUnit(this)) { // advc.opt: It's our unit; enemies can't coexist.
-					CvPlot* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
 					if (pUnitTargetPlot == NULL || pUnitTargetPlot->getTeam() == getTeam() ||
 						(!pUnitTargetPlot->isOwned() ||
 						!AI_isPotentialEnemyOf(pUnitTargetPlot->getTeam(), *pUnitTargetPlot)))
@@ -21093,16 +21109,20 @@ bool CvUnitAI::AI_settlerSeaTransport()
 		{
 			FAssert(!pBestPlot->isImpassable());
 
+			// <!-- custom: At the destination, retain an unnecessary Worker aboard; before either move, leave it on the origin landmass. (GPT-5.6-Sol) -->
 			if (pBestPlot == pBestFoundPlot || stepDistance(pBestPlot, pBestFoundPlot) == 1)
 			{
 				if (at(*pBestFoundPlot))
 				{
-					unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+					// <!-- custom: Base AdvCiv unloaded all cargo here; preserve the old call below for reference. The destination-aware helper still unloads the Settler and defenders but retains an unnecessary Worker aboard for another destination. (GPT-5.6-Sol) -->
+					// unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+					AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), true);
 					getGroup()->setActivityType(ACTIVITY_AWAKE); // K-Mod
 					return true;
 				}
 				else
 				{
+					AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 					pushGroupMoveTo(*pBestFoundPlot, NO_MOVEMENT_FLAGS, false, false,
 							MISSIONAI_FOUND, pBestFoundPlot);
 					return true;
@@ -21110,6 +21130,7 @@ bool CvUnitAI::AI_settlerSeaTransport()
 			}
 			else
 			{
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 				pushGroupMoveTo(*pBestPlot, NO_MOVEMENT_FLAGS, false, false,
 						MISSIONAI_FOUND, pBestFoundPlot);
 				return true;
@@ -21167,18 +21188,22 @@ bool CvUnitAI::AI_settlerSeaTransport()
 	{
 		FAssert(!pBestPlot->isImpassable());
 
+		// <!-- custom: At the destination, retain an unnecessary Worker aboard; before either move, leave it on the origin landmass. (GPT-5.6-Sol) -->
 		if (pBestPlot == pBestFoundPlot ||
 			stepDistance(pBestPlot->getX(), pBestPlot->getY(),
 			pBestFoundPlot->getX(), pBestFoundPlot->getY()) == 1)
 		{
 			if (at(*pBestFoundPlot))
 			{
-				unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+				// <!-- custom: Base AdvCiv unloaded all cargo here; preserve the old call below for reference. The destination-aware helper still unloads the Settler and defenders but retains an unnecessary Worker aboard for another destination. (GPT-5.6-Sol) -->
+				// unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), true);
 				getGroup()->setActivityType(ACTIVITY_AWAKE); // K-Mod
 				return true;
 			}
 			else
 			{
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 				pushGroupMoveTo(*pBestFoundPlot, NO_MOVEMENT_FLAGS, false, false,
 						MISSIONAI_FOUND, pBestFoundPlot);
 				return true;
@@ -21186,12 +21211,40 @@ bool CvUnitAI::AI_settlerSeaTransport()
 		}
 		else
 		{
+			AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 			pushGroupMoveTo(*pBestPlot, NO_MOVEMENT_FLAGS, false, false,
 					MISSIONAI_FOUND, pBestFoundPlot);
 			return true;
 		}
 	}
 	return false;
+}
+
+// <!-- custom: New destination-aware cargo helper because Base AdvCiv Settler transports unloaded accompanying Workers even when the destination landmass had no Worker demand. In save file 450, a Worker accompanied the Settler to Thapsus's island and remained idle there for 93 turns because none of its plots could be improved.
+// Before departure (`bAtDestination == false`), leave an unnecessary Worker in the origin city. At the destination (`true`), retain it aboard so the transport can ferry it elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
+void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
+	int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+	bool const bWorkerUseful = (iWorkersNeeded > iWorkersExisting);
+	std::vector<CvUnit*> aCargoUnits;
+	getCargoUnits(aCargoUnits);
+	int iWorkersLeftAboardOrAtHome = 0;
+	for (size_t i = 0; i < aCargoUnits.size(); i++)
+	{
+		CvUnit* pCargo = aCargoUnits[i];
+		bool const bWorker = (pCargo->AI_getUnitAIType() == UNITAI_WORKER);
+		if ((bAtDestination && (!bWorker || bWorkerUseful)) || (!bAtDestination && bWorker && !bWorkerUseful))
+		{
+			pCargo->unload();
+			if (bWorker && !bWorkerUseful && pCargo->getTransportUnit() == NULL)
+				iWorkersLeftAboardOrAtHome++;
+		}
+		else if (bAtDestination && bWorker && !bWorkerUseful)
+			iWorkersLeftAboardOrAtHome++;
+	}
+	if (gUnitLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
 }
 
 /*  advc: Renamed. This function is currently only used by UNITAI_SETTLER_SEA,
@@ -21239,10 +21292,6 @@ bool CvUnitAI::AI_ferryWorkers()
 		if (iValue <= 0)
 			continue;
 
-		int iPathTurns;
-		if (!generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns))
-			continue;
-
 		int iAreaHave = kOwner.AI_totalAreaUnitAIs(pLoopCity->getArea(), UNITAI_WORKER);
 		// <advc.113> Don't count the workers in cargo as available
 		if (!getPlot().isWater() && pLoopCity->isArea(getArea()))
@@ -21250,7 +21299,16 @@ bool CvUnitAI::AI_ferryWorkers()
 			iAreaHave -= (2 * iWorkers) / 3;
 			FAssert(iAreaHave >= 0);
 		} // </advc.113>
-		iValue += std::max(0, kOwner.AI_neededWorkers(pLoopCity->getArea()) - iAreaHave);
+		// <!-- custom: Base AdvCiv's city demand could keep selecting the same small island after its landmass already had enough Workers.
+		// In the confirming run, ferrying accumulated 5 Workers on Sardis's two-tile landmass and 2 on Ergili's three-tile landmass. Treat landmass demand as a hard capacity and reject full destinations before running pathfinding. (GPT-5.6-Sol) -->
+		int const iAreaNeeded = kOwner.AI_neededWorkers(pLoopCity->getArea());
+		if (iAreaHave >= iAreaNeeded)
+			continue;
+		int iPathTurns;
+		if (!generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns))
+			continue;
+
+		iValue += iAreaNeeded - iAreaHave;
 		iValue *= 1000;
 		iValue /= 4 + iPathTurns;
 		if (atPlot(pLoopCity->plot()))

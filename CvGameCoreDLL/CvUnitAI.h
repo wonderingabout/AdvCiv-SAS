@@ -217,6 +217,8 @@ protected:
 	bool AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot, MovementFlags eFlags, MissionAITypes eMissionAI); // </K-Mod>
 
 	bool AI_settlerSeaTransport();
+	// <!-- custom: New destination-aware cargo helper: leave unnecessary Workers on the origin landmass before departure, or retain them aboard at the destination for reuse elsewhere. (GPT-5.6-Sol) -->
+	void AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination);
 	bool AI_ferryWorkers();
 	bool AI_specialSeaTransportMissionary();
 	bool AI_specialSeaTransportSpy();
