@@ -5429,6 +5429,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				into transports.) */
 			int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 			int const iAreaCities = getArea().getCitiesPerPlayer(getOwner());
+			// <!-- custom: The collision rule excluded the only Worker in an owned area, so a Worker that had finished developing a secondary island could never request transport home.
+			// Zero calculated demand now identifies that completed area. Let its lone Worker seek a Settler transport deterministically, while retaining the old probabilistic redistribution elsewhere. See KI#192. (GPT-5.6-Sol) -->
+			bool const bEvacuateCompletedArea = (iAreaCities > 0 && iNeededWorkersInArea <= 0 && iAreaWorkers > 0);
+			int const iWorkerArea = (gWorkerLogLevel >= 3 && bEvacuateCompletedArea ? getArea().getID() : -1);
 			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
 			if (pCity != NULL)
 			{
@@ -5436,7 +5440,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (iLocalMissing > 0)
 					rLoadProb /= 1 + iLocalMissing;
 			}
-			if (iAreaCities <= 0 ||
+			if (iAreaCities <= 0 || bEvacuateCompletedArea ||
 				(iMissingWorkersInArea <= 0 && iAreaWorkers > 1 &&
 				SyncRandSuccess(rLoadProb)))
 			{ // </advc.113>
@@ -5447,14 +5451,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					UNITAI_WORKER, // Fill up boats which already have workers
 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
 				{
+					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
 					return;
 				}
 				// Avoid filling a galley which has just a settler in it, reduce chances for other ships
 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
 				{
+					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
 					return;
 				} // BETTER_BTS_AI_MOD: END
+				if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
 				rLoadProb = 0; // advc.113: OK to scrap
 			}
 		}
@@ -21221,28 +21228,58 @@ bool CvUnitAI::AI_settlerSeaTransport()
 }
 
 // <!-- custom: New destination-aware cargo helper because Base AdvCiv Settler transports unloaded accompanying Workers even when the destination landmass had no Worker demand. In save file 450, a Worker accompanied the Settler to Thapsus's island and remained idle there for 93 turns because none of its plots could be improved.
-// Before departure (`bAtDestination == false`), leave an unnecessary Worker in the origin city. At the destination (`true`), retain it aboard so the transport can ferry it elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
+// At the beginning of a founding voyage, leave Workers beyond the destination's exact deficit in the origin city. At the destination, unload only that deficit and retain any excess aboard for reuse elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
 void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
-	int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
-	bool const bWorkerUseful = (iWorkersNeeded > iWorkersExisting);
 	std::vector<CvUnit*> aCargoUnits;
 	getCargoUnits(aCargoUnits);
+	// <!-- custom: Cargo Workers may already be included in the destination-area count when the transport reaches its city. Count them separately so the exact shortage below can exclude them. (GPT-5.6-Sol) -->
+	int iCargoWorkers = 0;
+	for (size_t i = 0; i < aCargoUnits.size(); i++)
+	{
+		if (aCargoUnits[i]->AI_getUnitAIType() == UNITAI_WORKER)
+			iCargoWorkers++;
+	}
+	int iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+	if (bAtDestination && getPlot().isArea(kDestinationArea))
+		iWorkersExisting = std::max(0, iWorkersExisting - iCargoWorkers);
+	int iWorkersStillNeeded = std::max(0, iWorkersNeeded - iWorkersExisting);
+	// <!-- custom: An underway founding voyage can be reconsidered in an intermediate friendly city. Only its initial non-FOUND assignment may leave excess Workers behind, so they cannot be dumped on that unrelated landmass. (GPT-5.6-Sol) -->
+	bool const bMayLeaveAtOrigin = (!bAtDestination && getPlot().isCity() && getPlot().getOwner() == getOwner() && AI_getGroup()->AI_getMissionAIType() != MISSIONAI_FOUND);
 	int iWorkersLeftAboardOrAtHome = 0;
 	for (size_t i = 0; i < aCargoUnits.size(); i++)
 	{
 		CvUnit* pCargo = aCargoUnits[i];
 		bool const bWorker = (pCargo->AI_getUnitAIType() == UNITAI_WORKER);
-		if ((bAtDestination && (!bWorker || bWorkerUseful)) || (!bAtDestination && bWorker && !bWorkerUseful))
+		if (!bWorker)
 		{
-			pCargo->unload();
-			if (bWorker && !bWorkerUseful && pCargo->getTransportUnit() == NULL)
-				iWorkersLeftAboardOrAtHome++;
+			if (bAtDestination)
+				pCargo->unload();
+			continue;
 		}
-		else if (bAtDestination && bWorker && !bWorkerUseful)
-			iWorkersLeftAboardOrAtHome++;
+		if (bAtDestination)
+		{
+			if (iWorkersStillNeeded > 0)
+			{
+				pCargo->unload();
+				if (pCargo->getTransportUnit() == NULL)
+					iWorkersStillNeeded--;
+			}
+			else iWorkersLeftAboardOrAtHome++;
+		}
+		else if (bMayLeaveAtOrigin)
+		{
+			if (iWorkersStillNeeded > 0)
+				iWorkersStillNeeded--;
+			else
+			{
+				pCargo->unload();
+				if (pCargo->getTransportUnit() == NULL)
+					iWorkersLeftAboardOrAtHome++;
+			}
+		}
 	}
 	if (gUnitLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
 }
@@ -23789,6 +23826,10 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 		return false;
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: AI_workerMove reaches this function only after every productive local Worker action has failed. Base AdvCiv considered a unit able to reach one of its owner's cities non-stranded, so a Worker on a completed owned island never advertised itself to the existing naval rescue system.
+	// Treat zero-demand Workers as stranded here, but preserve the earlier Settler-plus-city-site exception because that Worker can soon serve the new city. Empty Settler transports can then collect the Worker through AI_pickupStranded without interrupting an active settlement mission. See KI#192. (GPT-5.6-Sol) -->
+	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER &&
+		getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
 
 	// return false if the group is not stranded.
 	int iDummy=-1;
@@ -23804,12 +23845,12 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 		/*  advc.046: Don't see what good ownership of a teammate will do.
 			Really need a path to one of our own cities. But, to save time,
 			let's check (though rival borders could block the path): */
-		if (getPlot().getOwner() == getOwner() &&
+		if (!bCompletedAreaWorker && getPlot().getOwner() == getOwner() &&
 			getArea().getCitiesPerPlayer(getOwner()) > 0)
 		{
 			return false;
 		}
-		if (AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
+		if (!bCompletedAreaWorker && AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
 			return false;
 		if ((canFight() || isSpy()) &&
 			AI_getGroup()->AI_isHasPathToAreaEnemyCity(true, eFlags))
@@ -23871,6 +23912,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 
 		if (pMissionPlot != NULL)
 		{
+			if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
 					MISSIONAI_STRANDED, pMissionPlot);
 			return true;
@@ -23889,13 +23931,17 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 			/*	ok. there is something we can load into - but lets use the
 				(slow) official function to actually issue the load command. */
 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
+			{
+				if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 				return true;
+			}
 			else // if that didn't do it, nothing will
 				break;
 		}
 	}
 
 	// raise the 'stranded' flag, and wait to be rescued.
+	if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 			false, false, MISSIONAI_STRANDED, plot());
 	return true;
@@ -24100,6 +24146,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 
 		if (eUnitAI != NO_UNITAI && pHeadUnit->AI_getUnitAIType() != eUnitAI)
 			continue;
+		// <!-- custom: The first confirming completed-area evacuation run sometimes dispatched two empty Settler transports to the same individual Worker.
+		// Preserve Base AdvCiv's capacity-based coordination for ordinary stranded groups, but one transport assignment is sufficient for a zero-demand Worker group. Other completed-area Workers advertise their own groups separately. (GPT-5.6-Sol) -->
+		bool const bCompletedAreaWorker = (pHeadUnit->AI_getUnitAIType() == UNITAI_WORKER && pHeadUnit->getArea().getCitiesPerPlayer(getOwner()) > 0 && kPlayer.AI_neededWorkers(pHeadUnit->getArea()) <= 0);
+		if (bCompletedAreaWorker && kPlayer.AI_isAnyUnitTargetMissionAI(*pHeadUnit, MISSIONAI_PICKUP, getGroup()))
+			continue;
 
 		//pLoopPlot = pHeadUnit->plot();
 		CvPlot* pPickupPlot = pLoopGroup->AI_getMissionAIPlot(); // K-Mod
@@ -24176,6 +24227,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 		if(getGroup()->hasCargo())
 			return false;
 	} // </advc.046>
+	if (gWorkerLogLevel >= 3 && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
+		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
+	{
+		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)", GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0), pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(), GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());
+	}
 	if (at(*pEndTurnPlot))
 	{
 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,

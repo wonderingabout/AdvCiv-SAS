@@ -16142,6 +16142,9 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 	/*  advc.113: To account for future tasks other than new cities:
 		population growth and new techs, and try to err on the side of too
 		many Workers (b/c the AI is pretty bad at sharing them between cities). */
+	// <!-- custom: A Worker that had legitimately developed a secondary landmass remained there forever after completing every useful task because Base AdvCiv forced every revealed area above 3 tiles to retain one Worker.
+	// Preserve that reserve in the primary area, but let a secondary area reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
+	bool const bKeepAreaWorkerReserve = (AI_isPrimaryArea(kArea) || iCount > 0);
 	iCount = (iCount * (100 + GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT))) / 100;
 	iCount += 1;
 	iCount /= 3;
@@ -16151,7 +16154,7 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 	iCount = std::min(iCount, (iCities <= 1 && getCurrentEra() > 0) ? 3 :
 			(fixp(2.15) * iCities).round());
 	// Lower bound was 1 flat. Allow small islands to require 0 workers.
-	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 ? 1 : 0, iCount);
+	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 && bKeepAreaWorkerReserve ? 1 : 0, iCount);
 	// <!-- custom: Several independent production paths deferred to AI_neededWorkers but could still choose a second Worker while the one-city capital was population 1, halting growth. Keep this as the shared source of truth: until the capital has ever reached the tunable population, the empire needs at most 1 land Worker; normal demand resumes afterward, and losing that Worker still creates a deficit. (GPT-5.5) -->
 	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
 	CvCity const* pCapital = getCapital();
