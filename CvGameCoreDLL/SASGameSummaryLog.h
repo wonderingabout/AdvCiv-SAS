@@ -14,7 +14,8 @@ void startSASGameSummaryLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
-// <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes. The empty constructor lets caller-gated hooks avoid the map lookups when game-summary logging is disabled. (GPT-5.6-Sol) -->
+// <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes.
+// The default constructor initializes safe NO_* enum and zero yield values without map lookups, letting caller-gated hooks avoid capture work when game-summary logging is disabled. (GPT-5.6-Sol) -->
 struct SASGameSummaryPlotState
 {
 	SASGameSummaryPlotState();
@@ -27,17 +28,21 @@ struct SASGameSummaryPlotState
 	int aiExtraYield[NUM_YIELD_TYPES];
 };
 void logSASGameSummaryTurn(int iGameTurn);
-// <!-- custom: Plot changes and permanent team exploration are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. The environment hook receives values already computed by CvGame::doGlobalWarming so it adds no map scan. (GPT-5.6-Sol) -->
+// <!-- custom: Plot changes and permanent team map revelation are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. The environment hook receives values already computed by CvGame::doGlobalWarming so it adds no map scan. (GPT-5.6-Sol) -->
 void flushSASGameSummaryTurnChanges(int iGameTurn);
 void recordSASGameSummaryPlotChange(CvPlot const& kPlot, SASGameSummaryPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed);
 void recordSASGameSummaryPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam);
+// <!-- custom: Map-visible technologies reveal every plot through thousands of ordinary setRevealed calls. Bracket that bulk operation so the summary records one exact full-map row instead of redundant coordinate chunks. (GPT-5.6-Sol) -->
+void beginSASGameSummaryFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
+void endSASGameSummaryFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
 void logSASGameSummaryEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
 void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer);
 void logSASGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
 void logSASGameSummaryCityBuilt(CvCity const* pCity);
 void logSASGameSummaryCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
 void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);
-void logSASGameSummaryChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam);
+void logSASGameSummaryWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, bool bNewDiplo, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause);
+void logSASGameSummaryWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam);
 void logSASGameSummaryTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot);
 void logSASGameSummaryPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
 void logSASGameSummaryReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
@@ -49,6 +54,9 @@ void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding
 void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
 // <!-- custom: Added the victory type so SASGameSummary can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
 void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory);
+// <!-- custom: Capital loss and a failed arrival roll both call resetVictoryProgress, which otherwise silently erases the active countdown and spaceship projects. These hooks preserve the distinct cause and exact pre-reset state. (GPT-5.6-Sol) -->
+void logSASGameSummaryVictoryProgressResetForCapital(CvCity const* pCapital);
+void logSASGameSummarySpaceshipFailed(TeamTypes eTeam, VictoryTypes eVictory, int iLaunchSuccessPercent);
 void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal);
 void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory);
 void logSASGameSummaryRunStatus(char const* szReason);

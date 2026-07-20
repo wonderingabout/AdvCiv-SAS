@@ -19,7 +19,7 @@
 #include "CvDLLFlagEntityIFaceBase.h"
 // <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 #include "BBAILog.h"
-#include "SASGameSummaryLog.h" // <!-- custom: CvPlot::setBonusType logs in-game bonus appearances/disappearances in SASGameSummary for autoplay review context. (GPT-5.5) -->
+#include "SASGameSummaryLog.h" // <!-- custom: Preserve non-routine plot changes and permanent map revelation in SASGameSummary. (GPT-5.5 + GPT-5.6-Sol) -->
 
 /*	advc.make: I've added safeIntCast calls in a few places that looked at least
 	slightly hazardous. Beyond that, explicit casts would only add clutter.
@@ -6431,7 +6431,7 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 	}
 	if (bOldValue != bNewValue) // </advc.124>
 	{
-		// <!-- custom: Buffer permanent map revelation by team and flush it once per turn. This preserves exact exploration coordinates without producing one log row for every newly revealed plot. (GPT-5.6-Sol) -->
+		// <!-- custom: Buffer permanent map revelation by team and flush it once per turn. This preserves exact coordinates without producing one log row for every newly revealed plot. (GPT-5.6-Sol) -->
 		if (bNewValue && gGameSummaryLogLevel >= 2) recordSASGameSummaryPlotRevealed(*this, eTeam);
 		if (eTeam == getActiveTeam())
 		{

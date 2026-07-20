@@ -182,7 +182,7 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
 void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
-	// <!-- custom: Plot changes and exploration are collected during the turn so SASGameSummary writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its plot changes are included too. (GPT-5.6-Sol) -->
+	// <!-- custom: Plot changes and permanent map revelation are collected during the turn so SASGameSummary writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its changes are included too. (GPT-5.6-Sol) -->
 	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(iGameTurn);
 	// <!-- custom: Periodic game-summary snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
 	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASGameSummaryTurn(iGameTurn);
@@ -489,7 +489,8 @@ void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
 
 void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryChangeWar(bWar, eTeam, eOtherTeam);
+	// <!-- custom: War starts are logged earlier by CvTeam::declareWar while their origin is still available. This callback retains the end row after peace has updated both teams' war counts. (GPT-5.6-Sol) -->
+	if (!bWar && gGameSummaryLogLevel >= 2) logSASGameSummaryWarEnded(eTeam, eOtherTeam);
 	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
 }
 

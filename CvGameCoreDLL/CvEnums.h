@@ -1121,6 +1121,20 @@ ENUM_START(Function, FUNC)
 	FUNC_STEPKEY,	// = NiAnimationKey::STEPKEY,
 ENUM_END(Function, FUNC)
 
+// <!-- custom: DLL-only shared metadata for the direct or cascading origin of a declaration of war. This is not an XML-indexed, Python-exposed, savegame-serialized, or gameplay-evaluated enum. (GPT-5.6-Sol) -->
+enum WarDeclarationCause
+{
+	WAR_DECLARATION_DIRECT,
+	WAR_DECLARATION_GAME_SETUP,
+	WAR_DECLARATION_ALWAYS_WAR,
+	WAR_DECLARATION_PERMANENT_ALLIANCE,
+	WAR_DECLARATION_DEFENSIVE_PACT,
+	WAR_DECLARATION_VASSAL_ALIGNMENT,
+	WAR_DECLARATION_DIPLOMACY,
+	WAR_DECLARATION_VOTE,
+	WAR_DECLARATION_NUCLEAR_ATTACK
+};
+
 enum TradeableItems
 {
 	NO_TRADE_ITEM = -1,

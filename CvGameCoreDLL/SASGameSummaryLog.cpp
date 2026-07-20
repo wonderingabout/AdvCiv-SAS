@@ -26,7 +26,7 @@
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-summary diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-summary benchmark rows. (GPT-5.5) -->
 #include <time.h>
-#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot/exploration coordinates within each turn. (GPT-5.6-Sol) -->
+#include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-summary city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-summary known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
 
@@ -302,6 +302,8 @@ struct SASGameSummaryPlotChangeGroup
 static int g_iSASGameSummaryPendingPlotTurn = -1;
 static std::vector<SASGameSummaryPlotChangeGroup> g_aSASGameSummaryPlotChanges;
 static std::vector<std::pair<int,int> > g_aaSASGameSummaryRevealedPlots[MAX_TEAMS];
+static TeamTypes g_eSASGameSummaryFullMapRevelationTeam = NO_TEAM;
+static int g_iSASGameSummaryFullMapRevealedBefore = 0;
 
 struct SASGameSummaryPlayerPrevious
 {
@@ -472,6 +474,8 @@ static void resetSASGameSummaryState()
 	g_iSASGameSummaryLastFullSnapshotTurn = -1;
 	g_iSASGameSummaryPendingPlotTurn = -1;
 	g_aSASGameSummaryPlotChanges.clear();
+	g_eSASGameSummaryFullMapRevelationTeam = NO_TEAM;
+	g_iSASGameSummaryFullMapRevealedBefore = 0;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 		g_aaSASGameSummaryRevealedPlots[iI].clear();
 }
@@ -624,7 +628,11 @@ static const char* getSASGameSummaryRouteType(RouteTypes eRoute)
 }
 
 SASGameSummaryPlotState::SASGameSummaryPlotState()
-{}
+:	eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
+{
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		aiExtraYield[iI] = 0;
+}
 
 SASGameSummaryPlotState::SASGameSummaryPlotState(CvPlot const& kPlot)
 :	eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()),
@@ -680,6 +688,26 @@ static int getSASGameSummaryRevealedPlotCount(TeamTypes eTeam)
 	return iRevealed;
 }
 
+void beginSASGameSummaryFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameSummaryFullMapRevelationTeam == NO_TEAM);
+	FAssert(eTeam >= 0 && eTeam < MAX_CIV_TEAMS);
+	FAssert(eTech != NO_TECH);
+	g_eSASGameSummaryFullMapRevelationTeam = eTeam;
+	g_iSASGameSummaryFullMapRevealedBefore = getSASGameSummaryRevealedPlotCount(eTeam);
+}
+
+void endSASGameSummaryFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+{
+	FAssert(g_eSASGameSummaryFullMapRevelationTeam == eTeam);
+	int const iRevealed = getSASGameSummaryRevealedPlotCount(eTeam);
+	int const iNewlyRevealed = iRevealed - g_iSASGameSummaryFullMapRevealedBefore;
+	int const iRevealedPctX100 = (10000 * iRevealed) / std::max(1, (int)GC.getMap().numPlots());
+	logSASGameSummary("GAME_SUMMARY_MAP_REVELATION turn=%d team=%d cause=MAP_VISIBLE_TECH tech=%s revealMode=FULL_MAP newlyRevealedCount=%d revealedPlots=%d revealedPctX100=%d", GC.getGame().getGameTurn(), eTeam, getSASGameSummaryTechType(eTech), iNewlyRevealed, iRevealed, iRevealedPctX100);
+	g_eSASGameSummaryFullMapRevelationTeam = NO_TEAM;
+	g_iSASGameSummaryFullMapRevealedBefore = 0;
+}
+
 void flushSASGameSummaryTurnChanges(int iGameTurn)
 {
 	if (g_iSASGameSummaryPendingPlotTurn < 0)
@@ -699,15 +727,15 @@ void flushSASGameSummaryTurnChanges(int iGameTurn)
 		std::vector<std::pair<int,int> > const& aCoordinates = g_aaSASGameSummaryRevealedPlots[iI];
 		if (aCoordinates.empty())
 			continue;
-		std::vector<CvString> aszExplorationChunks;
-		CvString szExplorationChunk;
-		appendSASGameSummaryCoordinateChunks(aszExplorationChunks, szExplorationChunk, "newlyRevealed", aCoordinates);
-		if (!szExplorationChunk.empty())
-			aszExplorationChunks.push_back(szExplorationChunk);
-		// <!-- custom: CvMap::numPlots returns PlotNumTypes; casting it to int keeps MSVC 7.1 std::max template deduction unambiguous and fixed the compile error from adding exploration percentages. (GPT-5.6-Sol) -->
-		int const iExploredPctX100 = (10000 * getSASGameSummaryRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
-		for (size_t iJ = 0; iJ < aszExplorationChunks.size(); iJ++)
-			logSASGameSummary("GAME_SUMMARY_EXPLORATION turn=%d team=%d part=%d parts=%d exploredPctX100=%d %s", iLoggedTurn, iI, (int)iJ + 1, (int)aszExplorationChunks.size(), iExploredPctX100, aszExplorationChunks[iJ].GetCString());
+		std::vector<CvString> aszRevelationChunks;
+		CvString szRevelationChunk;
+		appendSASGameSummaryCoordinateChunks(aszRevelationChunks, szRevelationChunk, "newlyRevealed", aCoordinates);
+		if (!szRevelationChunk.empty())
+			aszRevelationChunks.push_back(szRevelationChunk);
+		// <!-- custom: CvMap::numPlots returns PlotNumTypes; casting it to int keeps MSVC 7.1 std::max template deduction unambiguous and fixed the compile error from adding map-revelation percentages. (GPT-5.6-Sol) -->
+		int const iRevealedPctX100 = (10000 * getSASGameSummaryRevealedPlotCount((TeamTypes)iI)) / std::max(1, (int)GC.getMap().numPlots());
+		for (size_t iJ = 0; iJ < aszRevelationChunks.size(); iJ++)
+			logSASGameSummary("GAME_SUMMARY_MAP_REVELATION turn=%d team=%d cause=INCREMENTAL revealMode=COORDINATES newlyRevealedCount=%d part=%d parts=%d revealedPctX100=%d %s", iLoggedTurn, iI, (int)aCoordinates.size(), (int)iJ + 1, (int)aszRevelationChunks.size(), iRevealedPctX100, aszRevelationChunks[iJ].GetCString());
 	}
 	g_iSASGameSummaryPendingPlotTurn = -1;
 	g_aSASGameSummaryPlotChanges.clear();
@@ -756,6 +784,8 @@ void recordSASGameSummaryPlotChange(CvPlot const& kPlot, SASGameSummaryPlotState
 void recordSASGameSummaryPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
 {
 	if (GC.getGame().getElapsedGameTurns() <= 0 || eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
+	if (eTeam == g_eSASGameSummaryFullMapRevelationTeam)
 		return;
 	prepareSASGameSummaryTurnChanges();
 	// <!-- custom: setRevealed calls this only on false-to-true transitions, so the same team cannot add this plot twice without first losing permanent revelation; append directly instead of repeatedly searching a potentially large map-trade list. (GPT-5.6-Sol) -->
@@ -1195,6 +1225,48 @@ static bool getSASGameSummaryVictoryProjectState(TeamTypes eTeam, VictoryTypes e
 	return !szProjectParts.empty();
 }
 
+static char const* getSASGameSummaryVictoryType(VictoryTypes eVictory)
+{
+	return eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType();
+}
+
+typedef std::pair<int, CvCity const*> SASGameSummaryCultureCity;
+
+static bool compareSASGameSummaryCultureCities(SASGameSummaryCultureCity const& kFirst, SASGameSummaryCultureCity const& kSecond)
+{
+	return kFirst.first > kSecond.first;
+}
+
+static CvString getSASGameSummaryCultureVictoryCities(TeamTypes eTeam, int iRequired, int iThreshold, int& iComplete)
+{
+	std::vector<SASGameSummaryCultureCity> aCities;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		CvPlayer const& kMember = GET_PLAYER((PlayerTypes)iI);
+		if (!kMember.isAlive() || kMember.getTeam() != eTeam)
+			continue;
+		int iLoop = 0;
+		for (CvCity const* pCity = kMember.firstCity(&iLoop); pCity != NULL; pCity = kMember.nextCity(&iLoop))
+			aCities.push_back(std::make_pair(pCity->getCulture(pCity->getOwner()), pCity));
+	}
+	std::sort(aCities.begin(), aCities.end(), compareSASGameSummaryCultureCities);
+	iComplete = 0;
+	for (int iI = 0; iI < (int)aCities.size(); iI++)
+	{
+		if (aCities[iI].first >= iThreshold)
+			iComplete++;
+	}
+	CvString szCities;
+	for (int iI = 0; iI < std::min(iRequired, (int)aCities.size()); iI++)
+	{
+		CvCity const& kCity = *aCities[iI].second;
+		CvString szItem;
+		szItem.Format(szCities.empty() ? "P%d:C%d@%d:%d=%d/%d" : ",P%d:C%d@%d:%d=%d/%d", kCity.getOwner(), kCity.getID(), kCity.getX(), kCity.getY(), aCities[iI].first, iThreshold);
+		szCities += szItem;
+	}
+	return getSASGameSummaryOrDash(szCities);
+}
+
 static void logSASGameSummaryTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -1217,6 +1289,64 @@ static void logSASGameSummaryTeamSnapshot(TeamTypes eTeam, int iGameTurn)
 	kPrevious.iLandPctX100 = iLandPctX100;
 	kPrevious.iPopulation = iPopulation;
 	kPrevious.iPopPctX100 = iPopPctX100;
+
+	VictoryTypes eScoreVictory = NO_VICTORY;
+	VictoryTypes eTimeVictory = NO_VICTORY;
+	VictoryTypes eConquestVictory = NO_VICTORY;
+	VictoryTypes eCultureVictory = NO_VICTORY;
+	VictoryTypes eDiplomaticVictory = NO_VICTORY;
+	int iCultureCitiesRequired = 0;
+	int iCultureThreshold = 0;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		CvVictoryInfo const& kVictory = GC.getInfo(eLoopVictory);
+		if (kVictory.isTargetScore()) eScoreVictory = eLoopVictory;
+		if (kVictory.isEndScore()) eTimeVictory = eLoopVictory;
+		if (kVictory.isConquest()) eConquestVictory = eLoopVictory;
+		if (kVictory.isDiploVote()) eDiplomaticVictory = eLoopVictory;
+		if (kVictory.getCityCulture() != NO_CULTURELEVEL && kVictory.getNumCultureCities() > 0)
+		{
+			eCultureVictory = eLoopVictory;
+			iCultureCitiesRequired = kVictory.getNumCultureCities();
+			iCultureThreshold = kGame.getCultureThreshold((CultureLevelTypes)kVictory.getCityCulture());
+		}
+	}
+	CvString szConquestRivals;
+	int iConquestRivalCities = 0;
+	if (eConquestVictory != NO_VICTORY)
+	{
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			TeamTypes const eRival = (TeamTypes)iI;
+			CvTeam const& kRival = GET_TEAM(eRival);
+			if (eRival == eTeam || !kRival.isAlive() || kRival.isBarbarian() || kRival.isVassal(eTeam) || kRival.getNumCities() <= 0)
+				continue;
+			appendSASGameSummaryIntList(szConquestRivals, eRival);
+			iConquestRivalCities += kRival.getNumCities();
+		}
+	}
+	int iBestRivalScore = -1;
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes const eRival = (TeamTypes)iI;
+		if (eRival != eTeam && GET_TEAM(eRival).isAlive() && !GET_TEAM(eRival).isBarbarian())
+			iBestRivalScore = std::max(iBestRivalScore, kGame.getTeamScore(eRival));
+	}
+	int const iTeamScore = kGame.getTeamScore(eTeam);
+	int const iTurnsRemaining = (kGame.getMaxTurns() <= 0 ? -1 : std::max(0, kGame.getMaxTurns() - kGame.getElapsedGameTurns()));
+	int iCultureCitiesComplete = 0;
+	CvString szCultureCities;
+	if (eCultureVictory == NO_VICTORY) szCultureCities = "-";
+	else szCultureCities = getSASGameSummaryCultureVictoryCities(eTeam, iCultureCitiesRequired, iCultureThreshold, iCultureCitiesComplete);
+	// <!-- custom: Domination and Space already have detailed per-victory rows, and diplomatic vote-source rows already contain exact vote thresholds.
+	// Add one compact general row per team rather than one new row per missing victory, so Score/Time, Conquest, and Cultural progress become explicit without multiplying snapshot noise.
+	// Culture lists only the required number of leading cities. (GPT-5.6-Sol) -->
+	logSASGameSummary("GAME_SUMMARY_VICTORY_PROGRESS_GENERAL turn=%d team=%d scoreVictory=%s timeVictory=%s conquestVictory=%s culturalVictory=%s diplomaticVictory=%s teamScore=%d bestRivalScore=%d scoreLead=%+d targetScore=%d turnsRemaining=%d conquestRivals=%s conquestRivalCities=%d cultureCitiesComplete=%d cultureCitiesRequired=%d cultureThreshold=%d cultureCities=%s",
+			iGameTurn, eTeam, getSASGameSummaryVictoryType(eScoreVictory), getSASGameSummaryVictoryType(eTimeVictory), getSASGameSummaryVictoryType(eConquestVictory), getSASGameSummaryVictoryType(eCultureVictory), getSASGameSummaryVictoryType(eDiplomaticVictory),
+			iTeamScore, iBestRivalScore, iBestRivalScore < 0 ? iTeamScore : iTeamScore - iBestRivalScore, kGame.getTargetScore(), iTurnsRemaining, getSASGameSummaryOrDash(szConquestRivals).GetCString(), iConquestRivalCities,
+			iCultureCitiesComplete, iCultureCitiesRequired, iCultureThreshold, szCultureCities.GetCString());
 
 	FOR_EACH_ENUM(Victory)
 	{
@@ -1548,6 +1678,37 @@ static void logSASGameSummaryAttitudes(PlayerTypes ePlayer, int iGameTurn)
 		szToward += szItem;
 	}
 	logSASGameSummary("GAME_SUMMARY_ATTITUDES turn=%d player=%d towardValues=%s", iGameTurn, ePlayer, getSASGameSummaryOrDash(szToward).GetCString());
+}
+
+static void logSASGameSummaryDiplomaticMemories(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eTowardPlayer = (PlayerTypes)iI;
+		if (eTowardPlayer == ePlayer || !GET_PLAYER(eTowardPlayer).isAlive() || GET_PLAYER(eTowardPlayer).isBarbarian() || !kTeam.isHasMet(GET_PLAYER(eTowardPlayer).getTeam()))
+			continue;
+		CvString szMemories;
+		int iMemoryAttitude = 0;
+		for (int iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
+		{
+			MemoryTypes const eMemory = (MemoryTypes)iJ;
+			int const iCount = kPlayer.AI_getMemoryCount(eTowardPlayer, eMemory);
+			if (iCount <= 0)
+				continue;
+			int const iAttitude = kPlayer.AI_getMemoryAttitude(eTowardPlayer, eMemory);
+			iMemoryAttitude += iAttitude;
+			CvString szItem;
+			szItem.Format(szMemories.empty() ? "%s=%d/%+d" : ",%s=%d/%+d", getSASMemoryType(eMemory), iCount, iAttitude);
+			szMemories += szItem;
+		}
+		if (!szMemories.empty())
+		{
+			// <!-- custom: Level-3 memory rows explain why the existing attitude value changed. Each item is MEMORY_TYPE=count/attitudeContribution; periodic snapshots avoid logging every routine memory decay. (GPT-5.6-Sol) -->
+			logSASGameSummary("GAME_SUMMARY_DIPLO_MEMORIES turn=%d player=%d toward=%d attitudeValue=%+d memoryAttitude=%+d memories=%s", iGameTurn, ePlayer, eTowardPlayer, kPlayer.AI_getAttitudeVal(eTowardPlayer), iMemoryAttitude, szMemories.GetCString());
+		}
+	}
 }
 
 static void logSASGameSummaryDiploStatus(PlayerTypes ePlayer, int iGameTurn)
@@ -2634,6 +2795,7 @@ static void logSASGameSummaryPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameSummaryEspionage(ePlayer, iGameTurn);
 		logSASGameSummaryDemographics(ePlayer, iGameTurn);
 		logSASGameSummaryAttitudes(ePlayer, iGameTurn);
+		if (gGameSummaryLogLevel >= 3) logSASGameSummaryDiplomaticMemories(ePlayer, iGameTurn);
 		logSASGameSummaryDiploStatus(ePlayer, iGameTurn);
 		logSASGameSummaryUnitPosture(ePlayer, iGameTurn);
 		logSASGameSummaryWorkers(ePlayer, iGameTurn);
@@ -2895,9 +3057,20 @@ void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner,
 	}
 }
 
-void logSASGameSummaryChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
+void logSASGameSummaryWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, bool bNewDiplo, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause)
 {
-	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s teamA=%d teamB=%d", GC.getGame().getGameTurn(), bWar ? "WAR_STARTED" : "WAR_ENDED", eTeam, eOtherTeam);
+	CvTeam const& kDeclarer = GET_TEAM(eDeclarer);
+	CvTeam const& kTarget = GET_TEAM(eTarget);
+	char const* szCause = (bRandomEvent ? "RANDOM_EVENT" : (eSponsor != NO_PLAYER ? "SPONSORED_WAR" : getSASWarDeclarationCause(eCause)));
+	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d",
+			GC.getGame().getGameTurn(), eDeclarer, eTarget, szCause, bPrimaryDoW, bNewDiplo, getSASWarPlanType(eWarPlan),
+			eSponsor, eSponsor == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSponsor).getTeam(), bRandomEvent,
+			kDeclarer.isAVassal() ? kDeclarer.getMasterTeam() : NO_TEAM, kTarget.isAVassal() ? kTarget.getMasterTeam() : NO_TEAM, kDeclarer.getNumWars(false), kTarget.getNumWars(false));
+}
+
+void logSASGameSummaryWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam)
+{
+	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WAR_ENDED teamA=%d teamB=%d teamAWarsAfter=%d teamBWarsAfter=%d", GC.getGame().getGameTurn(), eTeam, eOtherTeam, GET_TEAM(eTeam).getNumWars(false), GET_TEAM(eOtherTeam).getNumWars(false));
 }
 
 void logSASGameSummaryTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot)
@@ -2979,6 +3152,43 @@ void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory
 			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), GC.getInfo(eVictory).getType(), iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown, bProjectVictory && bMinimumComplete ? kTeam.getVictoryDelay(eVictory) : -1, kTeam.getLaunchSuccessRate(eVictory), iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
 }
 
+static void logSASGameSummaryVictoryProgressRemoved(TeamTypes eTeam, VictoryTypes eVictory, char const* szAction, char const* szCause, int iLaunchSuccessPercent, CvCity const* pCapital)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int iPartsBuilt = 0;
+	int iPartsMinimum = 0;
+	int iPartsMaximum = 0;
+	bool bMinimumComplete = false;
+	CvString szProjectParts;
+	bool const bProjectVictory = getSASGameSummaryVictoryProjectState(eTeam, eVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bMinimumComplete, szProjectParts);
+	int const iCountdown = kTeam.getVictoryCountdown(eVictory);
+	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s team=%d victory=%s cause=%s countdown=%d arrivalTurn=%d launchSuccessPercent=%d capitalPlayer=%d capitalCityId=%d capital=%S capitalX=%d capitalY=%d projectVictory=%d partsBuilt=%d partsMinimum=%d partsMaximum=%d projectParts=%s",
+			GC.getGame().getGameTurn(), szAction, eTeam, getSASGameSummaryVictoryType(eVictory), szCause, iCountdown, iCountdown < 0 ? -1 : GC.getGame().getGameTurn() + iCountdown,
+			iLaunchSuccessPercent, pCapital == NULL ? NO_PLAYER : pCapital->getOwner(), pCapital == NULL ? -1 : pCapital->getID(), getSASGameSummaryQuotedCityName(pCapital).GetCString(), pCapital == NULL ? -1 : pCapital->getX(), pCapital == NULL ? -1 : pCapital->getY(),
+			bProjectVictory, iPartsBuilt, iPartsMinimum, iPartsMaximum, bProjectVictory ? szProjectParts.GetCString() : "-");
+}
+
+void logSASGameSummaryVictoryProgressResetForCapital(CvCity const* pCapital)
+{
+	if (pCapital == NULL || GC.getGame().getGameState() != GAMESTATE_ON)
+		return;
+	TeamTypes const eTeam = pCapital->getTeam();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	FOR_EACH_ENUM(Victory)
+	{
+		if (kTeam.getVictoryCountdown(eLoopVictory) >= 0)
+			logSASGameSummaryVictoryProgressRemoved(eTeam, eLoopVictory, "VICTORY_PROGRESS_RESET", "CAPITAL_LOST", kTeam.getLaunchSuccessRate(eLoopVictory), pCapital);
+	}
+}
+
+void logSASGameSummarySpaceshipFailed(TeamTypes eTeam, VictoryTypes eVictory, int iLaunchSuccessPercent)
+{
+	if (eTeam == NO_TEAM || eVictory == NO_VICTORY)
+		return;
+	// <!-- custom: A failed arrival roll previously erased the countdown and spaceship projects without an explicit event. Preserve the losing launch state immediately before resetVictoryProgress removes it. (GPT-5.6-Sol) -->
+	logSASGameSummaryVictoryProgressRemoved(eTeam, eVictory, "SPACESHIP_FAILED", "LAUNCH_ROLL_FAILED", iLaunchSuccessPercent, NULL);
+}
+
 void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
 {
 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s master=%d vassal=%d", GC.getGame().getGameTurn(), bVassal ? "VASSALAGE_STARTED" : "VASSALAGE_ENDED", eMaster, eVassal);
@@ -2986,7 +3196,7 @@ void logSASGameSummaryVassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVa
 
 void logSASGameSummaryVictory(TeamTypes eWinner, VictoryTypes eVictory)
 {
-	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or exploration. (GPT-5.6-Sol) -->
+	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or map revelation. (GPT-5.6-Sol) -->
 	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(GC.getGame().getGameTurn());
 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
 	// <!-- custom: Periodic snapshots could stop several turns before victory, leaving every civilization's exact final state unknown. Force one complete marked snapshot now; the ordinary end-turn hook suppresses a duplicate on the same turn. (GPT-5.6-Sol) -->

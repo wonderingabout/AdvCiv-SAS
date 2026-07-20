@@ -29,7 +29,8 @@ public:
 	static void freeStatics(); // </advc.003u>
 
 	// <kekm.26>
-	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true);
+	// <!-- custom: Preserve why queued wars begin so SASGameSummary can distinguish direct declarations from alliance, defensive-pact, vassal, vote, and nuclear cascades. (GPT-5.6-Sol) -->
+	static void queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW = true, WarDeclarationCause eCause = WAR_DECLARATION_DIRECT);
 	static void triggerWars(/* advc: */ bool bForceUpdateAttitude = false);
 	// </kekm.26>
 
@@ -65,7 +66,8 @@ public:
 	DllExport bool canDeclareWar(TeamTypes eTeam) const;																// Exposed to Python
 	bool canEventuallyDeclareWar(TeamTypes eTeam) const; // bbai, Exposed to Python
 	// advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW = true, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false); // advc.106g; K-Mod added bPrimaryDoW, Exposed to Python
+	// <!-- custom: Added eCause so direct and queued war declarations retain their origin for SASGameSummary; defaults preserve all existing callers and Python exposure. (GPT-5.6-Sol) -->
+	void declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW = true, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false, WarDeclarationCause eCause = WAR_DECLARATION_DIRECT); // advc.106g; K-Mod added bPrimaryDoW, Exposed to Python
 	// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
@@ -583,6 +585,7 @@ protected:
 	static std::queue<bool> newdiplo_queue;
 	static std::queue<WarPlanTypes> warplan_queue;
 	static std::queue<bool> primarydow_queue;
+	static std::queue<WarDeclarationCause> warcause_queue;
 	static bool bTriggeringWars;
 	// </kekm.26>
 

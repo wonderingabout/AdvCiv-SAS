@@ -14,7 +14,7 @@
 #include "CvGameTextMgr.h"
 #include "CvBugOptions.h" // advc.060
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: City removal can restore a natural feature on its plot; preserve that non-routine map change in SASGameSummary. (GPT-5.6-Sol) -->
+#include "SASGameSummaryLog.h" // <!-- custom: Preserve city-removal plot changes and active victory-progress resets caused by capital loss. (GPT-5.6-Sol) -->
 
 
 CvCity::CvCity() // advc.003u: Merged with the deleted reset function
@@ -448,6 +448,8 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
 	if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
 	CvEventReporter::getInstance().cityLost(this);
+	// <!-- custom: CvTeam::resetVictoryProgress runs only after this city object has been deleted. Preserve the active launch and old-capital identity first so SASGameSummary can explicitly explain why the spaceship disappeared. (GPT-5.6-Sol) -->
+	if (bCapital && gGameSummaryLogLevel >= 2) logSASGameSummaryVictoryProgressResetForCapital(this);
 	kOwner.deleteCity(getID());
 
 	kPlot.updateCulture(/*true*/ bBumpUnits, false); // advc.001

@@ -18,7 +18,7 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: Structured team-contact rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameSummaryLog.h" // <!-- custom: Structured team, war, and bulk map-revelation rows are logged separately from BBAI diagnostics. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvBugOptions.h" // advc.071
 
 // advc.003u: Statics moved from CvTeamAI
@@ -44,6 +44,7 @@ std::queue<TeamTypes> CvTeam::defending_queue;
 std::queue<bool> CvTeam::newdiplo_queue;
 std::queue<WarPlanTypes> CvTeam::warplan_queue;
 std::queue<bool> CvTeam::primarydow_queue;
+std::queue<WarDeclarationCause> CvTeam::warcause_queue;
 bool CvTeam::bTriggeringWars = false;
 // </kekm.26>
 
@@ -279,13 +280,13 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		{
 			//declareWar(...);
 			queueWar( // kekm.26
-					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther));
+					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 		else if (isAtWar(eOther))
 		{
 			//GET_TEAM(eTeam).declareWar(...);
 			queueWar( // kekm.26
-					eTeam, eOther, false, AI().AI_getWarPlan(eOther));
+					eTeam, eOther, false, AI().AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 	}
 	// <kekm.26>
@@ -294,9 +295,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
 		if (GET_TEAM(eTeam).isAtWar(eOther))
-			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		else if (isAtWar(eOther))
-			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 	}
 	triggerWars();
 	// </kekm.26>
@@ -1042,7 +1043,8 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
 // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
 // K-Mod <!-- custom: hoisted from multiline signature between `bPrimaryDoW` and `eSponsor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 // advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent) // advc.106g
+// <!-- custom: Added eCause to preserve the direct or cascading origin until SASGameSummary logs the declaration. (GPT-5.6-Sol) -->
+void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause) // advc.106g
 {
 	PROFILE_FUNC();
 	FAssert(eTarget != NO_TEAM);
@@ -1080,6 +1082,8 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 	setAtWar(eTarget, true);
 	kTarget.setAtWar(getID(), true);
 	m_abJustDeclaredWar.set(eTarget, true); // advc.162
+	// <!-- custom: The inherited EventReporter callback only knew that two teams entered war. Log at the declaration itself, before secondary wars are triggered, so the declarer, target, plan, sponsor, primary/cascade status, and preserved cause remain unambiguous. (GPT-5.6-Sol) -->
+	if (gGameSummaryLogLevel >= 2) logSASGameSummaryWarStarted(getID(), eTarget, eWarPlan, bPrimaryDoW, bNewDiplo, eSponsor, bRandomEvent, eCause);
 	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
 	GC.getMap().invalidateBorderDangerCache(eTarget);
 	GC.getMap().invalidateBorderDangerCache(getID());
@@ -1159,13 +1163,13 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 		{
 			//declareWar(kThirdTeam.getID(), bNewDiplo, AI_getWarPlan(eTeam), false);
 			// kekm.26:
-			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false);
+			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 		else if (kThirdTeam.isVassal(getID()) || isVassal(kThirdTeam.getID()))
 		{
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 	}
 	/*if (bPrimaryDoW) { // K-Mod. update attitude
@@ -1215,7 +1219,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 			FAssert(!kTarget.isAVassal() && !kThirdTeam.isAVassal());
 			//kThirdTeam.declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 			// <advc.104i>
 			bDefPactTriggered = true;
 			if(!isAVassal())
@@ -1229,7 +1233,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 		{	// For alliance option.  This teams pacts are canceled above if not using alliance option.
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 		}
 	}
 	if (iDPBehavior == 0)// kekm.3: || (iDPBehavior == 1 && bPrimaryDoW))
@@ -2953,7 +2957,7 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* p
 		}	
 	} // </advc.071>
 	if (isAlwaysWar() && getID() != eOther)
-		declareWar(eOther, false, NO_WARPLAN);
+		declareWar(eOther, false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_ALWAYS_WAR);
 	else if (!isHuman() && bNewDiplo &&
 		GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
 		!isAtWar(eOther))
@@ -3490,7 +3494,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			{
 				//declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 				// kekm.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
-				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated);
+				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated, WAR_DECLARATION_VASSAL_ALIGNMENT);
 			}
 			else if (isAtWar(eThirdParty))
 			{
@@ -3500,7 +3504,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					//GET_TEAM(eMaster).declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 					// kekm.26:
-					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE);
+					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE, true, WAR_DECLARATION_VASSAL_ALIGNMENT);
 				}
 			}
 		}
@@ -3780,13 +3784,15 @@ void CvTeam::freeVassal(TeamTypes eVassal) const
 /*  <kekm.26> "Changed how multiple war declarations work. declareWar used to
 	nest war declarations, now they are queued to trigger defensive pacts and
 	everything else in the correct order." */
-void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW)
+// <!-- custom: Added eCause and a matching queue so a secondary declaration does not lose whether an alliance, defensive pact, vassal alignment, vote, or nuclear attack caused it. (GPT-5.6-Sol) -->
+void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW, WarDeclarationCause eCause)
 {
 	attacking_queue.push(eAttackingTeam);
 	defending_queue.push(eDefendingTeam);
 	newdiplo_queue.push(bNewDiplo);
 	warplan_queue.push(eWarPlan);
 	primarydow_queue.push(bPrimaryDOW);
+	warcause_queue.push(eCause);
 }
 
 void CvTeam::triggerWars(bool bForceUpdateAttitude)
@@ -3797,14 +3803,16 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
 	else bTriggeringWars = true;
 	while (!attacking_queue.empty())
 	{
+		// <!-- custom: eCause follows the existing optional sponsor and random-event parameters. Pass their former NO_PLAYER/false defaults explicitly so adding the queued cause preserves gameplay exactly. (GPT-5.6-Sol) -->
 		GET_TEAM(attacking_queue.front()).declareWar(
 				defending_queue.front(), newdiplo_queue.front(),
-				warplan_queue.front(), primarydow_queue.front());
+				warplan_queue.front(), primarydow_queue.front(), NO_PLAYER, false, warcause_queue.front());
 		attacking_queue.pop();
 		defending_queue.pop();
 		newdiplo_queue.pop();
 		warplan_queue.pop();
 		primarydow_queue.pop();
+		warcause_queue.pop();
 		bWarsDeclared = true;
 	}
 	if (bWarsDeclared /* advc: */ || bForceUpdateAttitude)
@@ -4515,7 +4523,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		}
 
 		if (kTech.isMapVisible())
+		{
+			// <!-- custom: Map-visible technologies previously produced thousands of redundant coordinate entries. Suppress those per-plot hooks during this known bulk operation and record one exact full-map revelation row instead. (GPT-5.6-Sol) -->
+			bool const bLogFullMapRevelation = (gGameSummaryLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
+			if (bLogFullMapRevelation) beginSASGameSummaryFullMapRevelation(getID(), eTech);
 			GC.getMap().setRevealedPlots(getID(), true, true);
+			if (bLogFullMapRevelation) endSASGameSummaryFullMapRevelation(getID(), eTech);
+		}
 
 		FOR_EACH_ENUM(SpecialBuilding)
 		{

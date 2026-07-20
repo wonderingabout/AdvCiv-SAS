@@ -764,7 +764,7 @@ void CvGame::initDiplomacy()
 			for (TeamIter<CIV_ALIVE> itCiv; itCiv.hasNext(); ++itCiv) // advc.003m: ALIVE
 			{
 				if (itTeam->getID() != itCiv->getID())
-					itTeam->declareWar(itCiv->getID(), false, NO_WARPLAN);
+					itTeam->declareWar(itCiv->getID(), false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_GAME_SETUP);
 			}
 		}
 	}
@@ -8134,7 +8134,7 @@ void CvGame::updateWar()
 						{
 							if (!kTeam1.isAtWar((TeamTypes)iJ))
 							{
-								kTeam1.declareWar(((TeamTypes)iJ), false, NO_WARPLAN);
+								kTeam1.declareWar(((TeamTypes)iJ), false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_ALWAYS_WAR);
 							}
 						}
 					}
@@ -8444,9 +8444,15 @@ void CvGame::testVictory()
 					kTeam.changeVictoryCountdown(eVictory, -1);
 				if (kTeam.getVictoryCountdown(eVictory) == 0)
 				{
-					if (SyncRandSuccess100(kTeam.getLaunchSuccessRate(eVictory)))
+					// <!-- custom: Cache the arrival chance so a failed launch can be logged with its exact pre-reset value. (GPT-5.6-Sol) -->
+					int const iLaunchSuccessPercent = kTeam.getLaunchSuccessRate(eVictory);
+					if (SyncRandSuccess100(iLaunchSuccessPercent))
 						aeeWinners.push_back(std::make_pair(kTeam.getID(), eVictory));
-					else kTeam.resetVictoryProgress();
+					else
+					{
+						if (gGameSummaryLogLevel >= 2) logSASGameSummarySpaceshipFailed(kTeam.getID(), eVictory, iLaunchSuccessPercent);
+						kTeam.resetVictoryProgress();
+					}
 				}
 			}
 		}
@@ -8569,7 +8575,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
 			{
 				// <kekm.26>
 				CvTeam::queueWar(kFullMember.getID(), kTeam.getID(),
-						false, WARPLAN_DOGPILE); // </kekm.26>
+						false, WARPLAN_DOGPILE, true, WAR_DECLARATION_VOTE); // </kekm.26>
 				kTeam.AI_makeUnwillingToTalk(kFullMember.getID()); // advc.104i
 			}
 		}
