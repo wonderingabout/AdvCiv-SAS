@@ -347,6 +347,8 @@ protected:
 	// advc.pf:
 	bool AI_canRouteThroughSafeTerritory(CvPlot const& kDest, MovementFlags& eFlags) const;
 	bool AI_moveSettlerToCoast(int iMaxPathTurns = 5); // advc.040
+	// <!-- custom: Explicit exception for the inherited no-valid-site Settler cleanup, which SAS's general anti-scrapping rules intentionally block. Keep this specialized operation out of the generic CvUnit scrap API. (GPT-5.6-Sol) -->
+	bool AI_scrapSettlerWithNoValidSite(bool bDanger, MovementFlags eMoveFlags);
 
 	// added so under cheat mode we can call protected functions for testing
 	friend class CvGameTextMgr;

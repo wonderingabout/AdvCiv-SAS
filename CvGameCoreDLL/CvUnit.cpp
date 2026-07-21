@@ -3656,6 +3656,12 @@ void CvUnit::scrap()
 {
 	if (!canScrap())
 		return;
+	scrapInternal();
+}
+
+
+void CvUnit::scrapInternal()
+{
 	if (gUnitLogLevel > 2 && !isHuman())
 	{
 		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());

@@ -836,6 +836,8 @@ protected:
 		May also want to override them. */
 	virtual void init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection);
 	virtual void finalizeInit(); // </advc.003u>
+	// <!-- custom: Share successful-scrap logging and deletion with the explicit no-valid-site Settler cure without adding a one-off parameter to the generic canScrap()/scrap() API. Callers must perform their appropriate safety checks first. (GPT-5.6-Sol) -->
+	void scrapInternal();
 
 	int m_iID;
 	int m_iGroupID;
