@@ -753,7 +753,7 @@ static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	bool const bLikelyToBenefitUsLongTerm = kOwner.AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
 	bool const bReject = !bLikelyToBenefitUsLongTerm;
-	if (gUnitLogLevel >= 2)
+	if (gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2)
 	{
 		// <!-- custom: This evaluation can run for many armies every turn. Log only the first result and later keep/reject transitions for each player and Barbarian city; this reduced save-file 450's 4,679 repetitive prototype rows to 19 in the identical confirming run. (GPT-5.6-Sol) -->
 		static std::map<std::pair<int,int>,std::pair<int,bool> > aLastLoggedState;
@@ -11524,6 +11524,19 @@ void CvUnitAI::AI_assaultSeaMove()
 				} // </advc.082>
 			}
 		}
+		// <!-- custom: Save-file 450 transport diagnostics showed reinforcement/invasion thresholds of 13/26 blocking a Galley whose full capacity was only 3, even when nearby Barbarian cities reached zero defenders.
+		// Keep the broad thresholds for assembling normal invasions, but let the existing target-specific strength evaluation launch any smaller military cargo that can already take a real target. Existing safety, escort, and imminent-loading waits above still run first. See KI#193. (GPT-5.6-Sol) -->
+		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE");
+		if (bOpportunisticTargetEnable && iCargo > 0 && iCargo < iTargetReinforcementSize)
+		{
+			FAssert(getGroup()->hasCargo());
+			if (AI_assaultSeaTransport(bNoWarPlans))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
+				return;
+			}
+			if (gOverseasTransportLogLevel >= 3) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
+		}
 		if (bNoWarPlans && iCargo >= iTargetReinforcementSize)
 		{
 			AI_getGroup()->AI_separateEmptyTransports();
@@ -20465,6 +20478,10 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal, int iMaxAr
 
 		if (pCity != NULL)
 		{
+			// <!-- custom: Naval assaults previously bypassed the shared distant-disposable Barbarian-city gate, so an opportunistic launch could revive the KI#188.5 charity cleanup that land armies reject.
+			// Apply the same long-term-benefit test using the already-computed sea path to the city or its landing plot. See KI#193. (GPT-5.6-Sol) -->
+			if (SAS_isDistantDisposableBarbarianTarget(*this, *pCity, eFlags, MAX_INT, "assault_sea_transport", iPathTurns))
+				continue;
 			int iDefenceStrength = estimateAndCacheCityDefence(kOwner, pCity, city_defence_cache);
 			FAssert(AI_isPotentialEnemyOf(pCity->getTeam(), kPlot));
 			iBaseValue += kOwner.AI_targetCityValue(*pCity, false, false); // maybe false, true?

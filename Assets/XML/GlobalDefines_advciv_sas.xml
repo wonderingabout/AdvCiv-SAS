@@ -2968,6 +2968,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
+	<!-- custom: Generic reinforcement and invasion sizes can exceed an early transport's entire capacity, preventing even a loaded Galley from considering an achievable nearby city. When enabled, military cargo below those broad army-assembly thresholds still asks the existing target-specific assault evaluation whether its actual strength is sufficient. Safety, escort, imminent-loading, defender-strength, and distant-disposable Barbarian checks still apply. 1 enables, 0 disables. See KI#193. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
