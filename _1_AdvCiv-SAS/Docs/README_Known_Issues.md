@@ -239,6 +239,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival)\
 [192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use)\
 [193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets)\
+[193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1932---fixedimproved-base-advcivk-mod-assault-transport-production-could-overlook-nearby-profitable-islands-when-land-armies-were-already-large-or-another-enemy-city-was-reachable-by-land)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -7259,5 +7260,37 @@ The save-file 450 confirming run recorded 7 distinct below-threshold fleets find
 Save file 449 independently confirmed the behavior on another island-rich map. India sent 3 units despite a threshold of 9 and captured the Barbarian island city Burgundian six turns later. The cure also applies to coastal troop transport rather than only isolated islands: a separate 2-unit Indian launch supported the capture of the Ottoman city Ankara through a coastal landing five turns later, and a 4-unit Byzantine landing despite a threshold of 10 supported the capture of the English city Hastings on the next turn. The run also recorded 28 other below-threshold evaluations that found no acceptable target and kept their fleets waiting, showing that the new path does not launch every partially loaded ship. India remained the strongest civilization and won by Space, so these smaller expeditions did not prevent it from maintaining its broader strength.
 
 This cure does not solve a separate production-capacity issue found by the same diagnostics: Mali had a 15-18-unit attack army but only one already-full capacity-3 assault transport, while Carthage had attack groups of 18 and 21 without a geographically eligible assault transport. Whether land-heavy-map production limits leave some profitable islands without enough transport capacity remains a separate investigation.
+
+Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+## 193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land
+
+This is the production-side follow-up to KI#193. That cure lets an existing loaded fleet consider a specific achievable target before reaching Base AdvCiv/K-Mod's generic invasion size, but the same overseas-transport diagnostics showed that an AI could know a worthwhile nearby island city and have ample attackers without producing the ship needed to carry them there.
+
+Base AdvCiv's invasion-production branch mainly requested assault transports when the current area was already classified for an overseas assault, or when no enemy city at all could be reached by land. This created two mismatches:
+
+- an unrelated enemy city reachable by land could suppress transport demand even when another nearby overseas city was a better opportunity;
+- the available land army itself could raise general military spending above the invasion-production limit, so having enough attackers made the missing transport less likely to be produced.
+
+Save file 450 demonstrated the latter clearly. Carthage had 24 available attackers against only 1 defender in Cimmerian, which was 9 plots from its nearest Carthaginian city, but no eligible assault transport. In the diagnostic run, Cimmerian remained Barbarian until turn 246. Other cases included Mali having a 15-18-unit attack army but only one already-full capacity-3 Galley, and Carthaginian attack groups of 18 and 21 without a geographically usable assault transport.
+
+With `SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_PRODUCTION_ENABLE` enabled, a safe coastal city now searches for a limited missing-lift opportunity before the inherited broad invasion branch. A candidate must be revealed and reachable through the city's water area. A non-Barbarian city must belong to a rival the AI is already at war with or preparing to attack, while a Barbarian city remains available without declaring war. The target must pass `AI_isSASCityLikelyToBenefitUsLongTerm`, have positive city-target value, lie within the XML-tunable distance from the nearest owned city, and have enough available land attackers to plausibly overcome its current defenders.
+
+The request is deliberately bounded rather than a general naval mobilization:
+
+- it asks only for cargo space appropriate to the available attackers and target defenders;
+- real transports at sea or docked in a connected port count by their actual cargo space, and ships currently being trained count by their expected cargo space;
+- once enough existing or queued capacity is found, other cities do not duplicate the request;
+- financial trouble, city danger and a defensive area cancel the opportunity;
+- the central `AI_chooseUnit` production limits still apply, preventing this path from bypassing the AdvCiv-SAS safeguards against naval overproduction;
+- the default maximum nearest-city distance is 18 plots, so the AI does not build a new fleet solely for a faraway prize. Existing transports remain free to exploit such a target through the normal logic when that is worthwhile.
+
+The first save-file 450 implementation exposed an accounting error: a transport docked in a coastal city occupies the city's land plot, so checking only whether the ship was in the water area missed it. Cities could therefore request another transport immediately after the first order was accepted. Counting docked ships and ships already being trained fixed this: evaluations recognizing existing or queued capacity rose from 0 to 95, decisions finding enough capacity rose from 25 to 95, successful opportunistic orders fell from 9 to 7, and the duplicate late Arabian requests disappeared.
+
+The final save-file 450 run did not revive the old naval overproduction. Ordinary AI assault fleets reached at most 3 ships. Cimmerian was captured on turn 199 instead of turn 246 in the diagnostic run, Hittite on turn 218 instead of 256, and Harappan on turn 242 instead of 262; all 5 tracked Barbarian cities had been captured by turn 242.
+
+Save file 449 independently tested the cure on another island-rich but land-heavy map. Across 456 turns, 140 evaluations correctly found enough existing capacity and only 7 opportunistic transport orders were accepted; ordinary AI assault fleets peaked at 4 ships, far below the old 10-20-transport failure. The original Minoan opportunity did not recur because the history diverged, but the changed city on that site was captured using existing transport capacity. Hannibal also captured faraway Illinois using one existing Galleon and 4 units: because the nearest Carthaginian city was 27 plots away, beyond the default production limit of 18, that profitable small expedition did not cause the AI to build a new fleet for the distant target.
+
+Chehalis changing from Mali in the older run to Aztec ownership in this confirming run was unrelated to the cure because it was reachable by land. Both runs valued the city as worthwhile. In the older history, Aztec remained committed to a costly Scandinavian war while Mali made peace and reached Chehalis first; in the confirming history, the Aztec war ended earlier and its freed army captured Chehalis before Mali. This is useful evidence that preserving available military tempo matters, but not evidence that the overseas-production rule selected Chehalis.
 
 Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.

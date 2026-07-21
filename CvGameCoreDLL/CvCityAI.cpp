@@ -137,6 +137,45 @@ static bool SAS_isSettlerProductionCandidate(UnitTypes eUnit, UnitAITypes eUnitA
 }
 
 
+// <!-- custom: Base AdvCiv requests assault transports only for a broad assault area, or when no enemy city at all can be reached by land. Save files 449 and 450 showed close, profitable island targets remaining untouched despite large available land armies because an unrelated land route or the general military-spending ceiling suppressed every transport request.
+// Find only a nearby city that the shared long-term retention evaluation says is worth keeping, that this city's water area can reach, and that the available attackers plausibly outnumber. This creates limited missing-lift demand; normal target strength, loading, escort, danger, and central fleet-cap checks still apply. (GPT-5.6-Sol) -->
+static CvCity const* SAS_findNearbyOverseasConquestTarget(CvCityAI const& kCity, CvArea const& kWaterArea, int iAvailableAttackers, int iMaxNearestOwnCityDistance, int& iTargetDefenders, int& iNearestOwnCityDistance)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
+	CvCity const* pBestTarget = NULL;
+	int iBestScore = MIN_INT;
+	iTargetDefenders = -1;
+	iNearestOwnCityDistance = -1;
+	for (PlayerIter<ALIVE,NOT_SAME_TEAM_AS> itTarget(kCity.getTeam()); itTarget.hasNext(); ++itTarget)
+	{
+		if (!itTarget->isBarbarian() && (!kTeam.AI_mayAttack(itTarget->getTeam()) || (!kTeam.isAtWar(itTarget->getTeam()) && kTeam.AI_getWarPlan(itTarget->getTeam()) == NO_WARPLAN))) continue;
+		FOR_EACH_CITY(pTargetCity, *itTarget)
+		{
+			if (pTargetCity->isArea(kCity.getArea()) || !pTargetCity->isRevealed(kCity.getTeam())) continue;
+			if (!pTargetCity->isBarbarian() && !kPlayer.AI_deduceCitySite(*pTargetCity)) continue;
+			if (pTargetCity->waterArea(true) != &kWaterArea && pTargetCity->secondWaterArea() != &kWaterArea) continue;
+			if (!kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity)) continue;
+			CvCity const* pNearestOwnCity = GC.getMap().findCity(pTargetCity->getX(), pTargetCity->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pTargetCity);
+			if (pNearestOwnCity == NULL) continue;
+			int const iDistance = stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pTargetCity->getX(), pTargetCity->getY());
+			if (iMaxNearestOwnCityDistance > 0 && iDistance > iMaxNearestOwnCityDistance) continue;
+			int const iDefenders = pTargetCity->getPlot().plotCount(PUF_canDefend);
+			if (iAvailableAttackers < std::max(3, 2 * iDefenders + 1)) continue;
+			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
+			if (iTargetValue <= 0) continue;
+			int const iScore = 100 * iTargetValue - 10 * iDistance - 25 * iDefenders;
+			if (iScore <= iBestScore) continue;
+			pBestTarget = pTargetCity;
+			iBestScore = iScore;
+			iTargetDefenders = iDefenders;
+			iNearestOwnCityDistance = iDistance;
+		}
+	}
+	return pBestTarget;
+}
+
+
 // <!-- custom: Diagnose when the player knows a worthwhile overseas settlement or conquest opportunity but may lack transport capacity. This connects city/site value, distance, military availability, fleet capacity, map type, war state, and production constraints before changing the land-heavy naval suppression that prevented an earlier 10-20-Galleon overbuild.
 // Call only inside the Overseas-transport level-2 gate because evaluating foreign cities is diagnostic work. Reuse the normal target-city value and SAS long-term-benefit evaluation so logging does not invent a competing strategic heuristic. (GPT-5.6-Sol) -->
 static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea const* pWaterArea, int iNumWaterAreaCitySites, int iWaterAreaBestFoundValue, int iSettlerBuildMinFoundValue, int iWaterPercent, int iBuildUnitProb, int iUnitSpending, bool bFinancialTrouble, bool bDanger, bool bLandWar, bool bAssault)
@@ -2739,11 +2778,64 @@ void CvCityAI::AI_chooseProduction()
 
 	int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
 
+	// <!-- custom: Base AdvCiv's broad invasion state and military-spending gate can both miss the one transport needed for a known profitable island. Evaluate one deliberately narrow, target-backed capacity request here so both the high-spending bypass and normal invasion branch below use the same target, trainable ship, available army and existing/queued cargo space. See KI#193.2. (GPT-5.6-Sol) -->
+	static bool const bOpportunisticAssaultProduction = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_PRODUCTION_ENABLE");
+	static int const iOpportunisticAssaultMaxDistance = std::max(0, GC.getDefineINT("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_PRODUCTION_MAX_NEAREST_CITY_DISTANCE"));
+	int iUnitsToTransport = -1;
+	CvCity const* pOpportunisticAssaultTarget = NULL;
+	UnitTypes eOpportunisticAssaultUnit = NO_UNIT;
+	int iOpportunisticTargetDefenders = -1;
+	int iOpportunisticTargetDistance = -1;
+	int iOpportunisticTargetCapacity = 0;
+	int iOpportunisticExistingCapacity = 0;
+	int iOpportunisticExistingTransports = 0;
+	int iOpportunisticTrainingTransports = 0;
+	if (bOpportunisticAssaultProduction && pWaterArea != NULL && !bFinancialTrouble && !bDanger && kArea.getAreaAIType(getTeam()) != AREAAI_DEFENSIVE)
+	{
+		iUnitsToTransport = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER) / 2;
+		pOpportunisticAssaultTarget = SAS_findNearbyOverseasConquestTarget(*this, *pWaterArea, iUnitsToTransport, iOpportunisticAssaultMaxDistance, iOpportunisticTargetDefenders, iOpportunisticTargetDistance);
+		if (pOpportunisticAssaultTarget != NULL)
+		{
+			kPlayer.AI_bestCityUnitAIValue(UNITAI_ASSAULT_SEA, this, &eOpportunisticAssaultUnit);
+			if (eOpportunisticAssaultUnit != NO_UNIT)
+			{
+				iOpportunisticTargetCapacity = std::min(iUnitsToTransport, std::max(1, 2 * iOpportunisticTargetDefenders));
+				// <!-- custom: A ship docked in a coastal city is on the city's land plot, so CvUnit::isArea(water) misses it. Count its real cargo space through the port's water area, then estimate queued capacity from AI_totalWaterAreaUnitAIs, which also includes ships currently being trained. This fixed repeated transport requests that still logged zero capacity immediately after a city accepted the first order. (GPT-5.6-Sol) -->
+				FOR_EACH_UNITAI(pLoopUnit, kPlayer)
+				{
+					if (pLoopUnit->AI_getUnitAIType() != UNITAI_ASSAULT_SEA) continue;
+					CvCity const* pPortCity = pLoopUnit->getPlot().getPlotCity();
+					if (!pLoopUnit->isArea(*pWaterArea) && (pPortCity == NULL || pPortCity->waterArea() != pWaterArea)) continue;
+					iOpportunisticExistingCapacity += pLoopUnit->cargoSpace();
+					iOpportunisticExistingTransports++;
+				}
+				int const iWaterAreaTransports = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_ASSAULT_SEA);
+				iOpportunisticTrainingTransports = std::max(0, iWaterAreaTransports - iOpportunisticExistingTransports);
+				iOpportunisticExistingCapacity += iOpportunisticTrainingTransports * GC.getInfo(eOpportunisticAssaultUnit).getCargoSpace();
+			}
+		}
+	}
+	bool const bOpportunisticAssaultTransportDemand = (eOpportunisticAssaultUnit != NO_UNIT && iOpportunisticExistingCapacity < iOpportunisticTargetCapacity);
+	if (bLogOverseasTransport && pOpportunisticAssaultTarget != NULL) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=OPPORTUNISTIC_TARGET result=%s target=%S target=(%d,%d) defenders=%d availableAttackers=%d nearestOwnCityDistance=%d maxDistance=%d bestUnit=%S targetCapacity=%d existingCapacity=%d existingTransports=%d trainingTransports=%d unitSpending=%d branchMax=%d",
+		GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (bOpportunisticAssaultTransportDemand ? "DEMAND_TRANSPORT" : "ENOUGH_OR_UNTRAINABLE"), pOpportunisticAssaultTarget->getName().GetCString(), pOpportunisticAssaultTarget->getX(), pOpportunisticAssaultTarget->getY(),
+		iOpportunisticTargetDefenders, iUnitsToTransport, iOpportunisticTargetDistance, iOpportunisticAssaultMaxDistance, (eOpportunisticAssaultUnit == NO_UNIT ? L"-" : GC.getInfo(eOpportunisticAssaultUnit).getDescription()),
+		iOpportunisticTargetCapacity, iOpportunisticExistingCapacity, iOpportunisticExistingTransports, iOpportunisticTrainingTransports, iUnitSpending, iMaxUnitSpending + 25);
+
 	// Revamped logic for production for invasions
 	// <!-- custom: The overseas-opportunity summary alone cannot show whether AdvCiv's invasion-production branch requested a transport. At level 3, trace entry into that branch; the capacity and central production-gate rows below then identify the exact later refusal without adding diagnostic work when logging is disabled. (GPT-5.6-Sol) -->
-	if (bLogDetailedOverseasTransport && pWaterArea != NULL && iUnitSpending >= iMaxUnitSpending + 25) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=INVASION_BRANCH result=REJECT_UNIT_SPENDING unitSpending=%d branchMax=%d assault=%d anyWarPlan=%d areaAI=%d waterArea=%d",
-		GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 25,
-		bAssault, kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(getTeam()), pWaterArea->getID());
+	if (bLogDetailedOverseasTransport && pWaterArea != NULL && iUnitSpending >= iMaxUnitSpending + 25) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=INVASION_BRANCH result=%s unitSpending=%d branchMax=%d assault=%d anyWarPlan=%d areaAI=%d waterArea=%d",
+		GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (bOpportunisticAssaultTransportDemand ? "BYPASS_UNIT_SPENDING_FOR_TARGET" : "REJECT_UNIT_SPENDING"),
+		iUnitSpending, iMaxUnitSpending + 25, bAssault, kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(getTeam()), pWaterArea->getID());
+	if (bOpportunisticAssaultTransportDemand && iUnitSpending >= iMaxUnitSpending + 25)
+	{
+		if (AI_chooseUnit(eOpportunisticAssaultUnit, UNITAI_ASSAULT_SEA))
+		{
+			if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=OPPORTUNISTIC_ORDER result=TRAIN_ASSAULT_TRANSPORT target=%S unit=%S targetCapacity=%d existingCapacity=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pOpportunisticAssaultTarget->getName().GetCString(), GC.getInfo(eOpportunisticAssaultUnit).getDescription(), iOpportunisticTargetCapacity, iOpportunisticExistingCapacity);
+			AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 8);
+			return;
+		}
+		if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=OPPORTUNISTIC_ORDER result=REJECT_CHOOSE_UNIT target=%S unit=%S targetCapacity=%d existingCapacity=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pOpportunisticAssaultTarget->getName().GetCString(), GC.getInfo(eOpportunisticAssaultUnit).getDescription(), iOpportunisticTargetCapacity, iOpportunisticExistingCapacity);
+	}
 	if (iUnitSpending < iMaxUnitSpending + 25) // was + 10 (new unit spending metric)
 	{
 		bool bBuildAssault = bAssault;
@@ -2782,6 +2874,12 @@ void CvCityAI::AI_chooseProduction()
 				}
 			}
 		}
+		// <!-- custom: An unrelated land-reachable enemy city can leave Base AdvCiv's broad bBuildAssault false. A verified missing-capacity opportunity should still enter the inherited transport-capacity branch for its actual water area. See KI#193.2. (GPT-5.6-Sol) -->
+		if (!bBuildAssault && bOpportunisticAssaultTransportDemand)
+		{
+			bBuildAssault = true;
+			pAssaultWaterArea = pWaterArea;
+		}
 		if (bLogDetailedOverseasTransport && pWaterArea != NULL) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=INVASION_BRANCH result=%s initialAssault=%d buildAssault=%d anyWarPlan=%d areaAI=%d assaultTargetFound=%d hasLandPathToEnemyCity=%d waterArea=%d assaultWaterArea=%d",
 			GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (bBuildAssault ? "ENTER" : "REJECT_NO_ASSAULT_STATE"),
 			bAssault, bBuildAssault, kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(getTeam()), bAssaultTargetFound, bHasLandPathToEnemyCity, pWaterArea->getID(), (pAssaultWaterArea == NULL ? -1 : pAssaultWaterArea->getID()));
@@ -2789,23 +2887,19 @@ void CvCityAI::AI_chooseProduction()
 		if (bBuildAssault)
 		{
 			if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses build assault", sCityName);
+			// <!-- custom: The opportunistic evaluation already computed the same attacker total and selected a ship this city can train. Reuse both; compute the attacker total here only for the unchanged inherited path. See KI#193.2. (GPT-5.6-Sol) -->
+			if (iUnitsToTransport < 0) iUnitsToTransport = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER) / 2;
 
-			UnitTypes eBestAssaultUnit = NO_UNIT;
-			if (pAssaultWaterArea != NULL)
+			UnitTypes eBestAssaultUnit = (bOpportunisticAssaultTransportDemand ? eOpportunisticAssaultUnit : NO_UNIT);
+			if (eBestAssaultUnit == NO_UNIT && pAssaultWaterArea != NULL)
 				kPlayer.AI_bestCityUnitAIValue(UNITAI_ASSAULT_SEA, this, &eBestAssaultUnit);
-			else kPlayer.AI_bestCityUnitAIValue(UNITAI_ASSAULT_SEA, NULL, &eBestAssaultUnit);
+			else if (eBestAssaultUnit == NO_UNIT) kPlayer.AI_bestCityUnitAIValue(UNITAI_ASSAULT_SEA, NULL, &eBestAssaultUnit);
 
 			int iBestSeaAssaultCapacity = 0;
 			if (eBestAssaultUnit != NO_UNIT)
 				iBestSeaAssaultCapacity = GC.getInfo(eBestAssaultUnit).getCargoSpace();
 			else if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=BEST_UNIT result=REJECT_NO_TRAINABLE_ASSAULT_TRANSPORT assaultWaterArea=%d",
 				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (pAssaultWaterArea == NULL ? -1 : pAssaultWaterArea->getID()));
-
-			int iAreaAttackCityUnits = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY);
-
-			int iUnitsToTransport = iAreaAttackCityUnits;
-			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK);
-			iUnitsToTransport += kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER)/2;
 
 			int const iLocalTransports = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ASSAULT_SEA);
 			int iTransportsAtSea = 0;
@@ -2877,7 +2971,8 @@ void CvCityAI::AI_chooseProduction()
 				/*if (iEscorts < iDesiredEscorts) {
 					if (AI_chooseUnit(UNITAI_ESCORT_SEA, (iEscorts < iDesiredEscorts/3) ? -1 : 50)) */
 				// K-Mod
-				if (iEscorts < iDesiredEscorts && iDesiredEscorts > 0)
+				// <!-- custom: The target-backed override exists only to fill missing cargo space. Do not let the inherited branch spend this production opportunity on additional escorts or naval attackers first; normal fleet movement still applies its safety and escort requirements before departure. See KI#193.2. (GPT-5.6-Sol) -->
+				if (!bOpportunisticAssaultTransportDemand && iEscorts < iDesiredEscorts && iDesiredEscorts > 0)
 				{
 					int iOdds = 100;
 					iOdds *= iDesiredEscorts;
@@ -2892,7 +2987,7 @@ void CvCityAI::AI_chooseProduction()
 
 				UnitTypes eBestAttackSeaUnit = NO_UNIT;
 				kPlayer.AI_bestCityUnitAIValue(UNITAI_ATTACK_SEA, this, &eBestAttackSeaUnit);
-				if (eBestAttackSeaUnit != NO_UNIT)
+				if (!bOpportunisticAssaultTransportDemand && eBestAttackSeaUnit != NO_UNIT)
 				{
 					// (tweaked for K-Mod)
 					int iAttackSea = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_SEA);
@@ -2924,6 +3019,8 @@ void CvCityAI::AI_chooseProduction()
 					AI landings don't get delayed by a lack of transport capacity.
 					Existing cargo units can also be stuck somewhere. */
 				int iTargetCapacity = intdiv::uround(5 * iUnitsToTransport, 4);
+				// <!-- custom: The inherited target prepares cargo space for 125% of the whole area's attack force. For this narrow opportunity, stop at the smaller capacity justified by the selected city's defenders and available attackers, preventing a nearby island from reviving excessive transport production. See KI#193.2. (GPT-5.6-Sol) -->
+				if (bOpportunisticAssaultTransportDemand) iTargetCapacity = std::min(iTargetCapacity, iOpportunisticTargetCapacity);
 				if(iTargetCapacity > iTransportCapacity) // </advc.104p>
 				{
 					if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=CAPACITY result=SHORTAGE bestUnit=%S bestCargo=%d unitsToTransport=%d targetCapacity=%d localTransports=%d transportsAtSea=%d effectiveTransports=%d transportCapacity=%d unitSpending=%d maxUnitSpending=%d",

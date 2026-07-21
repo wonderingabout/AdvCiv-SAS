@@ -2973,6 +2973,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Base AdvCiv can suppress all assault-transport production for a worthwhile island because another enemy city is reachable by land, or because the existing land army raises general military spending. When enabled, a safe coastal city can request only the missing capacity for a nearby overseas city that AI_isSASCityLikelyToBenefitUsLongTerm says is worth keeping and that the available attackers plausibly outnumber. Normal target-strength, loading, danger, and central fleet-cap checks remain. 1 enables, 0 disables. See KI#193.2. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_PRODUCTION_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum distance from the overseas target to its nearest owned city for opportunistic assault-transport production. Save file 450 showed Cimmerian 9 plots away remaining Barbarian for 128 more turns despite Carthage having 24 attackers against 1 defender; the limit prevents reviving wasteful faraway naval distractions. Set to 0 for no distance limit. See KI#193.2. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_PRODUCTION_MAX_NEAREST_CITY_DISTANCE</DefineName>
+		<iDefineIntVal>18</iDefineIntVal>
+	</Define>
 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
 	<Define>
 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
