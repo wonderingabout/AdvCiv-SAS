@@ -335,14 +335,15 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
 	return pSettlerGroup->canDefend();
 }
 
-// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site. See KI#179. (ChatGPT-5.5) -->
-static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
+// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site.
+// However, save-file 449 BBAI testing later showed an unescorted Settler waiting more than 100 turns on its danger-free target plot before founding Agra. Once the Settler is already exposed on a valid site, refusing to found does not protect it; require an escort here only when the site has actual plot danger. See KI#179. (GPT-5.6-Sol) -->
+static bool SAS_shouldBlockDangerousUnescortedFounding(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
 {
 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
 	CvSelectionGroup const* pGroup = kSettler.getGroup();
 	if (kOwner.getNumCities() <= 0 || pGroup == NULL || pGroup->canDefend() || kSettler.getInvisibleType() != NO_INVISIBLE)
 		return false;
-	return kTargetPlot.getOwner() != kSettler.getOwner();
+	return kTargetPlot.getOwner() != kSettler.getOwner() && kOwner.AI_isAnyPlotDanger(kTargetPlot);
 }
 
 // <!-- custom: Avoid direct founding on a merely valid current plot when the current city-site list already contains a clearly better reachable site. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already reported a much better reachable site.
@@ -4171,9 +4172,9 @@ void CvUnitAI::AI_settleMove()
 			if (at(kSite) && canFound(plot()))
 			{
 				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
-				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
+				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 				{
-					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
+					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
 				}
 				else
 				{
@@ -20217,9 +20218,9 @@ bool CvUnitAI::AI_foundFollow()
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
 		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
-		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
+		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
 		{
-			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
 			return false;
 		}
 		CvPlot const* pBetterFoundPlot = NULL;

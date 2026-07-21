@@ -240,6 +240,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use)\
 [193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets)\
 [193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1932---fixedimproved-base-advcivk-mod-assault-transport-production-could-overlook-nearby-profitable-islands-when-land-armies-were-already-large-or-another-enemy-city-was-reachable-by-land)\
+[194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#194---fixedimproved-advciv-sas-inland-capital-settler-production-gate-could-ignore-worthwhile-islands-that-existing-settler-transports-could-reach)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -6602,7 +6603,7 @@ The risky path came from an earlier AdvCiv-SAS anti-parking / early-expansion ov
 
 This has been fixed/improved by replacing that reckless early-settling path with guarded-Settler behavior:
 
-- post-capital Settlers should not found or continue exposed expansion unless the group can defend or an existing guard-city mission covers the site;
+- post-capital Settlers should not continue toward dangerous exposed expansion unless the group can defend or an existing guard-city mission covers the site;
 - a Settler parked in one of its own cities can reassign one healthy local defender as escort before evaluating exposed expansion;
 - the donor city must keep at least the configured remaining healthy defenders after losing the escort;
 - direct found-in-place and found-follow mission paths are guarded too, not only the normal city-site loop;
@@ -6633,11 +6634,15 @@ Validation so far:
 - donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
 - the follow-up game-summary log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
 
+AdvCiv-SAS 6067 later refined only the direct founding restriction after KI#194's save-file 449 testing exposed the opposite failure. An Indian Settler reached the valid island site at `(44,10)` around turn 142 with no defender, but `SAS_shouldBlockExposedUnescortedSettler` treated every unowned plot as dangerous. It refused to found despite both current and target plot danger being 0, then remained exposed while moving or waiting for more than 100 turns and finally founded Agra only on turn 257. Once a Settler is already standing unescorted on a valid danger-free site, refusing to found does not protect it; it merely leaves the same unit exposed while forfeiting city growth, production, commerce and culture.
+
+The narrowed `SAS_shouldBlockDangerousUnescortedFounding` therefore blocks direct found-in-place and follow-found only when the unowned site has actual plot danger. Escort requirements for travelling toward exposed sites, waiting in a city, and founding a dangerous site remain unchanged. In the confirming save-file 449 run, the lone Settler reached `(44,10)` with `targetDanger=0` and founded Agra immediately on turn 144; all three unescorted danger-free foundations survived through the turn-326 end of the run, when India won by Space. Save file 450 then confirmed that dangerous expansion remained guarded: Nobamba was founded with 2 healthy defenders and survived 97 turns before an ordinary Arabian conquest, while another Zulu Settler founded kwaDukuza on a `targetDanger=12` plot with a defender. No unescorted city was founded in that run.
+
 Remaining risk:
 
 This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
 
-Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.
+Fixed/improved with the help of ChatGPT-5.5, GPT-5.5 and GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 ## 180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed
 
@@ -7292,5 +7297,19 @@ The final save-file 450 run did not revive the old naval overproduction. Ordinar
 Save file 449 independently tested the cure on another island-rich but land-heavy map. Across 456 turns, 140 evaluations correctly found enough existing capacity and only 7 opportunistic transport orders were accepted; ordinary AI assault fleets peaked at 4 ships, far below the old 10-20-transport failure. The original Minoan opportunity did not recur because the history diverged, but the changed city on that site was captured using existing transport capacity. Hannibal also captured faraway Illinois using one existing Galleon and 4 units: because the nearest Carthaginian city was 27 plots away, beyond the default production limit of 18, that profitable small expedition did not cause the AI to build a new fleet for the distant target.
 
 Chehalis changing from Mali in the older run to Aztec ownership in this confirming run was unrelated to the cure because it was reachable by land. Both runs valued the city as worthwhile. In the older history, Aztec remained committed to a costly Scandinavian war while Mali made peace and reached Chehalis first; in the confirming history, the Aztec war ended earlier and its freed army captured Chehalis before Mali. This is useful evidence that preserving available military tempo matters, but not evidence that the overseas-production rule selected Chehalis.
+
+Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+## 194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach
+
+The overseas-settlement diagnostics added after KI#193.2 exposed an AdvCiv-SAS regression introduced accidentally by KI#181's otherwise useful weak-site Settler-production floor. KI#181 added `SAS_getSettlerBuildSiteStatus` as the final guard before a concrete Settler order, but its water-site check copied only the producing city's directly relevant water area and omitted an inherited K-Mod/AdvCiv fallback used by the surrounding production logic. In save file 449, India knew a valuable nearby Fish/Whale/Crab island site at `(39,10)` and already had 2 Settler transports with 6 total cargo space. The inherited `CvCityAI::AI_chooseProduction` logic could see the island, but because Delhi was inland, the new AdvCiv-SAS gate received a null water area, repeatedly reported `hasBuildSite=0 waterSites=0` from turns 119-129, and rejected the Settler despite the reachable island opportunity.
+
+The mismatch meant India did not produce the Settler for that island. It eventually founded Varanasi on the same plot only on turn 171, after an unrelated land city site made the general Settler gate pass. Thus a useful existing transport network and a worthwhile island could remain unused merely because the capital itself was inland.
+
+The new shared `SAS_getSettlerWaterArea` keeps the normal directly relevant water area for a coastal city. When the producing city has none, it uses the map's largest water area only if the player already has a `UNITAI_SETTLER_SEA` transport there. Both the broad production logic and the final concrete Settler gate now use this same result. The existing-transport requirement prevents an inland capital from treating an inaccessible overseas site as immediately buildable, while allowing it to use shipping capacity it already possesses.
+
+The first confirming save-file 449 run logged the corrected decision on turn 119: `hasBuildSite=1 areaSites=0 waterSites=2 waterBest=2003`, against the configured early Settler floor of 2000. Delhi immediately selected the Settler and founded Varanasi at `(39,10)` on turn 128, 43 turns earlier than the diagnostic run and without waiting for an unrelated land site. A second run independently founded Varanasi on turn 117, then produced another Settler for the next qualifying island site.
+
+That second Settler exposed the separate KI#179 follow-up described there: it reached a danger-free valid site but the existing escort safeguard prevented it from founding. After narrowing only direct danger-free founding, the final run founded Agra immediately on turn 144 instead of turn 257. Save file 450 then confirmed that the original dangerous-expansion protection remained guarded. Together, the tests show that the AI can exploit worthwhile islands from an inland capital without restoring reckless dangerous founding.
 
 Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.

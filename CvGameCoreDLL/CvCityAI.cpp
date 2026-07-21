@@ -109,13 +109,27 @@ static int SAS_getSettlerBuildMinFoundValue(CvPlayerAI const& kPlayer, bool bDan
 	return iMinFoundValue;
 }
 
+// <!-- custom: Save file 449 showed an inland capital's concrete SAS Settler gate reporting no water sites while the surrounding city-production logic simultaneously recognized a nearby Fish/Whale/Crab island and already had two Settler transports. Reuse the production logic's relevant-water-area fallback so an existing transport lets inland cities consider sites on the main sea; otherwise an unrelated land site must appear before the valid overseas Settler can be built. (GPT-5.6-Sol) -->
+static CvArea const* SAS_getSettlerWaterArea(CvCityAI const& kCity)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	CvArea const* pWaterArea = kCity.waterArea(true);
+	if (pWaterArea != NULL && !GET_TEAM(kCity.getTeam()).AI_isWaterAreaRelevant(*pWaterArea)) pWaterArea = NULL;
+	if (pWaterArea == NULL)
+	{
+		pWaterArea = GC.getMap().findBiggestArea(true);
+		if (pWaterArea != NULL && kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) <= 0) pWaterArea = NULL;
+	}
+	return pWaterArea;
+}
+
 static bool SAS_getSettlerBuildSiteStatus(CvCityAI const& kCity, int& iNumAreaCitySites, int& iAreaBestFoundValue, int& iNumWaterAreaCitySites, int& iWaterAreaBestFoundValue, int& iSettlerBuildMinFoundValue)
 {
 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
 	iAreaBestFoundValue = -1;
 	iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kCity.getArea(), iAreaBestFoundValue);
 	iWaterAreaBestFoundValue = 0;
-	CvArea const* pWaterArea = kCity.waterArea(true);
+	CvArea const* pWaterArea = SAS_getSettlerWaterArea(kCity);
 	iNumWaterAreaCitySites = (pWaterArea == NULL ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterArea, &kCity.getArea()));
 	iSettlerBuildMinFoundValue = SAS_getSettlerBuildMinFoundValue(kPlayer, kCity.AI_isDanger());
 	return (iNumAreaCitySites > 0 && iAreaBestFoundValue > iSettlerBuildMinFoundValue) || (iNumWaterAreaCitySites > 0 && iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue);
@@ -173,6 +187,46 @@ static CvCity const* SAS_findNearbyOverseasConquestTarget(CvCityAI const& kCity,
 		}
 	}
 	return pBestTarget;
+}
+
+
+// <!-- custom: At Overseas-transport level 3, expose the resources behind a settlement found value or conquest target value. Aggregate visible BFC bonuses, whether the player already has each resource, and their current empire value so unusually low island scores such as Minoan's can be separated from transport or distance failures without recomputing this in normal games. (GPT-5.6-Sol) -->
+static void SAS_getOverseasBonusDiagnostics(CvPlot const& kCenterPlot, PlayerTypes ePlayer, CvWString& szBonuses, int& iRevealedPlots, int& iLandPlots, int& iWaterPlots, int& iBonusPlots, int& iMissingBonusTypes, int& iMissingBonusValue, int& iMissingBonusHealth, int& iMissingBonusHappiness)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	TeamTypes const eTeam = kPlayer.getTeam();
+	szBonuses.clear();
+	iRevealedPlots = 0;
+	iLandPlots = 0;
+	iWaterPlots = 0;
+	iBonusPlots = 0;
+	iMissingBonusTypes = 0;
+	iMissingBonusValue = 0;
+	iMissingBonusHealth = 0;
+	iMissingBonusHappiness = 0;
+	std::vector<bool> abMissingBonusCounted(GC.getNumBonusInfos(), false);
+	for (CityPlotIter it(kCenterPlot, false); it.hasNext(); ++it)
+	{
+		CvPlot const& kPlot = *it;
+		if (!kPlot.isRevealed(eTeam)) continue;
+		iRevealedPlots++;
+		if (kPlot.isWater()) iWaterPlots++;
+		else iLandPlots++;
+		BonusTypes const eBonus = kPlot.getBonusType(eTeam);
+		if (eBonus == NO_BONUS) continue;
+		iBonusPlots++;
+		CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+		int const iAvailableBonuses = kPlayer.getNumAvailableBonuses(eBonus);
+		int const iBonusValue = kPlayer.AI_bonusVal(eBonus, 1, true);
+		if (!szBonuses.empty()) szBonuses += L",";
+		szBonuses += CvWString::format(L"%s(available=%d,value=%d,health=%d,happy=%d)", kBonus.getDescription(), iAvailableBonuses, iBonusValue, kBonus.getHealth(), kBonus.getHappiness());
+		if (iAvailableBonuses > 0 || abMissingBonusCounted[eBonus]) continue;
+		abMissingBonusCounted[eBonus] = true;
+		iMissingBonusTypes++;
+		iMissingBonusValue += iBonusValue;
+		iMissingBonusHealth += kBonus.getHealth();
+		iMissingBonusHappiness += kBonus.getHappiness();
+	}
 }
 
 
@@ -234,10 +288,29 @@ static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea co
 				continue;
 			}
 			iKnownCoastalOtherAreaCandidates++;
-			if (!kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity))
+			bool const bLikelyToBenefitLongTerm = kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity);
+			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
+			if (gOverseasTransportLogLevel >= 3)
+			{
+				CvWString szBonuses;
+				int iRevealedPlots = 0;
+				int iLandPlots = 0;
+				int iWaterPlots = 0;
+				int iBonusPlots = 0;
+				int iMissingBonusTypes = 0;
+				int iMissingBonusValue = 0;
+				int iMissingBonusHealth = 0;
+				int iMissingBonusHappiness = 0;
+				SAS_getOverseasBonusDiagnostics(pTargetCity->getPlot(), kCity.getOwner(), szBonuses, iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness);
+				CvCity const* pNearestOwnCity = GC.getMap().findCity(pTargetCity->getX(), pTargetCity->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pTargetCity);
+				logBBAI("      OVERSEAS_CONQUEST_CANDIDATE turn=%d player=%d %S target=%S targetOwner=%d targetBarbarian=%d target=(%d,%d) targetArea=%d waterArea=%d pop=%d defenders=%d targetValue=%d likelyToBenefitLongTerm=%d nearestOwnCity=%S nearestOwnCityDistance=%d revealedBFC=%d landBFC=%d waterBFC=%d bonusPlots=%d missingBonusTypes=%d missingBonusValue=%d missingBonusHealth=%d missingBonusHappiness=%d bonuses=\"%S\"",
+					GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), pTargetCity->getName().GetCString(), pTargetCity->getOwner(), pTargetCity->isBarbarian(), pTargetCity->getX(), pTargetCity->getY(), pTargetCity->getArea().getID(), pSharedWaterArea->getID(),
+					pTargetCity->getPopulation(), pTargetCity->getPlot().plotCount(PUF_canDefend), iTargetValue, bLikelyToBenefitLongTerm, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pTargetCity->getX(), pTargetCity->getY())),
+					iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness, (szBonuses.empty() ? L"-" : szBonuses.GetCString()));
+			}
+			if (!bLikelyToBenefitLongTerm)
 				continue;
 			iLongTermCandidates++;
-			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
 			int const iStepDistance = stepDistance(kCity.getX(), kCity.getY(), pTargetCity->getX(), pTargetCity->getY());
 			int const iScore = 100 * iTargetValue - iStepDistance;
 			if (iScore <= iBestScore)
@@ -248,6 +321,48 @@ static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea co
 			iBestStepDistance = iStepDistance;
 			iBestScore = iScore;
 		}
+	}
+	CvPlot const* pBestWaterSite = NULL;
+	int iBestWaterSiteValue = 0;
+	if (pWaterArea != NULL)
+	{
+		for (int i = 0; i < kPlayer.AI_getNumCitySites(); i++)
+		{
+			CvPlot const& kSite = kPlayer.AI_getCitySite(i);
+			if (kSite.isArea(kCity.getArea()) || !kSite.isAdjacentToArea(*pWaterArea)) continue;
+			int const iFoundValue = kSite.getFoundValue(kCity.getOwner());
+			if (gOverseasTransportLogLevel >= 3)
+			{
+				CvWString szBonuses;
+				int iRevealedPlots = 0;
+				int iLandPlots = 0;
+				int iWaterPlots = 0;
+				int iBonusPlots = 0;
+				int iMissingBonusTypes = 0;
+				int iMissingBonusValue = 0;
+				int iMissingBonusHealth = 0;
+				int iMissingBonusHappiness = 0;
+				SAS_getOverseasBonusDiagnostics(kSite, kCity.getOwner(), szBonuses, iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness);
+				CvCity const* pNearestOwnCity = GC.getMap().findCity(kSite.getX(), kSite.getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION);
+				logBBAI("      OVERSEAS_SETTLEMENT_CANDIDATE turn=%d player=%d %S site=(%d,%d) siteArea=%d waterArea=%d foundValue=%d settlerBuildMin=%d qualifies=%d nearestOwnCity=%S nearestOwnCityDistance=%d freshWater=%d river=%d revealedBFC=%d landBFC=%d waterBFC=%d bonusPlots=%d missingBonusTypes=%d missingBonusValue=%d missingBonusHealth=%d missingBonusHappiness=%d bonuses=\"%S\"",
+					GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kSite.getX(), kSite.getY(), kSite.getArea().getID(), pWaterArea->getID(), iFoundValue, iSettlerBuildMinFoundValue, (iFoundValue > iSettlerBuildMinFoundValue),
+					(pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), kSite.getX(), kSite.getY())), kSite.isFreshWater(), kSite.isRiver(),
+					iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness, (szBonuses.empty() ? L"-" : szBonuses.GetCString()));
+			}
+			if (iFoundValue > iBestWaterSiteValue)
+			{
+				pBestWaterSite = &kSite;
+				iBestWaterSiteValue = iFoundValue;
+			}
+		}
+	}
+	if (pBestWaterSite != NULL)
+	{
+		CvCity const* pNearestOwnCity = GC.getMap().findCity(pBestWaterSite->getX(), pBestWaterSite->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION);
+		logBBAI("      OVERSEAS_SETTLEMENT_STATUS turn=%d player=%d %S capital=%S bestSite=(%d,%d) siteArea=%d waterArea=%d foundValue=%d settlerBuildMin=%d qualifies=%d nearestOwnCity=%S nearestOwnCityDistance=%d settlersTotal=%d settlersTraining=%d settlerTransportsWater=%d settlerTransportsTotal=%d settlerTransportsTraining=%d settlerCargoCapacity=%d financialTrouble=%d danger=%d landWar=%d assault=%d",
+			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), pBestWaterSite->getX(), pBestWaterSite->getY(), pBestWaterSite->getArea().getID(), pWaterArea->getID(), iBestWaterSiteValue, iSettlerBuildMinFoundValue, (iBestWaterSiteValue > iSettlerBuildMinFoundValue),
+			(pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pBestWaterSite->getX(), pBestWaterSite->getY())), kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLE),
+			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA), kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLER_SEA), kPlayer.AI_countCargoSpace(UNITAI_SETTLER_SEA), bFinancialTrouble, bDanger, bLandWar, bAssault);
 	}
 	if (iNumWaterAreaCitySites <= 0 && pBestTarget == NULL)
 		return;
@@ -1167,19 +1282,19 @@ void CvCityAI::AI_chooseProduction()
 	int const iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kArea, iAreaBestFoundValue);
 
 	int iWaterAreaBestFoundValue = 0;
-	CvArea* pWaterSettlerArea = pWaterArea;
-	if (pWaterSettlerArea == NULL)
-	{
-		pWaterSettlerArea = GC.getMap().findBiggestArea(true);
-		if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
-			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0)
-		{
-			pWaterSettlerArea = NULL;
-		}
-	}
-	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 :
-			kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue,
-			*pWaterSettlerArea, &kArea);
+	// <!-- custom: Replaced this inherited local fallback with the shared helper above so the concrete SAS Settler gate cannot disagree with city production about the same overseas site. (GPT-5.6-Sol) -->
+	// CvArea* pWaterSettlerArea = pWaterArea;
+	// if (pWaterSettlerArea == NULL)
+	// {
+	// 	pWaterSettlerArea = GC.getMap().findBiggestArea(true);
+	// 	if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
+	// 		kPlayer.AI_totalWaterAreaUnitAIs(*pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0)
+	// 	{
+	// 		pWaterSettlerArea = NULL;
+	// 	}
+	// }
+	CvArea const* pWaterSettlerArea = SAS_getSettlerWaterArea(*this);
+	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterSettlerArea, &kArea);
 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
 	if (bLogOverseasTransport && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
 
@@ -1765,11 +1880,15 @@ void CvCityAI::AI_chooseProduction()
 						iOdds = 100;
 					else iOdds += (150 * iWaterAreaBestFoundValue) / iAreaBestFoundValue;
 					// </advc.017b>
+					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=TRY_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d existing=0",
+						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
 					{
 						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
 						return;
 					}
+					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d",
+						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
 				}
 			}
 		}
@@ -2450,8 +2569,10 @@ void CvCityAI::AI_chooseProduction()
 				}
 
 				int const iSettlerSeaExisting = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA);
-				if (bLogOverseasTransport && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
-					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())), kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
+				if (bLogOverseasTransport && isCapital() && iNumWaterAreaCitySites > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S result=%s waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
+					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (iSettlerSeaNeeded <= 0 ? "NO_DEMAND" : (iSettlerSeaExisting < iSettlerSeaNeeded ? "TRY_CHOOSE_UNIT" : "ENOUGH")), pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue,
+					kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())),
+					kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
 				if (iSettlerSeaExisting < iSettlerSeaNeeded)
 				{
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
@@ -2459,6 +2580,8 @@ void CvCityAI::AI_chooseProduction()
 						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
 						return;
 					}
+					if (bLogOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=MAIN result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d",
+						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), iSettlerSeaExisting, iSettlerSeaNeeded);
 				}
 			}
 

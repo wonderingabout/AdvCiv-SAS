@@ -1258,7 +1258,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
-	<!-- custom: Block exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
+	<!-- custom: Block dangerous exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. Save-file 449 later showed that requiring an escort even with no plot danger left a Settler exposed on its valid site for more than 100 turns, so danger-free founding in place remains allowed. See KI#179. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
@@ -1431,7 +1431,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging. Level 3 notably also follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
+	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging. Level 3 notably also compares exact empty-island and conquest candidates with BFC resources and follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
