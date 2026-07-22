@@ -7263,8 +7263,8 @@ bool CvUnit::upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, 
 	return false;
 }
 
-
-bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+// <!-- custom: Added bUpgradeCityKnown for AI routing that has already found a suitable upgrade city; this applies the real economic checks without incorrectly retesting only the nearest city. See KI#188.3.3. (GPT-5.6-Sol) -->
+bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible, bool bUpgradeCityKnown) const
 {
 	if (eUnit == NO_UNIT)
 		return false;
@@ -7383,7 +7383,7 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
 		// <!-- custom: end AI upgrade economic checks (ChatGPT 5.2 Thinking) -->
 	}
 
-	if (hasUpgrade(eUnit))
+	if (bUpgradeCityKnown || hasUpgrade(eUnit))
 		return true;
 
 	return false;
@@ -7400,13 +7400,11 @@ bool CvUnit::isReadyForUpgrade() const
 	return true;
 }
 
-/*	finds the 'best' city which has a valid upgrade for the unit,
-	it specifically does not check whether the unit can move, or if the player has enough gold to upgrade
-	those are checked in canUpgrade()
-	if bSearch is true, it will check every city, if not, it will only check the closest valid city
-	NULL result means the upgrade is not possible */
-CvCity* CvUnit::getUpgradeCity(bool bSearch) const
+/*	finds the 'best' city which has a valid upgrade for the unit, it specifically does not check whether the unit can move, or if the player has enough gold to upgrade those are checked in canUpgrade() if bSearch is true, it will check every city, if not, it will only check the closest valid city NULL result means the upgrade is not possible */
+// <!-- custom: Return the selected upgrade type when requested so AI_travelToUpgradeCity can apply the real eligibility checks without repeating this search. This prevents units from travelling to or waiting in an upgrade city for unaffordable or economically rejected upgrades. See KI#188.3.3. (GPT-5.6-Sol) -->
+CvCity* CvUnit::getUpgradeCity(bool bSearch, UnitTypes* peUpgradeUnit) const
 {
+	if (peUpgradeUnit != NULL) *peUpgradeUnit = NO_UNIT;
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	UnitAITypes eUnitAI = AI_getUnitAIType();
 
@@ -7414,6 +7412,7 @@ CvCity* CvUnit::getUpgradeCity(bool bSearch) const
 
 	int iBestSearchValue = MAX_INT;
 	CvCity* pBestUpgradeCity = NULL;
+	UnitTypes eBestUpgradeUnit = NO_UNIT;
 
 	FOR_EACH_ENUM(Unit)
 	{
@@ -7427,6 +7426,7 @@ CvCity* CvUnit::getUpgradeCity(bool bSearch) const
 				// if not searching or close enough, then this match will do
 				if (!bSearch || iSearchValue < 16)
 				{
+					if (peUpgradeUnit != NULL) *peUpgradeUnit = eLoopUnit;
 					return pUpgradeCity;
 				}
 
@@ -7434,11 +7434,13 @@ CvCity* CvUnit::getUpgradeCity(bool bSearch) const
 				{
 					iBestSearchValue = iSearchValue;
 					pBestUpgradeCity = pUpgradeCity;
+					eBestUpgradeUnit = eLoopUnit;
 				}
 			}
 		}
 	}
 
+	if (peUpgradeUnit != NULL) *peUpgradeUnit = eBestUpgradeUnit;
 	return pBestUpgradeCity;
 }
 

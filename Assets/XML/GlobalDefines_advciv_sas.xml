@@ -2948,7 +2948,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Minimum city-assault force retained on a safe owned plot while an AI is at peace without a target or war plan. This originally limited each group separately, but save-file 450 follow-up logging found 71 units parked together as 12 groups whose largest had 9 units; the limit therefore now applies across all city-assault-led groups on the plot. The estimated number of attackers needed against Barbarian cities can retain more; excess suitable units return to general military duties until a target appears. Minimum 1. See KI#188.3. (GPT-5.6-Sol) -->
+	<!-- custom: Minimum city-assault force retained on a safe owned plot while an AI is at peace without a target or war plan. This originally limited each group separately, but save-file 450 follow-up logging found 71 units parked together as 12 groups whose largest had 9 units; the limit therefore now applies across all city-assault-led groups on the plot. The estimated number of attackers needed against Barbarian cities can retain more; excess suitable units return to general military duties until a target appears. Minimum 1. See KI#188.3.2. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS</DefineName>
 		<iDefineIntVal>9</iDefineIntVal>

@@ -23710,7 +23710,7 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
 
 
 // <!-- custom: Save file 450 showed a peaceful AI keeping 75-78 military units in one non-capital city before its capital fell immediately when war began. Most upgrades also occurred in that city.
-// At UNIT level 2, trace upgrade travel and waiting when the destination already contains at least 20 military units and 30% of the owner's army. This reveals whether inherited upgrade-city routing creates or prolongs an aggregate concentration across many individually modest groups; it does not affect behavior. (GPT-5.6-Sol) -->
+// At UNIT level 2, trace upgrade travel and waiting when the destination already contains at least 20 military units and 30% of the owner's army. Record the candidate, affordability, economic eligibility, estimated upgrade budget, upgrade-pass context, and surrounding concentration so inherited upgrade-city routing can be distinguished from useful staging; this does not affect behavior. (GPT-5.6-Sol) -->
 static bool SAS_isCrowdedUpgradeCityDiagnostic(CvUnitAI const& kUnit, CvCity const& kUpgradeCity)
 {
 	if (kUnit.getGroup() == NULL || kUnit.getGroup()->getHeadUnit() != &kUnit) return false;
@@ -23723,7 +23723,7 @@ static bool SAS_isCrowdedUpgradeCityDiagnostic(CvUnitAI const& kUnit, CvCity con
 	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
 }
 
-static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const& kUpgradeCity, char const* szAction, int iPathTurns = -1)
+static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const& kUpgradeCity, UnitTypes eBestUpgrade, char const* szAction, int iPathTurns = -1)
 {
 	int iCityMilitary = 0;
 	int iCityGroups = 0;
@@ -23732,9 +23732,35 @@ static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const&
 	SAS_countPlotMilitaryConcentration(kUpgradeCity.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
-	logBBAI("    UPGRADE_CITY_CONCENTRATION turn=%d player=%d %S action=%s unitId=%d unitAI=%d groupId=%d groupUnits=%d from=(%d,%d) upgradeCity=%S upgradeCity=(%d,%d) pathTurns=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.AI_getUnitAIType(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kUpgradeCity.getName().GetCString(), kUpgradeCity.getX(), kUpgradeCity.getY(), iPathTurns,
-		iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups, kUpgradeCity.getPlot().getNumDefenders(kUnit.getOwner()), kUpgradeCity.isCapital(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+	bool const bHasUpgradeCandidate = (eBestUpgrade != NO_UNIT);
+	int const iUpgradePrice = (bHasUpgradeCandidate ? kUnit.upgradePrice(eBestUpgrade) : -1);
+	bool const bCanUpgradeNow = (bHasUpgradeCandidate && kUnit.canUpgrade(eBestUpgrade));
+	bool const bUpgradeTravelEligible = (bHasUpgradeCandidate && kUnit.canUpgrade(eBestUpgrade, false, /*bUpgradeCityKnown*/ true));
+	int const iCurrentValue = kOwner.AI_unitValue(kUnit.getUnitType(), kUnit.AI_getUnitAIType(), kUnit.area());
+	int const iUpgradeValue = (bHasUpgradeCandidate ? kOwner.AI_unitValue(eBestUpgrade, kUnit.AI_getUnitAIType(), kUnit.area()) : -1);
+	bool const bFocusWar = kOwner.AI_isFocusWar();
+	int const iUpgradeGoldTarget = kOwner.AI_goldTarget(true);
+	int const iEstimatedUpgradeBudget = std::max(1, bFocusWar ? std::min(kOwner.getGold(), iUpgradeGoldTarget) : std::min(iUpgradeGoldTarget, kOwner.getGold() * iUpgradeGoldTarget / std::max(1, kOwner.AI_goldTarget(false))));
+	CvPlot const& kUnitPlot = kUnit.getPlot();
+	bool const bImpassableUnit = kOwner.AI_isAnyImpassable(kUnit.getUnitType());
+	bool const bBestCityDefender = (kUnitPlot.isCity() && kUnitPlot.getBestDefender(kUnit.getOwner()) == &kUnit);
+	bool const bPlotDanger = kOwner.AI_isAnyPlotDanger(kUnitPlot, 1, false);
+	bool const bTransportOrEscort = ((kUnit.cargoSpace() > 0 && kUnit.specialCargo() == NO_SPECIALUNIT) || kUnit.AI_getUnitAIType() == UNITAI_ESCORT_SEA);
+	bool const bNormalPassEnabled = (!kOwner.AI_isFinancialTrouble() || bFocusWar);
+	logBBAI("    UPGRADE_CITY_CONCENTRATION turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d groupMissionAI=%d groupActivity=%d "
+		"from=(%d,%d) upgradeCity=%S upgradeCity=(%d,%d) pathTurns=%d unitCreatedTurn=%d unitAge=%d exp=%d level=%d damage=%d movesLeft=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(), kUnit.AI_getUnitAIType(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getGroup()->AI().AI_getMissionAIType(), kUnit.getGroup()->getActivityType(),
+		kUnit.getX(), kUnit.getY(), kUpgradeCity.getName().GetCString(), kUpgradeCity.getX(), kUpgradeCity.getY(), iPathTurns, kUnit.getGameTurnCreated(), GC.getGame().getGameTurn() - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), kUnit.getDamage(), kUnit.movesLeft());
+	logBBAI("    UPGRADE_CITY_CANDIDATE turn=%d player=%d unitId=%d fromType=%d upgradeType=%d currentValue=%d upgradeValue=%d upgradePrice=%d gold=%d hasEnoughGold=%d canUpgradeNow=%d upgradeTravelEligible=%d readyForUpgrade=%d "
+		"goldRate=%d upgradeGoldTarget=%d totalGoldTarget=%d estimatedUpgradeBudget=%d fitsEstimatedBudget=%d goldToUpgradeAll=%d focusWar=%d financialTrouble=%d "
+		"impassableUnit=%d bestCityDefender=%d plotDanger=%d transportOrEscort=%d normalPassEnabled=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), kUnit.getUnitType(), eBestUpgrade, iCurrentValue, iUpgradeValue, iUpgradePrice, kOwner.getGold(), bHasUpgradeCandidate && kOwner.getGold() >= iUpgradePrice, bCanUpgradeNow, bUpgradeTravelEligible, kUnit.isReadyForUpgrade(),
+		kOwner.calculateGoldRate(), iUpgradeGoldTarget, kOwner.AI_goldTarget(false), iEstimatedUpgradeBudget, bHasUpgradeCandidate && iUpgradePrice <= iEstimatedUpgradeBudget, kOwner.AI_getGoldToUpgradeAllUnits(), bFocusWar, kOwner.AI_isFinancialTrouble(),
+		bImpassableUnit, bBestCityDefender, bPlotDanger, bTransportOrEscort, bNormalPassEnabled);
+	logBBAI("    UPGRADE_CITY_CONTEXT turn=%d player=%d unitId=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
+		"cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups,
+		kUpgradeCity.getPlot().getNumDefenders(kUnit.getOwner()), kUpgradeCity.isCapital(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
 }
 
 bool CvUnitAI::AI_travelToUpgradeCity()
@@ -23742,10 +23768,21 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 	PROFILE_FUNC();
 
 	// is there a city which can upgrade us?
-	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true);
+	UnitTypes eUpgradeUnit = NO_UNIT;
+	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true, &eUpgradeUnit);
 	if (pUpgradeCity == NULL)
 		return false; // advc
+	FAssert(eUpgradeUnit != NO_UNIT);
 	bool const bLogCrowdedUpgradeCity = (gUnitLogLevel >= 2 && SAS_isCrowdedUpgradeCityDiagnostic(*this, *pUpgradeCity));
+	// <!-- custom: Base/K-Mod upgrade-city routing deliberately ignored affordability, and later AdvCiv-SAS economic-return gates could reject an otherwise affordable upgrade without invalidating that destination.
+	// Save-file 450 diagnostics recorded 1,053 crowded-city waits: 631 had enough gold but failed the real upgrade gates, 372 lacked gold, and the same units were repeatedly sent there or forced to skip their turns there for up to 63 turns.
+	// When eligibility can be evaluated safely because the unit can move in owned territory, require the exact upgrade selected above to pass the real checks; otherwise let the unit's normal role use it until the upgrade becomes genuinely available.
+	// Preserve foreign-territory travel because canUpgrade is false there for positional rather than economic reasons. See KI#188.3.3. (GPT-5.6-Sol) -->
+	if (isReadyForUpgrade() && !canUpgrade(eUpgradeUnit, false, /*bUpgradeCityKnown*/ true))
+	{
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, at(pUpgradeCity->getPlot()) ? "release_rejected_upgrade" : "reject_upgrade_travel");
+		return false;
+	}
 
 	// cache some stuff
 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
@@ -23759,14 +23796,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 		{
 			return false;
 		}
-		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "wait_in_upgrade_city", 0);
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "wait_in_upgrade_city", 0);
 		getGroup()->pushMission(MISSION_SKIP);
 		return true;
 	}
 
 	if (DOMAIN_AIR == getDomainType())
 	{
-		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_air_unit");
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_air_unit");
 		pushGroupMoveTo(pUpgradeCity->getPlot());
 		return true;
 	}
@@ -23788,7 +23825,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 	if (pUpgradeCityEndTurnPlot != NULL && pClosestCity != NULL &&
 		(pClosestCity == pUpgradeCity || iUpgradeCityPathTurns < 4))
 	{
-		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_near_upgrade_city", iUpgradeCityPathTurns);
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_near_upgrade_city", iUpgradeCityPathTurns);
 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot);
 		return true;
 	}
@@ -23802,14 +23839,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 			// can we do the airlift this turn?
 			if (canAirliftAt(pClosestCity->plot(), pUpgradeCity->getX(), pUpgradeCity->getY()))
 			{
-				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "airlift_to_upgrade_city", iUpgradeCityPathTurns);
+				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "airlift_to_upgrade_city", iUpgradeCityPathTurns);
 				getGroup()->pushMission(MISSION_AIRLIFT, pUpgradeCity->getX(), pUpgradeCity->getY());
 				return true;
 			}
 			// wait to do it next turn
 			else
 			{
-				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "wait_for_airlift", iUpgradeCityPathTurns);
+				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "wait_for_airlift", iUpgradeCityPathTurns);
 				getGroup()->pushMission(MISSION_SKIP);
 				return true;
 			}
@@ -23823,7 +23860,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 		if (bCanPathToClosestCity &&
 			(!bCanPathToUpgradeCity || iClosestCityPathTurns < iUpgradeCityPathTurns))
 		{
-			if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_to_airlift_city", iUpgradeCityPathTurns);
+			if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_to_airlift_city", iUpgradeCityPathTurns);
 			pushGroupMoveTo(getPathEndTurnPlot(), NO_MOVEMENT_FLAGS, false, false,
 					MISSIONAI_UPGRADE);
 			return true;
@@ -23833,7 +23870,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 	// did not have better airlift choice, go ahead and path to the upgrade city
 	if (pUpgradeCityEndTurnPlot != NULL)
 	{
-		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_to_upgrade_city", iUpgradeCityPathTurns);
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_to_upgrade_city", iUpgradeCityPathTurns);
 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot, NO_MOVEMENT_FLAGS, false, false,
 				MISSIONAI_UPGRADE);
 		return true;

@@ -249,7 +249,8 @@ public:
 	int upgradePrice(UnitTypes eUnit) const;																// Exposed to Python
 	int upgradeXPChange(UnitTypes eUnit) const; // advc.080
 	bool upgradeAvailable(UnitTypes eFromUnit, UnitClassTypes eToUnitClass, int iCount = 0) const;			// Exposed to Python
-	bool canUpgrade(UnitTypes eUnit, bool bTestVisible = false) const;										// Exposed to Python
+	// <!-- custom: Optional known-city flag lets AI routing validate economic eligibility after it has already found a suitable upgrade city, without incorrectly retesting only the nearest city. See KI#188.3.3. (GPT-5.6-Sol) -->
+	bool canUpgrade(UnitTypes eUnit, bool bTestVisible = false, bool bUpgradeCityKnown = false) const;			// Exposed to Python
 	bool isReadyForUpgrade() const;
 	/*	has upgrade is used to determine if an upgrade is possible,
 		it specifically does not check whether the unit can move, whether the current plot is owned, enough gold
@@ -257,7 +258,8 @@ public:
 		does not search all cities, only checks the closest one */
 	bool hasUpgrade(bool bSearch = false) const { return (getUpgradeCity(bSearch) != NULL); } // Exposed to Python
 	bool hasUpgrade(UnitTypes eUnit, bool bSearch = false) const { return (getUpgradeCity(eUnit, bSearch) != NULL); }
-	CvCity* getUpgradeCity(bool bSearch = false) const;
+	// <!-- custom: Optional output identifies the upgrade selected by the city search so unit AI can validate it without repeating the expensive unit-type and city loops. See KI#188.3.3. (GPT-5.6-Sol) -->
+	CvCity* getUpgradeCity(bool bSearch = false, UnitTypes* peUpgradeUnit = NULL) const;
 	CvCity* getUpgradeCity(UnitTypes eUnit, bool bSearch = false, int* iSearchValue = NULL) const;
 	//void upgrade(UnitTypes eUnit);
 	CvUnit* upgrade(UnitTypes eUnit); // K-Mod
