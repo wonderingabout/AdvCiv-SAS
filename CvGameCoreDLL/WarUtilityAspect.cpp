@@ -2896,35 +2896,42 @@ int Risk::preEvaluate()
 	// if you want a fixed, super-simple “turns-to-contact" cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter" in turns; you don’t need extra code for roads.
 	// --- SIMPLE HARD REJECT / RPE FILTER ---
 
-	// fixed caps in *turns*; tweak to taste or move to XML
 	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
-	// static const int MAX_LAND_TURNS = 2;
 	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
-	static const int MAX_LAND_TURNS = 3;
-	static const int MAX_SEA_TURNS  = 12;
+	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS"));
+	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS"));
+	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS"));
 
 	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
 	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
 	const TeamTypes eTarget = m_kParams.getTarget();
 	if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
 	{
-		const bool bNaval = m_kParams.isNaval();
-		int iMinContact = INT_MAX;
+		bool const bNaval = m_kParams.isNaval();
+		int iMinLandContact = INT_MAX;
+		int iMinAnyContact = INT_MAX;
 		for (int i = 0; i < ourCache().numCities(); ++i)
 		{
 			UWAICache::City& kCity = ourCache().cityAt(i);
 			if (kCity.city().getTeam() != eTarget) continue; // Target-specific
 			if (!kCity.canReach()) continue;
-			if (!bNaval && !kCity.canReachByLand()) continue;
-			iMinContact = std::min(iMinContact, kCity.getDistance()); // Approximate turns including roads
+			iMinAnyContact = std::min(iMinAnyContact, kCity.getDistance()); // Approximate turns including roads
+			if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistance());
 		}
-		const int iCanTrainCargo = (bNaval ? ourCache().canTrainAnyCargo() : -1);
-		const bool bNoLift = (bNaval && iCanTrainCargo == 0);
-		const int iMaxTurns = (bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS);
+		// <!-- custom: Save-file 450 logging showed the same land-reachable target passing this guard as a naval plan during selection, then receiving about -100000 utility under the land limit during its next review. Holy Rome consequently started 12 preparations and canceled 11 while up to 110 of 142 military units waited in one staging city.
+		// When any target city is reachable by land, apply the land distance consistently even if UWAI temporarily prefers a naval scenario. Use the wider sea limit and transport requirement only when reaching the target actually requires naval transport; this prevents a single transport or evaluator-mode change from repeatedly creating and destroying the same plan. (GPT-5.6-Sol) -->
+		bool const bDistanceGateNaval = (bNaval && iMinLandContact == INT_MAX);
+		int const iMinContact = (iMinLandContact != INT_MAX ? iMinLandContact : (bDistanceGateNaval ? iMinAnyContact : INT_MAX));
+		int const iCanTrainCargo = (bDistanceGateNaval ? ourCache().canTrainAnyCargo() : -1);
+		bool const bNoLift = (bDistanceGateNaval && iCanTrainCargo == 0);
+		bool const bExistingPlan = (kOurTeam.AI_getWarPlan(eTarget) != NO_WARPLAN);
+		int const iContactTolerance = (bExistingPlan ? iExistingPlanTolerance : 0);
+		int const iMaxTurns = (bDistanceGateNaval ? iMaxSeaTurns : iMaxLandTurns) + iContactTolerance;
+		// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan. Preserve the strict limit for new targets, but give an already-started plan a small XML-tunable tolerance so a single route or border fluctuation does not waste its mobilization. (GPT-5.6-Sol) -->
 		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
 		{
-			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
-					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
+			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan, iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), (iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
 			return -100000; // kill this (agent,target) war plan
 		}
 	}

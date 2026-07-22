@@ -3200,6 +3200,21 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI rejects a prospective war. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. 3 preserves the earlier fixed AdvCiv-SAS limit. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum approximate path turns to the nearest target city when naval transport is actually required. 12 preserves the earlier fixed AdvCiv-SAS limit. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
+	</Define>
+	<!-- custom: Extra cached path turns tolerated after a war plan has already started. This prevents a single pillaged route or border fluctuation from canceling an otherwise profitable mobilization, while new targets still obey the strict land or sea contact limit above. Save-file 450 reproduced a direct Holy Roman plan changing from 3 to 4 turns and being canceled immediately; 1 narrowly covers that fluctuation without broadening initial target selection. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
