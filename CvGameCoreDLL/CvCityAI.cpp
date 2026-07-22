@@ -31,7 +31,8 @@ static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kC
 		(pCityWaterArea == NULL ? -1 : pCityWaterArea->getID()), (pRelevantWaterArea == NULL ? -1 : pRelevantWaterArea->getID()), (pSecondWaterArea == NULL ? -1 : pSecondWaterArea->getID()), iCityWaterAreaTrain, iRelevantWaterAreaTrain, iSecondWaterAreaTrain, bWaterDanger, bFinancialTrouble);
 }
 
-static bool isSASUnimprovedSeaBonusForLog(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
+// <!-- custom: Use the same exact buildability and reachability test for Work Boat diagnostics and city-local Barbarian demand. Callers reset the shared border finder before checking one or more plots. (GPT-5.6-Sol) -->
+static bool isSASUnimprovedSeaBonus(CvPlayerAI const& kPlayer, CvPlot const& kPlot, CvPlot const& kFromPlot)
 {
 	if (kPlot.isCity())
 		return false;
@@ -59,7 +60,7 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 		CvPlot const& kPlot = kMap.getPlotByIndex(i);
 		if (kPlot.getOwner() != kCity.getOwner() || !kPlot.isArea(*pWaterArea))
 			continue;
-		if (!isSASUnimprovedSeaBonusForLog(kPlayer, kPlot, kCity.getPlot()))
+		if (!isSASUnimprovedSeaBonus(kPlayer, kPlot, kCity.getPlot()))
 			continue;
 		BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kCity.getTeam());
 		ImprovementTypes const eImprovement = kPlot.getImprovementType();
@@ -9811,24 +9812,38 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
 {
 	int iNeededSeaWorkers = 0;
 
-	/*  <advc.305> Normally counted per area, but a Barbarian city should only
-		train workers for its own needs.
-		(Partially based on code in CvPlayer::AI_countUnimprovedBonuses.) */
-	if(isBarbarian())
+	// <!-- custom: Base AdvCiv's Barbarian branch checked only the eight adjacent plots. Save-file 450 therefore left 12 buildable and reachable seafood plots assigned to cities but located in the outer city radius unimproved for up to 163 turns, while the only two Work Boats produced immediately improved adjacent Molluscs.
+	// Preserve city-local demand because Barbarian cities do not coordinate Worker transport like ordinary civilizations, but count every owned water plot assigned to this city and exclude targets that no Work Boat can currently build or reach. See KI#195. (GPT-5.6-Sol) -->
+	// /*  <advc.305> Normally counted per area, but a Barbarian city should only
+	// 	train workers for its own needs.
+	// 	(Partially based on code in CvPlayer::AI_countUnimprovedBonuses.) */
+	// if(isBarbarian())
+	// {
+	// 	FOR_EACH_ADJ_PLOT(getPlot())
+	// 	{
+	// 		if(!pAdj->isWater())
+	// 			continue;
+	// 		BonusTypes eBonus = pAdj->getNonObsoleteBonusType(getTeam());
+	// 		if(eBonus != NO_BONUS && !GET_PLAYER(getOwner()).
+	// 			doesImprovementConnectBonus(pAdj->getImprovementType(), eBonus))
+	// 		{
+	// 			iNeededSeaWorkers++;
+	// 		}
+	// 	}
+	// 	return iNeededSeaWorkers;
+	// } // </advc.305>
+	if (isBarbarian())
 	{
-		FOR_EACH_ADJ_PLOT(getPlot())
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+		gDLL->getFAStarIFace()->ForceReset(&GC.getBorderFinder());
+		for (CityPlotIter it(*this); it.hasNext(); ++it)
 		{
-			if(!pAdj->isWater())
-				continue;
-			BonusTypes eBonus = pAdj->getNonObsoleteBonusType(getTeam());
-			if(eBonus != NO_BONUS && !GET_PLAYER(getOwner()).
-				doesImprovementConnectBonus(pAdj->getImprovementType(), eBonus))
-			{
+			CvPlot const& kPlot = *it;
+			if (kPlot.getOwner() == getOwner() && kPlot.getWorkingCity() == this && kPlot.isWater() && isSASUnimprovedSeaBonus(kOwner, kPlot, getPlot()))
 				iNeededSeaWorkers++;
-			}
 		}
 		return iNeededSeaWorkers;
-	} // </advc.305>
+	}
 
 	// <!-- custom: info by chatgpt 5, check if accurate, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing, check if accurate still though their / these AIs info i mean (or my observation maybe too)-->
 	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later" style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
@@ -17441,9 +17456,13 @@ void CvCityAI::AI_barbChooseProduction()
 		(getPopulation() > 1 || iCityAge >= 12)) // advc.305
 	{
 		// advc.opt: Sea worker counts moved down; only needed here.
-		int iNeededSeaWorkers = (bMaybeWaterArea) ? AI_neededSeaWorkers() : 0;
-		int iExistingSeaWorkers = (waterArea(true) != NULL) ?
-				kPlayer.AI_totalWaterAreaUnitAIs(*waterArea(true), UNITAI_WORKER_SEA) : 0;
+		int const iNeededSeaWorkers = (bMaybeWaterArea ? AI_neededSeaWorkers() : 0);
+		// <!-- custom: AI_totalWaterAreaUnitAIs counts ships docked or being trained by iterating major-civilization cities, so Base AdvCiv's Barbarian production branch missed its own docked and queued Work Boats.
+		// After the full-city-radius cure exposed this, Hun repeatedly ordered another boat for the same target and Barbarians accumulated 20 at once.
+		// Count this city's boats separately; boats sailing in the water area remain covered below, while boats in unrelated Barbarian cities do not suppress local demand. See KI#195. (GPT-5.6-Sol) -->
+		CvArea const* const pProductionWaterArea = waterArea(true);
+		int const iWaterAreaSeaWorkers = (pProductionWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pProductionWaterArea, UNITAI_WORKER_SEA));
+		int const iExistingSeaWorkers = iWaterAreaSeaWorkers + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, getOwner()) + getNumTrainUnitAI(UNITAI_WORKER_SEA);
 		if (iNeededSeaWorkers > 0 &&
 			iExistingSeaWorkers <= 0 )// advc.001: safer (as in AI_chooseProduction)
 		{

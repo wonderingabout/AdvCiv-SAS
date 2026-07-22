@@ -454,6 +454,9 @@ void CvPlayerAI::AI_doTurnPost()
 
 	if (isBarbarian())
 	{
+		// <!-- custom: Save-file 450 repeatedly showed Barbarian seafood remaining unimproved. Include Barbarians in the existing level-3 Work Boat audit before their shortened post-turn path returns, so production shortages can be distinguished from buildability, reachability, danger and mission-assignment failures. Diagnostic only. (GPT-5.6-Sol) -->
+		if (gWorkerSeaLogLevel >= 3)
+			AI_logWorkerSeaAudit();
 		AI_foldDeals(); // advc.036
 		return;
 	}
@@ -15812,7 +15815,7 @@ int CvPlayerAI::AI_countUnimprovedBonuses(CvArea const& kArea, CvPlot const* pFr
 void CvPlayerAI::AI_logWorkerSeaAudit() const
 {
 	// <!-- custom: Late-game advisor/log review still showed owned seafood staying unimproved after the old Work Boat produce/scrap and overqueue fixes. Once per AI player turn, log a compact audit of owned water bonuses so we can distinguish missing production, missing mission assignment, danger, buildability/reachability, and repeated sea-improvement loss without dumping every plot every city production check. Diagnostic only. (GPT-5.5 + ChatGPT-5.5) -->
-	if (isHuman() || isBarbarian())
+	if (isHuman())
 		return;
 
 	int const iTurn = GC.getGame().getGameTurn();
