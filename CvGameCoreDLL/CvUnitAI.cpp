@@ -871,14 +871,41 @@ static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iB
 	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
 }
 
+static int SAS_getTargetlessPeacetimeAttackCityRetainedUnits(CvPlayerAI const& kOwner)
+{
+	static int const iRetainedUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
+	return std::max(iRetainedUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+}
+
+static int SAS_countPlotAttackCityGroupUnits(CvPlot const& kPlot, PlayerTypes eOwner)
+{
+	int iUnits = 0;
+	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != eOwner || pLoopUnit->isCargo()) continue;
+		CvUnitAI const* pLoopUnitAI = kOwner.AI_getUnit(pLoopUnit->getID());
+		CvSelectionGroupAI const* pLoopGroup = (pLoopUnitAI == NULL ? NULL : pLoopUnitAI->AI_getGroup());
+		CvUnitAI const* pLoopHead = (pLoopGroup == NULL ? NULL : pLoopGroup->AI_getHeadUnit());
+		if (pLoopHead != NULL && pLoopHead->AI_getUnitAIType() == UNITAI_ATTACK_CITY) iUnits++;
+	}
+	return iUnits;
+}
+
 // <!-- custom: BBAI testing found peaceful city-assault groups repeatedly waiting for reinforcements despite having no war plan, reachable rival city, or pathable Barbarian city. America's group grew from 6 units on turn 126 to 18 of 47 military units by turn 225 while still targetless and peaceful; after a short war it returned to peace with 21 of 51 units on turn 247. Retaining a useful nucleus is worthwhile, but repeatedly concentrating every suitable unit when no target exists is not.
-// Detach units already assigned to other roles first, then convert excess UNITAI_ATTACK_CITY units that have positive general-attack value into UNITAI_ATTACK. Preserve the group head and enough units for at least the normal minimum city-assault stack or estimated Barbarian requirement. General attackers can defend and perform other duties during peace, while normal wartime grouping can organize them again when a real target appears. See KI#188.3. (GPT-5.6-Sol) -->
+// The initial cure capped each group separately. Save-file 450 follow-up logging showed Holy Rome consequently parking 71 units in Mainz as 12 individually compliant groups whose largest group had 9 units. Enforce the retained limit across all city-assault-led groups on the same safe owned plot instead.
+// Detach units already assigned to other roles first, then convert excess UNITAI_ATTACK_CITY units that have positive general-attack value into UNITAI_ATTACK. Reassign an excess group head too when the plot already retains another city-assault nucleus. General attackers can defend and perform other duties during peace, while normal wartime grouping can organize them again when a real target appears. See KI#188.3 and KI#188.3.2. (GPT-5.6-Sol) -->
 static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int iRetainedUnits)
 {
 	CvSelectionGroup* pGroup = kUnit.getGroup();
-	if (pGroup == NULL || pGroup->getNumUnits() <= iRetainedUnits)
+	if (pGroup == NULL)
 		return false;
 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iAggregateBefore = SAS_countPlotAttackCityGroupUnits(kUnit.getPlot(), kUnit.getOwner());
+	int const iReleaseNeeded = std::max(0, iAggregateBefore - iRetainedUnits);
+	if (iReleaseNeeded <= 0)
+		return false;
 	int const iOriginalGroupId = pGroup->getID();
 	int const iOriginalGroupUnits = pGroup->getNumUnits();
 	std::vector<std::pair<int,int> > aReleaseCandidates;
@@ -898,7 +925,7 @@ static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int 
 	std::sort(aReleaseCandidates.begin(), aReleaseCandidates.end(), std::greater<std::pair<int,int> >());
 	int iDetachedExistingRoles = 0;
 	int iReassignedAttackers = 0;
-	for (std::vector<std::pair<int,int> >::const_iterator it = aReleaseCandidates.begin(); it != aReleaseCandidates.end() && pGroup->getNumUnits() > iRetainedUnits; ++it)
+	for (std::vector<std::pair<int,int> >::const_iterator it = aReleaseCandidates.begin(); it != aReleaseCandidates.end() && iDetachedExistingRoles + iReassignedAttackers < iReleaseNeeded; ++it)
 	{
 		CvUnitAI* pReleaseUnit = kOwner.AI_getUnit(it->second);
 		if (pReleaseUnit == NULL || pReleaseUnit->getGroup() != pGroup) continue;
@@ -913,15 +940,23 @@ static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int 
 			iDetachedExistingRoles++;
 		}
 	}
+	bool bReassignedHead = false;
+	if (iDetachedExistingRoles + iReassignedAttackers < iReleaseNeeded && kUnit.AI_getUnitAIType() == UNITAI_ATTACK_CITY && kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK, &kUnit.getArea()) > 0)
+	{
+		kUnit.AI_setUnitAIType(UNITAI_ATTACK);
+		iReassignedAttackers++;
+		bReassignedHead = true;
+	}
 	int const iReleasedUnits = iDetachedExistingRoles + iReassignedAttackers;
 	if (iReleasedUnits <= 0)
 		return false;
+	int const iAggregateAfter = SAS_countPlotAttackCityGroupUnits(kUnit.getPlot(), kUnit.getOwner());
 	if (gUnitLogLevel >= 2)
 	{
-		logBBAI("    ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d retainedLimit=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d remainingGroupId=%d remainingGroupUnits=%d unreleasedExcess=%d totalMilitary=%d",
-			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iRetainedUnits, (int)aReleaseCandidates.size(), iDetachedExistingRoles, iReassignedAttackers, pGroup->getID(), pGroup->getNumUnits(), std::max(0, pGroup->getNumUnits() - iRetainedUnits), kOwner.getNumMilitaryUnits());
+		logBBAI("    ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d aggregateBefore=%d retainedLimit=%d releaseNeeded=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d reassignedHead=%d aggregateAfter=%d unreleasedAggregateExcess=%d totalMilitary=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iAggregateBefore, iRetainedUnits, iReleaseNeeded, (int)aReleaseCandidates.size(), iDetachedExistingRoles, iReassignedAttackers, bReassignedHead, iAggregateAfter, std::max(0, iAggregateAfter - iRetainedUnits), kOwner.getNumMilitaryUnits());
 	}
-	pGroup->pushMission(MISSION_SKIP);
+	kUnit.getGroup()->pushMission(MISSION_SKIP);
 	return true;
 }
 
@@ -7561,10 +7596,10 @@ void CvUnitAI::AI_attackCityMove()
 						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
 						(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()), (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue, iFallbackPickedTargetValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
 				}
-				// <!-- custom: Base AdvCiv/K-Mod could keep a city-assault army assembled indefinitely after both normal and Barbarian target selection failed. At peace with no war plan, release excess units once the army is safely inside its own territory; preserve the useful nucleus and avoid fragmenting an army in foreign territory or immediate danger. See KI#188.3. (GPT-5.6-Sol) -->
+				// <!-- custom: Base AdvCiv/K-Mod could keep city-assault armies assembled indefinitely after both normal and Barbarian target selection failed. At peace with no war plan, cap their aggregate units on the same safe owned plot; preserve one useful nucleus and avoid fragmenting armies in foreign territory or immediate danger. See KI#188.3.2. (GPT-5.6-Sol) -->
 				if (!bAnyWarPlan && kTeam.getNumWars() <= 0 && getPlot().getOwner() == getOwner() && kOwner.AI_getPlotDanger(getPlot()) <= 0)
 				{
-					int const iRetainedUnits = std::max(iMinStackSize, std::max(1, iBarbarianAttackersNeeded));
+					int const iRetainedUnits = SAS_getTargetlessPeacetimeAttackCityRetainedUnits(kOwner);
 					if (SAS_releaseTargetlessPeacetimeAttackCityExcess(*this, iRetainedUnits)) return;
 				}
 			}
@@ -14189,8 +14224,11 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	int iEffectiveMaxGroup = iMaxGroup;
 	bool bEffectiveStackOfDoom = bStackOfDoom;
+	int iTargetlessPeacetimeAggregateMax = -1;
 	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
-	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the separately tunable peaceful city-assault nucleus and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
+	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, limit each group to the larger of the separately tunable peaceful city-assault nucleus and estimated Barbarian requirement.
+	// Save-file 450 follow-up testing found that independently compliant groups could still park 71 units together, and the first aggregate release cure repeatedly detached the same reinforcements after they joined. On safe owned plots, prevent a merge that would exceed the aggregate limit; retain the release path as a safety net for units grouped through other code.
+	// AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual group cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188, KI#188.3, and KI#188.3.2. (GPT-5.6-Sol) -->
 	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
 	{
 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
@@ -14199,8 +14237,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			int iActualGroupMax = -1;
 			if (!kTeam.AI_isAnyWarPlan())
 			{
-				static int const iTargetlessPeacefulGroupMinUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
-				iActualGroupMax = std::max(iTargetlessPeacefulGroupMinUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+				iTargetlessPeacetimeAggregateMax = SAS_getTargetlessPeacetimeAttackCityRetainedUnits(kOwner);
+				iActualGroupMax = iTargetlessPeacetimeAggregateMax;
 			}
 			else
 			{
@@ -14282,6 +14320,13 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY || !pLoopGroup->getPlot().isCity() || pLoopGroup->getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) > pLoopGroup->getPlot().AI_getPlotCity()->AI_minDefenders())
 			)
 		{
+			if (iTargetlessPeacetimeAggregateMax > 0 && kLoopPlot.getOwner() == getOwner() && kOwner.AI_getPlotDanger(kLoopPlot) <= 0)
+			{
+				CvUnitAI const* pOurHead = AI_getGroup()->AI_getHeadUnit();
+				bool const bOurGroupAlreadyCounted = (at(kLoopPlot) && pOurHead != NULL && pOurHead->AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+				int const iResultingAggregate = SAS_countPlotAttackCityGroupUnits(kLoopPlot, getOwner()) + (bOurGroupAlreadyCounted ? 0 : getGroup()->getNumUnits());
+				if (iResultingAggregate > iTargetlessPeacetimeAggregateMax) continue;
+			}
 			FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
 			//if (iOurMaxImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA) { ...
 			{	// <advc.057> Check their impassable count even if ours is 0
