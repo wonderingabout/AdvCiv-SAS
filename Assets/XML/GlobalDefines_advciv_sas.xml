@@ -1838,10 +1838,15 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Master switch for concrete chain-irrigation rescue farms in CvUnitAI. This covers the outside-BFC connector hunt, reservation of likely irrigation-farm plots from non-farm builds, local adjacent-dry-farm rescue value, selected improvement overwrite for those fixes, and protection of resulting carrier farms. Separate from the broader food-support Farm value so the Nippur/Chaco/Harappan-style irrigation fixes can be tested independently. (GPT-5.5) -->
+	<!-- custom: Master switch for concrete chain-irrigation rescue farms in CvUnitAI. This covers deterministic owned routes from available irrigation to dry BFC Farms (including Farm-specific bonuses), reservation of likely irrigation-farm plots from non-farm builds, local adjacent-dry-farm rescue value, selected improvement overwrite for those fixes, and protection of resulting carrier farms. Separate from the broader food-support Farm value so irrigation fixes can be tested independently. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum number of adjacent owned farmable plots in the least-cost route from a dry BFC Farm or high-food-pressure target to currently available irrigation. Twelve covers the long chains reproduced in save file 450 while preventing workers from replacing improvements across an excessive share of an empire for one city. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS</DefineName>
+		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 	<!-- custom: Food-support farm value tuning separate from branch selection. Target surplus says when extra adjusted food starts reducing emergency farm value; zero-surplus threshold says when even weak farm food is still useful; value per surplus controls how quickly farm support fades above target surplus. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>

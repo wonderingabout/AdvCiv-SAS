@@ -17,6 +17,7 @@
 #include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
 #include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include <queue> // <!-- custom: Needed by the least-cost owned-plot search for deterministic source-to-target Worker irrigation chains. (GPT-5.6-Sol) -->
 
 //#define FOUND_RANGE (7) // advc: unused
 
@@ -2639,6 +2640,192 @@ static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlo
 	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, bLowFoodBranch, iAdjustedFoodDifference, iLowFoodValuePerFood, iFoodSupportValue, iIrrigationBlockingPenalty, aBuildValueAdjustments, eBestBuild, iValue);
 }
 
+struct SASWorkerIrrigationSearchNode
+{
+	int iCost;
+	int iSteps;
+	int iOverwritePenalty;
+	PlotNumTypes ePlot;
+	SASWorkerIrrigationSearchNode(int iCost, int iSteps, int iOverwritePenalty, PlotNumTypes ePlot) : iCost(iCost), iSteps(iSteps), iOverwritePenalty(iOverwritePenalty), ePlot(ePlot) {}
+	bool operator<(SASWorkerIrrigationSearchNode const& kOther) const { return iCost > kOther.iCost; }
+};
+
+struct SASWorkerIrrigationSearchDiagnostics
+{
+	int iVisitedPlots;
+	int iDeepestRoute;
+	int iRouteLimitStops;
+	int iMapEdgeOrIgnoredRejects;
+	int iUnownedRejects;
+	int iForeignOwnedRejects;
+	int iDifferentAreaRejects;
+	int iWaterRejects;
+	int iHillRejects;
+	int iCityCarrierTraversals;
+	int iNoPotentialIrrigationRejects;
+	int iBonusRejects;
+	int iAutomationSafeRejects;
+	int iCannotBuildFarmRejects;
+	SASWorkerIrrigationSearchDiagnostics() : iVisitedPlots(0), iDeepestRoute(0), iRouteLimitStops(0), iMapEdgeOrIgnoredRejects(0), iUnownedRejects(0), iForeignOwnedRejects(0), iDifferentAreaRejects(0), iWaterRejects(0), iHillRejects(0), iCityCarrierTraversals(0), iNoPotentialIrrigationRejects(0), iBonusRejects(0), iAutomationSafeRejects(0), iCannotBuildFarmRejects(0) {}
+};
+
+// <!-- custom: A no-route result is identical for every Worker evaluating the same city target during a turn. Keep the detailed diagnostic once per target instead of repeating thousands of rows without losing turn-by-turn state changes. (GPT-5.6-Sol) -->
+static bool SAS_shouldLogWorkerIrrigationRouteFailure(CvCityAI const& kCity, CvPlot const& kTargetPlot)
+{
+	static int iLoggedTurn = -1;
+	static std::set<std::pair<PlotNumTypes, PlotNumTypes> > aeLoggedTargets;
+	int const iCurrentTurn = GC.getGame().getGameTurn();
+	if (iLoggedTurn != iCurrentTurn)
+	{
+		iLoggedTurn = iCurrentTurn;
+		aeLoggedTargets.clear();
+	}
+	return aeLoggedTargets.insert(std::make_pair(kCity.plot()->plotNum(), kTargetPlot.plotNum())).second;
+}
+
+// <!-- custom: The former four-plot target-side irrigation hunt could select one connector and then forget the intended route, while existing bonus Farms were excluded entirely. Search an actual owned farmable route from the dry BFC target to currently available irrigation and return the least-cost source-side Farm that can be built now. Repeating this after each completed Farm advances the same water connection toward the target; route cost prefers short chains and avoids replacing valuable improvements. (GPT-5.6-Sol) -->
+static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTargetPlot, CvPlot const* pIgnorePlot, BuildTypes eBuildFarm, ImprovementTypes eImprovementFarm, ImprovementTypes eImprovementWorkshop, int iMaxPlots, int iGrowthOverwritePenalty, int iWorkshopOverwritePenalty, int iOtherOverwritePenalty, CvPlot*& pStepPlot, int& iRoutePlots, int& iRouteOverwritePenalty, SASWorkerIrrigationSearchDiagnostics* pDiagnostics)
+{
+	pStepPlot = NULL;
+	iRoutePlots = 0;
+	iRouteOverwritePenalty = 0;
+	CvMap const& kMap = GC.getMap();
+	// <!-- custom: Worker-city evaluation calls this repeatedly. Reuse map-sized cost storage and generation stamps so each short route search initializes only the plots it actually reaches. (GPT-5.6-Sol) -->
+	static std::vector<int> aiBestCost;
+	static std::vector<unsigned int> aiCostGeneration;
+	static unsigned int iSearchGeneration = 0;
+	if ((int)aiBestCost.size() != kMap.numPlots())
+	{
+		aiBestCost.assign(kMap.numPlots(), MAX_INT);
+		aiCostGeneration.assign(kMap.numPlots(), 0);
+		iSearchGeneration = 0;
+	}
+	iSearchGeneration++;
+	if (iSearchGeneration == 0)
+	{
+		std::fill(aiCostGeneration.begin(), aiCostGeneration.end(), 0);
+		iSearchGeneration = 1;
+	}
+	std::priority_queue<SASWorkerIrrigationSearchNode> kOpen;
+	aiBestCost[kTargetPlot.plotNum()] = 0;
+	aiCostGeneration[kTargetPlot.plotNum()] = iSearchGeneration;
+	kOpen.push(SASWorkerIrrigationSearchNode(0, 0, 0, kTargetPlot.plotNum()));
+	while (!kOpen.empty())
+	{
+		SASWorkerIrrigationSearchNode const kNode = kOpen.top();
+		kOpen.pop();
+		if (aiCostGeneration[kNode.ePlot] != iSearchGeneration || kNode.iCost != aiBestCost[kNode.ePlot])
+			continue;
+		CvPlot* pNodePlot = kMap.plotByIndex(kNode.ePlot);
+		if (pNodePlot == NULL)
+			continue;
+		if (pDiagnostics != NULL)
+		{
+			pDiagnostics->iVisitedPlots++;
+			pDiagnostics->iDeepestRoute = std::max(pDiagnostics->iDeepestRoute, kNode.iSteps);
+		}
+		if (kNode.iSteps > 0 && pNodePlot != pIgnorePlot && pNodePlot->getImprovementType() != eImprovementFarm && pNodePlot->isIrrigationAvailable(true) && kUnit.canBuild(*pNodePlot, eBuildFarm))
+		{
+			pStepPlot = pNodePlot;
+			iRoutePlots = kNode.iSteps;
+			iRouteOverwritePenalty = kNode.iOverwritePenalty;
+			return true;
+		}
+		if (kNode.iSteps >= iMaxPlots)
+		{
+			if (pDiagnostics != NULL)
+				pDiagnostics->iRouteLimitStops++;
+			continue;
+		}
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pNodePlot->getX(), pNodePlot->getY(), (DirectionTypes)iI);
+			if (pAdjacentPlot == NULL || pAdjacentPlot == pIgnorePlot)
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iMapEdgeOrIgnoredRejects++;
+				continue;
+			}
+			if (pAdjacentPlot->getOwner() != kUnit.getOwner())
+			{
+				if (pDiagnostics != NULL)
+				{
+					if (pAdjacentPlot->getOwner() == NO_PLAYER)
+						pDiagnostics->iUnownedRejects++;
+					else pDiagnostics->iForeignOwnedRejects++;
+				}
+				continue;
+			}
+			if (pAdjacentPlot->isWater())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iWaterRejects++;
+				continue;
+			}
+			if (!pAdjacentPlot->isArea(kUnit.getArea()))
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iDifferentAreaRejects++;
+				continue;
+			}
+			if (pAdjacentPlot->isHills())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iHillRejects++;
+				continue;
+			}
+			if (!pAdjacentPlot->canHavePotentialIrrigation())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iNoPotentialIrrigationRejects++;
+				continue;
+			}
+			ImprovementTypes const eCurrentImprovement = pAdjacentPlot->getImprovementType();
+			// <!-- custom: CvPlot::isPotentialIrrigation treats an owned flat city as an irrigation carrier. Traverse it like an existing Farm instead of requiring the impossible BUILD_FARM on the city plot; hill cities were already rejected above because the engine does not carry irrigation through them. This fixed routes that the first deterministic prototype incorrectly stopped at cities. (GPT-5.6-Sol) -->
+			bool const bExistingIrrigationCarrier = (eCurrentImprovement == eImprovementFarm || pAdjacentPlot->isCity());
+			if (pDiagnostics != NULL && pAdjacentPlot->isCity())
+				pDiagnostics->iCityCarrierTraversals++;
+			if (!bExistingIrrigationCarrier)
+			{
+				if (pAdjacentPlot->getNonObsoleteBonusType(kUnit.getTeam()) != NO_BONUS)
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iBonusRejects++;
+					continue;
+				}
+				if (GET_PLAYER(kUnit.getOwner()).isAutomationSafe(*pAdjacentPlot))
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iAutomationSafeRejects++;
+					continue;
+				}
+				if (!kUnit.canBuild(*pAdjacentPlot, eBuildFarm))
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iCannotBuildFarmRejects++;
+					continue;
+				}
+			}
+			int const iGrowthLevel = SAS_getWorkerGrowthImprovementLevel(eCurrentImprovement);
+			int const iPlotOverwritePenalty = (
+				bExistingIrrigationCarrier || eCurrentImprovement == NO_IMPROVEMENT ? 0 :
+				eCurrentImprovement == eImprovementWorkshop ? iWorkshopOverwritePenalty :
+				iGrowthLevel > 0 ? iGrowthOverwritePenalty * iGrowthLevel :
+				iOtherOverwritePenalty
+			);
+			int const iNewSteps = kNode.iSteps + 1;
+			int const iNewCost = kNode.iCost + (kNode.iSteps <= 0 ? 0 : 350) + iPlotOverwritePenalty;
+			PlotNumTypes const eAdjacentPlot = pAdjacentPlot->plotNum();
+			if (aiCostGeneration[eAdjacentPlot] == iSearchGeneration && iNewCost >= aiBestCost[eAdjacentPlot])
+				continue;
+			aiBestCost[eAdjacentPlot] = iNewCost;
+			aiCostGeneration[eAdjacentPlot] = iSearchGeneration;
+			kOpen.push(SASWorkerIrrigationSearchNode(iNewCost, iNewSteps, kNode.iOverwritePenalty + iPlotOverwritePenalty, eAdjacentPlot));
+		}
+	}
+	return false;
+}
+
 // Returns true if the unit found a build for this city...
 // <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further -->
 // <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
@@ -2830,112 +3017,42 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
-		// <!-- custom: The existing irrigation-chain heuristic excludes bonus plots and searches only four tiles from a target. Audit every dry BFC Farm at Worker log level 3, including bonus-specific Farms, so tests reveal missing adjacent carriers, distant usable water sources, and targets for which the current short-chain policy cannot find a source-side first step. All source searches remain behind the logging gate. (GPT-5.6-Sol) -->
-		if (gWorkerLogLevel >= 3)
-		{
-			for (WorkablePlotIter itAudit(kCity, false); itAudit.hasNext(); ++itAudit)
-			{
-				CvPlot& kTargetPlot = *itAudit;
-				if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.getImprovementType() != eImprovementFarm || kTargetPlot.isIrrigated() || kTargetPlot.isIrrigationAvailable(true))
-					continue;
-				BonusTypes const eTargetBonus = kTargetPlot.getNonObsoleteBonusType(getTeam());
-				bool const bBonusSpecificFarm = (eTargetBonus != NO_BONUS && GET_PLAYER(getOwner()).doesImprovementConnectBonus(eImprovementFarm, eTargetBonus));
-				int iAdjacentCarrierFarms = 0;
-				for (SquareIter itAdjacent(kTargetPlot, 1, false); itAdjacent.hasNext(); ++itAdjacent)
-				{
-					CvPlot const& kAdjacentPlot = *itAdjacent;
-					if (kAdjacentPlot.getOwner() == getOwner() && kAdjacentPlot.getImprovementType() == eImprovementFarm && kAdjacentPlot.canHavePotentialIrrigation())
-						iAdjacentCarrierFarms++;
-				}
-				CvPlot const* pNearestAvailableSource = NULL;
-				int iNearestAvailableSourceDistance = MAX_INT;
-				for (SquareIter itSource(kTargetPlot, 12, false); itSource.hasNext(); ++itSource)
-				{
-					CvPlot& kSourcePlot = *itSource;
-					if (kSourcePlot.getOwner() != getOwner() || !kSourcePlot.isArea(getArea()) || kSourcePlot.isWater() || kSourcePlot.isHills() || kSourcePlot.isCity() || !kSourcePlot.canHavePotentialIrrigation() || (!kSourcePlot.isFreshWater() && !kSourcePlot.isIrrigationAvailable(true)) || !canBuild(kSourcePlot, eBuildFarm))
-						continue;
-					int const iSourceDistance = stepDistance(&kSourcePlot, &kTargetPlot);
-					if (iSourceDistance < iNearestAvailableSourceDistance)
-					{
-						iNearestAvailableSourceDistance = iSourceDistance;
-						pNearestAvailableSource = &kSourcePlot;
-					}
-				}
-				logBBAI("    IRRIGATION_CHAIN_DRY_FARM turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) bonus=%S bonusSpecificFarm=%d adjacentCarrierFarms=%d nearestAvailableSource=(%d,%d) sourceDistance=%d currentSearchLimit=4",
-					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), bBonusSpecificFarm, iAdjacentCarrierFarms, (pNearestAvailableSource == NULL ? -1 : pNearestAvailableSource->getX()), (pNearestAvailableSource == NULL ? -1 : pNearestAvailableSource->getY()), (pNearestAvailableSource == NULL ? -1 : iNearestAvailableSourceDistance));
-			}
-		}
-		// <!-- custom: AI_bestCityBuild normally scans only the city's BFC. The first outside-BFC connector attempt produced log noise and sometimes chose connector-looking plots, but did not fix Chaco Canyon/Harappan-style dry-farm cities. Instead, start from concrete city BFC targets: existing non-bonus dry farms, plus low-food unimproved non-bonus tiles when the city has high food-support pressure. Then choose a farmable owned plot that can receive irrigation now and moves water toward that target through a short owned farm chain. This fixed the Chaco Canyon and Harappan test cases by making workers find the first link toward water; imperfectly, Harappan's worker then wandered after irrigating the first link instead of immediately finishing the full chain to the BFC. This keeps the old broad AI_irrigateTerritory spam disabled while making the chain goal explicit. (GPT-5.5) -->
+		static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS");
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
 		{
 			CvPlot& kTargetPlot = *itBFC;
-			if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || kTargetPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kTargetPlot.canHavePotentialIrrigation())
+			if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || !kTargetPlot.canHavePotentialIrrigation())
 				continue;
+			BonusTypes const eTargetBonus = kTargetPlot.getNonObsoleteBonusType(getTeam());
 			bool const bTargetDryFarm = (kTargetPlot.getImprovementType() == eImprovementFarm && !kTargetPlot.isIrrigated() && !kTargetPlot.isIrrigationAvailable(true));
-			bool const bTargetLowFoodUnimproved = (bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop);
+			bool const bTargetLowFoodUnimproved = (eTargetBonus == NO_BONUS && bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && !kTargetPlot.isIrrigationAvailable(true) && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop && canBuild(kTargetPlot, eBuildFarm));
 			if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
 				continue;
-			// <!-- custom: Berlin workers pursued many different high-scoring connector plots toward the same speculative low-food target while known Frankfurt Mines waited until about turns 176-184. Retain only the best current connector for each irrigation target; the existing one-worker-per-plot reservation then makes another worker choose a different useful job instead of an alternative route to the same target. (GPT-5.5) -->
-			CandidatePlot bestConnectorPlot;
-			bestConnectorPlot.iValue = MIN_INT;
-			bestConnectorPlot.pPlot = NULL;
-			bestConnectorPlot.ePlot = NO_CITYPLOT;
-			bestConnectorPlot.eBuild = eBuildFarm;
-			bestConnectorPlot.eFollowupBuild = NO_BUILD;
-			int iBestConnectorDistance = 0;
-			int iBestConnectorOverwritePenalty = 0;
-			for (SquareIter itConnector(kTargetPlot, 4, false); itConnector.hasNext(); ++itConnector)
+			CvPlot* pChainStepPlot = NULL;
+			int iRoutePlots = 0;
+			int iRouteOverwritePenalty = 0;
+			SASWorkerIrrigationSearchDiagnostics kRouteDiagnostics;
+			SASWorkerIrrigationSearchDiagnostics* pRouteDiagnostics = (gWorkerLogLevel >= 3 ? &kRouteDiagnostics : NULL);
+			bool const bFoundChainStep = SAS_findWorkerIrrigationChainStep(*this, kTargetPlot, pIgnorePlot, eBuildFarm, eImprovementFarm, eImprovementWorkshop, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY, iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY, iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY, pChainStepPlot, iRoutePlots, iRouteOverwritePenalty, pRouteDiagnostics);
+			int const iChainStepValue = (bFoundChainStep ? (bTargetDryFarm ? 11500 : 8500) - (350 * std::max(0, iRoutePlots - 1)) - iRouteOverwritePenalty : 0);
+			if (bFoundChainStep && iChainStepValue > 0)
 			{
-				CvPlot& kConnectorPlot = *itConnector;
-				if (&kConnectorPlot == pIgnorePlot || &kConnectorPlot == &kTargetPlot || kConnectorPlot.getOwner() != getOwner() || kConnectorPlot.isWater() || kConnectorPlot.isHills() || kConnectorPlot.isCity() || !kConnectorPlot.isArea(getArea()) || GET_PLAYER(getOwner()).isAutomationSafe(kConnectorPlot))
-					continue;
-				if (kConnectorPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kConnectorPlot.canHavePotentialIrrigation() || (!kConnectorPlot.isFreshWater() && !kConnectorPlot.isIrrigationAvailable(true)) || !canBuild(kConnectorPlot, eBuildFarm))
-					continue;
-				int const iChainStepDistance = stepDistance(&kConnectorPlot, &kTargetPlot);
-				if (iChainStepDistance <= 0 || iChainStepDistance > 4)
-					continue;
-				if (iChainStepDistance > 1)
-				{
-					bool bHasOwnedFarmableBridge = false;
-					for (SquareIter itBridge(kConnectorPlot, 1, false); itBridge.hasNext(); ++itBridge)
-					{
-						CvPlot& kBridgePlot = *itBridge;
-						if (&kBridgePlot == &kTargetPlot || kBridgePlot.getOwner() != getOwner() || kBridgePlot.isWater() || kBridgePlot.isHills() || kBridgePlot.isCity() || !kBridgePlot.isArea(getArea()) || kBridgePlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kBridgePlot.canHavePotentialIrrigation() || stepDistance(&kBridgePlot, &kTargetPlot) >= iChainStepDistance)
-							continue;
-						if (kBridgePlot.getImprovementType() == eImprovementFarm || canBuild(kBridgePlot, eBuildFarm))
-						{
-							bHasOwnedFarmableBridge = true;
-							break;
-						}
-					}
-					if (!bHasOwnedFarmableBridge)
-						continue;
-				}
-
-				ImprovementTypes const eConnectorImprovement = kConnectorPlot.getImprovementType();
-				int const iConnectorGrowthLevel = SAS_getWorkerGrowthImprovementLevel(eConnectorImprovement);
-				int const iConnectorOverwritePenalty = (
-					eConnectorImprovement == NO_IMPROVEMENT ? 0 :
-					eConnectorImprovement == eImprovementWorkshop ? iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY :
-					iConnectorGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY * iConnectorGrowthLevel :
-					iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY
-				);
-				int const iConnectorValue = (bTargetDryFarm ? 11500 : 8500) - (350 * (iChainStepDistance - 1)) - iConnectorOverwritePenalty;
-				if (iConnectorValue > bestConnectorPlot.iValue)
-				{
-					bestConnectorPlot.iValue = iConnectorValue;
-					bestConnectorPlot.pPlot = &kConnectorPlot;
-					iBestConnectorDistance = iChainStepDistance;
-					iBestConnectorOverwritePenalty = iConnectorOverwritePenalty;
-				}
-			}
-			if (bestConnectorPlot.pPlot != NULL && bestConnectorPlot.iValue > 0)
-			{
+				CandidatePlot kChainStep;
+				kChainStep.iValue = iChainStepValue;
+				kChainStep.pPlot = pChainStepPlot;
+				kChainStep.ePlot = NO_CITYPLOT;
+				kChainStep.eBuild = eBuildFarm;
+				kChainStep.eFollowupBuild = NO_BUILD;
 				if (gWorkerLogLevel >= 3)
-					logBBAI("    %S worker considers best irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), bestConnectorPlot.pPlot->getX(), bestConnectorPlot.pPlot->getY(), kTargetPlot.getX(), kTargetPlot.getY(), bestConnectorPlot.iValue, iBestConnectorDistance, bTargetDryFarm, iBestConnectorOverwritePenalty, iCityFoodSupportPressure);
-				candidatePlots.push_back(bestConnectorPlot);
+					logBBAI("    IRRIGATION_CHAIN_STEP_SELECTED turn=%d player=%d %S workerId=%d city=%S step=(%d,%d) target=(%d,%d) targetBonus=%S dryFarm=%d routePlots=%d maxRoutePlots=%d overwritePenalty=%d value=%d foodPressure=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), pChainStepPlot->getX(), pChainStepPlot->getY(), kTargetPlot.getX(), kTargetPlot.getY(), eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription(), bTargetDryFarm, iRoutePlots, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, iCityFoodSupportPressure);
+				candidatePlots.push_back(kChainStep);
 			}
-			else if (gWorkerLogLevel >= 3) logBBAI("    IRRIGATION_CHAIN_NO_CURRENT_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) dryFarm=%d foodPressure=%d searchLimit=4", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), bTargetDryFarm, iCityFoodSupportPressure);
+			else if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerIrrigationRouteFailure(kCity, kTargetPlot))
+			{
+				logBBAI("    IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) targetBonus=%S dryFarm=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visited=%d deepestRoute=%d routeLimitStops=%d rejects(edgeOrIgnored=%d unowned=%d foreign=%d area=%d water=%d hills=%d noPotential=%d bonuses=%d automationSafe=%d cannotBuildFarm=%d) cityCarrierTraversals=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription(), bTargetDryFarm, bFoundChainStep, iRoutePlots, iRouteOverwritePenalty, iChainStepValue, iCityFoodSupportPressure, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS,
+					kRouteDiagnostics.iVisitedPlots, kRouteDiagnostics.iDeepestRoute, kRouteDiagnostics.iRouteLimitStops, kRouteDiagnostics.iMapEdgeOrIgnoredRejects, kRouteDiagnostics.iUnownedRejects, kRouteDiagnostics.iForeignOwnedRejects, kRouteDiagnostics.iDifferentAreaRejects, kRouteDiagnostics.iWaterRejects, kRouteDiagnostics.iHillRejects, kRouteDiagnostics.iNoPotentialIrrigationRejects, kRouteDiagnostics.iBonusRejects, kRouteDiagnostics.iAutomationSafeRejects, kRouteDiagnostics.iCannotBuildFarmRejects, kRouteDiagnostics.iCityCarrierTraversals);
+			}
 		}
 	}
 
@@ -3428,10 +3545,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			continue;
 		}
 
-		// <!-- custom: Reserve likely irrigation/farm connector plots from non-farm builds.
-		// BBAI autoplay logs showed repeated farm/cottage reversals on the same plots; this reduced back-and-forth farm
-		// overwrite cases by blocking many attempted Cottage/Workshop builds on plots reserved for Farm use, while still
-		// allowing Farms to replace existing improvements when food/irrigation logic chooses them. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
+		// <!-- custom: Protect completed irrigation-chain Farms and directly irrigatable Farms selected for cities with high food need from non-Farm replacement builds.
+		// The deterministic route search above selects each new source-side connector when it can carry irrigation; keeping the old four-tile possible-bridge reservation would preserve unrelated plots that are not on its chosen route. (GPT-5.6-Sol) -->
 		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
 		if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
@@ -3439,41 +3554,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			bool bReserveForIrrigationFarm = (ePlotCurrentImprovement == eImprovementFarm);
 			if (!bReserveForIrrigationFarm && bCityHighFoodSupportNeed && canBuild(kPlot, eBuildFarm) && (kPlot.isFreshWater() || kPlot.isIrrigationAvailable(true)))
 				bReserveForIrrigationFarm = true;
-			if (!bReserveForIrrigationFarm && canBuild(kPlot, eBuildFarm))
-			{
-				for (WorkablePlotIter itTarget(kCity, false); itTarget.hasNext(); ++itTarget)
-				{
-					CvPlot& kTargetPlot = *itTarget;
-					if (&kTargetPlot == &kPlot || kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || kTargetPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kTargetPlot.canHavePotentialIrrigation())
-						continue;
-					bool const bTargetDryFarm = (kTargetPlot.getImprovementType() == eImprovementFarm && !kTargetPlot.isIrrigated() && !kTargetPlot.isIrrigationAvailable(true));
-					bool const bTargetLowFoodUnimproved = (bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop);
-					if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
-						continue;
-					int const iChainStepDistance = stepDistance(&kPlot, &kTargetPlot);
-					if (iChainStepDistance <= 0 || iChainStepDistance > 4)
-						continue;
-					if (iChainStepDistance > 1)
-					{
-						bool bHasOwnedFarmableBridge = false;
-						for (SquareIter itBridge(kPlot, 1, false); itBridge.hasNext(); ++itBridge)
-						{
-							CvPlot& kBridgePlot = *itBridge;
-							if (&kBridgePlot == &kTargetPlot || kBridgePlot.getOwner() != getOwner() || kBridgePlot.isWater() || kBridgePlot.isHills() || kBridgePlot.isCity() || !kBridgePlot.isArea(getArea()) || kBridgePlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS || !kBridgePlot.canHavePotentialIrrigation() || stepDistance(&kBridgePlot, &kTargetPlot) >= iChainStepDistance)
-								continue;
-							if (kBridgePlot.getImprovementType() == eImprovementFarm || canBuild(kBridgePlot, eBuildFarm))
-							{
-								bHasOwnedFarmableBridge = true;
-								break;
-							}
-						}
-						if (!bHasOwnedFarmableBridge)
-							continue;
-					}
-					bReserveForIrrigationFarm = true;
-					break;
-				}
-			}
 			if (bReserveForIrrigationFarm)
 			{
 				// <!-- custom: this fires 20k+ times so log level 3 -->
