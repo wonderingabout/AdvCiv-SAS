@@ -97,31 +97,6 @@ namespace
 		return iBoost;
 	}
 
-	bool isSASBBAIVictoryDenialDirectWarAllowed(CvTeamAI const& kAgent, TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval)
-	{
-		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
-		if (!bEnable)
-			return false;
-		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
-		static const int iMaxCountdownDirectWar = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR");
-		static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
-		static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
-		bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
-		bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
-		bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
-		// <!-- custom: Save-file 450 showed Lincoln reaching 11 spaceship parts before the victory countdown started, then later reporting stage 3 while countdown still showed only a few turns left.
-		// The later Arabia branch showed direct war at countdown 4 was mechanically correct but still too late. Save-file 452 then showed raw part count could still fire too late in a faster Space race. Allow direct war for hard countdown emergencies, weak/near stage-4 threats, or configured stage-3 Space threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
-		if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
-			return false;
-		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
-		if (getSASBBAITargetPowerPercent(kAgent, eTarget) > iMaxTargetPowerPercent)
-			return false;
-		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
-		if (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) > iMaxDistance)
-			return false;
-		return (!bNaval || kAgent.AI_isLandTarget(eTarget));
-	}
-
 	void logSASBBAIWarTargetVictoryContext(CvTeamAI const& kAgent, TeamTypes eTarget, char const* szRow, WarPlanTypes eWarPlan, int iUtility, int iDrivePercent, int iTargetRank, int iCandidateCount, bool bBackground)
 	{
 		int iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage;
@@ -714,7 +689,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 			return false;
 		}
 		// <!-- custom: A victory threat can become close and weak enough for direct war after preparation began. Use the same narrow distance, power and naval gates as doScheme, then declare immediately instead of letting the old review logic cancel or delay the emergency plan. See KI#189. (GPT-5.6-Sol) -->
-		if (iVictoryDenialBoost > 0 && isSASBBAIVictoryDenialDirectWarAllowed(kAgent, eTarget, iTargetMaxVictoryStage, bNaval) && kAgent.canDeclareWar(eTarget))
+		if (iVictoryDenialBoost > 0 && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, getSASBBAINearestCityDistance(kAgent.getID(), eTarget)) && kAgent.canDeclareWar(eTarget))
 		{
 			WarPlanTypes const eDirectWP = (eWP == WARPLAN_PREPARING_TOTAL || eWP == WARPLAN_TOTAL ? WARPLAN_TOTAL : WARPLAN_LIMITED);
 			if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_VICTORY_DENIAL_DECLARE turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d originalUtility=%d boost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d distance=%d targetPowerPercent=%d",
@@ -1890,6 +1865,34 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true))
 	{
+		// <!-- custom: Save-file 449 ended with India launching on turn 299 while the strongest rival continued preparing an unrelated Ottoman war and did not evaluate a new anti-Space war before India won on turn 311.
+		// When an existing non-war plan blocks all new scheming, identify each stage-3+, countdown, or launched-victory threat and the plan occupying the single slot. Include direct plans because a preparation can become one without starting a war. This is diagnostic only and is gated by War logging. (GPT-5.6-Sol) -->
+		if (gWarLogLevel >= 1)
+		{
+			TeamTypes eBlockingTarget = NO_TEAM;
+			WarPlanTypes eBlockingPlan = NO_WARPLAN;
+			for (TeamAIIter<CIV_ALIVE> itLoop; itLoop.hasNext(); ++itLoop)
+			{
+				WarPlanTypes const eLoopPlan = kAgent.AI_getWarPlan(itLoop->getID());
+				if (eLoopPlan == NO_WARPLAN || kAgent.isAtWar(itLoop->getID())) continue;
+				eBlockingTarget = itLoop->getID();
+				eBlockingPlan = eLoopPlan;
+				break;
+			}
+			for (TeamIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itThreat(kAgent.getID()); itThreat.hasNext(); ++itThreat)
+			{
+				TeamTypes const eThreat = itThreat->getID();
+				CvTeamAI const& kThreat = GET_TEAM(eThreat);
+				int const iThreatStage = getSASTeamMaxVictoryStage(eThreat);
+				int const iThreatCountdown = kThreat.AI_getLowestVictoryCountdown();
+				if (iThreatStage < 3 && iThreatCountdown < 0) continue;
+				int const iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eThreat);
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_SCHEME_BLOCKED turn=%d background=%d agentTeam=%d threatTeam=%d threatMaxVictoryStage=%d threatVictoryCountdown=%d threatSpaceshipParts=%d threatSpaceshipPartsPercent=%d blockingTargetTeam=%d blockingWarPlan=%s blockingStateCounter=%d warPlanCount=%d wars=%d canSchemeAssumingNoPlan=%d canEventuallyDeclare=%d canDeclareNow=%d forcedPeaceTurns=%d nearestCityDistance=%d targetPowerPercent=%d mutualLandTarget=%d directAllowedAsLand=%d directAllowedAsNaval=%d attitude=%d attitudeValue=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eThreat, iThreatStage, iThreatCountdown, getSASTeamSpaceshipPartsBuilt(eThreat), getSASTeamSpaceshipPartsPercent(eThreat),
+					eBlockingTarget, getSASWarPlanType(eBlockingPlan), (eBlockingTarget == NO_TEAM ? -1 : kAgent.AI_getWarPlanStateCounter(eBlockingTarget)), kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true), canSchemeAgainst(eThreat, true, false), kAgent.canEventuallyDeclareWar(eThreat), kAgent.canDeclareWar(eThreat), kAgent.turnsOfForcedPeaceRemaining(eThreat),
+					iNearestCityDistance, getSASBBAITargetPowerPercent(kAgent, eThreat), (kAgent.AI_isLandTarget(eThreat) && kThreat.AI_isLandTarget(kAgent.getID())), isSASVictoryDenialDirectWarAllowed(eThreat, iThreatStage, false, iNearestCityDistance), isSASVictoryDenialDirectWarAllowed(eThreat, iThreatStage, true, iNearestCityDistance), kAgent.AI_getAttitude(eThreat), kAgent.AI_getAttitudeVal(eThreat));
+			}
+		}
 		m_pReport->log("No scheming b/c already a war in preparation");
 		return;
 	}
@@ -1972,14 +1975,15 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		int const iOriginalU = iU;
 		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
 		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
-		bool const bVictoryDenialDirect = isSASBBAIVictoryDenialDirectWarAllowed(kAgent, eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval);
+		int const iNearestCityDistance = (iVictoryDenialBoost > 0 ? getSASBBAINearestCityDistance(kAgent.getID(), eTarget) : -1);
+		bool const bVictoryDenialDirect = (iVictoryDenialBoost > 0 && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval, iNearestCityDistance));
 		if (iVictoryDenialBoost > 0)
 		{
 			iU += iVictoryDenialBoost;
 			if (gWarLogLevel >= 1)
 			{
 				logBBAI("WAR_TARGET_VICTORY_DENIAL_ADJUST turn=%d agentTeam=%d targetTeam=%d originalUtility=%d adjustedUtility=%d boost=%d direct=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
-						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), iNearestCityDistance, getSASBBAITargetPowerPercent(kAgent, eTarget));
 			}
 		}
 		m_pReport->setMute(false);
@@ -2887,6 +2891,34 @@ bool UWAI::Team::canReach(TeamTypes eTarget) const
 		}
 	}
 	return false;
+}
+
+
+// <!-- custom: Save-file 450 showed Lincoln reaching 11 spaceship parts before the victory countdown started, then later reporting stage 3 while countdown still showed only a few turns left. The later Arabia branch showed direct war at countdown 4 was mechanically correct but still too late. Save-file 452 then showed raw part count could still fire too late in a faster Space race. Allow direct war for hard countdown emergencies, weak/near stage-4 threats, or configured stage-3 Space threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
+// <!-- custom: Save-file 449 then showed the normal 3-turn contact limit assigning about -100000 utility even when this policy approved nearby, stronger Celts and Aztecs for direct war against India's launched spaceship. Keep the policy on UWAI::Team so target selection and the contact guard cannot drift apart. The caller supplies nearest-city plot distance for selection or cached path turns for the contact guard. (GPT-5.6-Sol) -->
+bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const
+{
+	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
+	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	if (!bEnable)
+		return false;
+	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
+	static const int iMaxCountdownDirectWar = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR");
+	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
+	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
+	bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
+	bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
+	bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
+	if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
+		return false;
+	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
+	int const iTargetPowerPercent = 100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID()) / std::max(1, kAgent.getPower(true));
+	if (iTargetPowerPercent > iMaxTargetPowerPercent)
+		return false;
+	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
+	if (iDistance < 0 || iDistance > iMaxDistance)
+		return false;
+	return (!bNaval || kAgent.AI_isLandTarget(eTarget));
 }
 
 

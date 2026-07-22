@@ -6888,7 +6888,15 @@ Save file 450 retests showed the same pattern on the Ramesses branch. In `BBAI_2
 
 In the later `BBAI_20260715T072834Z_load1.log` / `SASGameSummary_20260715T072834Z_load1.log` branch, the Space response again began at 8/16 parts: UWAI chose stage-3 Space pressure from turn 265 onward, later direct wars fired, cities changed hands, and the Space win moved to turn 293. This supports keeping the threshold broad enough to start real pressure before countdown without making every Apollo builder an emergency target.
 
-Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+**Update:** Much later save-file 449 diagnostics exposed an AdvCiv-SAS integration mismatch rather than another general Base AdvCiv defect. The inherited UWAI contact gate reasonably limits ordinary wars to nearby targets, but it could assign about `-100000` utility when cached contact needed 4-9 path turns even though the newer SAS direct-victory-denial policy separately allowed an eligible emergency target up to 10. Thus the stage-4/countdown response could be enabled in XML and pass its own power, distance and land-access checks, but still be silently rejected by an earlier evaluator.
+
+The contact evaluator now asks the same shared SAS policy before applying that ordinary distance rejection. Unreachable targets and naval plans without transport remain rejected. A stage-4 threat or qualifying active countdown can use the wider `SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE`; qualified stage-3 Space threats retain their utility pressure, peace refusal and direct-war eligibility when they pass UWAI's normal contact limit.
+
+Testing also showed why stage 3 should not use the wider distance by default. In `BBAI_20260722T105123Z_load1.log` / `SASGameSummary_20260722T105123Z_load1.log`, India had only 8/16 spaceship parts and had not launched, but the first broad prototype caused four independent declarations, followed by three vassals joining; India was eliminated before launch. `SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE` therefore controls that more aggressive option separately and defaults to disabled, while `SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE` remains enabled for close targets so the original KI#184.2 response is preserved.
+
+The final `BBAI_20260722T113859Z_load1.log` / `SASGameSummary_20260722T113859Z_load1.log` run confirmed the intended separation. One close pre-launch stage-3 target caused direct war without using the wider bypass. Celts, India, Mali and Carthage later launched spaceships, but each lost its current capital and had its countdown reset; India's capital fell with only one countdown turn remaining. Aztecs then launched, survived the resulting wars and won Space. The policy therefore starts close pressure before stage 4, makes the wider response available when the threat becomes urgent, and still does not guarantee that every Space leader is stopped.
+
+Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) and GPT-5.6-Sol (on Codex) thanks.
 
 ## 185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting
 

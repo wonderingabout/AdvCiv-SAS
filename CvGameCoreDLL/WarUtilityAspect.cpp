@@ -2927,13 +2927,24 @@ int Risk::preEvaluate()
 		bool const bExistingPlan = (kOurTeam.AI_getWarPlan(eTarget) != NO_WARPLAN);
 		int const iContactTolerance = (bExistingPlan ? iExistingPlanTolerance : 0);
 		int const iMaxTurns = (bDistanceGateNaval ? iMaxSeaTurns : iMaxLandTurns) + iContactTolerance;
+		bool const bOrdinaryHardReject = (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift);
+		// <!-- custom: Save-file 449 showed the ordinary 3-turn land-contact gate assigning about -100000 utility to Celts and Aztecs even though the victory-denial policy approved them as nearby, stronger emergency responders to India's launched spaceship. If the exact shared urgency, power, distance and land-access policy approves the target using this evaluator's cached path turns, bypass only the ordinary distance veto; unreachable targets and naval plans without transport remain rejected.
+		// Applying the wider distance at stage 3 caused four independent declarations at only 8/16 spaceship parts. Preserve close stage-3 direct wars, but require stage 4/countdown urgency for this new bypass unless the separate XML switch explicitly enables it. (GPT-5.6-Sol) -->
+		bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
+		int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
+		int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
+		static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
+		bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
+		bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
 		// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan. Preserve the strict limit for new targets, but give an already-started plan a small XML-tunable tolerance so a single route or border fluctuation does not waste its mobilization. (GPT-5.6-Sol) -->
-		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
+		if (bOrdinaryHardReject && !bVictoryDenialContactBypass)
 		{
 			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
 					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan, iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), (iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
 			return -100000; // kill this (agent,target) war plan
 		}
+		if (bVictoryDenialContactBypass && gWarLogLevel >= 1) logBBAI("WAR_TARGET_VICTORY_DENIAL_CONTACT_BYPASS turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d existingPlan=%d nearestContactTurns=%d ordinaryMaxContactTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bExistingPlan, iMinContact, iMaxTurns, iTargetMaxVictoryStage, iTargetVictoryCountdown, 100 * GET_TEAM(eTarget).getDefensivePower(eOurTeam) / std::max(1, kOurTeam.getPower(true)));
 	}
 
 	// --- END RPE FILTER ---

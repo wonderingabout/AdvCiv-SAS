@@ -75,6 +75,7 @@ public:
 	/*	Whether this team can reach any city of eTarget with military units;
 		based on cached info. */
 	bool canReach(TeamTypes eTarget) const;
+	bool isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const; // <!-- custom: Shared UWAI policy lets target selection and its contact-distance guard use the same victory urgency, power, distance and land-access requirements. (GPT-5.6-Sol) -->
 	bool isCloseToAdoptingAnyWarPlan() const;
 	UWAI::Player const& leaderUWAI() const;
 	// E.g. never need to (directly) evaluate war against vassals

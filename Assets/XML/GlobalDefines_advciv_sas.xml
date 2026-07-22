@@ -3328,10 +3328,15 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Allow direct victory-denial war against weak/near stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached. Power, distance, and land-target gates still apply; this is meant to start the Arabia/Churchill-style response before the final countdown, not to make every Space 3 target an automatic war. (GPT-5.5) -->
+	<!-- custom: Allow direct victory-denial war against weak/near stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached. Power, distance, land-target and normal UWAI contact gates still apply by default; this starts a close Arabia/Churchill-style response before the final countdown without making every Space 3 target an automatic war. (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Allow a qualifying stage-3 Space threat to use the wider SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE instead of UWAI's normal contact limit. Disabled by default: save-file 449 showed that unlocking this at only 8/16 spaceship parts caused four independent declarations, followed by three vassals joining, and eliminated India before launch. Stage 4 and launched countdowns use the wider emergency distance independently of this setting. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Refuse ordinary peace with stage-3 Space threats once the configured Space-completion and leader-gap thresholds are reached. This complements direct-war pressure; without peace refusal, an earlier emergency war can still be cancelled before countdown/stage-4 gates activate. (GPT-5.5) -->
 	<Define>
@@ -3344,6 +3349,7 @@ Created as part of AdvCiv-SAS improvements
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
 	<!-- custom: Direct victory-denial war is only allowed if nearest cities are within this distance. Farther or naval-heavy threats can still receive the utility boost, but normal preparation remains safer than a blind direct war. (GPT-5.5) -->
+	<!-- custom: The AdvCiv-SAS war-target contact guard also uses this limit in cached path turns for an otherwise eligible emergency, so its normal shorter limit cannot veto the same direct-war policy. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
