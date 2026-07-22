@@ -24,6 +24,6 @@ I hope having a list of such changes may help players, and perhaps me while comp
 
 ## Changes from one mod to another Sevopedia items/pages and mod history
 
-Note that i also added a K-Mod to base AdvCiv changes doc, but these are not exhaustive as well, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual or more generally the [_0_Common_Docs/](/_0_Common_Docs/).
+Note that i also added a K-Mod to base AdvCiv changes doc, but these are not exhaustive as well. Please refer to our copy of [base AdvCiv's manual.txt](/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt) for easy LLM or global-text searching, or to the formatted [manual.pdf](/_0_Common_Docs/AdvCiv_Base_Doc/manual.pdf); see more generally the [_0_Common_Docs/](/_0_Common_Docs/).
 
 <img src="../Images/sevopedia/0.805_sevopedia_k-mod_to_advciv.JPG" alt="0.805_sevopedia_k-mod_to_advciv.JPG" width="250"></img>

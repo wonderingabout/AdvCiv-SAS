@@ -927,7 +927,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
 
-For better LLM analysis, also provide mod context when possible. For example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
+The summary records the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
 
 See also [ChatGPT-5.6-Sol SASGameSummary analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_summary_example.md) for an example of an external LLM using the summary log to review an autoplay run.
 
@@ -936,6 +936,8 @@ For example, `SASGameSummary_*.log` starts with comparable run setup lines and t
 ```log
 GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile="SASGameSummary_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
 GAME_SUMMARY_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+GAME_SUMMARY_MOD_CONTEXT modName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
+GAME_SUMMARY_SLOT_CONSTANTS MAX_CIV_PLAYERS=48 MAX_PLAYERS=49 BARBARIAN_PLAYER=48 MAX_CIV_TEAMS=48 MAX_TEAMS=49 BARBARIAN_TEAM=48 NO_PLAYER=-1 NO_TEAM=-1
 GAME_SUMMARY_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
 GAME_SUMMARY_RUN_STATUS turn=190 reason=snapshot elapsed=190 year=1260 winnerTeam=-1 victory=- playersAlive=10 teamsAlive=10 playersEverAlive=11 humans=1 eliminatedPlayers=9 topScorePlayer=3 topScore=1964 topPowerPlayer=10 topPower=456000 totalCities=63 totalPopulation=702
 GAME_SUMMARY_STATISTICS turn=190 player=9 currentCities=1 persistentCitiesBuilt=4 persistentCitiesRazed=0 loggedCitiesAcquired=0 loggedCitiesLost=3 loggedCitiesConquered=0 loggedCitiesLostByConquest=3 loggedCitiesTradedIn=0 loggedCitiesTradedOut=0 loggedCityNet=-3 loggedBattleWins=16 loggedBattleLosses=38 loggedCityBattleWins=0 loggedCityBattleLosses=8 loggedBattleNet=-22

@@ -16,6 +16,7 @@
 #include "CvInfo_Symbol.h" // <!-- custom: Needed for commerce-slider type names in game-summary economy rows. (GPT-5.5) -->
 #include "CvInfo_City.h" // <!-- custom: Needed for specialist and process type names in game-summary city rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-summary advisor rows. (ChatGPT-5.5) -->
+#include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-summary rows. (ChatGPT-5.5) -->
@@ -234,11 +235,23 @@ static void logSASGameSummaryGameState(const char* szRowType)
 	}
 	if (szGameOptions.empty())
 		szGameOptions = "-";
+	CvString szVictories;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		if (!szVictories.empty())
+			szVictories += ",";
+		szVictories += GC.getInfo(eLoopVictory).getType();
+	}
+	if (szVictories.empty())
+		szVictories = "-";
 	const CvString szLogName = getSASGameSummaryLogName();
 	logSASGameSummary("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
 			szRowType, getSASGameSummaryLogTimestamp().GetCString(), getSASGameSummaryQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
-	logSASGameSummary("GAME_SUMMARY_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
-			getSASGameSummaryQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
+	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
+	logSASGameSummary("GAME_SUMMARY_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+			getSASGameSummaryQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
 	logSASGameSummary("GAME_SUMMARY_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
@@ -359,6 +372,12 @@ struct SASGameSummaryPlayerPrevious
 	int iWorkerMoving;
 	int iWorkerWaiting;
 	int iWorkerThreatened;
+	int iTerritoryImprovedLand;
+	int iTerritoryImprovedWater;
+	int iTerritoryRoaded;
+	int iTerritoryFarms;
+	int iTerritoryIrrigatedFarms;
+	int iTerritoryDryFarms;
 	int iSettlerSettlers;
 	int iSettlerFoundMission;
 	int iSettlerMoving;
@@ -432,6 +451,33 @@ struct SASGameSummaryPlotComposition
 	std::vector<int> aiRoutes;
 
 	SASGameSummaryPlotComposition() : iPlots(0), iLand(0), iWater(0), iHills(0), iPeaks(0), iRiverSide(0), iFreshWater(0), iCoastal(0), iImproved(0), iUnimprovedLand(0), iRoaded(0), iBonusImproved(0), iBonusUnimproved(0), iWorked(0), iWorkedImproved(0), iWorkedUnimproved(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iCurrentFood(0), iCurrentProduction(0), iCurrentCommerce(0), aiTerrains(GC.getNumTerrainInfos(), 0), aiFeatures(GC.getNumFeatureInfos(), 0), aiBonuses(GC.getNumBonusInfos(), 0), aiImprovements(GC.getNumImprovementInfos(), 0), aiRoutes(GC.getNumRouteInfos(), 0) {}
+};
+
+struct SASGameSummaryTerritoryDevelopment
+{
+	SASGameSummaryPlotComposition kOwned;
+	std::vector<int> aiImprovedBonuses;
+	std::vector<int> aiUnimprovedBonuses;
+	int iBFCPlots;
+	int iSuburbPlots;
+	int iDevelopmentLand;
+	int iDevelopmentWater;
+	int iImprovedLand;
+	int iImprovedWater;
+	int iBFCDevelopmentLand;
+	int iBFCImprovedLand;
+	int iSuburbDevelopmentLand;
+	int iSuburbImprovedLand;
+	int iFarms;
+	int iIrrigatedFarms;
+	int iDryFarms;
+	int iBonusFarms;
+	int iIrrigatedBonusFarms;
+	int iDryBonusFarms;
+	int iBFCFarms;
+	int iBFCIrrigatedFarms;
+	int iBFCDryFarms;
+	SASGameSummaryTerritoryDevelopment() : aiImprovedBonuses(GC.getNumBonusInfos(), 0), aiUnimprovedBonuses(GC.getNumBonusInfos(), 0), iBFCPlots(0), iSuburbPlots(0), iDevelopmentLand(0), iDevelopmentWater(0), iImprovedLand(0), iImprovedWater(0), iBFCDevelopmentLand(0), iBFCImprovedLand(0), iSuburbDevelopmentLand(0), iSuburbImprovedLand(0), iFarms(0), iIrrigatedFarms(0), iDryFarms(0), iBonusFarms(0), iIrrigatedBonusFarms(0), iDryBonusFarms(0), iBFCFarms(0), iBFCIrrigatedFarms(0), iBFCDryFarms(0) {}
 };
 
 static SASGameSummaryPlayerPrevious g_akSASGameSummaryPlayerPrevious[MAX_PLAYERS];
@@ -908,6 +954,15 @@ static void appendSASGameSummaryValue(CvString& szList, const char* szName, int 
 	szList += szItem;
 }
 
+static void appendSASGameSummarySignedValue(CvString& szList, const char* szName, int iValue)
+{
+	if (iValue == 0)
+		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%+d" : ",%s:%+d", szName, iValue);
+	szList += szItem;
+}
+
 static void addSASGameSummaryPlotComposition(SASGameSummaryPlotComposition& kComposition, CvPlot const& kPlot, TeamTypes eTeam)
 {
 	kComposition.iPlots++;
@@ -967,7 +1022,114 @@ static void addSASGameSummaryPlotComposition(SASGameSummaryPlotComposition& kCom
 	kComposition.iCurrentCommerce += kPlot.calculateYield(YIELD_COMMERCE);
 }
 
-static void getSASGameSummaryPlotCompositionTypes(SASGameSummaryPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses, CvString& szImprovements, CvString& szRoutes)
+static int getSASGameSummaryPercentX100(int iValue, int iTotal)
+{
+	return (iTotal <= 0 ? -1 : (10000 * iValue) / iTotal);
+}
+
+// <!-- custom: Add lightweight owned-territory counts to the map scan already used by the expansion summary, rather than scanning every plot again or calculating unused plot yields. BFC means the plot is assigned to one of this player's cities; development land excludes city centers and peaks because Workers cannot add ordinary improvements there. (GPT-5.6-Sol) -->
+static void addSASGameSummaryTerritoryDevelopment(SASGameSummaryTerritoryDevelopment& kDevelopment, CvPlot const& kPlot, PlayerTypes ePlayer, TeamTypes eTeam, ImprovementTypes eFarm)
+{
+	SASGameSummaryPlotComposition& kOwned = kDevelopment.kOwned;
+	kOwned.iPlots++;
+	if (kPlot.isWater())
+		kOwned.iWater++;
+	else kOwned.iLand++;
+	if (kPlot.getTerrainType() != NO_TERRAIN)
+		kOwned.aiTerrains[kPlot.getTerrainType()]++;
+	if (kPlot.getFeatureType() != NO_FEATURE)
+		kOwned.aiFeatures[kPlot.getFeatureType()]++;
+	CvCity const* pWorkingCity = kPlot.getWorkingCity();
+	bool const bBFC = (pWorkingCity != NULL && pWorkingCity->getOwner() == ePlayer);
+	if (bBFC)
+		kDevelopment.iBFCPlots++;
+	else kDevelopment.iSuburbPlots++;
+	ImprovementTypes const eImprovement = kPlot.getImprovementType();
+	bool const bImproved = (eImprovement != NO_IMPROVEMENT);
+	if (bImproved)
+	{
+		kOwned.iImproved++;
+		kOwned.aiImprovements[eImprovement]++;
+	}
+	RouteTypes const eRoute = kPlot.getRouteType();
+	if (eRoute != NO_ROUTE)
+	{
+		kOwned.iRoaded++;
+		kOwned.aiRoutes[eRoute]++;
+	}
+	BonusTypes const eBonus = kPlot.getBonusType(eTeam);
+	if (eBonus != NO_BONUS)
+	{
+		kOwned.aiBonuses[eBonus]++;
+		if (bImproved)
+		{
+			kOwned.iBonusImproved++;
+			kDevelopment.aiImprovedBonuses[eBonus]++;
+		}
+		else
+		{
+			kOwned.iBonusUnimproved++;
+			kDevelopment.aiUnimprovedBonuses[eBonus]++;
+		}
+	}
+	bool const bDevelopmentLand = (!kPlot.isWater() && !kPlot.isPeak() && !kPlot.isCity());
+	if (bDevelopmentLand)
+	{
+		kDevelopment.iDevelopmentLand++;
+		if (bImproved)
+			kDevelopment.iImprovedLand++;
+		if (bBFC)
+		{
+			kDevelopment.iBFCDevelopmentLand++;
+			if (bImproved)
+				kDevelopment.iBFCImprovedLand++;
+		}
+		else
+		{
+			kDevelopment.iSuburbDevelopmentLand++;
+			if (bImproved)
+				kDevelopment.iSuburbImprovedLand++;
+		}
+	}
+	else if (kPlot.isWater() && (eBonus != NO_BONUS || bImproved))
+	{
+		// <!-- custom: Ordinary water cannot receive an improvement. Count only visible bonus water or an already improved water plot in the development denominator, so seafood coverage is not diluted by unusable ocean. (GPT-5.6-Sol) -->
+		kDevelopment.iDevelopmentWater++;
+		if (bImproved)
+			kDevelopment.iImprovedWater++;
+	}
+	if (eImprovement != eFarm)
+		return;
+	kDevelopment.iFarms++;
+	bool const bIrrigated = kPlot.isIrrigated();
+	if (bIrrigated)
+		kDevelopment.iIrrigatedFarms++;
+	else kDevelopment.iDryFarms++;
+	if (eBonus != NO_BONUS)
+	{
+		kDevelopment.iBonusFarms++;
+		if (bIrrigated)
+			kDevelopment.iIrrigatedBonusFarms++;
+		else kDevelopment.iDryBonusFarms++;
+	}
+	if (bBFC)
+	{
+		kDevelopment.iBFCFarms++;
+		if (bIrrigated)
+			kDevelopment.iBFCIrrigatedFarms++;
+		else kDevelopment.iBFCDryFarms++;
+	}
+}
+
+static void getSASGameSummaryImprovementRouteTypes(SASGameSummaryPlotComposition const& kComposition, CvString& szImprovements, CvString& szRoutes)
+{
+	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		appendSASGameSummaryTypeCount(szImprovements, getSASGameSummaryImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
+	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
+		appendSASGameSummaryTypeCount(szRoutes, getSASGameSummaryRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
+}
+
+static void getSASGameSummaryLandscapeTypes(SASGameSummaryPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses)
 {
 	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 		appendSASGameSummaryTypeCount(szTerrains, getSASGameSummaryTerrainType((TerrainTypes)iI), kComposition.aiTerrains[iI]);
@@ -975,10 +1137,55 @@ static void getSASGameSummaryPlotCompositionTypes(SASGameSummaryPlotComposition 
 		appendSASGameSummaryTypeCount(szFeatures, getSASGameSummaryFeatureType((FeatureTypes)iI), kComposition.aiFeatures[iI]);
 	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
 		appendSASGameSummaryTypeCount(szBonuses, getSASGameSummaryBonusType((BonusTypes)iI), kComposition.aiBonuses[iI]);
-	for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
-		appendSASGameSummaryTypeCount(szImprovements, getSASGameSummaryImprovementType((ImprovementTypes)iI), kComposition.aiImprovements[iI]);
-	for (int iI = 0; iI < GC.getNumRouteInfos(); iI++)
-		appendSASGameSummaryTypeCount(szRoutes, getSASGameSummaryRouteType((RouteTypes)iI), kComposition.aiRoutes[iI]);
+}
+
+static void logSASGameSummaryTerritoryDevelopment(PlayerTypes ePlayer, int iGameTurn, SASGameSummaryTerritoryDevelopment const& kDevelopment)
+{
+	SASGameSummaryPlotComposition const& kOwned = kDevelopment.kOwned;
+	SASGameSummaryPlayerPrevious& kPrevious = g_akSASGameSummaryPlayerPrevious[ePlayer];
+	CvString szImprovements;
+	CvString szRoutes;
+	getSASGameSummaryImprovementRouteTypes(kOwned, szImprovements, szRoutes);
+	int const iDevelopmentPlots = kDevelopment.iDevelopmentLand + kDevelopment.iDevelopmentWater;
+	int const iImprovedPlots = kDevelopment.iImprovedLand + kDevelopment.iImprovedWater;
+	int const iSuburbFarms = kDevelopment.iFarms - kDevelopment.iBFCFarms;
+	int const iSuburbIrrigatedFarms = kDevelopment.iIrrigatedFarms - kDevelopment.iBFCIrrigatedFarms;
+	int const iSuburbDryFarms = kDevelopment.iDryFarms - kDevelopment.iBFCDryFarms;
+	logSASGameSummary("GAME_SUMMARY_TERRITORY_DEVELOPMENT turn=%d player=%d deltaValid=%d ownedPlots=%d ownedLand=%d ownedWater=%d bfcPlots=%d suburbPlots=%d developmentPlots=%d improvedPlots=%d improvedPercentX100=%d developmentLand=%d improvedLand=%d improvedLandDelta=%+d improvedLandPercentX100=%d developmentWater=%d improvedWater=%d improvedWaterDelta=%+d improvedWaterPercentX100=%d"
+			" bfcDevelopmentLand=%d bfcImprovedLand=%d bfcImprovedLandPercentX100=%d suburbDevelopmentLand=%d suburbImprovedLand=%d suburbImprovedLandPercentX100=%d roaded=%d roadedDelta=%+d bonusImproved=%d bonusUnimproved=%d"
+			" farms=%d farmsDelta=%+d irrigatedFarms=%d irrigatedFarmsDelta=%+d dryFarms=%d dryFarmsDelta=%+d irrigatedFarmPercentX100=%d dryFarmPercentX100=%d bonusFarms=%d irrigatedBonusFarms=%d dryBonusFarms=%d bfcFarms=%d bfcIrrigatedFarms=%d bfcDryFarms=%d bfcIrrigatedFarmPercentX100=%d suburbFarms=%d suburbIrrigatedFarms=%d suburbDryFarms=%d suburbIrrigatedFarmPercentX100=%d improvements=%s routes=%s",
+			iGameTurn, ePlayer, kPrevious.bValid, kOwned.iPlots, kOwned.iLand, kOwned.iWater, kDevelopment.iBFCPlots, kDevelopment.iSuburbPlots, iDevelopmentPlots, iImprovedPlots, getSASGameSummaryPercentX100(iImprovedPlots, iDevelopmentPlots),
+			kDevelopment.iDevelopmentLand, kDevelopment.iImprovedLand, getSASGameSummaryDelta(kPrevious.bValid, kDevelopment.iImprovedLand, kPrevious.iTerritoryImprovedLand), getSASGameSummaryPercentX100(kDevelopment.iImprovedLand, kDevelopment.iDevelopmentLand), kDevelopment.iDevelopmentWater, kDevelopment.iImprovedWater, getSASGameSummaryDelta(kPrevious.bValid, kDevelopment.iImprovedWater, kPrevious.iTerritoryImprovedWater), getSASGameSummaryPercentX100(kDevelopment.iImprovedWater, kDevelopment.iDevelopmentWater),
+			kDevelopment.iBFCDevelopmentLand, kDevelopment.iBFCImprovedLand, getSASGameSummaryPercentX100(kDevelopment.iBFCImprovedLand, kDevelopment.iBFCDevelopmentLand), kDevelopment.iSuburbDevelopmentLand, kDevelopment.iSuburbImprovedLand, getSASGameSummaryPercentX100(kDevelopment.iSuburbImprovedLand, kDevelopment.iSuburbDevelopmentLand), kOwned.iRoaded, getSASGameSummaryDelta(kPrevious.bValid, kOwned.iRoaded, kPrevious.iTerritoryRoaded), kOwned.iBonusImproved, kOwned.iBonusUnimproved,
+			kDevelopment.iFarms, getSASGameSummaryDelta(kPrevious.bValid, kDevelopment.iFarms, kPrevious.iTerritoryFarms), kDevelopment.iIrrigatedFarms, getSASGameSummaryDelta(kPrevious.bValid, kDevelopment.iIrrigatedFarms, kPrevious.iTerritoryIrrigatedFarms), kDevelopment.iDryFarms, getSASGameSummaryDelta(kPrevious.bValid, kDevelopment.iDryFarms, kPrevious.iTerritoryDryFarms), getSASGameSummaryPercentX100(kDevelopment.iIrrigatedFarms, kDevelopment.iFarms), getSASGameSummaryPercentX100(kDevelopment.iDryFarms, kDevelopment.iFarms),
+			kDevelopment.iBonusFarms, kDevelopment.iIrrigatedBonusFarms, kDevelopment.iDryBonusFarms, kDevelopment.iBFCFarms, kDevelopment.iBFCIrrigatedFarms, kDevelopment.iBFCDryFarms, getSASGameSummaryPercentX100(kDevelopment.iBFCIrrigatedFarms, kDevelopment.iBFCFarms), iSuburbFarms, iSuburbIrrigatedFarms, iSuburbDryFarms, getSASGameSummaryPercentX100(iSuburbIrrigatedFarms, iSuburbFarms), getSASGameSummaryOrDash(szImprovements).GetCString(), getSASGameSummaryOrDash(szRoutes).GetCString());
+	if (gGameSummaryLogLevel >= 3)
+	{
+		CvString szTerrains;
+		CvString szFeatures;
+		CvString szBonuses;
+		CvString szImprovedBonuses;
+		CvString szUnimprovedBonuses;
+		getSASGameSummaryLandscapeTypes(kOwned, szTerrains, szFeatures, szBonuses);
+		for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+		{
+			appendSASGameSummaryTypeCount(szImprovedBonuses, getSASGameSummaryBonusType((BonusTypes)iI), kDevelopment.aiImprovedBonuses[iI]);
+			appendSASGameSummaryTypeCount(szUnimprovedBonuses, getSASGameSummaryBonusType((BonusTypes)iI), kDevelopment.aiUnimprovedBonuses[iI]);
+		}
+		logSASGameSummary("GAME_SUMMARY_TERRITORY_LANDSCAPE turn=%d player=%d terrains=%s features=%s bonuses=%s improvedBonuses=%s unimprovedBonuses=%s", iGameTurn, ePlayer, getSASGameSummaryOrDash(szTerrains).GetCString(), getSASGameSummaryOrDash(szFeatures).GetCString(), getSASGameSummaryOrDash(szBonuses).GetCString(), getSASGameSummaryOrDash(szImprovedBonuses).GetCString(), getSASGameSummaryOrDash(szUnimprovedBonuses).GetCString());
+	}
+	kPrevious.iTerritoryImprovedLand = kDevelopment.iImprovedLand;
+	kPrevious.iTerritoryImprovedWater = kDevelopment.iImprovedWater;
+	kPrevious.iTerritoryRoaded = kOwned.iRoaded;
+	kPrevious.iTerritoryFarms = kDevelopment.iFarms;
+	kPrevious.iTerritoryIrrigatedFarms = kDevelopment.iIrrigatedFarms;
+	kPrevious.iTerritoryDryFarms = kDevelopment.iDryFarms;
+}
+
+static void getSASGameSummaryPlotCompositionTypes(SASGameSummaryPlotComposition const& kComposition, CvString& szTerrains, CvString& szFeatures, CvString& szBonuses, CvString& szImprovements, CvString& szRoutes)
+{
+	getSASGameSummaryLandscapeTypes(kComposition, szTerrains, szFeatures, szBonuses);
+	getSASGameSummaryImprovementRouteTypes(kComposition, szImprovements, szRoutes);
 }
 
 static void logSASGameSummaryKnownArea(PlayerTypes ePlayer, const char* szReason)
@@ -1127,8 +1334,18 @@ static void logSASGameSummaryPlayerSetup(PlayerTypes ePlayer)
 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
-	logSASGameSummary("GAME_SUMMARY_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S favoriteCivic=%s handicap=%s",
-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), getSASGameSummaryQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameSummaryQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameSummaryQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameSummaryQuoted(szLeaderName).GetCString(), getSASGameSummaryCivicType(kPlayer.getFavoriteCivic()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+	CvString szTraits;
+	FOR_EACH_ENUM(Trait)
+	{
+		if (!kPlayer.hasTrait(eLoopTrait))
+			continue;
+		if (!szTraits.empty())
+			szTraits += ",";
+		szTraits += GC.getInfo(eLoopTrait).getType();
+	}
+	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results. Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
+	logSASGameSummary("GAME_SUMMARY_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), getSASGameSummaryQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameSummaryQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameSummaryQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameSummaryQuoted(szLeaderName).GetCString(), getSASGameSummaryOrDash(szTraits).GetCString(), getSASGameSummaryCivicType(kPlayer.getFavoriteCivic()), getSASGameSummaryReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
 }
 
 static void logSASGameSummaryAttitudeLegend()
@@ -1143,6 +1360,10 @@ static void logSASGameSummaryAttitudeLegend()
 
 static void logSASGameSummaryInitialContext()
 {
+	// <!-- custom: Archived summaries can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
+	logSASGameSummary("GAME_SUMMARY_MOD_CONTEXT modName=%s modPath=%s", getSASGameSummaryQuoted(GC.getModName().getName()).GetCString(), getSASGameSummaryQuoted(GC.getModName().getPathInRoot()).GetCString());
+	// <!-- custom: Player/team IDs appear throughout the summary, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
+	logSASGameSummary("GAME_SUMMARY_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryAttitudeLegend();
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -1428,11 +1649,74 @@ static CvString getSASGameSummaryPlayerCityCorporations(CvPlayer const& kPlayer)
 	return getSASGameSummaryOrDash(szList);
 }
 
+// <!-- custom: City health/happiness rows previously combined player-wide modifiers under `extra`, hiding whether a loaded-mod rule caused a demographic change; for example, AdvCiv-SAS's TECH_DEPOPULATION currently applies negative health and happiness.
+// Reconstruct all currently defined trait, civic and technology contributions once per player snapshot; preserve any event or other DLL adjustment as OTHER. (GPT-5.6-Sol) -->
+static void getSASGameSummaryPlayerExtraSources(CvPlayer const& kPlayer, CvString& szHealthSources, CvString& szHappinessSources)
+{
+	int iKnownHealth = 0;
+	int iKnownHappiness = 0;
+	FOR_EACH_ENUM(Trait)
+	{
+		if (!kPlayer.hasTrait(eLoopTrait))
+			continue;
+		CvTraitInfo const& kTrait = GC.getInfo(eLoopTrait);
+		iKnownHealth += kTrait.getHealth();
+		iKnownHappiness += kTrait.getHappiness();
+		appendSASGameSummarySignedValue(szHealthSources, kTrait.getType(), kTrait.getHealth());
+		appendSASGameSummarySignedValue(szHappinessSources, kTrait.getType(), kTrait.getHappiness());
+	}
+	FOR_EACH_ENUM(CivicOption)
+	{
+		CivicTypes const eCivic = kPlayer.getCivics(eLoopCivicOption);
+		if (eCivic == NO_CIVIC)
+			continue;
+		CvCivicInfo const& kCivic = GC.getInfo(eCivic);
+		iKnownHealth += kCivic.getExtraHealth();
+		iKnownHappiness += kCivic.getExtraHappiness();
+		appendSASGameSummarySignedValue(szHealthSources, kCivic.getType(), kCivic.getExtraHealth());
+		appendSASGameSummarySignedValue(szHappinessSources, kCivic.getType(), kCivic.getExtraHappiness());
+	}
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	FOR_EACH_ENUM(Tech)
+	{
+		if (!kTeam.isHasTech(eLoopTech))
+			continue;
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		iKnownHealth += kTech.getHealth();
+		iKnownHappiness += kTech.getHappiness();
+		appendSASGameSummarySignedValue(szHealthSources, kTech.getType(), kTech.getHealth());
+		appendSASGameSummarySignedValue(szHappinessSources, kTech.getType(), kTech.getHappiness());
+	}
+	appendSASGameSummarySignedValue(szHealthSources, "OTHER", kPlayer.getExtraHealth() - iKnownHealth);
+	appendSASGameSummarySignedValue(szHappinessSources, "OTHER", kPlayer.getExtraHappiness() - iKnownHappiness);
+}
+
+// <!-- custom: Objective victory progress does not show which route currently guides AI strategy. Record the compact 0..4 route stages once per AI snapshot so city production and war choices can be interpreted without enabling detailed BBAI decisions. (GPT-5.6-Sol) -->
+static void logSASGameSummaryAIVictoryStages(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	if (kPlayer.isHuman() && !kPlayer.isHumanDisabled())
+		return;
+	AIVictoryStage const eStages = kPlayer.AI_getVictoryStageHash();
+	int const iCultureStage = getSASCultureVictoryStageLevel(eStages);
+	int const iSpaceStage = getSASSpaceVictoryStageLevel(eStages);
+	int const iConquestStage = getSASConquestVictoryStageLevel(eStages);
+	int const iDominationStage = getSASDominationVictoryStageLevel(eStages);
+	int const iDiplomacyStage = getSASDiplomacyVictoryStageLevel(eStages);
+	int const iPlayerMaxStage = std::max(std::max(iCultureStage, iSpaceStage), std::max(std::max(iConquestStage, iDominationStage), iDiplomacyStage));
+	logSASGameSummary("GAME_SUMMARY_AI_VICTORY_STAGES turn=%d player=%d team=%d playerMaxStage=%d teamMaxStage=%d culture=%d space=%d conquest=%d domination=%d diplomacy=%d",
+			iGameTurn, ePlayer, kPlayer.getTeam(), iPlayerMaxStage, getSASTeamMaxVictoryStage(kPlayer.getTeam()), iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage);
+}
+
 static void logSASGameSummaryPolicies(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameSummary("GAME_SUMMARY_POLICIES turn=%d player=%d civics=%s favoriteCivic=%s stateReligion=%s cityReligions=%s cityCorporations=%s",
-			iGameTurn, ePlayer, getSASGameSummaryCivicList(kPlayer).GetCString(), getSASGameSummaryCivicType(kPlayer.getFavoriteCivic()), getSASGameSummaryReligionType(kPlayer.getStateReligion()), getSASGameSummaryPlayerCityReligions(kPlayer).GetCString(), getSASGameSummaryPlayerCityCorporations(kPlayer).GetCString());
+	CvString szExtraHealthSources;
+	CvString szExtraHappinessSources;
+	getSASGameSummaryPlayerExtraSources(kPlayer, szExtraHealthSources, szExtraHappinessSources);
+	logSASGameSummary("GAME_SUMMARY_POLICIES turn=%d player=%d civics=%s stateReligion=%s cityReligions=%s cityCorporations=%s playerExtraHealth=%d playerExtraHappiness=%d extraHealthSources=%s extraHappinessSources=%s",
+			iGameTurn, ePlayer, getSASGameSummaryCivicList(kPlayer).GetCString(), getSASGameSummaryReligionType(kPlayer.getStateReligion()), getSASGameSummaryPlayerCityReligions(kPlayer).GetCString(), getSASGameSummaryPlayerCityCorporations(kPlayer).GetCString(),
+			kPlayer.getExtraHealth(), kPlayer.getExtraHappiness(), getSASGameSummaryOrDash(szExtraHealthSources).GetCString(), getSASGameSummaryOrDash(szExtraHappinessSources).GetCString());
 }
 
 static void logSASGameSummaryEspionage(PlayerTypes ePlayer, int iGameTurn)
@@ -2176,16 +2460,20 @@ static void logSASGameSummaryExpansion(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	const TeamTypes eTeam = kPlayer.getTeam();
+	static const ImprovementTypes eFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
 	int iRevealedLand = 0;
 	int iVisibleLand = 0;
 	int iRevealedUnownedLand = 0;
 	int iVisibleUnownedLand = 0;
 	int iRevealedForeignLand = 0;
 	int iVisibleForeignLand = 0;
+	SASGameSummaryTerritoryDevelopment kTerritoryDevelopment;
 	CvMap const& kMap = GC.getMap();
 	for (int iI = 0; iI < kMap.numPlots(); iI++)
 	{
 		CvPlot const& kPlot = kMap.getPlotByIndex(iI);
+		if (kPlot.getOwner() == ePlayer)
+			addSASGameSummaryTerritoryDevelopment(kTerritoryDevelopment, kPlot, ePlayer, eTeam, eFarm);
 		if (kPlot.isWater())
 			continue;
 		if (kPlot.isRevealed(eTeam, false))
@@ -2237,6 +2525,7 @@ static void logSASGameSummaryExpansion(PlayerTypes ePlayer, int iGameTurn)
 	const int iAvgSettlerCityDistanceX100 = (iSettlersWithCityDistance == 0 ? -1 : (100 * iTotalSettlerCityDistance) / iSettlersWithCityDistance);
 	logSASGameSummary("GAME_SUMMARY_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d settlers=%d foundMission=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d",
 			iGameTurn, ePlayer, kPlayer.getNumCities(), GC.getInfo(kMap.getWorldSize()).getTargetNumCities(), kPlayer.getTotalLand(), iRevealedLand, iVisibleLand, iRevealedUnownedLand, iVisibleUnownedLand, iRevealedForeignLand, iVisibleForeignLand, iSettlers, iFoundMission, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100);
+	logSASGameSummaryTerritoryDevelopment(ePlayer, iGameTurn, kTerritoryDevelopment);
 }
 
 static void logSASGameSummarySettlers(PlayerTypes ePlayer, int iGameTurn)
@@ -2860,6 +3149,7 @@ static void logSASGameSummaryPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	if (gGameSummaryLogLevel >= 2)
 	{
 		logSASGameSummaryPlayerBonuses(ePlayer, iGameTurn, kPrevious);
+		logSASGameSummaryAIVictoryStages(ePlayer, iGameTurn);
 		logSASGameSummaryPolicies(ePlayer, iGameTurn);
 		logSASGameSummaryEconomy(ePlayer, iGameTurn);
 		logSASGameSummaryStatistics(ePlayer, iGameTurn);
@@ -3134,11 +3424,22 @@ void logSASGameSummaryWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlan
 {
 	CvTeam const& kDeclarer = GET_TEAM(eDeclarer);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
+	CvTeamAI const& kTargetAI = GET_TEAM(eTarget);
 	char const* szCause = (bRandomEvent ? "RANDOM_EVENT" : (eSponsor != NO_PLAYER ? "SPONSORED_WAR" : getSASWarDeclarationCause(eCause)));
-	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d",
+	// <!-- custom: `cause=DIRECT` identifies how war began, not why the AI selected that rival.
+	// Preserve the target's exact victory state at declaration time so archived summaries show whether victory denial was relevant without falsely claiming it was the sole strategic motive. (GPT-5.6-Sol) -->
+	int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
+	int const iTargetSpaceVictoryStage = getSASTeamSpaceVictoryStage(eTarget);
+	int const iTargetSpaceshipParts = getSASTeamSpaceshipPartsBuilt(eTarget);
+	int const iSpaceshipPartsRequired = getSASSpaceshipPartsRequired();
+	int const iTargetSpaceshipPartsPercent = (iSpaceshipPartsRequired <= 0 ? 0 : iTargetSpaceshipParts * 100 / iSpaceshipPartsRequired);
+	int const iTargetVictoryCountdown = kTargetAI.AI_getLowestVictoryCountdown();
+	bool const bVictoryDenialContext = (iTargetVictoryCountdown >= 0 || iTargetMaxVictoryStage >= 4 || isSASTeamStage3SpaceVictoryThreat(eTarget));
+	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=WAR_STARTED declarerTeam=%d targetTeam=%d cause=%s primary=%d newDiplo=%d warPlan=%s sponsorPlayer=%d sponsorTeam=%d randomEvent=%d declarerMaster=%d targetMaster=%d declarerWarsAfter=%d targetWarsAfter=%d victoryDenialContext=%d targetMaxVictoryStage=%d targetSpaceVictoryStage=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetVictoryCountdown=%d",
 			GC.getGame().getGameTurn(), eDeclarer, eTarget, szCause, bPrimaryDoW, bNewDiplo, getSASWarPlanType(eWarPlan),
 			eSponsor, eSponsor == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSponsor).getTeam(), bRandomEvent,
-			kDeclarer.isAVassal() ? kDeclarer.getMasterTeam() : NO_TEAM, kTarget.isAVassal() ? kTarget.getMasterTeam() : NO_TEAM, kDeclarer.getNumWars(false), kTarget.getNumWars(false));
+			kDeclarer.isAVassal() ? kDeclarer.getMasterTeam() : NO_TEAM, kTarget.isAVassal() ? kTarget.getMasterTeam() : NO_TEAM, kDeclarer.getNumWars(false), kTarget.getNumWars(false),
+			bVictoryDenialContext, iTargetMaxVictoryStage, iTargetSpaceVictoryStage, iTargetSpaceshipParts, iTargetSpaceshipPartsPercent, iTargetVictoryCountdown);
 }
 
 void logSASGameSummaryWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam)
