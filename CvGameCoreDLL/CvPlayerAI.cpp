@@ -7848,6 +7848,8 @@ void CvPlayerAI::AI_chooseResearch()
 			(instead prod the human each turn to pick a tech him/herself) */
 		pushResearch(eBestTech, false, false);
 	}
+	// <!-- custom: Pair research selection with RESEARCH_NO_TARGET_OVERFLOW_STORED and the queue-invalidation diagnostics in CvTeam. This reveals whether currentResearch=- in an end-of-round summary was harmless timing, exhaustion of all technologies, or an actual failure to find a researchable target. (GPT-5.6-Sol) -->
+	if (!isHuman() && !isBarbarian() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_TARGET_CHOSEN turn=%d player=%d %S requested=%S current=%S queueLength=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), (eBestTech == NO_TECH ? L"-" : GC.getInfo(eBestTech).getDescription()), (getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(getCurrentResearch()).getDescription()), getLengthResearchQueue());
 }
 
 DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const

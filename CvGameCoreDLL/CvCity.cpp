@@ -13667,6 +13667,7 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
 	if (iGoldPercent <= 0)
 		return;
 	int iProductionGold = (iInvestedProduction * iGoldPercent) / 100;
+	if (gGameSummaryLogLevel >= 2 && iInvestedProduction > 0) logSASGameSummaryProductionFailed(this, iOrderData, bProject, iInvestedProduction, iProductionGold);
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 	GET_PLAYER(getOwner()).changeGold(iProductionGold);
@@ -13715,6 +13716,8 @@ void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderType
 	if(iOverflow <= 0)
 		return;
 	setOverflowProduction(iOverflow);
+	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, while overflow capped into lost production or gold is strategically important. Record all nonzero completion overflow at summary level 3, and the rarer loss/gold cases at level 2. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
+	if ((gGameSummaryLogLevel >= 3 && iOverflow > 0) || (gGameSummaryLogLevel >= 2 && (iLostProduction > 0 || iProductionGold > 0))) logSASGameSummaryProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
 	if(iProductionGold > 0 || iLostProduction > 0)
 		payOverflowGold(iLostProduction, iProductionGold);
 }

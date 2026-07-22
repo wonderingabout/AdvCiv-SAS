@@ -52,6 +52,9 @@ void logSASGameSummaryGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, in
 void logSASGameSummaryAnarchy(PlayerTypes ePlayer, bool bStart);
 void logSASGameSummaryBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
 void logSASGameSummaryProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+// <!-- custom: City snapshots already expose stored overflow. These action hooks preserve the transient completion result: newly kept overflow, production lost to the cap, overflow gold, and wonder/project fail gold. (GPT-5.6-Sol) -->
+void logSASGameSummaryProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold);
+void logSASGameSummaryProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold);
 // <!-- custom: Added the victory type so SASGameSummary can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
 void logSASGameSummaryVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory);
 // <!-- custom: Capital loss and a failed arrival roll both call resetVictoryProgress, which otherwise silently erases the active countdown and spaceship projects. These hooks preserve the distinct cause and exact pre-reset state. (GPT-5.6-Sol) -->

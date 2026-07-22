@@ -12009,6 +12009,8 @@ void CvPlayer::doResearch()
 		TechTypes eCurrentTech = getCurrentResearch();
 		if (eCurrentTech == NO_TECH)
 		{
+			// <!-- custom: End-of-round summaries can legitimately show no current research after a technology was completed, another player claimed its first-discovery reward, or all technologies were learned. The research rate is stored as overflow in this branch rather than lost; log it to distinguish those cases from a failed AI choice. (GPT-5.6-Sol) -->
+			if (!isHuman() && !isBarbarian() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_NO_TARGET_OVERFLOW_STORED turn=%d player=%d %S researchPercent=%d nominalResearchRate=%d existingOverflow=%d", GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), getCommercePercent(COMMERCE_RESEARCH), calculateResearchRate(), getOverflowResearch());
 			int iOverflow = (100 * calculateResearchRate()) /
 					std::max(1, calculateResearchModifier(eCurrentTech));
 			changeOverflowResearch(iOverflow);

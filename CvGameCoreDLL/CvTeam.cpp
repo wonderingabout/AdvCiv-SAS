@@ -4630,8 +4630,11 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		for (MemberAIIter it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayerAI& kMember = *it;
-			if (kMember.isResearchingTech(eTech))
+			bool const bWasResearchingAcquiredTech = kMember.isResearchingTech(eTech);
+			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
+			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameSummary snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
+			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
 			kMember.AI_nowHasTech(eTech);
@@ -4718,6 +4721,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 					{
 						/*	K-Mod note: we just want to flag it for re-evaluation.
 							Clearing the queue is currently the only way to do that. */
+						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's. Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
+						if (gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d", kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
 						itOther->clearResearchQueue();
 					}
 				}

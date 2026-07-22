@@ -2830,6 +2830,41 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
+		// <!-- custom: The existing irrigation-chain heuristic excludes bonus plots and searches only four tiles from a target. Audit every dry BFC Farm at Worker log level 3, including bonus-specific Farms, so tests reveal missing adjacent carriers, distant usable water sources, and targets for which the current short-chain policy cannot find a source-side first step. All source searches remain behind the logging gate. (GPT-5.6-Sol) -->
+		if (gWorkerLogLevel >= 3)
+		{
+			for (WorkablePlotIter itAudit(kCity, false); itAudit.hasNext(); ++itAudit)
+			{
+				CvPlot& kTargetPlot = *itAudit;
+				if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.getImprovementType() != eImprovementFarm || kTargetPlot.isIrrigated() || kTargetPlot.isIrrigationAvailable(true))
+					continue;
+				BonusTypes const eTargetBonus = kTargetPlot.getNonObsoleteBonusType(getTeam());
+				bool const bBonusSpecificFarm = (eTargetBonus != NO_BONUS && GET_PLAYER(getOwner()).doesImprovementConnectBonus(eImprovementFarm, eTargetBonus));
+				int iAdjacentCarrierFarms = 0;
+				for (SquareIter itAdjacent(kTargetPlot, 1, false); itAdjacent.hasNext(); ++itAdjacent)
+				{
+					CvPlot const& kAdjacentPlot = *itAdjacent;
+					if (kAdjacentPlot.getOwner() == getOwner() && kAdjacentPlot.getImprovementType() == eImprovementFarm && kAdjacentPlot.canHavePotentialIrrigation())
+						iAdjacentCarrierFarms++;
+				}
+				CvPlot const* pNearestAvailableSource = NULL;
+				int iNearestAvailableSourceDistance = MAX_INT;
+				for (SquareIter itSource(kTargetPlot, 12, false); itSource.hasNext(); ++itSource)
+				{
+					CvPlot& kSourcePlot = *itSource;
+					if (kSourcePlot.getOwner() != getOwner() || !kSourcePlot.isArea(getArea()) || kSourcePlot.isWater() || kSourcePlot.isHills() || kSourcePlot.isCity() || !kSourcePlot.canHavePotentialIrrigation() || (!kSourcePlot.isFreshWater() && !kSourcePlot.isIrrigationAvailable(true)) || !canBuild(kSourcePlot, eBuildFarm))
+						continue;
+					int const iSourceDistance = stepDistance(&kSourcePlot, &kTargetPlot);
+					if (iSourceDistance < iNearestAvailableSourceDistance)
+					{
+						iNearestAvailableSourceDistance = iSourceDistance;
+						pNearestAvailableSource = &kSourcePlot;
+					}
+				}
+				logBBAI("    IRRIGATION_CHAIN_DRY_FARM turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) bonus=%S bonusSpecificFarm=%d adjacentCarrierFarms=%d nearestAvailableSource=(%d,%d) sourceDistance=%d currentSearchLimit=4",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription()), bBonusSpecificFarm, iAdjacentCarrierFarms, (pNearestAvailableSource == NULL ? -1 : pNearestAvailableSource->getX()), (pNearestAvailableSource == NULL ? -1 : pNearestAvailableSource->getY()), (pNearestAvailableSource == NULL ? -1 : iNearestAvailableSourceDistance));
+			}
+		}
 		// <!-- custom: AI_bestCityBuild normally scans only the city's BFC. The first outside-BFC connector attempt produced log noise and sometimes chose connector-looking plots, but did not fix Chaco Canyon/Harappan-style dry-farm cities. Instead, start from concrete city BFC targets: existing non-bonus dry farms, plus low-food unimproved non-bonus tiles when the city has high food-support pressure. Then choose a farmable owned plot that can receive irrigation now and moves water toward that target through a short owned farm chain. This fixed the Chaco Canyon and Harappan test cases by making workers find the first link toward water; imperfectly, Harappan's worker then wandered after irrigating the first link instead of immediately finishing the full chain to the BFC. This keeps the old broad AI_irrigateTerritory spam disabled while making the chain goal explicit. (GPT-5.5) -->
 		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
 		{
@@ -2900,6 +2935,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					logBBAI("    %S worker considers best irrigation-chain step for city %S: build farm at (%d,%d) toward target (%d,%d), value=%d, distance=%d, dryFarm=%d, overwritePenalty=%d, foodPressure=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), bestConnectorPlot.pPlot->getX(), bestConnectorPlot.pPlot->getY(), kTargetPlot.getX(), kTargetPlot.getY(), bestConnectorPlot.iValue, iBestConnectorDistance, bTargetDryFarm, iBestConnectorOverwritePenalty, iCityFoodSupportPressure);
 				candidatePlots.push_back(bestConnectorPlot);
 			}
+			else if (gWorkerLogLevel >= 3) logBBAI("    IRRIGATION_CHAIN_NO_CURRENT_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) dryFarm=%d foodPressure=%d searchLimit=4", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), bTargetDryFarm, iCityFoodSupportPressure);
 		}
 	}
 
