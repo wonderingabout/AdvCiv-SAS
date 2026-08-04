@@ -2,11 +2,11 @@
 
 ## Menu
 
-[Copyright and Disclaimer](/_1_AdvCiv-SAS/Docs/README_References.md#copyright-and-disclaimer)  
-[Note about the audio in main menu](/_1_AdvCiv-SAS/Docs/README_References.md#note-about-the-audio-in-main-menu)  
-[Credits](/_1_AdvCiv-SAS/Docs/README_References.md#credits)  
-[Starting your mod](/_1_AdvCiv-SAS/Docs/README_References.md#starting-your-mod)  
-[Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.md#some-useful-tools-while-doing-this)  
+[Copyright and Disclaimer](/_1_AdvCiv-SAS/Docs/README_References.md#copyright-and-disclaimer)\
+[Note about the audio in main menu](/_1_AdvCiv-SAS/Docs/README_References.md#note-about-the-audio-in-main-menu)\
+[Credits](/_1_AdvCiv-SAS/Docs/README_References.md#credits)\
+[Starting your mod](/_1_AdvCiv-SAS/Docs/README_References.md#starting-your-mod)\
+[Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.md#some-useful-tools-while-doing-this)\
 
 ## Copyright and Disclaimer
 

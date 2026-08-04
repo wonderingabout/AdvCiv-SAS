@@ -2801,7 +2801,7 @@ Created as part of AdvCiv-SAS improvements
 
 	<!-- custom: clearer renaming to some promotions, accuracy is so misleading as a name for example, hopefully clearer now -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_ACCURACY</Tag>
+		<Tag>TXT_KEY_PROMOTION_CITY_BOMBARD_DAMAGE</Tag>
 		<English>City Bombard Damage</English>
 	</TEXT>
 	<!-- custom: an ace can be about ground units too, hopefully clearer now -->
@@ -2811,37 +2811,37 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 	<!-- custom: name is more epic, not necessarily clearer (especially with new tech requirement that is sooner, in earlier eras, but it is also historically more correct according to my research) -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
+		<Tag>TXT_KEY_PROMOTION_BLITZKRIEG</Tag>
 		<English>Blitzkrieg</English>
 	</TEXT>
 	<!-- custom: spies don't conduct raids for example in base civ bts/advciv so "commando" does not fit, is also not intuitive, hopefully clearer now -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+		<Tag>TXT_KEY_PROMOTION_LOGISTICS</Tag>
 		<English>Logistics</English>
 	</TEXT>
 	<!-- custom: clear counter unit promotion names -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_TANK</Tag>
 		<English>Counter-Tank</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_CHARGE</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_SIEGE</Tag>
 		<English>Counter-Siege</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_ARCHER</Tag>
 		<English>Counter-Archer</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_MELEE</Tag>
 		<English>Counter-Melee</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_PINCH</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_GUN</Tag>
 		<English>Counter-Gun</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_FORMATION</Tag>
+		<Tag>TXT_KEY_PROMOTION_COUNTER_MOUNTED</Tag>
 		<English>Counter-Mounted</English>
 	</TEXT>
 	<!-- custom: Long_Comments_XML.txt #226 -->
@@ -2890,11 +2890,11 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: "Range" may apply to ground units too hopefully clearer now,
 	Also switch to arabic numerals, clearer too, i think, and also prefer, anyways. -->
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_RANGE1</Tag>
+		<Tag>TXT_KEY_PROMOTION_AIR_RANGE1</Tag>
 		<English>Air Range 1</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
+		<Tag>TXT_KEY_PROMOTION_AIR_RANGE2</Tag>
 		<English>Air Range 2</English>
 	</TEXT>
 	<!-- custom: rename "_BARRAGE" to "_COLLATERAL_DAMAGE" -->

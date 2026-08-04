@@ -28,3 +28,5 @@ __pycache__
 /Logs/
 /Assets/CvGameCoreDLL_d.dll
 /LLM_Helpers/outputs/
+# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too -->
+/changes.md

@@ -9894,7 +9894,7 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 50 -->
-			<iCost>45</iCost>
+			<iCost>40</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -9935,8 +9935,8 @@
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>10</iCityAttack>
-			<iCityDefense>50</iCityDefense>
+			<iCityAttack>0</iCityAttack>
+			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>25</iHillsDefense>
@@ -10170,7 +10170,7 @@
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 -->
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<!-- custom: was as of now 25 in the advciv-sas longbowman -->
@@ -10335,10 +10335,6 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 				<UnitAI>
-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
-					<bUnitAI>1</bUnitAI>
-				</UnitAI>
-				<UnitAI>
 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
@@ -10394,7 +10390,7 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 50 (note: as compared to old base advciv longbow for this and some old values in these code comments) -->
-			<iCost>45</iCost>
+			<iCost>40</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -10437,7 +10433,7 @@
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
 			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 (see as of now freepromotions as well) -->
 			<iCityAttack>0</iCityAttack>
-			<iCityDefense>25</iCityDefense>
+			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>25</iHillsDefense>
@@ -10505,10 +10501,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was PROMOTION_RETREAT1 in the generic advciv-sas longbowman; should be fine considering these are otherwise mostly defensive units even after being upgraded until much later in the game; plus, they are not so efficient at attack otherwise so should be balanced hopefully but check if you want to be sure i mean -->
+			<!-- custom: was PROMOTION_RETREAT1 in the generic advciv-sas longbowman -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_RAIDER1</PromotionType>
+					<PromotionType>PROMOTION_RETREAT1</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -10858,14 +10854,15 @@
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>2</iFirstStrikes>
-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+			<!-- custom: Keep the generic Crossbowman's 1 guaranteed first strike and make the Zhuge Nu's additional first strike a chance, balancing its native collateral advantage. Combining first strikes with other effects like collateral also keeps the unit more versatile and useful against collateral-immune units or stacks too small for collateral to matter. (GPT-5.6-Sol) -->
+			<iFirstStrikes>1</iFirstStrikes>
+			<iChanceFirstStrikes>1</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
 			<!-- custom: was 0 -->
 			<iWithdrawalProb>25</iWithdrawalProb>
-			<!-- custom: was 50 -->
-			<iCollateralDamage>15</iCollateralDamage>
+			<!-- custom: Keep a modest native collateral effect, reduced from 50 to 10, while free PROMOTION_COLLATERAL_DAMAGE1 adds its smaller multiplicative bonus and can persist through upgrades. (GPT-5.6-Sol) -->
+			<iCollateralDamage>10</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
@@ -19497,7 +19494,7 @@
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 240 -->
-			<iCost>270</iCost>
+			<iCost>280</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -19527,7 +19524,8 @@
 			<iAirCombatLimit>0</iAirCombatLimit>
 			<iXPValueAttack>4</iXPValueAttack>
 			<iXPValueDefense>2</iXPValueDefense>
-			<iFirstStrikes>1</iFirstStrikes>
+			<!-- custom: was 1 -->
+			<iFirstStrikes>0</iFirstStrikes>
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
@@ -19693,7 +19691,7 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<iCost>320</iCost>
+			<iCost>340</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -20891,13 +20889,8 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: was empty; Long_Comments_XML.txt #114 -->
-			<FreePromotions>
-				<FreePromotion>
-					<PromotionType>PROMOTION_CITY_BOMBARD_DAMAGE</PromotionType>
-					<bFreePromotion>1</bFreePromotion>
-				</FreePromotion>
-			</FreePromotions>
+			<!-- custom: Do not grant PROMOTION_CITY_BOMBARD_DAMAGE for free. The Houfnice can still choose it with experience, but doing so delays City Raider, collateral or survival promotions instead of combining rapid bombardment with full assault specialization automatically. (GPT-5.6-Sol); Long_Comments_XML.txt #114 -->
+			<FreePromotions/>
 			<LeaderPromotion>NONE</LeaderPromotion>
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>

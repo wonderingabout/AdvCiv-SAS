@@ -901,7 +901,7 @@
 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
 			<YieldChanges>
-				<iYieldChange>1</iYieldChange>
+				<iYieldChange>2</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>
@@ -2100,9 +2100,9 @@
 			<TechReveal>TECH_ANIMAL_HUSBANDRY</TechReveal>
 			<TechCityTrade>TECH_ANIMAL_HUSBANDRY</TechCityTrade>
 			<TechObsolete>NONE</TechObsolete>
-			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i dindt check... storing water + flesh meat in desert, i could be mistaken too if i may say or maybe not or not too much -->
+			<!-- custom: now giving food like most if not all food strategic animals, hammer is adjusted through their specific improvement (for example pasture) rather; giving more food than horse ressource to make it a super nutritious food ressource, should be accurate even though i didnt check... storing water + flesh meat in desert, should be fine in terms of gameplay or strategic variety; not too op as lone desert tiles can be near otherwise rich BFC places so do not make it too OP (this way food increase is gradual too). -->
 			<YieldChanges>
-				<iYieldChange>3</iYieldChange>
+				<iYieldChange>2</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 				<iYieldChange>0</iYieldChange>
 			</YieldChanges>

@@ -6,13 +6,14 @@ If any images below in this readme mention a google drive link, you can access i
 
 ## Menu
 
-[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#current-tech-tree-ingame)  
-[Additional info about the tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#additional-info-about-the-tech-tree)  
-[More info on notes](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#more-info-on-notes)  
-[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#abstract-timeline-tech-tree)  
-[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-prototype--alternative-version)  
-[Earlier but much later version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-but-much-later-version)  
-[Starting techs rework](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#starting-techs-rework)  
+[Current Tech Tree ingame](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#current-tech-tree-ingame)\
+[Additional info about the tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#additional-info-about-the-tech-tree)\
+[More info on notes](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#more-info-on-notes)\
+[Abstract timeline tech tree](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#abstract-timeline-tech-tree)\
+[Earlier prototype / alternative version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-prototype--alternative-version)\
+[Earlier but much later version](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#earlier-but-much-later-version)\
+[Starting techs rework](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#starting-techs-rework)\
+[Recent tech rework](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#recent-tech-rework)\
 
 ## Current Tech Tree ingame
 
@@ -73,3 +74,13 @@ Then much later i did this swapping based version but that was based or closer (
 ## Starting techs rework
 
 After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md (Civs' Starting techs rework)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework) for details/results.
+
+## Recent tech rework
+
+Much later, it now appears better not to be strictly historically accurate when gameplay-relevant, for example techs appearing slightly earlier or later than they would when practical (e.g. Metal Casting early so Bronze Working can be soon enough (in a fantasy setting it can be imagined early civs started tinkering with metals about when they discovered Agriculture or started to settle down as civilizations or such)).
+
+Or for example when balanced or practical in terms of gameplay (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
+
+This new vision happens to fit my original wish more, of Civ being a boardgame like strategy simulator, rather than a history reenactment which i don't find as appealing, so although interesting to some extent, it is also constraining, and generally and regardless i think i value gameability and choosing strongest strategies much more than carefull replay the known history timeline, which i don't care as much if at all about in retrospect i think.
+
+And if it also encourages gameplay variety (like religions being sooner and not always the same each game), then all the better (as long as not too obnoxious like meditation in ancient era, but even that is maybe not too bad who knows, but anyway i just want to move more in this direction and do what i find fit and want, not necessarily this or that way i think).

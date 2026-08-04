@@ -41,7 +41,7 @@
 			<iAttitudeChange>2</iAttitudeChange>
 			<iNoTechTradeModifier>84</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-32</iTechTradeKnownModifier>
-			<iUnownedTilesPerGameAnimal>55</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>65</iUnownedTilesPerGameAnimal>
 			<iUnownedTilesPerBarbarianUnit>67</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>135</iUnownedTilesPerBarbarianCity>
@@ -77,7 +77,7 @@
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>120</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>108</iAICreatePercent>
+			<iAICreatePercent>112</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>124</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -168,7 +168,7 @@
 			<iNoTechTradeModifier>78</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-24</iTechTradeKnownModifier>
 			<!-- advc.309: was 100 -->
-			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>62</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 150 -->
 			<iUnownedTilesPerBarbarianUnit>64</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
@@ -216,7 +216,7 @@
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>115</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>106</iAICreatePercent>
+			<iAICreatePercent>109</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>118</iAICivicUpkeepPercent>
@@ -308,7 +308,7 @@
 			<iNoTechTradeModifier>72</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-16</iTechTradeKnownModifier>
 			<!-- advc.309: was 80 -->
-			<iUnownedTilesPerGameAnimal>49</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>59</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 100 -->
 			<iUnownedTilesPerBarbarianUnit>61</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
@@ -352,7 +352,7 @@
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>110</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>104</iAICreatePercent>
+			<iAICreatePercent>106</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<!-- advc.251 (end) -->
 			<iAICivicUpkeepPercent>112</iAICivicUpkeepPercent>
@@ -445,7 +445,7 @@
 			<iNoTechTradeModifier>66</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>-8</iTechTradeKnownModifier>
 			<!-- advc.309: was 60 -->
-			<iUnownedTilesPerGameAnimal>46</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>56</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 80 -->
 			<iUnownedTilesPerBarbarianUnit>58</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>425</iUnownedWaterTilesPerBarbarianUnit>
@@ -487,7 +487,7 @@
 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
 			<iAIConstructPercent>105</iAIConstructPercent>
 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
-			<iAICreatePercent>102</iAICreatePercent>
+			<iAICreatePercent>103</iAICreatePercent>
 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
 			<iAICivicUpkeepPercent>106</iAICivicUpkeepPercent>
 			<iAIUnitCostPercent>100</iAIUnitCostPercent>
@@ -582,7 +582,7 @@
 			<iNoTechTradeModifier>60</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 50 -->
-			<iUnownedTilesPerGameAnimal>43</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>53</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 60 -->
 			<iUnownedTilesPerBarbarianUnit>55</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
@@ -721,7 +721,7 @@
 			<iNoTechTradeModifier>54</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 40 -->
-			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 50 -->
 			<iUnownedTilesPerBarbarianUnit>52</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>375</iUnownedWaterTilesPerBarbarianUnit>
@@ -864,7 +864,7 @@
 			<iNoTechTradeModifier>48</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 35 -->
-			<iUnownedTilesPerGameAnimal>37</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>47</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 40 -->
 			<iUnownedTilesPerBarbarianUnit>49</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
@@ -1006,7 +1006,7 @@
 			<iNoTechTradeModifier>42</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 30 -->
-			<iUnownedTilesPerGameAnimal>34</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>44</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 35 -->
 			<iUnownedTilesPerBarbarianUnit>46</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>325</iUnownedWaterTilesPerBarbarianUnit>
@@ -1155,7 +1155,7 @@
 			<iNoTechTradeModifier>36</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 25 -->
-			<iUnownedTilesPerGameAnimal>31</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>41</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 30 -->
 			<iUnownedTilesPerBarbarianUnit>43</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
@@ -1305,7 +1305,7 @@
 			<iNoTechTradeModifier>30</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
 			<!-- advc.309: was 20 -->
-			<iUnownedTilesPerGameAnimal>28</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>38</iUnownedTilesPerGameAnimal>
 			<!-- advc.300: was 25 -->
 			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>275</iUnownedWaterTilesPerBarbarianUnit>
@@ -1450,7 +1450,7 @@
 			<iAttitudeChange>0</iAttitudeChange>
 			<iNoTechTradeModifier>24</iNoTechTradeModifier>
 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
-			<iUnownedTilesPerGameAnimal>25</iUnownedTilesPerGameAnimal>
+			<iUnownedTilesPerGameAnimal>35</iUnownedTilesPerGameAnimal>
 			<iUnownedTilesPerBarbarianUnit>37</iUnownedTilesPerBarbarianUnit>
 			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
 			<iUnownedTilesPerBarbarianCity>85</iUnownedTilesPerBarbarianCity>

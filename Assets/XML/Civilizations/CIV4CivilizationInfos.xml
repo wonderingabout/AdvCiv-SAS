@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- 
+<!--
 AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
@@ -2042,7 +2042,7 @@ Created as part of AdvCiv-SAS improvements
 				<City>TXT_KEY_CITY_NAME_VARANASI</City>
 				<City>TXT_KEY_CITY_NAME_AGRA</City>
 				<City>TXT_KEY_CITY_NAME_CALCUTTA</City>
-				<City>TXT_KEY_CITY_NAME_LAHORE</City>				
+				<City>TXT_KEY_CITY_NAME_LAHORE</City>
 				<City>TXT_KEY_CITY_NAME_MADRAS</City>
 				<City>TXT_KEY_CITY_NAME_BANGALORE</City>
 				<City>TXT_KEY_CITY_NAME_HYDERABAD</City>
@@ -2240,7 +2240,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 					<BuildingType>BUILDING_JAPAN_DOUJOU</BuildingType>
 				</Building>
 			</Buildings>

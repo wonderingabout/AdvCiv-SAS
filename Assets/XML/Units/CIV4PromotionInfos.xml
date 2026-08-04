@@ -709,7 +709,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_ARCHER -->
 			<Type>PROMOTION_COUNTER_ARCHER</Type>
-			<Description>TXT_KEY_PROMOTION_COVER</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_ARCHER</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -809,7 +809,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_GUN -->
 			<Type>PROMOTION_COUNTER_GUN</Type>
-			<Description>TXT_KEY_PROMOTION_PINCH</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_GUN</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -899,7 +899,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MELEE -->
 			<Type>PROMOTION_COUNTER_MELEE</Type>
-			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_MELEE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -1003,7 +1003,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_MOUNTED -->
 			<Type>PROMOTION_COUNTER_MOUNTED</Type>
-			<Description>TXT_KEY_PROMOTION_FORMATION</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_MOUNTED</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -1091,7 +1091,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_SIEGE -->
 			<Type>PROMOTION_COUNTER_SIEGE</Type>
-			<Description>TXT_KEY_PROMOTION_CHARGE</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_SIEGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -1177,7 +1177,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_COUNTER_TANK -->
 			<Type>PROMOTION_COUNTER_TANK</Type>
-			<Description>TXT_KEY_PROMOTION_AMBUSH</Description>
+			<Description>TXT_KEY_PROMOTION_COUNTER_TANK</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -1353,7 +1353,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_BLITZKRIEG -->
 			<Type>PROMOTION_BLITZKRIEG</Type>
-			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
+			<Description>TXT_KEY_PROMOTION_BLITZKRIEG</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<!-- custom: -->
@@ -3852,7 +3852,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_CITY_BOMBARD_DAMAGE -->
 			<Type>PROMOTION_CITY_BOMBARD_DAMAGE</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY</Description>
+			<Description>TXT_KEY_PROMOTION_CITY_BOMBARD_DAMAGE</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -4463,7 +4463,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_LOGISTICS -->
 			<Type>PROMOTION_LOGISTICS</Type>
-			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
+			<Description>TXT_KEY_PROMOTION_LOGISTICS</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>NONE</PromotionPrereq>
@@ -4732,7 +4732,7 @@
 		<!-- custom: Long_Comments_XML.txt #363 -->
 		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE1 -->
 			<Type>PROMOTION_AIR_RANGE1</Type>
-			<Description>TXT_KEY_PROMOTION_RANGE1</Description>
+			<Description>TXT_KEY_PROMOTION_AIR_RANGE1</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_COMBAT1</PromotionPrereq>
@@ -4803,7 +4803,7 @@
 		</PromotionInfo>
 		<PromotionInfo> <!-- custom: PROMOTION_AIR_RANGE2 -->
 			<Type>PROMOTION_AIR_RANGE2</Type>
-			<Description>TXT_KEY_PROMOTION_RANGE2</Description>
+			<Description>TXT_KEY_PROMOTION_AIR_RANGE2</Description>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LayerAnimationPath>NONE</LayerAnimationPath>
 			<PromotionPrereq>PROMOTION_AIR_RANGE1</PromotionPrereq>
