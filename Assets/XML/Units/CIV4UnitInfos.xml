@@ -19852,9 +19852,9 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_CONSTRUCTION -->
+			<!-- custom: Move Catapults from Construction to Mathematics so early siege remains available while Engineering's heavier military and fortification assets move later. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -20092,9 +20092,8 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_ENGINEERING -->
 			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
-			<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>

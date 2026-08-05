@@ -188,7 +188,7 @@ Verifies all techs in the same tech-tree column (`iGridX`) share the same core c
 
 ### `build/wonder_cost_columns.py`
 
-Verifies normally constructible world wonders unlocked in the same tech-tree column (`iGridX`) have the same production cost and that world-wonder costs strictly increase in later populated columns. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded, as is the deliberately expensive United Nations diplomatic-victory wonder.
+Verifies normally constructible world wonders unlocked in the same technology-cost tier have the same production cost and that world-wonder costs increase in later, more expensive technology tiers. Multiple visual columns may intentionally share a timing tier when their technologies have the same research cost. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded, as is the deliberately expensive United Nations diplomatic-victory wonder.
 
 ### `build/wonder_culture_gpp_columns.py`
 

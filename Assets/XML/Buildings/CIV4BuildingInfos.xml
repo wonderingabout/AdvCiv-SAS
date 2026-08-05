@@ -2682,7 +2682,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<!-- custom: see code comment at BUILDING_BARRACKS and BUILDING_STABLE for details, was 0 -->
 			<iAIWeight>80</iAIWeight>
-			<iCost>70</iCost>
+			<!-- custom: was 70; return to the generic Stable cost while shifting some of the Ger's raw XP advantage into a pastoral Cattle benefit. (ChatGPT-5.6-Sol) -->
+			<iCost>60</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -2762,17 +2763,23 @@
 			<CommerceChangeOriginalOwners/>
 			<ConstructSound>AS2D_BUILD_BARRACKS</ConstructSound>
 			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
+			<!-- custom: add a pastoral economic benefit alongside the Ger's mounted military role; Cattle is a natural fit for Mongolian livestock economies and gives this livestock bonus another strategic use. (ChatGPT-5.6-Sol); (helps buffs otherwise very weak livestock bonuses) -->
+			<BonusHappinessChanges>
+				<BonusHappinessChange>
+					<BonusType>BONUS_CATTLE</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
-			<!-- custom: reduce this, give instead military production bonus to buff the building and make it more versatile, kind of like how the zulu barracks are at least in base civ4, was 4 -->
+			<!-- custom: was 4 in base; previously 3 in SAS, now 2 so reduce overpowered or strong military advantage in favour of a broader seemingly more balanced Ger identity. (ChatGPT-5.6-Sol) -->
 			<UnitCombatFreeExperiences>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
-					<iExperience>3</iExperience>
+					<iExperience>2</iExperience>
 				</UnitCombatFreeExperience>
 				<UnitCombatFreeExperience>
 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
-					<iExperience>3</iExperience>
+					<iExperience>2</iExperience>
 				</UnitCombatFreeExperience>
 			</UnitCombatFreeExperiences>
 			<DomainFreeExperiences/>
@@ -2788,6 +2795,10 @@
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -11043,7 +11054,7 @@
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
-			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings, now synergy also with oxford_university, add great people change here at 50 for the french_salon -->
+			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings, now synergy also with oxford_university, add great people change here at 50 for the french_salon; maybe fine as late enough already -->
 			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
@@ -13023,7 +13034,8 @@
 			<iLevelPrereq>0</iLevelPrereq>
 			<iMinLatitude>0</iMinLatitude>
 			<iMaxLatitude>90</iMaxLatitude>
-			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
+			<!-- custom: was 50; still a strong Forum identity, but reduce the very large same-cost Market GPP bonus while adding a smaller resource-dependent Pig happiness benefit instead. (ChatGPT-5.6-Sol); (helps buffs otherwise very weak livestock bonuses) also maybe fine as early enough to justify being reduced (else may be OP i'm guessing although not sure) -->
+			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
@@ -13110,6 +13122,11 @@
 					<BonusType>BONUS_SILK</BonusType>
 					<iHappinessChange>1</iHappinessChange>
 				</BonusHappinessChange>
+				<!-- custom: pigs were common Roman livestock and food animals; this also gives Pig another useful connected-resource interaction (helps buffs otherwise very weak livestock bonuses). (ChatGPT-5.6-Sol) -->
+				<BonusHappinessChange>
+					<BonusType>BONUS_PIG</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
 			</BonusHappinessChanges>
 			<BonusProductionModifiers/>
 			<UnitCombatFreeExperiences/>
@@ -13131,7 +13148,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>9</iFlavor>
+					<iFlavor>7</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -23954,7 +23971,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 300 -->
-			<iCost>225</iCost>
+			<iCost>250</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25355,8 +25372,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: Match other constructible world wonders in the same tech-tree column. (GPT-5.6-Sol) -->
-			<iCost>225</iCost>
+			<!-- custom: Match constructible world wonders across the shared column 5-6 technology timing tier. (GPT-5.6-Sol) -->
+			<iCost>250</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28237,8 +28254,7 @@
 			<iHealRateChange>0</iHealRateChange>
 			<iHealth>0</iHealth>
 			<iAreaHealth>0</iAreaHealth>
-			<!-- custom: was 0 -->
-			<iGlobalHealth>1</iGlobalHealth>
+			<iGlobalHealth>0</iGlobalHealth>
 			<iHappiness>0</iHappiness>
 			<iAreaHappiness>0</iAreaHappiness>
 			<iGlobalHappiness>0</iGlobalHappiness>
@@ -28287,12 +28303,8 @@
 			<CommerceHappinesses/>
 			<ReligionChanges/>
 			<SpecialistCounts/>
-			<FreeSpecialistCounts>
-				<FreeSpecialistCount>
-					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
-				</FreeSpecialistCount>
-			</FreeSpecialistCounts>
+			<!-- custom: Remove the very early free Priest; the later Apostolic Palace keeps that specialist incentive. (GPT-5.6-Sol) -->
+			<FreeSpecialistCounts/>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
@@ -28301,7 +28313,21 @@
 			</CommerceChangeOriginalOwners>
 			<ConstructSound/>
 			<BonusHealthChanges/>
-			<BonusHappinessChanges/>
+			<!-- custom: Replace its overlapping global health with happiness from connected Cattle, Sheep, and Pigs. These normally health-only livestock bonuses gain more strategic value (because otherwise Animal Livestock Bonuses like Cattle, Sheep, and Pig, are very weak for example as compared to food stapple bonuses like Maize Rice or Wheat that scale with ubiquitous Granaries, or Mount Animal Bonuses that have a strong military purpose) while keeping the Hanging Gardens' growth identity distinct. (GPT-5.6-Sol) -->
+			<BonusHappinessChanges>
+				<BonusHappinessChange>
+					<BonusType>BONUS_CATTLE</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+				<BonusHappinessChange>
+					<BonusType>BONUS_SHEEP</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+				<BonusHappinessChange>
+					<BonusType>BONUS_PIG</BonusType>
+					<iHappinessChange>1</iHappinessChange>
+				</BonusHappinessChange>
+			</BonusHappinessChanges>
 			<BonusProductionModifiers>
 				<BonusProductionModifier>
 					<BonusType>BONUS_MARBLE</BonusType>
@@ -28317,17 +28343,15 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: Remove Military 5 with the military-production modifier; the Medic promotion alone should not make military leaders prioritize this wonder over units. Increase Growth from 2 to 4 for global health and keep Religion 5 for the free Priest. Earlier flavors before the wider rework were Gold 8 / Religion 5. (GPT-5.6-Sol) -->
-			<!-- advc.020: Was 10 Gold. Add some Religion for the free Priest
-				 (not covered by the flavor-based evaluation of GPP) -->
+			<!-- custom: Remove Military 5 with the military-production modifier; the Medic promotion alone should not make military leaders prioritize this wonder over units. Earlier flavors before the wider rework were Gold 8 / Religion 5. (GPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>4</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -29008,8 +29032,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 450; match other constructible world wonders after Currency moved one tech-tree column later. (GPT-5.6-Sol) -->
-			<iCost>225</iCost>
+			<!-- custom: was 450; match constructible world wonders across the shared column 5-6 technology timing tier. (GPT-5.6-Sol) -->
+			<iCost>250</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>

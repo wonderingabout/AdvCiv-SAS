@@ -239,17 +239,17 @@ Note: water buildings are generally avoided as they are too situational (useless
 | Korea | Seowon (University) | **Gyeongdang** (Library) | Use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This uses underused library slot, declutters overused university slot, and keeps the civ's science identity, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. Great general chance similarly to how it was done for the japan_doujou (martial arts training). |
 | Mali | Mint (Forge) | **Keep** (Keep) | |
 | Maya | Ball Court (Colosseum) | **Keep** (Keep) | |
-| Mongol | Ger (Stable) | **Keep** (Keep) | |
+| Mongol | Ger (Stable) | **Keep** (Keep) | Less OP mounted XP military identity; gains happiness with Cattle, trading some raw military power for a pastoral/economic benefit (helps buff otherwise very weak livestock bonuses) |
 | Native America | Totem (Monument) | **Keep** (Keep) | |
 | Netherlands | Dike (Levee) | **Keep** (Keep) | |
 | Ottoman | Hammam (Aqueduct) | **Keep** (Keep) | |
 | Persia | Apothecary (Grocer) | **Keep** (Keep) | |
 | Portugal | Feitoria (Custom House) | **Keep** (Keep) | Focus on trades routes and new Joao's financial/imperialistic profile more |
-| Rome | Forum (Market) | **Keep** (Keep) | |
+| Rome | Forum (Market) | **Keep** (Keep) | Reduce its very strong local Great Person rate modifier from +50% to +25% (since it's an early enough building especially) and add +1 happiness with Pig, keeping a strong but less one-dimensional Market replacement and giving Pig another strategic use, so buffs otherwise very weak livestock bonuses as of now through happiness from Pig. |
 | Russia | Research Institute (Observatory) | **Gord** (Castle) | Observatory removed (to unclutter); fits Russia's aggressive/military profile, with a longer useful window (as of now until TECH_COMBUSTION). |
 | Scandinavia | Trading Post (Lighthouse) | **Keep** (Port) | Following water buildings rework; port is a stronger production hub especially given military profile of Ragnar, closer to historical time too |
 | Spain | Citadel (Castle) | **Keep** (Keep) | Longer useful window (as of now until TECH_COMBUSTION). |
-| Sumeria | Ziggurat (Courthouse) | **Ziggurat** (Monument) | Much stronger than late courthouse. Fits sumerian early religious/historical/culture profile more; better thematic fit for an ancient civilization. |
+| Sumeria | Ziggurat (Courthouse) | **Ziggurat** (Monument) | Much stronger than late courthouse. Fits sumerian early religious/historical/culture profile more; better thematic fit for an ancient civilization, and buffs otherwise very weak livestock bonuses as of now through health from Sheep. |
 | Zulu | Ikhanda (Barracks) | **Keep** (Keep) | |
 
 ## Civ-specific units rework

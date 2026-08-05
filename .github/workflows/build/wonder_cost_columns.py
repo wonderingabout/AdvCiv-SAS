@@ -3,7 +3,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: Check that normally constructible world wonders in the same tech-tree column have the same production cost and that later columns have strictly higher wonder costs. (GPT-5.6-Sol) -->
+# <!-- custom: Check that normally constructible world wonders in the same technology-cost tier have the same production cost and that later, more expensive technology tiers have higher wonder costs. (GPT-5.6-Sol) -->
 
 from pathlib import Path
 import argparse
@@ -48,6 +48,33 @@ def read_tech_columns(repo_root: Path) -> dict[str, int]:
 			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX {grid_x_text!r}") from exc
 
 	return columns
+
+
+def read_tech_column_costs(repo_root: Path) -> dict[int, int]:
+	path = repo_root / TECH_INFOS_REL_PATH
+	by_column: dict[int, set[int]] = {}
+
+	for node in parse_xml(path).getroot().iter():
+		if local_name(node.tag) != "TechInfo":
+			continue
+		tech_type = child_text_by_local_name(node, "Type")
+		grid_x_text = child_text_by_local_name(node, "iGridX")
+		cost_text = child_text_by_local_name(node, "iCost")
+		if tech_type is None:
+			continue
+		try:
+			grid_x = int(grid_x_text or "-1")
+			cost = int(cost_text or "-1")
+		except ValueError as exc:
+			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX/iCost {grid_x_text!r}/{cost_text!r}") from exc
+		by_column.setdefault(grid_x, set()).add(cost)
+
+	column_costs: dict[int, int] = {}
+	for grid_x, costs in by_column.items():
+		if len(costs) != 1:
+			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: iGridX={grid_x} has multiple technology costs: {sorted(costs)}")
+		column_costs[grid_x] = next(iter(costs))
+	return column_costs
 
 
 def read_world_wonder_classes(repo_root: Path) -> set[str]:
@@ -114,6 +141,7 @@ def format_wonders(wonders: list[dict[str, int | str]]) -> str:
 
 def check_wonder_cost_columns(repo_root: Path) -> list[str]:
 	tech_columns = read_tech_columns(repo_root)
+	tech_column_costs = read_tech_column_costs(repo_root)
 	world_wonder_classes = read_world_wonder_classes(repo_root)
 	wonders = read_constructible_world_wonders(repo_root, tech_columns, world_wonder_classes)
 	by_column: dict[int, list[dict[str, int | str]]] = {}
@@ -137,8 +165,12 @@ def check_wonder_cost_columns(repo_root: Path) -> list[str]:
 	previous_cost = None
 	for grid_x in sorted(column_costs):
 		cost = column_costs[grid_x]
-		if previous_cost is not None and cost <= previous_cost:
-			failures.append(f"world-wonder cost does not increase from iGridX={previous_column} (iCost={previous_cost}) to iGridX={grid_x} (iCost={cost})")
+		if previous_cost is not None:
+			shared_timing_tier = tech_column_costs[grid_x] == tech_column_costs[previous_column]
+			if shared_timing_tier and cost != previous_cost:
+				failures.append(f"world-wonder cost differs across shared technology-cost tier iGridX={previous_column}/{grid_x}: iCost={previous_cost}/{cost}")
+			elif not shared_timing_tier and cost <= previous_cost:
+				failures.append(f"world-wonder cost does not increase from iGridX={previous_column} (iCost={previous_cost}) to iGridX={grid_x} (iCost={cost})")
 		previous_column = grid_x
 		previous_cost = cost
 
