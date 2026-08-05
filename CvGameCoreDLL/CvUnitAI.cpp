@@ -1109,7 +1109,7 @@ static void SAS_logAttackDefenseReinforcementCandidate(CvUnitAI& kUnit, CvPlayer
 		pBestCity->getName().GetCString(), pBestCity->getID(), pBestCity->getX(), pBestCity->getY(), pBestCity->getPopulation(), pBestCity->isCapital(), pBestCity->AI_isDanger(), iTargetCityThreat, iTargetPlotDanger, pBestCity->AI_isEvacuating(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestRawShortfall, iBestRemainingShortfall, iBestPathTurns, iBestStepDistance, iMaxPathTurns, bSplitOnePossible, bAllGroupDefendersNeeded, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(kUnit.getTeam()));
 }
 
-// <!-- custom: SASGameSummary testing found early armies with 9-14 UNITAI_ATTACK units but no UNITAI_ATTACK_CITY unit. Those units can capture cities, but K-Mod normally splits friendly-territory attack groups down to two and only occasionally sends them toward cities, so raw military strength cannot become a coordinated expedition without the missing organizational role.
+// <!-- custom: SASGameRecord testing found early armies with 9-14 UNITAI_ATTACK units but no UNITAI_ATTACK_CITY unit. Those units can capture cities, but K-Mod normally splits friendly-territory attack groups down to two and only occasionally sends them toward cities, so raw military strength cannot become a coordinated expedition without the missing organizational role.
 // After ordinary city-defense claims have had priority, convert one actually suitable floating attacker when the area has enough attackers and a pathable barbarian city. AI_setUnitAIType detaches that unit so it can become the attack-city group leader and recruit the remaining broad attacker roles through the normal grouping logic. See KI#188. (GPT-5.6-Sol) -->
 static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
 {
@@ -1221,7 +1221,7 @@ static void SAS_countPlotMilitaryConcentration(CvPlot const& kPlot, PlayerTypes 
 	}
 }
 
-// <!-- custom: SASGameSummary showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
+// <!-- custom: SASGameRecord showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
 // Trace a single group with at least 16 units and 20% of the owner's military, or a group of at least 6 contributing to a peaceful owned-city concentration of at least 20 units and 30%. The second diagnostic case catches many medium groups gathering in one city without making any individual group look exceptional.
 // Record persistent activity/mission state, incoming joiners, upgrade missions, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. These thresholds affect logging only. (GPT-5.6-Sol) -->
 static bool SAS_isLargeAttackCityStackDiagnostic(CvUnitAI const& kUnit)

@@ -17,7 +17,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: Structured unit-action rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured unit-action rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "CvBugOptions.h" // advc.002e
 #include "CvDLLPythonIFaceBase.h" // for CvEventReporter::genericEvent
 
@@ -3098,11 +3098,11 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
 		if (!szFeature.IsEmpty())
 		{
 			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
-			bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-			SASGameSummaryPlotState kOldPlotState;
-			if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+			bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+			SASGameRecordPlotState kOldPlotState;
+			if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 			kPlot.setFeatureType(eNewFeature);
-			if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "unitTriggeredFeatureChanges", "UNIT_TRIGGERED_FEATURE_CHANGE", true);
+			if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "unitTriggeredFeatureChanges", "UNIT_TRIGGERED_FEATURE_CHANGE", true);
 		}
 		// spawn birds if trees present - JW
 		if (isActiveOwned() && !kPlot.isOwned() &&
@@ -3673,7 +3673,7 @@ void CvUnit::scrapInternal()
 			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
 			kOwner.getNumUnits(), kOwner.AI_unitCostPerMil(), kOwner.calculateGoldRate(), kOwner.getGold());
 	}
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitScrapped(this);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitScrapped(this);
 	kill(true);
 }
 
@@ -4996,9 +4996,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
 			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
 			{
-				bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-				SASGameSummaryPlotState kOldPlotState;
-				if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kTarget);
+				bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+				SASGameRecordPlotState kOldPlotState;
+				if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kTarget);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_PILLAGE",
@@ -5025,7 +5025,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 					kTarget.setImprovementType(GC.getInfo(kTarget.getImprovementType()).
 							getImprovementPillage());
 				}
-				if (bLogPlotChange) recordSASGameSummaryPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
+				if (bLogPlotChange) recordSASGameRecordPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
 			}
 			else
 			{
@@ -5290,9 +5290,9 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	}
 	ImprovementTypes const eOldImprovement = kPlot.getImprovementType();
 	RouteTypes const eOldRoute = kPlot.getRouteType();
-	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-	SASGameSummaryPlotState kOldPlotState;
-	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldPlotState;
+	if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 	// <advc.111>
 	bool bPillaged = false;
 	if (getDestructibleStructureAt(kPlot, false, bForceImprovement) == STRUCTURE_ROUTE)
@@ -5314,7 +5314,7 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 		improvements that replace themselves upon being pillaged.) */
 	if (bPillaged)
 	{
-		if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
+		if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
 		CvEventReporter::getInstance().unitPillage(this, eOldImprovement, eOldRoute, getOwner());
 	}
 	return true;
@@ -6229,7 +6229,7 @@ bool CvUnit::join(SpecialistTypes eSpecialist)
 	if (pCity != NULL)
 	{
 		pCity->changeFreeSpecialistCount(eSpecialist, 1);
-		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonJoined(this, pCity, eSpecialist);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonJoined(this, pCity, eSpecialist);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_JOIN);
@@ -6276,7 +6276,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 	{
 		pCity->setNumRealBuilding(eBuilding, pCity->getNumRealBuilding(eBuilding) + 1);
 		CvEventReporter::getInstance().buildingBuilt(pCity, eBuilding);
-		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonConstructed(this, pCity, eBuilding);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonConstructed(this, pCity, eBuilding);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_CONSTRUCT);
@@ -6334,7 +6334,7 @@ bool CvUnit::discover()
 
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_DISCOVER);
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
 
 	kill(true);
 
@@ -6396,7 +6396,7 @@ bool CvUnit::hurry()
 		pCity->changeProduction(iProduction);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_HURRY);
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonHurried(this, pCity, eBuilding, iProduction);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonHurried(this, pCity, eBuilding, iProduction);
 	kill(true);
 	return true;
 }
@@ -6448,7 +6448,7 @@ bool CvUnit::trade()
 	GET_PLAYER(getOwner()).changeGold(iGold);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_TRADE);
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonTradeMission(this, pCity, iGold);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonTradeMission(this, pCity, iGold);
 	kill(true);
 	return true;
 }
@@ -6506,7 +6506,7 @@ bool CvUnit::greatWork()
 		pCity->changeCultureTimes100(getOwner(), iCultureToAdd, true, true);
 		GET_PLAYER(getOwner()).AI_updateCommerceWeights(); // significant culture change may cause signficant weight changes.
 		// K-Mod end
-		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGreatWork(this, pCity, iCulture);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonGreatWork(this, pCity, iCulture);
 	}
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_GREAT_WORK);
@@ -6553,7 +6553,7 @@ bool CvUnit::infiltrate()
 	GET_TEAM(getTeam()).changeEspionagePointsEver(iPoints);
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_INFILTRATE);
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonInfiltrated(this, pCity, iPoints);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonInfiltrated(this, pCity, iPoints);
 	kill(true);
 	return true;
 }
@@ -6623,9 +6623,9 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 		}
 
 		CvPlot* const pMissionPlot = plot();
-		bool const bLogEspionageMission = (gGameSummaryLogLevel >= 2);
-		SASGameSummaryPlotState kOldPlotState;
-		if (bLogEspionageMission) kOldPlotState = SASGameSummaryPlotState(*pMissionPlot);
+		bool const bLogEspionageMission = (gGameRecordLogLevel >= 2);
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogEspionageMission) kOldPlotState = SASGameRecordPlotState(*pMissionPlot);
 		int iMissionCost = -1;
 		int iEPBefore = -1;
 		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
@@ -6693,8 +6693,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 		{
 			if (bLogEspionageMission)
 			{
-				recordSASGameSummaryPlotChange(*pMissionPlot, kOldPlotState, "espionage", "ESPIONAGE", true);
-				logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
+				recordSASGameRecordPlotChange(*pMissionPlot, kOldPlotState, "espionage", "ESPIONAGE", true);
+				logSASGameRecordEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
 			}
 			if (getPlot().isActiveVisible(false))
 				NotifyEntity(MISSION_ESPIONAGE);
@@ -6802,10 +6802,10 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_SURRENDER);
 
-	if (gGameSummaryLogLevel >= 2)
+	if (gGameRecordLogLevel >= 2)
 	{
-		logSASGameSummarySpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100);
-		logSASGameSummaryGreatPersonDied(this, eTargetPlayer, "SPY_INTERCEPTED");
+		logSASGameRecordSpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100);
+		logSASGameRecordGreatPersonDied(this, eTargetPlayer, "SPY_INTERCEPTED");
 	}
 	kill(true);
 	return true;
@@ -6894,7 +6894,7 @@ bool CvUnit::goldenAge()
 	if (!canGoldenAge(plot()))
 		return false;
 
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGoldenAgeConsumed(this);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonGoldenAgeConsumed(this);
 	GET_PLAYER(getOwner()).killGoldenAgeUnits(this);
 	GET_PLAYER(getOwner()).changeGoldenAgeTurns(GET_PLAYER(getOwner()).getGoldenAgeLength());
 	GET_PLAYER(getOwner()).changeNumUnitGoldenAges(1);
@@ -7077,7 +7077,7 @@ bool CvUnit::lead(int iUnitId)
 
 		pUnit->joinGroup(NULL, true, true);
 		pUnit->promote(eLeaderPromotion, getID());
-		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatGeneralAttached(this, pUnit, eLeaderPromotion);
+		if (gGameRecordLogLevel >= 2) logSASGameRecordGreatGeneralAttached(this, pUnit, eLeaderPromotion);
 
 		if (getPlot().isActiveVisible(false))
 			NotifyEntity(MISSION_LEAD);
@@ -7610,7 +7610,7 @@ CvUnit* CvUnit::upgrade(UnitTypes eUnit) // K-Mod: this now returns the new unit
 	pUpgradeUnit->finishMoves();
 	// advc.080: Moved into subroutine
 	pUpgradeUnit->changeExperience(pUpgradeUnit->upgradeXPChange(eUnit));
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitUpgraded(this, pUpgradeUnit, iUpgradeCost);
 	if (gUnitLogLevel > 2)
 	{
 		CvWString szString;

@@ -27,7 +27,7 @@
 #include "RiseFall.h" // advc.700
 #include "CvHallOfFameInfo.h" // advc.106i
 #include "BBAILog.h" // BBAI
-#include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary files are initialized separately from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured run-summary files are initialized separately from BBAI diagnostics. (GPT-5.5) -->
 #include "CvBugOptions.h" // K-Mod
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
@@ -64,7 +64,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	reset(eHandicap); // Reset serialized data
 	// <!-- custom: Start distinct diagnostic/report files before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save logs. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForNewGame();
-	if (isSASGameSummaryLogEnabled()) startSASGameSummaryLogForNewGame();
+	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForNewGame();
 
 	// Init containers ...
 
@@ -4694,9 +4694,9 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
 {
 	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
 	m_iAIAutoPlay = std::max(0, iNewValue);
-	// <!-- custom: SAS game-summary logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
-	if (gGameSummaryLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
-		logSASGameSummaryAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
+	// <!-- custom: SAS game-record logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
+	if (gGameRecordLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
+		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
 	if (!bChangePlayerStatus)
 		return; // </advc.127>
 	// Erik <BM1>
@@ -6424,7 +6424,7 @@ void CvGame::doGlobalWarming()
 	PROFILE_FUNC();
 
 	// Calculate change in GW index
-	bool const bLogMapHistory = (gGameSummaryLogLevel >= 2);
+	bool const bLogMapHistory = (gGameRecordLogLevel >= 2);
 	int iGlobalWarmingIndexBefore = -1;
 	if (bLogMapHistory) iGlobalWarmingIndexBefore = getGlobalWarmingIndex();
 	// <!-- custom: The inherited logic already calculated pollution, the natural sustainability threshold and feature defense here. Keep the two defense components in separate locals for the environmental row, then add them exactly as before; this adds no calculation when logging is disabled. (GPT-5.6-Sol) -->
@@ -6513,8 +6513,8 @@ void CvGame::doGlobalWarming()
 		TerrainTypes const eTerrain = pPlot->getTerrainType();
 		FeatureTypes const eFeature = pPlot->getFeatureType();
 		ImprovementTypes const eImprov = pPlot->getImprovementType();
-		SASGameSummaryPlotState kOldPlotState;
-		if (bLogMapHistory) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+		SASGameRecordPlotState kOldPlotState;
+		if (bLogMapHistory) kOldPlotState = SASGameRecordPlotState(*pPlot);
 		// Just for the announcements
 		PreGWPlot preGWPlot(pPlot, eTerrain, eFeature, eImprov);
 		bool bProtectFeature = false;
@@ -6618,7 +6618,7 @@ void CvGame::doGlobalWarming()
 				FAssert(!bProtectFeature);
 			}
 			aChangedPlots.push_back(preGWPlot);
-			if (bLogMapHistory) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
+			if (bLogMapHistory) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
 			// Do the announcements in a separate loop
 			// </advc.055>
 			changeGwEventTally(1);
@@ -6636,7 +6636,7 @@ void CvGame::doGlobalWarming()
 				iGlobalWarmingRestorationRate/100);
 	}
 	// <!-- custom: doGlobalWarming already computes these values every turn. Reuse them for a single low-cost environmental-status row instead of rescanning the map between periodic snapshots. (GPT-5.6-Sol) -->
-	if (bLogMapHistory) logSASGameSummaryEnvironmentTurn(iGlobalWarmingValue, iSustainabilityThreshold, iLandDefense, iGlobalWarmingIndexBefore, iGlobalWarmingIndexBeforeRestoration, getGlobalWarmingIndex(), iGlobalWarmingRolls, getGwEventTally());
+	if (bLogMapHistory) logSASGameRecordEnvironmentTurn(iGlobalWarmingValue, iSustainabilityThreshold, iLandDefense, iGlobalWarmingIndexBefore, iGlobalWarmingIndexBeforeRestoration, getGlobalWarmingIndex(), iGlobalWarmingRolls, getGwEventTally());
 	// <advc.055>
 	/*	advc.706 (note): These will be shortlived INFO-type messages,
 		no need to store those at AI players. */
@@ -8450,7 +8450,7 @@ void CvGame::testVictory()
 						aeeWinners.push_back(std::make_pair(kTeam.getID(), eVictory));
 					else
 					{
-						if (gGameSummaryLogLevel >= 2) logSASGameSummarySpaceshipFailed(kTeam.getID(), eVictory, iLaunchSuccessPercent);
+						if (gGameRecordLogLevel >= 2) logSASGameRecordSpaceshipFailed(kTeam.getID(), eVictory, iLaunchSuccessPercent);
 						kTeam.resetVictoryProgress();
 					}
 				}
@@ -9493,7 +9493,7 @@ void CvGame::onAllGameDataRead()
 {
 	// <!-- custom: Start distinct timestamped diagnostic/report logs now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics or summary rows. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
-	if (isSASGameSummaryLogEnabled()) startSASGameSummaryLogForLoadedSave();
+	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForLoadedSave();
 	// <advc.opt> Savegame compatibility (uiFlag<4)
 	if (m_iCivPlayersEverAlive == 0)
 		m_iCivPlayersEverAlive = countCivPlayersEverAlive();

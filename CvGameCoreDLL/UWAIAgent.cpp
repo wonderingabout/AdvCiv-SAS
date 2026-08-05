@@ -158,7 +158,7 @@ namespace
 		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
 	}
 
-	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameSummary's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
+	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameRecord's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
 	void getSASBBAITargetMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
 	{
 		iMilitary = 0;

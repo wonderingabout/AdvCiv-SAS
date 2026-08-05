@@ -443,7 +443,7 @@ char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
 	}
 }
 
-// <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-summary diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
+// <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
 {
 	if ((eVictoryStageHash & eStage4) != 0)

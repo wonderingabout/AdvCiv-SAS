@@ -14,7 +14,7 @@
 #include "CvGameTextMgr.h"
 #include "CvBugOptions.h" // advc.060
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: Preserve city-removal plot changes and active victory-progress resets caused by capital loss. (GPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Preserve city-removal plot changes and active victory-progress resets caused by capital loss. (GPT-5.6-Sol) -->
 
 
 CvCity::CvCity() // advc.003u: Merged with the deleted reset function
@@ -175,9 +175,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	updateCultureLevel(false);
 
 	CvPlot& kPlot = getPlot();
-	bool const bLogCityPlotChange = (gGameSummaryLogLevel >= 2);
-	SASGameSummaryPlotState kOldCityPlotState;
-	if (bLogCityPlotChange) kOldCityPlotState = SASGameSummaryPlotState(kPlot);
+	bool const bLogCityPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldCityPlotState;
+	if (bLogCityPlotChange) kOldCityPlotState = SASGameRecordPlotState(kPlot);
 	{
 		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 		static const int iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE");
@@ -209,7 +209,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	kPlot.setImprovementType(NO_IMPROVEMENT);
 	kPlot.updateCityRoute(false);
-	if (bLogCityPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldCityPlotState, "cityPlotChanges", "CITY_FOUNDED", true);
+	if (bLogCityPlotChange) recordSASGameRecordPlotChange(kPlot, kOldCityPlotState, "cityPlotChanges", "CITY_FOUNDED", true);
 
 	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
 	{
@@ -380,9 +380,9 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.001>
 
-	bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-	SASGameSummaryPlotState kOldPlotState;
-	if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(kPlot);
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	SASGameRecordPlotState kOldPlotState;
+	if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 	kPlot.setPlotCity(NULL);
 	kPlot.setRuinsName(getName()); // advc.005c
 
@@ -446,10 +446,10 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		}
 	} // </advc.106>
 	kPlot.setImprovementType(GC.getRUINS_IMPROVEMENT());
-	if (bLogPlotChange) recordSASGameSummaryPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
+	if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
 	CvEventReporter::getInstance().cityLost(this);
-	// <!-- custom: CvTeam::resetVictoryProgress runs only after this city object has been deleted. Preserve the active launch and old-capital identity first so SASGameSummary can explicitly explain why the spaceship disappeared. (GPT-5.6-Sol) -->
-	if (bCapital && gGameSummaryLogLevel >= 2) logSASGameSummaryVictoryProgressResetForCapital(this);
+	// <!-- custom: CvTeam::resetVictoryProgress runs only after this city object has been deleted. Preserve the active launch and old-capital identity first so SASGameRecord can explicitly explain why the spaceship disappeared. (GPT-5.6-Sol) -->
+	if (bCapital && gGameRecordLogLevel >= 2) logSASGameRecordVictoryProgressResetForCapital(this);
 	kOwner.deleteCity(getID());
 
 	kPlot.updateCulture(/*true*/ bBumpUnits, false); // advc.001
@@ -12849,11 +12849,11 @@ void CvCity::applyEvent(EventTypes eEvent, EventTriggeredData const& kTriggeredD
 								"AS2D_PILLAGED", MESSAGE_TYPE_INFO,
 								GC.getInfo(pPlot->getImprovementType()).getButton(),
 								eColorRed);
-						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-						SASGameSummaryPlotState kOldPlotState;
-						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+						bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+						SASGameRecordPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
-						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
+						if (bLogPlotChange) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iNumPillaged++;
 						break;
 					}
@@ -13667,7 +13667,7 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
 	if (iGoldPercent <= 0)
 		return;
 	int iProductionGold = (iInvestedProduction * iGoldPercent) / 100;
-	if (gGameSummaryLogLevel >= 2 && iInvestedProduction > 0) logSASGameSummaryProductionFailed(this, iOrderData, bProject, iInvestedProduction, iProductionGold);
+	if (gGameRecordLogLevel >= 2 && iInvestedProduction > 0) logSASGameRecordProductionFailed(this, iOrderData, bProject, iInvestedProduction, iProductionGold);
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 	GET_PLAYER(getOwner()).changeGold(iProductionGold);
@@ -13717,7 +13717,7 @@ void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderType
 		return;
 	setOverflowProduction(iOverflow);
 	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, while overflow capped into lost production or gold is strategically important. Record all nonzero completion overflow at summary level 3, and the rarer loss/gold cases at level 2. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
-	if ((gGameSummaryLogLevel >= 3 && iOverflow > 0) || (gGameSummaryLogLevel >= 2 && (iLostProduction > 0 || iProductionGold > 0))) logSASGameSummaryProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
+	if ((gGameRecordLogLevel >= 3 && iOverflow > 0) || (gGameRecordLogLevel >= 2 && (iLostProduction > 0 || iProductionGold > 0))) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
 	if(iProductionGold > 0 || iLostProduction > 0)
 		payOverflowGold(iLostProduction, iProductionGold);
 }

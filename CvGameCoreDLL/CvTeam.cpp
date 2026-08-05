@@ -18,7 +18,7 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: Structured team, war, and bulk map-revelation rows are logged separately from BBAI diagnostics. (GPT-5.5 + GPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured team, war, and bulk map-revelation rows are logged separately from BBAI diagnostics. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvBugOptions.h" // advc.071
 
 // advc.003u: Statics moved from CvTeamAI
@@ -1043,7 +1043,7 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
 // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
 // K-Mod <!-- custom: hoisted from multiline signature between `bPrimaryDoW` and `eSponsor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 // advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-// <!-- custom: Added eCause to preserve the direct or cascading origin until SASGameSummary logs the declaration. (GPT-5.6-Sol) -->
+// <!-- custom: Added eCause to preserve the direct or cascading origin until SASGameRecord logs the declaration. (GPT-5.6-Sol) -->
 void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause) // advc.106g
 {
 	PROFILE_FUNC();
@@ -1083,7 +1083,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 	kTarget.setAtWar(getID(), true);
 	m_abJustDeclaredWar.set(eTarget, true); // advc.162
 	// <!-- custom: The inherited EventReporter callback only knew that two teams entered war. Log at the declaration itself, before secondary wars are triggered, so the declarer, target, plan, sponsor, primary/cascade status, and preserved cause remain unambiguous. (GPT-5.6-Sol) -->
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryWarStarted(getID(), eTarget, eWarPlan, bPrimaryDoW, bNewDiplo, eSponsor, bRandomEvent, eCause);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarStarted(getID(), eTarget, eWarPlan, bPrimaryDoW, bNewDiplo, eSponsor, bRandomEvent, eCause);
 	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
 	GC.getMap().invalidateBorderDangerCache(eTarget);
 	GC.getMap().invalidateBorderDangerCache(getID());
@@ -1622,9 +1622,9 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // a
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	CvPlot const* pAt = makeHasMet(eTeam, bNewDiplo, pData);
 	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
-	if (gGameSummaryLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian())
+	if (gGameRecordLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian())
 	{
-		logSASGameSummaryTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
+		logSASGameRecordTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
 	}
 	// <advc.120l> (Not in makeHasMet b/c all the has-met data needs to be set first)
 	if (pData != NULL &&
@@ -4525,10 +4525,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		if (kTech.isMapVisible())
 		{
 			// <!-- custom: Map-visible technologies previously produced thousands of redundant coordinate entries. Suppress those per-plot hooks during this known bulk operation and record one exact full-map revelation row instead. (GPT-5.6-Sol) -->
-			bool const bLogFullMapRevelation = (gGameSummaryLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
-			if (bLogFullMapRevelation) beginSASGameSummaryFullMapRevelation(getID(), eTech);
+			bool const bLogFullMapRevelation = (gGameRecordLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
+			if (bLogFullMapRevelation) beginSASGameRecordFullMapRevelation(getID(), eTech);
 			GC.getMap().setRevealedPlots(getID(), true, true);
-			if (bLogFullMapRevelation) endSASGameSummaryFullMapRevelation(getID(), eTech);
+			if (bLogFullMapRevelation) endSASGameRecordFullMapRevelation(getID(), eTech);
 		}
 
 		FOR_EACH_ENUM(SpecialBuilding)
@@ -4633,7 +4633,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 			bool const bWasResearchingAcquiredTech = kMember.isResearchingTech(eTech);
 			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
-			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameSummary snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
+			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
 			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */

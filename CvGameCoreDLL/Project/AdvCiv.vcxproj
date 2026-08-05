@@ -44,7 +44,7 @@
     <ClCompile Include="..\ArmamentForecast.cpp" />
     <ClCompile Include="..\BarbarianWeightMap.cpp" />
     <ClCompile Include="..\BBAILog.cpp" />
-    <ClCompile Include="..\SASGameSummaryLog.cpp" />
+    <ClCompile Include="..\SASGameRecordLog.cpp" />
     <ClCompile Include="..\CitySiteEvaluator.cpp" />
     <ClCompile Include="..\CombatOdds.cpp" />
     <ClCompile Include="..\CvAgents.cpp" />
@@ -216,7 +216,7 @@
     <ClInclude Include="..\ArmamentForecast.h" />
     <ClInclude Include="..\BarbarianWeightMap.h" />
     <ClInclude Include="..\BBAILog.h" />
-    <ClInclude Include="..\SASGameSummaryLog.h" />
+    <ClInclude Include="..\SASGameRecordLog.h" />
     <ClInclude Include="..\BitUtil.h" />
     <ClInclude Include="..\BoostPythonPCH.h" />
     <ClInclude Include="..\CityPlotIterator.h" />

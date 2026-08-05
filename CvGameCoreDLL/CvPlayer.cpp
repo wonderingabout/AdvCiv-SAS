@@ -15,26 +15,26 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "CvGameTextMgr.h"
-#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for game-summary diplomacy rows. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for game-record diplomacy rows. (GPT-5.5) -->
 #include "RiseFall.h"
 #include "AdvCiv4lerts.h"
 #include "CvBugOptions.h"
 #include "CvDLLFlagEntityIFaceBase.h" // BBAI
 #include "BBAILog.h"
-#include "SASGameSummaryLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured player/diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 #include "RiseFall.h" // advc.708: Needed only for savegame compatibility
 #include "SelfMod.h" // advc.092b
 
 namespace
 {
-	CvString getSASGameSummaryDiploIntText(int iValue)
+	CvString getSASGameRecordDiploIntText(int iValue)
 	{
 		CvString szValue;
 		szValue.Format("%d", iValue);
 		return szValue;
 	}
 
-	CvString getSASGameSummaryDiploTeamText(TeamTypes eTeam)
+	CvString getSASGameRecordDiploTeamText(TeamTypes eTeam)
 	{
 		if (eTeam == NO_TEAM)
 			return CvString("-");
@@ -43,7 +43,7 @@ namespace
 		return szValue;
 	}
 
-	CvString getSASGameSummaryDiploCityText(PlayerTypes ePlayer, int iCityId)
+	CvString getSASGameRecordDiploCityText(PlayerTypes ePlayer, int iCityId)
 	{
 		if (ePlayer == NO_PLAYER)
 			return CvString("-");
@@ -55,7 +55,7 @@ namespace
 		return szValue;
 	}
 
-	CvString getSASGameSummaryDiploData1Text(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, int iData1, int iData2)
+	CvString getSASGameRecordDiploData1Text(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, int iData1, int iData2)
 	{
 		switch (eDiploEvent)
 		{
@@ -64,13 +64,13 @@ namespace
 		case DIPLOEVENT_STOP_TRADING:
 		case DIPLOEVENT_NO_STOP_TRADING:
 		case DIPLOEVENT_SET_WARPLAN:
-			return getSASGameSummaryDiploTeamText((TeamTypes)iData1);
+			return getSASGameRecordDiploTeamText((TeamTypes)iData1);
 		case DIPLOEVENT_RESEARCH_TECH:
 			if (iData1 >= 0 && iData1 < GC.getNumTechInfos())
 				return CvString(GC.getInfo((TechTypes)iData1).getType());
 			break;
 		case DIPLOEVENT_TARGET_CITY:
-			return getSASGameSummaryDiploCityText((PlayerTypes)iData1, iData2);
+			return getSASGameRecordDiploCityText((PlayerTypes)iData1, iData2);
 		case DIPLOEVENT_CONVERT:
 		case DIPLOEVENT_NO_CONVERT:
 			return GET_PLAYER(ePlayer).getStateReligion() == NO_RELIGION ? CvString("-") : CvString(GC.getInfo(GET_PLAYER(ePlayer).getStateReligion()).getType());
@@ -83,10 +83,10 @@ namespace
 		default:
 			return CvString("-");
 		}
-		return getSASGameSummaryDiploIntText(iData1);
+		return getSASGameRecordDiploIntText(iData1);
 	}
 
-	CvString getSASGameSummaryDiploData2Text(DiploEventTypes eDiploEvent, int iData2)
+	CvString getSASGameRecordDiploData2Text(DiploEventTypes eDiploEvent, int iData2)
 	{
 		switch (eDiploEvent)
 		{
@@ -97,16 +97,16 @@ namespace
 		}
 	}
 
-	bool isSASGameSummaryLowValueDiploEvent(DiploEventTypes eDiploEvent)
+	bool isSASGameRecordLowValueDiploEvent(DiploEventTypes eDiploEvent)
 	{
 		return (eDiploEvent == DIPLOEVENT_CONTACT || eDiploEvent == DIPLOEVENT_AI_CONTACT || eDiploEvent == DIPLOEVENT_FAILED_CONTACT || eDiploEvent == DIPLOEVENT_TARGET_CITY || eDiploEvent == DIPLOEVENT_SET_WARPLAN);
 	}
 
-	void logSASGameSummaryDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
+	void logSASGameRecordDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
 	{
-		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-summary logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
-		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
-				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1, getSASGameSummaryDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameSummaryDiploData2Text(eDiploEvent, iData2).GetCString());
+		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-record logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
+				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1, getSASGameRecordDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameRecordDiploData2Text(eDiploEvent, iData2).GetCString());
 	}
 }
 
@@ -2990,7 +2990,7 @@ void CvPlayer::doTurn()
 	//doUpdateCacheOnTurn(); // advc: removed
 	kGame.verifyDeals();
 	AI().AI_doTurnPre();
-	if (gGameSummaryLogLevel > 0) updateSASGameSummaryPlayerTurnState(getID());
+	if (gGameRecordLogLevel > 0) updateSASGameRecordPlayerTurnState(getID());
 
 	if (getRevolutionTimer() > 0)
 		changeRevolutionTimer(-1);
@@ -3756,8 +3756,8 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
 {
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
-	if (gGameSummaryLogLevel >= 2 && (gGameSummaryLogLevel >= 3 || !isSASGameSummaryLowValueDiploEvent(eDiploEvent)))
-		logSASGameSummaryDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
+	if (gGameRecordLogLevel >= 2 && (gGameRecordLogLevel >= 3 || !isSASGameRecordLowValueDiploEvent(eDiploEvent)))
+		logSASGameRecordDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
 
 	switch (eDiploEvent)
 	{
@@ -7519,7 +7519,7 @@ void CvPlayer::killGoldenAgeUnits(CvUnit* pUnitAlive)
 		if (pBestUnit != NULL)
 		{
 			abUnitUsed.set(pBestUnit->getUnitType(), true);
-			if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGoldenAgeConsumed(pBestUnit);
+			if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonGoldenAgeConsumed(pBestUnit);
 			pBestUnit->kill(true);
 			//play animations
 			if (pBestUnit->getPlot().isActiveVisible(false))
@@ -7733,7 +7733,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 	m_iGoldenAgeTurns += iChange;
 	FAssert(getGoldenAgeTurns() >= 0);
 
-	if (gGameSummaryLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASGameSummaryGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
+	if (gGameRecordLogLevel >= 2 && iChange > 0 && bOldGoldenAge && isGoldenAge()) logSASGameRecordGoldenAgeTurnsChanged(getID(), iChange, iOldGoldenAgeTurns, getGoldenAgeTurns());
 
 	if (bOldGoldenAge != isGoldenAge())
 	{
@@ -7832,7 +7832,7 @@ void CvPlayer::changeAnarchyTurns(int iChange) // advc: Refactored
 	FAssert(getAnarchyTurns() >= 0);
 	if (bOldAnarchy == isAnarchy())
 		return;
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryAnarchy(getID(), isAnarchy());
+	if (gGameRecordLogLevel >= 2) logSASGameRecordAnarchy(getID(), isAnarchy());
 
 	if (isActive())
 	{
@@ -9008,9 +9008,9 @@ void CvPlayer::setAlive(bool bNewValue)
 			m_bEverAlive = true;
 			GET_TEAM(getTeam()).changeEverAliveCount(1);
 		}
-		// <!-- custom: Initial slots are already described by GAME_SUMMARY_PLAYER_SETUP; log later alive transitions explicitly so colonies, revivals, or unusual player appearances are visible instead of only changing alive/ever-alive counts. (GPT-5.5) -->
-		if (gGameSummaryLogLevel >= 2 && !isBarbarian() && (bEverAlive || kGame.getElapsedGameTurns() > 0))
-			logSASGameSummaryPlayerAliveChanged(getID(), bEverAlive);
+		// <!-- custom: Initial slots are already described by GAME_RECORD_PLAYER_SETUP; log later alive transitions explicitly so colonies, revivals, or unusual player appearances are visible instead of only changing alive/ever-alive counts. (GPT-5.5) -->
+		if (gGameRecordLogLevel >= 2 && !isBarbarian() && (bEverAlive || kGame.getElapsedGameTurns() > 0))
+			logSASGameRecordPlayerAliveChanged(getID(), bEverAlive);
 		if (getNumCities() <= 0)
 			setFoundedFirstCity(false);
 		updatePlotGroups();
@@ -9044,9 +9044,9 @@ void CvPlayer::setAlive(bool bNewValue)
 		//killUnits(); // advc.003m: Moved up
 		killCities();
 		killAllDeals();
-		// <!-- custom: SAS game-summary logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
-		if (gGameSummaryLogLevel >= 2 && bEverAlive && !isBarbarian())
-			logSASGameSummaryPlayerEliminated(getID());
+		// <!-- custom: SAS game-record logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
+		if (gGameRecordLogLevel >= 2 && bEverAlive && !isBarbarian())
+			logSASGameRecordPlayerEliminated(getID());
 
 		setTurnActive(false);
 
@@ -16432,11 +16432,11 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
 						gDLL->UI().addMessage(getID(), false, -1, szBuffer, *pPlot, "AS2D_PILLAGED",
 								MESSAGE_TYPE_INFO, GC.getInfo(pPlot->getImprovementType()).getButton(),
 								eColorRed);
-						bool const bLogPlotChange = (gGameSummaryLogLevel >= 2);
-						SASGameSummaryPlotState kOldPlotState;
-						if (bLogPlotChange) kOldPlotState = SASGameSummaryPlotState(*pPlot);
+						bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+						SASGameRecordPlotState kOldPlotState;
+						if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(*pPlot);
 						pPlot->setImprovementType(NO_IMPROVEMENT);
-						if (bLogPlotChange) recordSASGameSummaryPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
+						if (bLogPlotChange) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "randomEvents", "RANDOM_EVENT", true);
 						iDone++;
 						break;
 					}
@@ -17909,8 +17909,8 @@ void CvPlayer::launch(VictoryTypes eVictory)
 
 	kTeam.finalizeProjectArtTypes();
 	kTeam.setVictoryCountdown(eVictory, kTeam.getVictoryDelay(eVictory));
-	// <!-- custom: Project completion alone did not reveal when a spaceship actually launched or when it would arrive. Record the explicit launch after its countdown is set so SASGameSummary can preserve the exact travel time, arrival turn, success chance, and component state. (GPT-5.6-Sol) -->
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryVictoryLaunched(getID(), eVictory);
+	// <!-- custom: Project completion alone did not reveal when a spaceship actually launched or when it would arrive. Record the explicit launch after its countdown is set so SASGameRecord can preserve the exact travel time, arrival turn, success chance, and component state. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordVictoryLaunched(getID(), eVictory);
 
 	//gDLL->getEngineIFace()->AddLaunch(getID());
 	// K-Mod. The spaceship launch causes pitboss to crash

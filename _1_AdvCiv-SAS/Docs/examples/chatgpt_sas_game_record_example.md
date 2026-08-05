@@ -1,13 +1,13 @@
-# ChatGPT-5.6-Sol SASGameSummary analysis example
+# ChatGPT-5.6-Sol SASGameRecord analysis example
 
 AdvCiv-SAS_light_source_20260710T100524.zip
 Zip Archive
-SASGameSummary_20260710T080102Z_load1.log
+SASGameRecord_20260710T080102Z_load1.log
 File
-hello, wdyt of this sas game summary log, what can you make or analyze of how the game went and how the ai behave; did it do well, how strong or fast was it? it's a high handicap run though but i think it is maybe still useful to compare or analyze right? wdyt of advciv-sas ai based on this too? thx
+hello, wdyt of this sas game record log, what can you make or analyze of how the game went and how the ai behave; did it do well, how strong or fast was it? it's a high handicap run though but i think it is maybe still useful to compare or analyze right? wdyt of advciv-sas ai based on this too? thx
 Worked for 3m 55s
 
-I’ll inspect the summary log first for game timeline, scores, handicap settings, expansion/war/tech behavior, and then peek at the SAS source package only if it helps interpret what the AI was doing.
+I’ll inspect the game-record log first for game timeline, scores, handicap settings, expansion/war/tech behavior, and then peek at the SAS source package only if it helps interpret what the AI was doing.
 
 Inspected log files and parsed game event data
 Investigated research discrepancy
@@ -110,7 +110,7 @@ I found a few strong story beats in the log: the ancient phase is mostly peacefu
 
 Extracted top ranks per interval
 
-Here’s a more “history book” version of how the run seems to have gone. I’m treating the log as a chronicle, so some phrasing is interpretive, but the main events are from the summary log.
+Here’s a more “history book” version of how the run seems to have gone. I’m treating the log as a chronicle, so some phrasing is interpretive, but the main events are from the game-record log.
 
 ## Chronicle of the Deity+ Pangaea
 

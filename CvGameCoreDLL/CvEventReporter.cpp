@@ -14,7 +14,7 @@
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for BBAI Worker-death unit-AI and mission-AI strings. (GPT-5.5) -->
 #include "CvDLLPythonIFaceBase.h" // advc
 #include "BBAILog.h" // <!-- custom: Needed to complete the BBAI identity header. (GPT-5.5 + ChatGPT-5.5) -->
-#include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
 
 //
 // static, singleton accessor
@@ -165,7 +165,7 @@ void CvEventReporter::gameStart()
 {
 	// <!-- custom: Complete the new-game BBAI identity header after map generation and player initialization. Caller-gated to avoid entering logging helpers when BBAI is disabled. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) logSASBBAINewGameStarted();
-	if (isSASGameSummaryLogEnabled()) logSASGameSummaryNewGameStarted();
+	if (isSASGameRecordLogEnabled()) logSASGameRecordNewGameStarted();
 	m_kPythonEventMgr.reportGameStart();
 }
 
@@ -182,10 +182,10 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
 void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
-	// <!-- custom: Plot changes and permanent map revelation are collected during the turn so SASGameSummary writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its changes are included too. (GPT-5.6-Sol) -->
-	if (gGameSummaryLogLevel >= 2) flushSASGameSummaryTurnChanges(iGameTurn);
-	// <!-- custom: Periodic game-summary snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
-	if (gGameSummaryLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameSummaryTurnInterval) == 0) logSASGameSummaryTurn(iGameTurn);
+	// <!-- custom: Plot changes and permanent map revelation are collected during the turn so SASGameRecord writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its changes are included too. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(iGameTurn);
+	// <!-- custom: Periodic game-record snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
+	if (gGameRecordLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameRecordTurnInterval) == 0) logSASGameRecordTurn(iGameTurn);
 }
 
 void CvEventReporter::beginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
@@ -205,7 +205,7 @@ void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
 
 void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCombatResult(pWinner, pLoser);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCombatResult(pWinner, pLoser);
 	if (gWorkerLogLevel >= 2) logSASBBAIWorkerDeathContext(pWinner, pLoser);
 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
 }
@@ -263,21 +263,21 @@ void CvEventReporter::gotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
 
 void CvEventReporter::cityBuilt(CvCity *pCity)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityBuilt(pCity);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCityBuilt(pCity);
 	m_kPythonEventMgr.reportCityBuilt(pCity);
 	m_kStatistics.cityBuilt(pCity);
 }
 
 void CvEventReporter::cityRazed(CvCity *pCity, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityRazed(pCity, ePlayer);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCityRazed(pCity, ePlayer);
 	m_kPythonEventMgr.reportCityRazed(pCity, ePlayer);
 	m_kStatistics.cityRazed(pCity, ePlayer);
 }
 
 void CvEventReporter::cityAcquired(PlayerTypes eOldOwner, PlayerTypes iPlayer, CvCity* pCity, bool bConquest, bool bTrade)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
 	m_kPythonEventMgr.reportCityAcquired(eOldOwner, iPlayer, pCity, bConquest, bTrade);
 }
 
@@ -366,7 +366,7 @@ void CvEventReporter::unitLost(CvUnit *pUnit)
 void CvEventReporter::unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
 {
 	// <!-- custom: forward actual capture creation to Python so battle history records captured workers/civilians instead of inferring from the earlier combatResult. (GPT-5.5) -->
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
 	m_kPythonEventMgr.reportUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
 }
 
@@ -412,27 +412,27 @@ void CvEventReporter::goodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyPlot, CvU
 
 void CvEventReporter::greatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer, CvCity *pCity)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonBorn(pUnit, ePlayer, pCity);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonBorn(pUnit, ePlayer, pCity);
 	m_kPythonEventMgr.reportGreatPersonBorn( pUnit, ePlayer, pCity);
 	m_kStatistics.unitBuilt(pUnit);
 }
 
 void CvEventReporter::buildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryBuildingBuilt(pCity, eBuilding);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingBuilt(pCity, eBuilding);
 	m_kPythonEventMgr.reportBuildingBuilt(pCity, eBuilding);
 	m_kStatistics.buildingBuilt(pCity, eBuilding);
 }
 
 void CvEventReporter::projectBuilt(CvCity *pCity, ProjectTypes eProject)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryProjectBuilt(pCity, eProject);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordProjectBuilt(pCity, eProject);
 	m_kPythonEventMgr.reportProjectBuilt(pCity, eProject);
 }
 
 void CvEventReporter::techAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, bool bAnnounce)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryTechAcquired(eType, eTeam, ePlayer);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordTechAcquired(eType, eTeam, ePlayer);
 	m_kPythonEventMgr.reportTechAcquired(eType, eTeam, ePlayer, bAnnounce);
 }
 
@@ -443,7 +443,7 @@ void CvEventReporter::techSelected(TechTypes eTech, PlayerTypes ePlayer)
 
 void CvEventReporter::religionFounded(ReligionTypes eType, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryReligionFounded(eType, ePlayer);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordReligionFounded(eType, ePlayer);
 	m_kPythonEventMgr.reportReligionFounded(eType, ePlayer);
 	m_kStatistics.religionFounded(eType, ePlayer);
 }
@@ -460,7 +460,7 @@ void CvEventReporter::religionRemove(ReligionTypes eType, PlayerTypes ePlayer, C
 
 void CvEventReporter::corporationFounded(CorporationTypes eType, PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCorporationFounded(eType, ePlayer);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCorporationFounded(eType, ePlayer);
 	m_kPythonEventMgr.reportCorporationFounded(eType, ePlayer);
 }
 
@@ -476,21 +476,21 @@ void CvEventReporter::corporationRemove(CorporationTypes eType, PlayerTypes ePla
 
 void CvEventReporter::goldenAge(PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGoldenAge(ePlayer, true);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGoldenAge(ePlayer, true);
 	m_kPythonEventMgr.reportGoldenAge(ePlayer);
 	m_kStatistics.goldenAge(ePlayer);
 }
 
 void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGoldenAge(ePlayer, false);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordGoldenAge(ePlayer, false);
 	m_kPythonEventMgr.reportEndGoldenAge(ePlayer);
 }
 
 void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
 {
 	// <!-- custom: War starts are logged earlier by CvTeam::declareWar while their origin is still available. This callback retains the end row after peace has updated both teams' war counts. (GPT-5.6-Sol) -->
-	if (!bWar && gGameSummaryLogLevel >= 2) logSASGameSummaryWarEnded(eTeam, eOtherTeam);
+	if (!bWar && gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(eTeam, eOtherTeam);
 	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
 }
 
@@ -506,7 +506,7 @@ void CvEventReporter::playerChangeStateReligion(PlayerTypes ePlayerID, ReligionT
 
 void CvEventReporter::playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount)
 {
-	if (gGameSummaryLogLevel >= 3) logSASGameSummaryPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
+	if (gGameRecordLogLevel >= 3) logSASGameRecordPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
 	m_kPythonEventMgr.reportPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
 }
 
@@ -524,7 +524,7 @@ void CvEventReporter::chat(CvWString szString)
 
 void CvEventReporter::victory(TeamTypes eWinner, VictoryTypes eVictory)
 {
-	if (gGameSummaryLogLevel > 0) logSASGameSummaryVictory(eWinner, eVictory);
+	if (gGameRecordLogLevel > 0) logSASGameRecordVictory(eWinner, eVictory);
 	m_kPythonEventMgr.reportVictory(eWinner, eVictory);
 	m_kStatistics.setVictory(eWinner, eVictory);
 
@@ -541,7 +541,7 @@ void CvEventReporter::victory(TeamTypes eWinner, VictoryTypes eVictory)
 
 void CvEventReporter::vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVassal)
 {
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryVassalState(eMaster, eVassal, bVassal);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordVassalState(eMaster, eVassal, bVassal);
 	m_kPythonEventMgr.reportVassalState(eMaster, eVassal, bVassal);
 }
 

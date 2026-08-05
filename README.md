@@ -18,7 +18,7 @@ Content overall addition is minimal, as of now mostly in the future era (like th
 
 Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with lines showing the new/load time, currently active BBAI log levels, and some game settings to help doing that.
 
-A separate `SASGameSummary_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, summarizing what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This summary log is an all-player audit/debug artifact and can contain spoilers, so it is not a spoiler-free player-advice export.
+A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
@@ -81,7 +81,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Python scripts](/README.md#python-scripts)\
 [DLL Logging](/README.md#dll-logging)\
 &emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
-&emsp;[SAS game summary log](/README.md#sas-game-summary-log)\
+&emsp;[SAS game record log](/README.md#sas-game-record-log)\
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
 [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
@@ -921,34 +921,34 @@ BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
 BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
 ```
 
-### SAS game summary log
+### SAS game record log
 
-`SASGameSummary_*.log` is a separate compact run-summary artifact for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
 
-Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player audit/debug log and can contain spoilers, so it is not a spoiler-free player-advice export.
+Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
-The summary records the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
+The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, and helper context an LLM needs for analysis.
 
-See also [ChatGPT-5.6-Sol SASGameSummary analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_summary_example.md) for an example of an external LLM using the summary log to review an autoplay run.
+See also [ChatGPT-5.6-Sol SASGameRecord analysis example](/_1_AdvCiv-SAS/Docs/examples/chatgpt_sas_game_record_example.md) for an example of an external LLM using the game-record log to review an autoplay run.
 
-For example, `SASGameSummary_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
+For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
 
 ```log
-GAME_SUMMARY_SAVE_LOADED utc=20260710T064839Z logFile="SASGameSummary_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
-GAME_SUMMARY_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
-GAME_SUMMARY_MOD_CONTEXT modName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
-GAME_SUMMARY_SLOT_CONSTANTS MAX_CIV_PLAYERS=48 MAX_PLAYERS=49 BARBARIAN_PLAYER=48 MAX_CIV_TEAMS=48 MAX_TEAMS=49 BARBARIAN_TEAM=48 NO_PLAYER=-1 NO_TEAM=-1
-GAME_SUMMARY_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
-GAME_SUMMARY_RUN_STATUS turn=190 reason=snapshot elapsed=190 year=1260 winnerTeam=-1 victory=- playersAlive=10 teamsAlive=10 playersEverAlive=11 humans=1 eliminatedPlayers=9 topScorePlayer=3 topScore=1964 topPowerPlayer=10 topPower=456000 totalCities=63 totalPopulation=702
-GAME_SUMMARY_STATISTICS turn=190 player=9 currentCities=1 persistentCitiesBuilt=4 persistentCitiesRazed=0 loggedCitiesAcquired=0 loggedCitiesLost=3 loggedCitiesConquered=0 loggedCitiesLostByConquest=3 loggedCitiesTradedIn=0 loggedCitiesTradedOut=0 loggedCityNet=-3 loggedBattleWins=16 loggedBattleLosses=38 loggedCityBattleWins=0 loggedCityBattleLosses=8 loggedBattleNet=-22
-GAME_SUMMARY_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSKETMAN:7,UNIT_RIFLEMAN:4,UNIT_CANNON:2 unitAI=UNITAI_WORKER:1,UNITAI_ATTACK:2,UNITAI_CITY_DEFENSE:11 unitCombat=UNITCOMBAT_GUN:11,UNITCOMBAT_SIEGE:2
-GAME_SUMMARY_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
+GAME_RECORD_SAVE_LOADED utc=20260710T064839Z logFile="SASGameRecord_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+GAME_RECORD_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+GAME_RECORD_MOD_CONTEXT modName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
+GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=48 MAX_PLAYERS=49 BARBARIAN_PLAYER=48 MAX_CIV_TEAMS=48 MAX_TEAMS=49 BARBARIAN_TEAM=48 NO_PLAYER=-1 NO_TEAM=-1
+GAME_RECORD_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
+GAME_RECORD_RUN_STATUS turn=190 reason=snapshot elapsed=190 year=1260 winnerTeam=-1 victory=- playersAlive=10 teamsAlive=10 playersEverAlive=11 humans=1 eliminatedPlayers=9 topScorePlayer=3 topScore=1964 topPowerPlayer=10 topPower=456000 totalCities=63 totalPopulation=702
+GAME_RECORD_STATISTICS turn=190 player=9 currentCities=1 persistentCitiesBuilt=4 persistentCitiesRazed=0 loggedCitiesAcquired=0 loggedCitiesLost=3 loggedCitiesConquered=0 loggedCitiesLostByConquest=3 loggedCitiesTradedIn=0 loggedCitiesTradedOut=0 loggedCityNet=-3 loggedBattleWins=16 loggedBattleLosses=38 loggedCityBattleWins=0 loggedCityBattleLosses=8 loggedBattleNet=-22
+GAME_RECORD_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSKETMAN:7,UNIT_RIFLEMAN:4,UNIT_CANNON:2 unitAI=UNITAI_WORKER:1,UNITAI_ATTACK:2,UNITAI_CITY_DEFENSE:11 unitCombat=UNITCOMBAT_GUN:11,UNITCOMBAT_SIEGE:2
+GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
 ```
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_summary_log_example.PNG" alt="sas_game_summary_log_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_summary (1).PNG" alt="chatgpt_5_6_sol_sas_game_summary (1)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_summary (2).PNG" alt="chatgpt_5_6_sol_sas_game_summary (2)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_summary (3).PNG" alt="chatgpt_5_6_sol_sas_game_summary (3)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
 
 ## CuCuGS
 

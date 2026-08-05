@@ -7,24 +7,24 @@
 #include "CvCity.h"
 #include "CvMap.h"
 #include "CvGameTextMgr.h"
-#include "CvGameCoreUtils.h" // <!-- custom: Shared raw TradeableItems token text for game-summary diplomacy deal rows. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw TradeableItems token text for game-record diplomacy deal rows. (GPT-5.5) -->
 #include "CvInfo_Civics.h"
-#include "CvInfo_Tech.h" // <!-- custom: Needed for game-summary diplomacy trade-item names. (ChatGPT-5.5) -->
-#include "CvInfo_Organization.h" // <!-- custom: Needed for game-summary diplomacy religion trade-item names. (ChatGPT-5.5) -->
+#include "CvInfo_Tech.h" // <!-- custom: Needed for game-record diplomacy trade-item names. (ChatGPT-5.5) -->
+#include "CvInfo_Organization.h" // <!-- custom: Needed for game-record diplomacy religion trade-item names. (ChatGPT-5.5) -->
 #include "CvInfo_Terrain.h" // just for a logBBAI call :(
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
-#include "SASGameSummaryLog.h" // <!-- custom: Structured diplomacy rows are logged to SASGameSummary_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Structured diplomacy rows are logged to SASGameRecord_*.log, separate from BBAI diagnostics. (GPT-5.5) -->
 
 namespace
 {
-	CvString getSASGameSummaryIntText(int iValue)
+	CvString getSASGameRecordIntText(int iValue)
 	{
 		CvString szValue;
 		szValue.Format("%d", iValue);
 		return szValue;
 	}
 
-	CvString getSASGameSummaryTeamText(TeamTypes eTeam)
+	CvString getSASGameRecordTeamText(TeamTypes eTeam)
 	{
 		if (eTeam == NO_TEAM)
 			return CvString("-");
@@ -33,13 +33,13 @@ namespace
 		return szValue;
 	}
 
-	CvString getSASGameSummaryTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer)
+	CvString getSASGameRecordTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer)
 	{
 		switch (kItem.m_eItemType)
 		{
 		case TRADE_GOLD:
 		case TRADE_GOLD_PER_TURN:
-			return getSASGameSummaryIntText(kItem.m_iData);
+			return getSASGameRecordIntText(kItem.m_iData);
 		case TRADE_TECHNOLOGIES:
 			if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumTechInfos())
 				return CvString(GC.getInfo((TechTypes)kItem.m_iData).getType());
@@ -60,7 +60,7 @@ namespace
 		case TRADE_PEACE:
 		case TRADE_WAR:
 		case TRADE_EMBARGO:
-			return getSASGameSummaryTeamText((TeamTypes)kItem.m_iData);
+			return getSASGameRecordTeamText((TeamTypes)kItem.m_iData);
 		case TRADE_CIVIC:
 			if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumCivicInfos())
 				return CvString(GC.getInfo((CivicTypes)kItem.m_iData).getType());
@@ -72,38 +72,38 @@ namespace
 		default:
 			return CvString("-");
 		}
-		return getSASGameSummaryIntText(kItem.m_iData);
+		return getSASGameRecordIntText(kItem.m_iData);
 	}
 
-	CvString getSASGameSummaryTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer)
+	CvString getSASGameRecordTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer)
 	{
 		CvString szList;
 		FOR_EACH_TRADE_ITEM(kList)
 		{
 			CvString szItem;
-			szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASGameSummaryTradeDataText(*pItem, eFromPlayer).GetCString());
+			szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASGameRecordTradeDataText(*pItem, eFromPlayer).GetCString());
 			szList += szItem;
 		}
 		return szList.empty() ? CvString("-") : szList;
 	}
 
-	void logSASGameSummaryDealAction(CvDeal const& kDeal, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList, bool bCheckAllowed, bool bMakingPeace, bool bAIRequest, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
+	void logSASGameRecordDealAction(CvDeal const& kDeal, CLinkList<TradeData> const& kFirstList, CLinkList<TradeData> const& kSecondList, bool bCheckAllowed, bool bMakingPeace, bool bAIRequest, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
 	{
-		// <!-- custom: Accepted diplomacy bundles are the safest high-level hook for open borders, resource trades, tech trades, war bribes, embargoes, map trades, and tribute/help exchanges. Callers gate this helper so logging-only trade-list text is not built when game-summary logging is disabled. (ChatGPT-5.5) -->
-		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL dealId=%d first=%d second=%d checkAllowed=%d makingPeace=%d aiRequest=%d peaceTarget=%s warTarget=%s firstGives=%s secondGives=%s",
-				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), bCheckAllowed ? 1 : 0, bMakingPeace ? 1 : 0, bAIRequest ? 1 : 0, getSASGameSummaryTeamText(ePeaceTradeTarget).GetCString(), getSASGameSummaryTeamText(eWarTradeTarget).GetCString(), getSASGameSummaryTradeListText(kFirstList, kDeal.getFirstPlayer()).GetCString(), getSASGameSummaryTradeListText(kSecondList, kDeal.getSecondPlayer()).GetCString());
+		// <!-- custom: Accepted diplomacy bundles are the safest high-level hook for open borders, resource trades, tech trades, war bribes, embargoes, map trades, and tribute/help exchanges. Callers gate this helper so logging-only trade-list text is not built when game-record logging is disabled. (ChatGPT-5.5) -->
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_DEAL dealId=%d first=%d second=%d checkAllowed=%d makingPeace=%d aiRequest=%d peaceTarget=%s warTarget=%s firstGives=%s secondGives=%s",
+				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), bCheckAllowed ? 1 : 0, bMakingPeace ? 1 : 0, bAIRequest ? 1 : 0, getSASGameRecordTeamText(ePeaceTradeTarget).GetCString(), getSASGameRecordTeamText(eWarTradeTarget).GetCString(), getSASGameRecordTradeListText(kFirstList, kDeal.getFirstPlayer()).GetCString(), getSASGameRecordTradeListText(kSecondList, kDeal.getSecondPlayer()).GetCString());
 	}
 
-	void logSASGameSummaryDealEndAction(CvDeal const& kDeal, bool bKillTeam, bool bUpdateAttitude, PlayerTypes eCancelPlayer)
+	void logSASGameRecordDealEndAction(CvDeal const& kDeal, bool bKillTeam, bool bUpdateAttitude, PlayerTypes eCancelPlayer)
 	{
-		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=DIPLO_DEAL_ENDED dealId=%d first=%d second=%d cancelPlayer=%d killTeam=%d updateAttitude=%d firstGives=%s secondGives=%s",
-				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), eCancelPlayer, bKillTeam ? 1 : 0, bUpdateAttitude ? 1 : 0, getSASGameSummaryTradeListText(kDeal.getFirstList(), kDeal.getFirstPlayer()).GetCString(), getSASGameSummaryTradeListText(kDeal.getSecondList(), kDeal.getSecondPlayer()).GetCString());
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_DEAL_ENDED dealId=%d first=%d second=%d cancelPlayer=%d killTeam=%d updateAttitude=%d firstGives=%s secondGives=%s",
+				GC.getGame().getGameTurn(), kDeal.getID(), kDeal.getFirstPlayer(), kDeal.getSecondPlayer(), eCancelPlayer, bKillTeam ? 1 : 0, bUpdateAttitude ? 1 : 0, getSASGameRecordTradeListText(kDeal.getFirstList(), kDeal.getFirstPlayer()).GetCString(), getSASGameRecordTradeListText(kDeal.getSecondList(), kDeal.getSecondPlayer()).GetCString());
 	}
 
-	void logSASGameSummaryTradeItemAction(const char* szActionType, int iDealId, TradeData const& kItem, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bFlagA, bool bFlagB, PlayerTypes eCancelPlayer = NO_PLAYER)
+	void logSASGameRecordTradeItemAction(const char* szActionType, int iDealId, TradeData const& kItem, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bFlagA, bool bFlagB, PlayerTypes eCancelPlayer = NO_PLAYER)
 	{
-		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
-				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
+				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameRecordTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
 	}
 
 	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
@@ -232,8 +232,8 @@ void CvDeal::announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, bool bFo
 // </advc.036> <!-- custom: hoisted from multiline signature between `bUpdateAttitude` and `eCancelPlayer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p
 {
-	if (gGameSummaryLogLevel >= 2 && (getLengthFirst() > 0 || getLengthSecond() > 0))
-		logSASGameSummaryDealEndAction(*this, bKillTeam, bUpdateAttitude, eCancelPlayer);
+	if (gGameRecordLogLevel >= 2 && (getLengthFirst() > 0 || getLengthSecond() > 0))
+		logSASGameRecordDealEndAction(*this, bKillTeam, bUpdateAttitude, eCancelPlayer);
 	FOR_EACH_TRADE_ITEM(getFirstList())
 	{
 		endTrade(*pItem, getFirstPlayer(), getSecondPlayer(), bKillTeam,
@@ -309,7 +309,7 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 	bool bUpdateAttitude = false;
 	// advc.ctr:
 	bool const bAIRequest = (bPeaceTreaty && !bPeaceTreatyFromTrade && !bMakingPeace);
-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryDealAction(*this, kFirstList, kSecondList, bCheckAllowed, bMakingPeace, bAIRequest, ePeaceTradeTarget, eWarTradeTarget);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordDealAction(*this, kFirstList, kSecondList, bCheckAllowed, bMakingPeace, bAIRequest, ePeaceTradeTarget, eWarTradeTarget);
 	/*  Calls to changePeacetimeTradeValue moved into a new function
 		(also for advc.ctr) */
 	if (GET_PLAYER(getSecondPlayer()).AI_processTradeValue(kFirstList, getFirstPlayer(),
@@ -405,7 +405,7 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			} // </advc.104>
 			bool bSave = startTrade(*pItem, getFirstPlayer(), getSecondPlayer(),
 					bMakingPeace, bPeaceTreatyImplied); // advc.ctr
-			if (gGameSummaryLogLevel >= 3) logSASGameSummaryTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getFirstPlayer(), getSecondPlayer(), bSave, bMakingPeace);
+			if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getFirstPlayer(), getSecondPlayer(), bSave, bMakingPeace);
 			bBumpUnits = (bBumpUnits || pItem->m_eItemType == TRADE_PEACE); // K-Mod
 			if (bSave)
 				insertAtEndFirst(*pItem);
@@ -430,7 +430,7 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			} // </advc.104>
 			bool bSave = startTrade(*pItem, getSecondPlayer(), getFirstPlayer(),
 					bMakingPeace, bPeaceTreatyImplied); // advc.ctr
-			if (gGameSummaryLogLevel >= 3) logSASGameSummaryTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getSecondPlayer(), getFirstPlayer(), bSave, bMakingPeace);
+			if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getSecondPlayer(), getFirstPlayer(), bSave, bMakingPeace);
 			bBumpUnits = (bBumpUnits || pItem->m_eItemType == TRADE_PEACE); // K-Mod
 
 			if (bSave)
@@ -1136,7 +1136,7 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToP
 			GET_PLAYER(eToPlayer).isAlive());
 	if (!bAlive)
 		bUpdateAttitude = false; // </advc>
-	if (gGameSummaryLogLevel >= 3) logSASGameSummaryTradeItemAction("DIPLO_TRADE_ITEM_ENDED", getID(), trade, eFromPlayer, eToPlayer, bTeam, bAlive, eCancelPlayer);
+	if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM_ENDED", getID(), trade, eFromPlayer, eToPlayer, bTeam, bAlive, eCancelPlayer);
 	switch(trade.m_eItemType)
 	{
 	case TRADE_RESOURCES:
