@@ -14,6 +14,15 @@
 #include "CvInfo_Civics.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
+// <!-- custom: Compact structured rejection logging for the concrete AI_chooseUnit SAS gates. Keep each gate itself to one short helper call plus return false, while names/formatting are computed only when detailed military-production logging is enabled. No behavior change. (ChatGPT-5.6) -->
+static void logSASMilitaryProductionConcreteReject(CvCityAI const& kCity, UnitTypes eUnit, UnitAITypes eUnitAI, char const* szReason, char const* szMetricA = "-", int iValueA = -1, char const* szMetricB = "-", int iValueB = -1)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	logBBAI("MILITARY_PRODUCTION_CONCRETE_REJECT turn=%d player=%d %S city=%S cityId=%d unit=%s unitAI=%s reason=%s metricA=%s valueA=%d metricB=%s valueB=%d",
+		GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(),
+		(eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), szReason, szMetricA, iValueA, szMetricB, iValueB);
+}
+
 // <!-- custom: Targeted diagnostics for possible AI Work Boat overproduction. City logs showed many Work Boat pushes/finishes after the earlier iLookAhead=0 fix, so log every worker-sea production source plus the exact worker-sea target bonuses when worker-sea logging is high. No behavior change. See KI#157. (GPT-5.5) -->
 static void logSASWorkerSeaChooseDetail(char const* szBranch, CvCityAI const& kCity, CvArea const* pRelevantWaterArea, int iCityPopulation, int iNeededSeaWorkers, int iExistingSeaWorkers, bool bWaterDanger, bool bFinancialTrouble)
 {
@@ -1188,6 +1197,8 @@ void CvCityAI::AI_chooseProduction()
 		AI_barbChooseProduction();
 		return;
 	}
+	// <!-- custom: Dedicated military-production logging reuses this function's existing branch-choice diagnostics at level 2 and adds structured gate/context rows at level 3. Diagnostic-only: do not add RNG calls here. (ChatGPT-5.6-Sol) -->
+	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3);
 	bool const bLogOverseasTransport = (gOverseasTransportLogLevel >= 2);
 	bool const bLogDetailedOverseasTransport = (gOverseasTransportLogLevel >= 3);
 
@@ -1410,14 +1421,25 @@ void CvCityAI::AI_chooseProduction()
 	const CvWString& kCityName = getName();      // bound to the city's internal name
 	const wchar* sCityName    = kCityName.GetCString();
 
+	if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_CONTEXT turn=%d player=%d %S city=%S cityId=%d city=(%d,%d) pop=%d cities=%d era=%d area=%d areaAI=%d prodRank=%d baseProd=%d personalityBuildProb=%d buildUnitProb=%d xpWeight=%d militaryProdModifier=%d unitSpending=%d playerUnits=%d playerMilitary=%d playerPower=%d bestBuilding=%s bestBuildingValue=%d unitExempt=%d financialTrouble=%d economyFocus=%d getBetterUnits=%d dagger=%d crush=%d turtle=%d alert1=%d alert2=%d finalWar=%d landWar=%d assault=%d assaultAssist=%d defenseWar=%d warPrep=%d totalWar=%d danger=%d waterDanger=%d warSuccess=%d enemyPowerPercent=%d cultureCity=%d primaryArea=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), getX(), getY(),
+			iCityPopulation, iNumCities, iOwnerEra, kArea.getID(), kArea.getAreaAIType(getTeam()), iProductionRank, getBaseYieldRate(YIELD_PRODUCTION),
+			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iBuildUnitProb, AI_experienceWeight(), getMilitaryProductionModifier(), iUnitSpending, kPlayer.getNumUnits(), kPlayer.getNumMilitaryUnits(), kPlayer.getPower(),
+			(eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue, bUnitExempt, bFinancialTrouble, kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS), bGetBetterUnits, bDagger,
+			kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH), kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2), kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR),
+			bLandWar, bAssault, bAssaultAssist, bDefenseWar, bWarPrep, bTotalWar, bDanger, bWaterDanger, iWarSuccessRating, iEnemyPowerPerc, bCultureCity, bPrimaryArea);
+	}
+
 	// <!-- custom: Initial-production logs showed many capitals selecting an Ancient Maceman through the no-defenders branch before reaching normal Worker/Work Boat logic. Record economic need, queued workers, and actual safety context before changing that priority. (GPT-5.5) -->
-	if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && getGameTurnFounded() == kGame.getGameTurn())
+	if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) && isCapital() && iNumCities == 1 && getGameTurnFounded() == kGame.getGameTurn())
 	{
 		logBBAI("FIRST_PRODUCTION_CONTEXT turn=%d player=%d %S city=%S cityId=%d city=(%d,%d) pop=%d defenders=%d playerMilitary=%d danger=%d waterDanger=%d defenseWar=%d financialTrouble=%d turtle=%d workersQueuedInCity=%d workersExisting=%d workersNeeded=%d workersMissing=%d areaBestBuildValue=%d improvableBonusesNow=%d goodTiles=%d seaWorkersQueuedInCity=%d seaWorkersAvailable=%d seaWorkersNeeded=%d foodSurplus=%d baseProduction=%d",
 				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), getX(), getY(), iCityPopulation, kPlot.getNumDefenders(getOwner()), kPlayer.getNumMilitaryUnits(), bDanger, bWaterDanger, bDefenseWar, bFinancialTrouble, kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE), getNumTrainUnitAI(UNITAI_WORKER), iExistingWorkers, iNeededWorkers, iMissingWorkers, AI_totalBestBuildValue(kArea), AI_countNumImprovableBonuses(true, NO_TECH), AI_countGoodTiles(true, false), getNumTrainUnitAI(UNITAI_WORKER_SEA), iAvailableSeaWorkers, iNeededSeaWorkers, foodDifference(true, true), getBaseYieldRate(YIELD_PRODUCTION));
 	}
 
-	if (gCityLogLevel >= 3) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d%s, iBestBuildingValue %d", sCityName, iCityPopulation, iProductionRank, iBuildUnitProb, bUnitExempt?"*":"", iBestBuildingValue);
+	if ((gCityLogLevel >= 3 || gMilitaryProductionLogLevel >= 3)) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d%s, iBestBuildingValue %d", sCityName, iCityPopulation, iProductionRank, iBuildUnitProb, bUnitExempt?"*":"", iBestBuildingValue);
 
 	// if we need to pop borders, then do that immediately if we have drama and can do it
 	if (getCultureLevel() <= 1)
@@ -1484,13 +1506,13 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (!bWaterDanger && iNeededSeaWorkers > 0 && iAvailableSeaWorkers <= 0 && AI_chooseUnit(UNITAI_WORKER_SEA))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Work Boat", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Work Boat", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
 			if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaChooseDetail("choose worker sea before first defender", *this, pWaterArea, iCityPopulation, iNeededSeaWorkers, iExistingSeaWorkers, bWaterDanger, bFinancialTrouble);
 			return;
 		}
 		if (iExistingWorkers < iMinimumAreaWorkers && AI_chooseUnit(UNITAI_WORKER, /*iOdds=*/100))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Worker", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER turn=%d player=%d %S city=%S choice=Worker", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
 			if (gWorkerLogLevel >= 2) logBBAI("      City %S chooses first Worker before first defender %d/%d", sCityName, iExistingWorkers, iMinimumAreaWorkers);
 			return;
 		}
@@ -1498,7 +1520,7 @@ void CvCityAI::AI_chooseProduction()
 
 	if (iCityDefenders == 0) // XXX check for other team's units?
 	{
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses no defenders", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses no defenders", sCityName);
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 			return;
 		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
@@ -1517,13 +1539,13 @@ void CvCityAI::AI_chooseProduction()
 
 		if (AI_chooseBuilding(iStrikeFlags))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses strike building (w/ flags)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses strike building (w/ flags)", sCityName);
 			return;
 		}
 
 		if (AI_chooseBuilding())
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses strike building (w/o flags)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses strike building (w/o flags)", sCityName);
 			return;
 		}
 	}
@@ -1567,19 +1589,25 @@ void CvCityAI::AI_chooseProduction()
 			if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
 			{
 				int iOdds = std::max(0, 100 * iProjectValue / (3 * iProjectValue + 300) - 10);
-				if (SyncRandSuccess100(iOdds))
+				bool const bProjectRollPassed = SyncRandSuccess100(iOdds);
+				if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_1_PROJECT project=%s projectValue=%d buildingValue=%d odds=%d rollPassed=%d",
+					kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, GC.getInfo(eBestProject).getType(), iProjectValue, iBestBuildingValue, iOdds, bProjectRollPassed);
+				if (bProjectRollPassed)
 				{
 					pushOrder(ORDER_CREATE, eBestProject);
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose project short-circuit 1. (project value: %d, building value: %d, odds: %d)", sCityName, iProjectValue, iBestBuildingValue, iOdds);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project short-circuit 1. (project value: %d, building value: %d, odds: %d)", sCityName, iProjectValue, iBestBuildingValue, iOdds);
 					return;
 				}
 			}
 		}
 
 		int iOdds = std::max(0, 100 * iBestBuildingValue / (3 * iBestBuildingValue + 300) - 10);
-		if (AI_chooseBuilding(0, MAX_INT, 0, iOdds))
+		bool const bShortCircuit1BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_1_BUILDING bestBuilding=%s buildingValue=%d odds=%d chosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()), iBestBuildingValue, iOdds, bShortCircuit1BuildingChosen);
+		if (bShortCircuit1BuildingChosen)
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses building value short-circuit 1 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 1 (odds: %d)", sCityName, iOdds);
 			return;
 		}
 	} // K-Mod end
@@ -1612,17 +1640,17 @@ void CvCityAI::AI_chooseProduction()
 	//if (iPlotCityDefenderCount <= iPlotSettlerCount)
 	if (!bUnitExempt && iPlotSettlerCount > 0 && iPlotCityDefenderCount <= iPlotSettlerCount)
 	{
-		if (gCityLogLevel >= 2) logBBAI("      City %S needs escort for existing settler", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S needs escort for existing settler", sCityName);
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 		{
 			// BBAI TODO: Does this work right after settler is built???
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses escort existing settler 1 defense", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 defense", sCityName);
 			return;
 		}
 
 		if (AI_chooseUnit(UNITAI_ATTACK))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses escort existing settler 1 attack", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses escort existing settler 1 attack", sCityName);
 			return;
 		}
 	}
@@ -1632,7 +1660,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE, 30))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses zero culture build", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses zero culture build", sCityName);
 			return;
 		}
 	}
@@ -1754,7 +1782,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit(UNITAI_ATTACK))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses danger minimal attack", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses danger minimal attack", sCityName);
 				return;
 			}
 		}
@@ -1816,7 +1844,7 @@ void CvCityAI::AI_chooseProduction()
 					kPlayer.AI_totalWaterAreaUnitAIs(*pAnyWaterArea, aeSeaAttackTypes)
 					/* </advc.017> */  < std::min(3, iNumCities))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses minimal naval", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses minimal naval", sCityName);
 					/*  <advc.017> Don't prioritize those ships quite as much
 						(was 100% chance in BBAI) */
 					int iOdds = 60;
@@ -1854,7 +1882,7 @@ void CvCityAI::AI_chooseProduction()
 						iOdds /= (iSeaExplorersNow + 1); // advc.040
 						if (AI_chooseUnit(UNITAI_EXPLORE_SEA, iOdds))
 						{
-							if (gCityLogLevel >= 2) logBBAI("      City %S uses early sea explore", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses early sea explore", sCityName);
 							return;
 						}
 					}
@@ -1885,7 +1913,7 @@ void CvCityAI::AI_chooseProduction()
 						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
 					{
-						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
 						return;
 					}
 					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d",
@@ -1971,6 +1999,17 @@ void CvCityAI::AI_chooseProduction()
  	int iTotalFloatingDefenders = (isBarbarian() ? 0 :
 			kPlayer.AI_getTotalFloatingDefenders(kArea));
 
+	if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S unitSpending=%d maxUnitSpending=%d gap=%d allowBase=%d allowPlus5=%d allowPlus15=%d allowPlus25=%d floatingHave=%d floatingNeed=%d floatingLow=%d unitExempt=%d financialTrouble=%d aggressiveAI=%d conquest1=%d conquest4=%d military3=%d alert1=%d alert2=%d finalWar=%d dagger=%d totalWar=%d sneakPreparing=%d sneakReady=%d landWar=%d assault=%d defenseWar=%d areaAI=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName,
+			iUnitSpending, iMaxUnitSpending, iMaxUnitSpending - iUnitSpending, iUnitSpending < iMaxUnitSpending, iUnitSpending < iMaxUnitSpending + 5, iUnitSpending < iMaxUnitSpending + 15, iUnitSpending < iMaxUnitSpending + 25,
+			iTotalFloatingDefenders, iNeededFloatingDefenders, iTotalFloatingDefenders < iNeededFloatingDefenders, bUnitExempt, bFinancialTrouble, kGame.isOption(GAMEOPTION_AGGRESSIVE_AI),
+			kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST4), kPlayer.AI_atVictoryStage(AI_VICTORY_MILITARY3),
+			kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1), kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2), kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR), kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER),
+			bTotalWar, GET_TEAM(getTeam()).AI_isSneakAttackPreparing(), GET_TEAM(getTeam()).AI_isSneakAttackReady(), bLandWar, bAssault, bDefenseWar, kArea.getAreaAIType(getTeam()));
+	}
+
 	// advc: Replacing raw vector of pairs "floatingDefenderTypes"
 	UnitAIWeightMap floatingDefenderWeight;
 	floatingDefenderWeight.set(UNITAI_CITY_DEFENSE, 125);
@@ -1995,7 +2034,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose floating defender 1", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose floating defender 1", sCityName);
 					return;
 				}
 			}
@@ -2036,7 +2075,7 @@ void CvCityAI::AI_chooseProduction()
 
 		if (AI_chooseLeastRepresentedUnit(defensiveWeight, iOdds))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose losing extra defense with odds %d", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose losing extra defense with odds %d", sCityName, iOdds);
 			return;
 		}
 	}
@@ -2116,7 +2155,7 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseBuilding(BUILDINGFOCUS_CULTURE,
 			bAggressiveAI ? 10 : 20, 0, bAggressiveAI ? 33 : 50))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses minimal culture rate", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses minimal culture rate", sCityName);
 			return;
 		}
 	}
@@ -2139,7 +2178,7 @@ void CvCityAI::AI_chooseProduction()
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE,
 				rOwnerAIEraFactor > 1 ? 0 : 7, 33))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1a", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1a", sCityName);
 				return;
 			}
 		}
@@ -2174,7 +2213,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S chooses to start city attack stack", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
 						return;
 					}
 				}
@@ -2183,7 +2222,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_ATTACK))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S chooses to add to city attack stack", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
 						return;
 					}
 				}
@@ -2224,7 +2263,7 @@ void CvCityAI::AI_chooseProduction()
 						if (scaled::hash(aiInputs, getOwner()) < rProb &&
 							AI_chooseUnit(UNITAI_ATTACK_CITY))
 						{
-							if (gCityLogLevel >= 2) logBBAI("      City %S trains city attacker vs. Barbarians", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S trains city attacker vs. Barbarians", sCityName);
 							return;
 						}
 					}
@@ -2262,7 +2301,7 @@ void CvCityAI::AI_chooseProduction()
 				iWonderTime += 7;
 				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 1", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 1", sCityName);
 					return;
 				}
 			}
@@ -2341,7 +2380,7 @@ void CvCityAI::AI_chooseProduction()
 			// if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			if (eBestSpreadUnit != NO_UNIT && AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 1", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 1", sCityName);
 					return;
 			}
 		}
@@ -2354,7 +2393,7 @@ void CvCityAI::AI_chooseProduction()
 		if (SyncRandSuccess100(iOdds))
 		{
 			pushOrder(ORDER_CREATE, eBestProject);
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", sCityName, iProjectValue, iBestBuildingValue, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", sCityName, iProjectValue, iBestBuildingValue, iOdds);
 			return;
 		}
 	} // K-Mod end
@@ -2375,13 +2414,13 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose min defender", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose min defender", sCityName);
 			return;
 		}
 
 		if (AI_chooseUnit(UNITAI_ATTACK))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose min defender (attack ai)", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose min defender (attack ai)", sCityName);
 			return;
 		}
 	}
@@ -2578,7 +2617,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
 					{
-						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
 						return;
 					}
 					if (bLogOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=MAIN result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d",
@@ -2609,7 +2648,7 @@ void CvCityAI::AI_chooseProduction()
 					{
 						if (AI_chooseUnit(UNITAI_CITY_DEFENSE))
 						{
-							if (gCityLogLevel >= 2) logBBAI("      City %S uses build settler 1 extra quick defense", sCityName);
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build settler 1 extra quick defense", sCityName);
 							return;
 						}
 					}
@@ -2634,7 +2673,7 @@ void CvCityAI::AI_chooseProduction()
 			{
 				if (AI_chooseUnit(UNITAI_ATTACK))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose attacker", sCityName); // advc
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose attacker", sCityName); // advc
 					return;
 				}
 			}
@@ -2649,7 +2688,7 @@ void CvCityAI::AI_chooseProduction()
 				if (AI_chooseUnit(UNITAI_EXPLORE,
 					34 * iMissingExplorers)) // advc.131: was 100 flat (MNAI uses 25 flat)
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missing explorer", sCityName); // advc
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missing explorer", sCityName); // advc
 					return;
 				}
 			}
@@ -2696,7 +2735,7 @@ void CvCityAI::AI_chooseProduction()
 			iOdds = std::max(0, iOdds);
 			if (AI_chooseUnit(UNITAI_SPY, iOdds))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S chooses spy with %d/%d needed, at %d odds", sCityName, iNumSpies, iNeededSpies, iOdds);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses spy with %d/%d needed, at %d odds", sCityName, iNumSpies, iNeededSpies, iOdds);
 				return;
 			}
 		}
@@ -2716,7 +2755,7 @@ void CvCityAI::AI_chooseProduction()
 			if (AI_chooseLeastRepresentedUnit(panicDefenderWeight,
 				(bGetBetterUnits ? 40 : 60) - iWarSuccessRating/3))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose panic defender", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose panic defender", sCityName);
 				return;
 			}
 		}
@@ -2757,7 +2796,7 @@ void CvCityAI::AI_chooseProduction()
 				could actually reach. */
 			if (!bEnoughWaterUnits && AI_chooseUnit(UNITAI_EXPLORE_SEA, 25))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose sea explorer for naval trade", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose sea explorer for naval trade", sCityName);
 				return;
 			}
 		}
@@ -2807,7 +2846,7 @@ void CvCityAI::AI_chooseProduction()
 				BuildingTypes eBestWonder = AI_bestBuildingThreshold(BUILDINGFOCUS_WORLDWONDER, iWonderTime);
 				if (eBestWonder != NO_BUILDING && AI_buildingValue(eBestWonder) >= iBestBuildingValue)
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 2", sCityName);
 					pushOrder(ORDER_CONSTRUCT, eBestWonder);
 					return;
 				} // K-Mod end
@@ -2827,9 +2866,13 @@ void CvCityAI::AI_chooseProduction()
 		iOdds *= iBestBuildingValue;
 		iOdds /= iBestBuildingValue + 40 + iBuildUnitProb; // was ...+20+...
 		iOdds = std::max(0, iOdds - 20); // was -25
-		if (AI_chooseBuilding(0, MAX_INT, 0, iOdds))
+		bool const bShortCircuit2BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_2_BUILDING bestBuilding=%s buildingValue=%d buildUnitProb=%d lowOdds=%d extraLowOdds=%d odds=%d chosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
+			iBestBuildingValue, iBuildUnitProb, bLowOdds, bExtraLowOdds, iOdds, bShortCircuit2BuildingChosen);
+		if (bShortCircuit2BuildingChosen)
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses building value short-circuit 2 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 2 (odds: %d)", sCityName, iOdds);
    			return;
 		}
 	}
@@ -2861,7 +2904,7 @@ void CvCityAI::AI_chooseProduction()
 					iOdds += 2 * iFreeSeaExperience;
 					if(AI_chooseUnit(UNITAI_ATTACK_SEA, iOdds))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S trains warship to attack hostiles in territory", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S trains warship to attack hostiles in territory", sCityName);
 						return;
 					}
 				}
@@ -2883,7 +2926,7 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 2", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 2", sCityName);
 				return;
 			}
 		}
@@ -2895,7 +2938,7 @@ void CvCityAI::AI_chooseProduction()
 		if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE,
 			rOwnerAIEraFactor > 1 ? 0 : 7, 33))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 1", sCityName);
 			return;
 		}
 	}
@@ -3010,7 +3053,7 @@ void CvCityAI::AI_chooseProduction()
 
 		if (bBuildAssault)
 		{
-			if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses build assault", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2) || bLogOverseasTransport) logBBAI("      City %S uses build assault", sCityName);
 			// <!-- custom: The opportunistic evaluation already computed the same attacker total and selected a ship this city can train. Reuse both; compute the attacker total here only for the unchanged inherited path. See KI#193.2. (GPT-5.6-Sol) -->
 			if (iUnitsToTransport < 0) iUnitsToTransport = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK) + kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_COUNTER) / 2;
 
@@ -3315,7 +3358,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseLeastRepresentedUnit(airWeight))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses build least represented air", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build least represented air", sCityName);
 						return;
 					}
 				}
@@ -3329,7 +3372,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_DEFENSE_AIR))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses build air defence", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build air defence", sCityName);
 						return;
 					}
 				}
@@ -3355,7 +3398,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(UNITAI_CARRIER_AIR, (iFreeAirExperience > 0) ? -1 : 35))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses build carrier air", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build carrier air", sCityName);
 						return;
 					}
 				}
@@ -3385,7 +3428,7 @@ void CvCityAI::AI_chooseProduction()
 					// Don't always build missiles, more likely if really low on missiles.
 					if (AI_chooseUnit(UNITAI_MISSILE_AIR, (kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded/2) ? 50 : 20))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses build missile", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses build missile", sCityName);
 						return;
 					}
 				}
@@ -3482,7 +3525,7 @@ void CvCityAI::AI_chooseProduction()
 
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, bDefenseWar ? 10 : 30))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 2", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 2", sCityName); // advc
 				return;
 			}
 
@@ -3526,7 +3569,7 @@ void CvCityAI::AI_chooseProduction()
 				{
 					if (AI_chooseUnit(eCityAttackUnit, UNITAI_ATTACK_CITY))
 					{
-						if (gCityLogLevel >= 2) logBBAI("      City %S uses extra crush bombard", sCityName);
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses extra crush bombard", sCityName);
 						return;
 					}
 				}
@@ -3619,7 +3662,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose missionary 3", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose missionary 3", sCityName);
 			return;
 		}
 	}
@@ -3629,7 +3672,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose floating defender 2", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose floating defender 2", sCityName);
 			return;
 		}
 	}
@@ -3736,7 +3779,7 @@ void CvCityAI::AI_chooseProduction()
 					iWonderMaxTurns /= 2;
 				if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderMaxTurns))
 				{
-					if (gCityLogLevel >= 2) logBBAI("      City %S uses opportunistic wonder build 3", sCityName);
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses opportunistic wonder build 3", sCityName);
 					return;
 				}
 			}
@@ -3777,21 +3820,21 @@ void CvCityAI::AI_chooseProduction()
 		{
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, 3 * iCityPopulation))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 3", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 3", sCityName); // advc
 				return;
 			}
 		}
 
 		if (AI_chooseBuilding(BUILDINGFOCUS_DEFENSE, 20, 0, bDanger ? -1 : 3 * iCityPopulation))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_DEFENSE", sCityName); // advc
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_DEFENSE", sCityName); // advc
 			return;
 		}
 		if (bDanger)
 		{
 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, 2 * iCityPopulation))
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 4", sCityName); // advc
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses special BUILDINGFOCUS_EXPERIENCE 4", sCityName); // advc
 				return;
 			}
 		}
@@ -3801,9 +3844,13 @@ void CvCityAI::AI_chooseProduction()
 	{
 		int iOdds = std::max(0, (bLandWar ? 160 : 220) * iBestBuildingValue / (iBestBuildingValue
 				/* <advc.131> was +32 */ + 20 /* </advc.131> */) - 100);
-		if (AI_chooseBuilding(0, MAX_INT, 0, iOdds))
+		bool const bShortCircuit3BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d odds=%d chosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
+			iBestBuildingValue, bLandWar, iOdds, bShortCircuit3BuildingChosen);
+		if (bShortCircuit3BuildingChosen)
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses building value short-circuit 3 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d)", sCityName, iOdds);
    			return;
 		}
 	}
@@ -3835,7 +3882,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseBuilding(BUILDINGFOCUS_GOLD))
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose financial trouble gold", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose financial trouble gold", sCityName);
 			return;
 		}
 	}
@@ -3847,20 +3894,39 @@ void CvCityAI::AI_chooseProduction()
 			Shouldn't sneakily modify it here. */
 		int iBuildUnitProbAdjusted = iBuildUnitProb;
 		// K-Mod
-		iBuildUnitProbAdjusted *= (250 + std::max(iProjectValue, iBestBuildingValue));
-		iBuildUnitProbAdjusted /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
+		int const iBestNonUnitValue = std::max(iProjectValue, iBestBuildingValue);
+		iBuildUnitProbAdjusted *= (250 + iBestNonUnitValue);
+		iBuildUnitProbAdjusted /= (100 + 3 * iBestNonUnitValue);
 		// K-Mod end
-		if (bLandWar || (iNumCities <= 3 && kGame.getElapsedGameTurns() < 60) ||
-			(!bUnitExempt && SyncRandSuccess100(iBuildUnitProbAdjusted)) ||
-			(isHuman() && getGameTurnFounded() == kGame.getGameTurn()))
+		bool const bEarlyGameForceUnit = (iNumCities <= 3 && kGame.getElapsedGameTurns() < 60);
+		bool const bHumanFoundingForceUnit = (isHuman() && getGameTurnFounded() == kGame.getGameTurn());
+		bool bGenericUnitRollAttempted = false;
+		bool bGenericUnitRollPassed = false;
+		// <!-- custom: Preserve the original short-circuit order: no RNG call when war/early-game/human forcing already makes this branch true, nor when bUnitExempt blocks the roll. (ChatGPT-5.6-Sol) -->
+		if (!bLandWar && !bEarlyGameForceUnit && !bHumanFoundingForceUnit && !bUnitExempt)
+		{
+			bGenericUnitRollAttempted = true;
+			bGenericUnitRollPassed = SyncRandSuccess100(iBuildUnitProbAdjusted);
+		}
+		bool const bGenericUnitGatePassed = (bLandWar || bEarlyGameForceUnit || bHumanFoundingForceUnit || bGenericUnitRollPassed);
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_GENERIC_GATE turn=%d player=%d %S city=%S unitSpending=%d maxPlus15=%d spendingAllowed=1 baseBuildUnitProb=%d bestNonUnitValue=%d adjustedBuildUnitProb=%d unitExempt=%d landWarForce=%d earlyGameForce=%d humanFoundingForce=%d rollAttempted=%d rollPassed=%d gatePassed=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 15, iBuildUnitProb, iBestNonUnitValue, iBuildUnitProbAdjusted, bUnitExempt,
+			bLandWar, bEarlyGameForceUnit, bHumanFoundingForceUnit, bGenericUnitRollAttempted, bGenericUnitRollPassed, bGenericUnitGatePassed);
+		if (bGenericUnitGatePassed)
 		{
 			if (AI_chooseUnit()) // advc.031b (note): Can train Settlers, but that rarely happens.
 			{
-				if (gCityLogLevel >= 2) logBBAI("      City %S uses choose unit by probability", sCityName);
+				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose unit by probability", sCityName);
 				return;
 			}
 			bChooseUnit = true;
+			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_GENERIC_GATE turn=%d player=%d %S city=%S result=GATE_PASSED_BUT_NO_UNIT_CHOSEN", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName);
 		}
+	}
+	else if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_GENERIC_GATE turn=%d player=%d %S city=%S unitSpending=%d maxPlus15=%d spendingAllowed=0 baseBuildUnitProb=%d unitExempt=%d landWar=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 15, iBuildUnitProb, bUnitExempt, bLandWar);
 	}
 
 	// Only cities with reasonable production
@@ -3879,7 +3945,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		FAssert(eBestProject != NO_PROJECT);
 		pushOrder(ORDER_CREATE, eBestProject);
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose project 2. (project value: %d, building value: %d)", sCityName, iProjectValue, iBestBuildingValue);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose project 2. (project value: %d, building value: %d)", sCityName, iProjectValue, iBestBuildingValue);
 		return;
 	}
 
@@ -3905,7 +3971,7 @@ void CvCityAI::AI_chooseProduction()
 		if (SyncRandSuccess100(iOdds))
 		{
 			pushOrder(ORDER_MAINTAIN, eBestProcess);
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by value", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose process by value", sCityName);
 			return;
 		}
 	}
@@ -3922,7 +3988,7 @@ void CvCityAI::AI_chooseProduction()
 
 	if (AI_chooseBuilding())
 	{
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose building by probability", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose building by probability", sCityName);
 		return;
 	}
 
@@ -3930,7 +3996,7 @@ void CvCityAI::AI_chooseProduction()
 	{
 		if (AI_chooseUnit())
 		{
-			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose unit by default", sCityName);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose unit by default", sCityName);
 			return;
 		}
 	}
@@ -3939,7 +4005,7 @@ void CvCityAI::AI_chooseProduction()
 	if (eBestProcess != NO_PROCESS)
 	{
 		pushOrder(ORDER_MAINTAIN, eBestProcess);
-		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by default", sCityName);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose process by default", sCityName);
 		return;
 	}
 }
@@ -12621,6 +12687,8 @@ void CvCityAI::AI_doEmphasize()
 
 bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 {
+	UnitAITypes const eRequestedUnitAI = eUnitAI;
+	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
 	bool const bLogRequestedAssaultTransportProduction = (eUnitAI == UNITAI_ASSAULT_SEA && gOverseasTransportLogLevel >= 2);
 	// <!-- custom: Production-side Settler diagnostics belong to the Settler log category, not the broad city log, so tests with only SAS_BBAI_SETTLER_LOG_LEVEL enabled still show which high- or low-level unit choice path tried to train a Settler. Callers still own the log-level guard before this formatter is invoked. (GPT-5.5-Thinking) -->
 	const bool bRequestedSettler = (eUnitAI == UNITAI_SETTLE);
@@ -12641,6 +12709,10 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 	if (eUnitAI != NO_UNITAI)
 		eBestUnit = AI_bestUnitAI(eUnitAI);
 	else eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
+	if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=BEST_UNIT requestedAI=%s resolvedAI=%s bestUnit=%s odds=%d progress=%d needed=%d",
+		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+		(eRequestedUnitAI == NO_UNITAI ? "ANY" : GC.getInfo(eRequestedUnitAI).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), (eBestUnit == NO_UNIT ? "-" : GC.getInfo(eBestUnit).getType()),
+		iOdds, (eBestUnit == NO_UNIT ? 0 : getUnitProduction(eBestUnit)), (eBestUnit == NO_UNIT ? 0 : getProductionNeeded(eBestUnit)));
 	if (bLogRequestedAssaultTransportProduction) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=UNIT_SELECTION result=%s bestUnit=%S odds=%d",
 		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(),
 		(eBestUnit == NO_UNIT ? "REJECT_NO_BEST_UNIT" : "BEST_UNIT"), (eBestUnit == NO_UNIT ? L"-" : GC.getInfo(eBestUnit).getDescription()), iOdds);
@@ -12668,9 +12740,14 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			getUnitProduction(eBestUnit) > 0 ||
 			SyncRandNum(100) < iOdds)*/ // BtS
 		// K-Mod. boost the odds based on our completion percentage.
-		if (iOdds < 0 || SyncRandSuccess100(iOdds +
-			/*  advc.131: Coefficient was 100. Should we re-roll at all once production has been started? Same issue in AI_chooseBuilding. */
-			(250 * getUnitProduction(eBestUnit)) / std::max(1, getProductionNeeded(eBestUnit)))) // K-Mod end
+		int const iProgressOddsBonus = (250 * getUnitProduction(eBestUnit)) / std::max(1, getProductionNeeded(eBestUnit));
+		int const iEffectiveOdds = iOdds + iProgressOddsBonus;
+		bool bUnitRollPassed = (iOdds < 0);
+		if (!bUnitRollPassed) bUnitRollPassed = SyncRandSuccess100(iEffectiveOdds);
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=ODDS unit=%s unitAI=%s baseOdds=%d progressBonus=%d effectiveOdds=%d rollAttempted=%d rollPassed=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eBestUnit).getType(),
+			(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds, iProgressOddsBonus, iEffectiveOdds, iOdds >= 0, bUnitRollPassed);
+		if (bUnitRollPassed) // K-Mod end
 		{
 			if (bResolvedSettler && gSettlerLogLevel >= 2)
 				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CALL_CONCRETE", eBestUnit, eUnitAI, iOdds, -1);
@@ -12679,6 +12756,9 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			// return true;
 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
 			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
+			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=CONCRETE_RESULT unit=%s unitAI=%s success=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+				GC.getInfo(eBestUnit).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), bChosen);
 			if (!bChosen && bResolvedSettler && gSettlerLogLevel >= 2)
 				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CONCRETE_REJECTED", eBestUnit, eUnitAI, iOdds, -1);
 			return bChosen;
@@ -12691,6 +12771,12 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(),
 			GC.getInfo(eBestUnit).getDescription(), iOdds, getUnitProduction(eBestUnit), getProductionNeeded(eBestUnit));
 	}
+	else if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_UNIT_SELECTION turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=REJECT_NO_BEST_UNIT requestedAI=%s resolvedAI=%s odds=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+			(eRequestedUnitAI == NO_UNITAI ? "ANY" : GC.getInfo(eRequestedUnitAI).getType()), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds);
+	}
 
 	return false;
 }
@@ -12700,6 +12786,15 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 {
 	ePickUnit = NO_UNIT;
 	ePickUnitAI = NO_UNITAI;
+
+	// <!-- custom: Aggregate fallback-unit candidate gates for the detailed summary below. These are only integer increments inside this already-specialized fallback helper, so keeping them unconditional is simpler and avoids a repeated per-candidate logging-level branch. (ChatGPT-5.6-Sol) -->
+	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
+	int iFallbackTrainableForLog = 0;
+	int iFallbackLandCombatForLog = 0;
+	int iFallbackSuitableAIForLog = 0;
+	int iFallbackSiegeRejectedForLog = 0;
+	int iFallbackWithinCostCapForLog = 0;
+	int iFallbackAboveCostCapForLog = 0;
 
 	// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely), so add a guard against that (per era as unit costs change as the game goes on). Note: we also assume here hammer cost accurately reflects overall combat ability. Note 2: as of now, if for some extremely unlikely reason there are no buildable units at all, or all eligible ones are beyond iMaxCost extremely unlikely (even less likely in fact), then among all options regardless of iMaxCost, pick the overall cheapest one to save hammer xd. This is an extremly unlikely case safety but just in case or if XML is weirdly tweaked in some mod mod with new weird or such units xd (1 hammer cost 1000 str or 1000 hammer 1 str xd or whatever (not in our mod so far! If i may say)) -->
 	UnitTypes eCheapestOverallUnit = NO_UNIT;      // backup if nothing under cap
@@ -12753,6 +12848,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		{
 			continue;
 		}
+		++iFallbackTrainableForLog;
 		// <!-- custom: note: this is eLoopUnit's pointer, not currently chosen to be produced eChangedUnit -->
 		const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
 		// Land-only, must actually fight
@@ -12765,6 +12861,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		{
 			continue; // ignore noncombat here
 		}
+		++iFallbackLandCombatForLog;
 		// Skip picking the same type you're trying to replace (just in case an archer line slips through with an offensive AI):
 		if (eSkipUnit != NO_UNIT && eLoopUnit == eSkipUnit)
 		{
@@ -12791,6 +12888,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		{
 			continue;
 		}
+		++iFallbackSuitableAIForLog;
 
 		// <!-- custom: do not build too much non-trebuchets like siege units early (i.e. pre-renaissance/cannons), but keep enough as they can help us rush an enemy especially if we have no bonus and only longbows as an alternative, but trebuchets are not versatile enough so do not allow them. Defense difference is not big if just for a few units, but these few catapults can many times be decisive so build a few in fallback code but not lot. See known issue as of now 53.3 for info related to previous version of these changes -->
 		// <!-- custom: only valid for pre-renaissance units, later on cannons are good enough as defenders as well optionally, especially if we have nothing better else to build, do not overstack pikemen when cannons are a valid option, and pikemen are obsolete due to gun units being onlnie -->
@@ -12799,6 +12897,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		{
 			if (!bAllowSiege)
 			{
+				++iFallbackSiegeRejectedForLog;
 				continue;
 			}
 
@@ -12810,6 +12909,7 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 			{
 				if (iSiegesAllNonTrebuchetsLike >= iCapNonTrebuchetsLikeSiegesAll)
 				{
+					++iFallbackSiegeRejectedForLog;
 					continue;
 				}
 			}
@@ -12818,10 +12918,12 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 			{
 				if (!bAllowTrebuchetsLike)
 				{
+					++iFallbackSiegeRejectedForLog;
 					continue;
 				}
 				if (iSiegesAllTrebuchetsLike >= iCapTrebsLike)
 				{
+					++iFallbackSiegeRejectedForLog;
 					continue;
 				}
 			}
@@ -12862,6 +12964,9 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 				}
 			}
 		}
+
+		if (iLoopXMLCost <= iMaxCost) ++iFallbackWithinCostCapForLog;
+		else ++iFallbackAboveCostCapForLog;
 
 		// <!-- custom: use iLoopXMLCost for sanity not overly expensive unit check, but use inflated cost for which unit is strongest as per cost indicates check; note: <= handles for iLoopXMLCost handles ties -->
 		// prefer the most expensive unit ≤ cap; <!-- custom: this also avoids producing tons of high maintenance cost low unit overall strength (e.g. ancient maceman especially later in the game) units that would cripple our economy. For this reason, it may be better to have no production especially later in the game, but it is only a hypothetical concern as our iMaxHammerPerEra should accommodate all units as of now (or almost all if we somehow mod them to add very expensive ones, not planned as of now but anyways), so this is more hypothetical but an extra information in case chatgpt or whoever reads it is wondering about it. -->
@@ -12971,11 +13076,22 @@ bool CvCityAI::SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& eP
 		}
 	}
 
+	if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_FALLBACK_SEARCH turn=%d player=%d %S city=%S cityId=%d maxCost=%d offenseOnly=%d defenseOnly=%d allowSiege=%d allowTrebuchetsLike=%d capNonTrebs=%d capTrebs=%d existingNonTrebs=%d existingTrebs=%d allowOverall=%d allowCheapest=%d trainable=%d landCombat=%d suitableAI=%d siegeRejected=%d withinCostCap=%d aboveCostCap=%d pickedUnit=%s pickedAI=%s",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(),
+			iMaxCost, bOffenseDefaultUnitAIsOnly, bDefenseDefaultUnitAIsOnly, bAllowSiege, bAllowTrebuchetsLike, iCapNonTrebuchetsLikeSiegesAll, iCapTrebsLike, iSiegesAllNonTrebuchetsLike, iSiegesAllTrebuchetsLike,
+			bAllowOverallFallback, bAllowCheapestFallback, iFallbackTrainableForLog, iFallbackLandCombatForLog, iFallbackSuitableAIForLog, iFallbackSiegeRejectedForLog, iFallbackWithinCostCapForLog, iFallbackAboveCostCapForLog,
+			(ePickUnit == NO_UNIT ? "-" : GC.getInfo(ePickUnit).getType()), (ePickUnitAI == NO_UNITAI ? "-" : GC.getInfo(ePickUnitAI).getType()));
+	}
 	return ((ePickUnit != NO_UNIT) && (ePickUnitAI != NO_UNITAI));
 }
 
 bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 {
+	UnitTypes const eRequestedUnit = eUnit;
+	UnitAITypes const eRequestedUnitAI = eUnitAI;
+	bool const bLogDetailedMilitaryProduction = (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian());
 	if (SAS_isSettlerProductionCandidate(eUnit, eUnitAI) && gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "CANDIDATE", eUnit, eUnitAI, -1, -1);
 	if (eUnit != NO_UNIT)
 	{
@@ -13107,11 +13223,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: the war has already started, no time to produce them if we didn't do so already, focus on defense or immediate joining stack units to finalize our offensive stacks, now is not the time to weaken our stacks with trebuchets that are quite likely to be not relevant -->
 						if (bAtWar && bEnemyStrong)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_AT_WAR_ENEMY_STRONG", "enemyPowerPercent", iEnemyPowerPercent, "strongThreshold", iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 							return false; // don’t add more narrow-purpose siege when not stronger
 						}
 						// <!-- custom: even if not at war and still in planning stage, trebuchets are bad if we're weak regardless (we can expect to be attacked, so don't build them); note: i guessedly assume if we are planning war we are strong enough to do so and so don't mind some trebuchets to help that (otherwise maybe not if other conditions are also not met) but i didn't check, check if accurate -->
 						if (bDanger)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_LOCAL_DANGER");
 							return false; // don’t add more narrow-purpose siege when not stronger
 						}
 						if (!bWarPlan)
@@ -13121,6 +13239,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units -->
 						if (bEnemyStrong)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_ENEMY_STRONG", "enemyPowerPercent", iEnemyPowerPercent, "strongThreshold", iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 							return false;
 						}
 
@@ -13143,6 +13262,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTrebsShareOff >= (iCapTrebs + iTrebuchetsLikeMinExtraCap))
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "TREBUCHET_SHARE_CAP", "sharePercent", iTrebsShareOff, "capPercent", iCapTrebs + iTrebuchetsLikeMinExtraCap);
 							return false;
 						}
 					}
@@ -13195,6 +13315,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if ((iSiegesShareOff) >= (iCapSiegesAll + iSiegesAllMinExtraCap))
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SIEGE_SHARE_CAP", "sharePercent", iSiegesShareOff, "capPercent", iCapSiegesAll + iSiegesAllMinExtraCap);
 							return false;
 						}
 					}
@@ -13280,6 +13401,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 								if (bNoExcessStrictDefendersUnitAIsRejectUnit)
 								{
 									// <!-- custom: update: actually add a reject all excess defenders check and knob/tunable, useful in itself as an option i mean in this case i mean but/andalso to help debug the cases where we have excess early defenders -->
+									if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "EARLY_STRICT_DEFENDER_EXCESS", "mainDefenders", iMainDefenders, "mainAttackers", iMainAttackers);
 									return false;
 								}
 								else if (bNoExcessStrictDefendersUnitAIsAttemptReplaceUnit)
@@ -13462,6 +13584,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "NAVAL_FRONTLINE_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 						// <!-- custom: else continue and if all good otherwise produce the unit at the end of this function -->
@@ -13485,12 +13608,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "NAVAL_EXPLORE_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
 					else if (bNavalSupportOffenseFrontUnitAIs)
 					{
-						bool const bLogAssaultTransportCentralGate = (gOverseasTransportLogLevel >= 2);
+						bool const bLogAssaultTransportCentralGate = (gOverseasTransportLogLevel >= 2 || gMilitaryProductionLogLevel >= 3);
 						// <!-- custom: Log the final SAS assault-transport production gate separately from AdvCiv's request and capacity logic above. This identifies whether missing lift came from immediate danger or the land-heavy-map fleet cap rather than from the city never requesting a transport. (GPT-5.6-Sol) -->
 						// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation, otherwise falling back with the as of now below default -->
 						int iMaxUnits = iNumCities;
@@ -13508,6 +13632,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							if (bLogAssaultTransportCentralGate) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=REJECT_THREAT unit=%S atWar=%d enemyStrong=%d enemyPowerPercent=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
 								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), pUnitInfo->getDescription(),
 								bAtWar, bEnemyStrong, iEnemyPowerPercent, bDanger, bWarPlan, kGame.isLandHeavyMapnameCached(), bNavalHeavyMapname);
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "ASSAULT_SEA_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "danger", bDanger);
 							return false;
 						}
 						else if (bWarPlan)
@@ -13524,6 +13649,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							if (bLogAssaultTransportCentralGate) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=REJECT_ASSAULT_TRANSPORT_CAP unit=%S existingAndTraining=%d max=%d atWar=%d enemyStrong=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
 								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), pUnitInfo->getDescription(),
 								iTotalUnitAIs, iMaxUnits, bAtWar, bEnemyStrong, bDanger, bWarPlan, kGame.isLandHeavyMapnameCached(), bNavalHeavyMapname);
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "ASSAULT_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 						if (gOverseasTransportLogLevel >= 3) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=ALLOW unit=%S existingAndTraining=%d max=%d atWar=%d enemyStrong=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
@@ -13549,6 +13675,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "ESCORT_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13575,6 +13702,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "CARRIER_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13598,6 +13726,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							// {
 							// 	return false;
 							// }
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SETTLER_SEA_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "warPlan", bWarPlan);
 							return false;
 						}
 						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
@@ -13606,6 +13735,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SETTLER_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13646,6 +13776,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							logBBAI("      WORKER_SEA_CAP_BYPASS turn=%d player=%d %S city=%S cityId=%d total=%d cap=%d localNeeded=%d localAvailable=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits, iLocalNeededSeaWorkers, iLocalAvailableSeaWorkers);
 						if (iTotalUnitAIs >= iMaxUnits && !bLocalSeaWorkerDeficit)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "WORKER_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13673,6 +13804,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough to not overbuild or at all maybe) -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "MISSIONARY_SEA_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "warPlan", bWarPlan);
 							return false;
 						}
 						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
@@ -13681,6 +13813,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "MISSIONARY_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13696,6 +13829,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer -->
 						if (bAtWar || bEnemyStrong || bDanger)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SPY_SEA_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "danger", bDanger);
 							return false;
 						}
 						else if (bWarPlan)
@@ -13703,6 +13837,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							if (!bNavalHeavyMapname)
 							{
 								// <!-- custom: useless or ineffective at land warfare, better not waste hammer here -->
+								if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SPY_SEA_WAR_PLAN_LAND_MAP", "warPlan", bWarPlan, "navalHeavyMap", bNavalHeavyMapname);
 								return false;
 							}
 							// <!-- custom: else keep as is most likely fine-->
@@ -13713,6 +13848,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SPY_SEA_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13760,6 +13896,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: adjust based on danger, squeeze every last bit of hammer xd we can save -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_EXPLORE_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "warPlan", bWarPlan);
 							return false;
 						}
 
@@ -13767,6 +13904,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_EXPLORE_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13790,6 +13928,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							if (bLogSettler)
 								logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=AI_bestUnit_land_settler_gate result=REJECT_THREAT atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs);
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_SETTLER_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "warPlan", bWarPlan);
 							return false;
 						}
 
@@ -13797,6 +13936,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						{
 							if (bLogSettler)
 								logBBAI("      SETTLER_BUILD_DECISION turn=%d player=%d %S city=%S cityId=%d source=AI_bestUnit_land_settler_gate result=REJECT_SETTLER_CAP totalSettlers=%d maxSettlers=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), iTotalUnitAIs, iMaxUnits);
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_SETTLER_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13825,6 +13965,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: no time for expansion at war or danger or similar, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks-->
 						if (bAtWar && bEnemyStrong)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_WORKER_AT_WAR_ENEMY_STRONG", "enemyPowerPercent", iEnemyPowerPercent, "strongThreshold", iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 							return false;
 						}
 						// <!-- custom: else if planning war and otherwise no danger or such (e.g. enemy is weak or no danger), still continue to grow; as for bDanger and bEnemyStrong and such if any more maybe, they may be a bit too strong signals so we'll ignore them as well here for workers, hopefully AI handles these well and doesn't overproduce them(workers are also not that expensive like wonders that we'd need so bad to avoid them, and benefits may be immediate so go with a more lenient check or rather maybe gate) -->
@@ -13833,6 +13974,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_WORKER_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13852,6 +13994,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: if at war or such danger or threat, don't die, don't worry or try to propagate religions, now is not the time, save every hammer (and unit cost if it costs, which i don't know, but hammer is justification/raitonale of enough to not overbuild or at all maybe) -->
 						if (bAtWar || bEnemyStrong || bDanger || bWarPlan)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_MISSIONARY_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "warPlan", bWarPlan);
 							return false;
 						}
 						// <!-- custom: else most likely fine to keep as such maybe (check if accurate or relevant)-->
@@ -13860,6 +14003,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_MISSIONARY_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13875,6 +14019,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 						// <!-- custom: at war these can go a long way, especially on land maps, we can get a big advantage from using these, but if we don't already have them, don't build them now, they won't be ready nor effective in time anyway and we'd have just wasted hammer -->
 						if (bAtWar || bEnemyStrong || bDanger)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_SPY_THREAT", "enemyPowerPercent", iEnemyPowerPercent, "danger", bDanger);
 							return false;
 						}
 						// <!-- custom: else if bWarPlan, don't interfere, they could help with our offense, e.g. weakening our target or spying on it to gather data or steal info or such-->
@@ -13883,6 +14028,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							if (!bNavalHeavyMapname)
 							{
 								// <!-- custom: useless or ineffective at land warfare, better not waste hammer here -->
+								if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_SPY_WAR_PLAN_LAND_MAP", "warPlan", bWarPlan, "navalHeavyMap", bNavalHeavyMapname);
 								return false;
 							}
 							// <!-- custom: else keep as is most likely fine-->
@@ -13893,6 +14039,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 						if (iTotalUnitAIs >= iMaxUnits)
 						{
+							if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "LAND_SPY_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 							return false;
 						}
 					}
@@ -13916,6 +14063,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 					if (iTotalUnitAIs >= iMaxUnits)
 					{
+						if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "AIR_COMBAT_CAP", "existingAndTraining", iTotalUnitAIs, "max", iMaxUnits);
 						return false;
 					}
 				}
@@ -13936,7 +14084,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				int const iAreaExplorers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_EXPLORE);
 				if (iNeededAreaExplorers <= iAreaExplorers)
 				{
-					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=EXPLORE result=REJECT needed=%d existing=%d area=%d areaTiles=%d unrevealed=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaExplorers, iAreaExplorers, getArea().getID(), getArea().getNumTiles(), getArea().getNumUnrevealedTiles(getTeam()));
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 3)) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=EXPLORE result=REJECT needed=%d existing=%d area=%d areaTiles=%d unrevealed=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaExplorers, iAreaExplorers, getArea().getID(), getArea().getNumTiles(), getArea().getNumUnrevealedTiles(getTeam()));
+					if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "AREA_EXPLORE_NOT_NEEDED", "needed", iNeededAreaExplorers, "existing", iAreaExplorers);
 					return false;
 				}
 			}
@@ -13947,7 +14096,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 				if (iNeededAreaWorkers <= iAreaWorkers)
 				{
-					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=WORKER result=REJECT needed=%d existing=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaWorkers, iAreaWorkers, getArea().getID(), getArea().getNumTiles());
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 3)) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=WORKER result=REJECT needed=%d existing=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), iNeededAreaWorkers, iAreaWorkers, getArea().getID(), getArea().getNumTiles());
+					if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "AREA_WORKER_NOT_NEEDED", "needed", iNeededAreaWorkers, "existing", iAreaWorkers);
 					return false;
 				}
 			}
@@ -13974,7 +14124,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				}
 				if (!bForeignCityInArea && !bPrimaryArea && iSpyTransports <= 0)
 				{
-					if (gCityLogLevel >= 2) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=SPY result=REJECT foreignCityInArea=%d primaryArea=%d spyTransports=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), bForeignCityInArea, bPrimaryArea, iSpyTransports, getArea().getID(), getArea().getNumTiles());
+					if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 3)) logBBAI("      LAND_UNIT_AREA_USEFULNESS turn=%d player=%d %S city=%S cityId=%d unitAI=SPY result=REJECT foreignCityInArea=%d primaryArea=%d spyTransports=%d area=%d areaTiles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), bForeignCityInArea, bPrimaryArea, iSpyTransports, getArea().getID(), getArea().getNumTiles());
+					if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "AREA_SPY_NO_TARGET_OR_TRANSPORT", "spyTransports", iSpyTransports, "primaryArea", bPrimaryArea);
 					return false;
 				}
 			}
@@ -13990,6 +14141,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				if (!SAS_isSettlerBuildWorthwhile(*this, iSettlerAreaBestFoundValue, iSettlerWaterBestFoundValue, iSettlerBuildMinFoundValue))
 				{
 					if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "VETO_PRE_PUSH", eChangedUnit, eChangedUnitAI, -1, -1);
+					if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eChangedUnit, eChangedUnitAI, "SETTLER_SITE_VALUE_VETO", "areaBestFoundValue", iSettlerAreaBestFoundValue, "minFoundValue", iSettlerBuildMinFoundValue);
 					return false;
 				}
 				if (gSettlerLogLevel >= 2) SAS_logSettlerBuildDecision(*this, "AI_chooseUnit_concrete", "PUSH_ORDER", eChangedUnit, eChangedUnitAI, -1, -1);
@@ -14001,11 +14153,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 				int const iExistingSeaWorkers = (pWaterArea == NULL ? 0 : kOwner.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_WORKER_SEA));
 				logSASWorkerSeaChooseDetail("AI_chooseUnit final worker sea", *this, pWaterArea, getPopulation(), iNeededSeaWorkers, iExistingSeaWorkers, kOwner.AI_isAnyWaterDanger(getPlot(), 4), kOwner.AI_isFinancialTrouble());
 			}
+			if (gMilitaryProductionLogLevel >= 2 && !isHuman() && !isBarbarian()) logBBAI("MILITARY_PRODUCTION_UNIT_PUSH turn=%d player=%d %S city=%S cityId=%d requestedUnit=%s requestedAI=%s finalUnit=%s finalAI=%s changedUnit=%d changedAI=%d xmlCost=%d productionStored=%d productionNeeded=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+				(eRequestedUnit == NO_UNIT ? "-" : GC.getInfo(eRequestedUnit).getType()), (eRequestedUnitAI == NO_UNITAI ? "-" : GC.getInfo(eRequestedUnitAI).getType()),
+				GC.getInfo(eChangedUnit).getType(), (eChangedUnitAI == NO_UNITAI ? "-" : GC.getInfo(eChangedUnitAI).getType()), eChangedUnit != eRequestedUnit, eChangedUnitAI != eRequestedUnitAI,
+				GC.getInfo(eChangedUnit).getProductionCost(), getUnitProduction(eChangedUnit), getProductionNeeded(eChangedUnit));
 			pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI);
 		}
 		return true;
 	}
 
+	if (bLogDetailedMilitaryProduction) logSASMilitaryProductionConcreteReject(*this, eRequestedUnit, eRequestedUnitAI, "NO_CONCRETE_UNIT");
 	return false;
 }
 
@@ -16580,6 +16738,8 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 	// <!-- custom: cache to kTeam for perf opt if i'm not mistaken. See note at CvCityAI::AI_buildingValue. -->
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
+	int iHighestRivalPowForLog = -1;
+	int iPowerThrottleForLog = 0; // <!-- custom: Diagnostic code: 0 = none, 1 = gradual, 2 = quartered. (ChatGPT-5.6-Sol) -->
 
 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
 	int iXPWeight = AI_experienceWeight();
@@ -16642,6 +16802,7 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 					iHighestRivalPow = std::max(kRival.getPower(true), iHighestRivalPow);
 				}
 			}
+			iHighestRivalPowForLog = iHighestRivalPow;
 			// Don't throttle at all until we're clearly ahead of the best rival
 			scaled rTargetAdvantage = per100(25);
 			if (kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY1))
@@ -16662,8 +16823,13 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 				{
 					r /= 4;
 					bGreatlyReduced = true;
+					iPowerThrottleForLog = 2;
 				}
-				else r *= 1 - rAdvantage / 2;
+				else
+				{
+					r *= 1 - rAdvantage / 2;
+					iPowerThrottleForLog = 1;
+				}
 			}
 		}
 		/*  Can't afford to specialize one city entirely on military production
@@ -16675,7 +16841,16 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 			r.increaseTo(per100(25 - 2 * iCities));
 	} // </advc.017>
 	r.decreaseTo(1); // experimental (K-Mod)
-	return r.getPercent();
+	int const iFinalBuildUnitProb = r.getPercent();
+	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian() && !bDraft)
+	{
+		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iXPWeight, iFinalBuildUnitProb, getMilitaryProductionModifier(), kOwner.AI_isFinancialTrouble(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
+			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iPowerThrottleForLog, bGreatlyReduced,
+			kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY3), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY4));
+	}
+	return iFinalBuildUnitProb;
 }
 
 // advc: Body cut from AI_bestPlotBuild (K-Mod code)

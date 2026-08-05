@@ -630,6 +630,9 @@ void CvCity::doTurn()
 
 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability -->
 	const bool bHuman = isHuman();
+	// <!-- custom: Keep no-production fallback diagnostics behind the dedicated military-production category; level 2 records outcomes, while level 3 adds the detailed fallback gates and candidate context. (ChatGPT-5.6-Sol) -->
+	bool const bLogMilitaryProduction = (!bHuman && !isBarbarian() && gMilitaryProductionLogLevel >= 2);
+	bool const bLogDetailedMilitaryProduction = (!bHuman && !isBarbarian() && gMilitaryProductionLogLevel >= 3);
 
 	bool const bDanger = AI().AI_isDanger();	// method lives on CvCityAI
 	// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
@@ -818,6 +821,14 @@ void CvCity::doTurn()
 		}
 		// --- end SAS defense rule ---
 
+		if (bLogMilitaryProduction && bEmergencyBuilding)
+		{
+			BuildingTypes const eEmergencyBuilding = getProductionBuilding();
+			logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=PRE_FALLBACK result=EMERGENCY_BUILDING_FORCED building=%s danger=%d atWar=%d enemyPowerPercent=%d mostlyWater=%d",
+				kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+				(eEmergencyBuilding == NO_BUILDING ? "-" : GC.getInfo(eEmergencyBuilding).getType()), bDanger, bAtWar, iEnemyPowerPercent, bInnerRingMostlyWaterNonPeak);
+		}
+
 		// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd) (or maybe not something else?) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as belowwith the help of chatgpt 5, check if accurate -->
 		// --- BEGIN: hard safety net for AI production ---
 		// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
@@ -835,6 +846,14 @@ void CvCity::doTurn()
 			{
 				static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE");
 				static const bool bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE = GC.getDefineBOOL("SAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE");
+
+				if (bLogDetailedMilitaryProduction)
+				{
+					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headProcess=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
+						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+						bQueueEmpty, bHeadProcess, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
+						bInnerRingMostlyWaterNonPeak, iInnerRingNonWaterNonPeak, iCurrentEra, getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bEnemyStrong, bEnemyWeakNotZero);
+				}
 
 				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE && !bInnerRingMostlyWaterNonPeak)
 				{
@@ -930,6 +949,14 @@ void CvCity::doTurn()
 					const int iCapTrebsEffective = (bRestrictSiegeByEra && bNoExcessTrebuchetsLike) ?
 							iCapTrebsPreRenaissance : MAX_INT;
 
+					if (bLogDetailedMilitaryProduction)
+					{
+						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=UNIT_GATE maxCost=%d offenseOnly=%d defenseOnly=%d warPlan=%d landHeavy=%d navalHeavy=%d renaissancePlus=%d restrictSiege=%d allowTrebuchetsLike=%d nonTrebSieges=%d capNonTrebs=%d trebSieges=%d capTrebs=%d",
+							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							iMaxCost, bSAS_OffenseDefaultUnitAIsOnly, bSAS_DefenseDefaultUnitAIsOnly, bWarPlan, bLandHeavyMapname, bNavalHeavyMapname, bRenaissancePlus, bRestrictSiegeByEra, bAllowTrebuchetsLike,
+							iSiegesAllNonTrebuchetsLike, iCapNonTrebuchetsLikeEffective, iSiegesAllTrebuchetsLike, iCapTrebsEffective);
+					}
+
 					// <!-- custom: attempt offense only units or defense only units first, and if fails overall units, and if fails cheapest units -->
 					// Final pick: primary bucket first; if none, secondary; else global backups
 					UnitTypes ePick = NO_UNIT;
@@ -949,6 +976,13 @@ void CvCity::doTurn()
 							NO_UNIT,
 							/*bAllowOverallFallback=*/true,
 							/*bAllowCheapestFallback=*/true);
+
+					if (bLogMilitaryProduction)
+					{
+						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=UNIT_SELECTION haveUnit=%d unit=%s unitAI=%s maxCost=%d",
+							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), bHaveAnyFallbackUnit,
+							(ePick == NO_UNIT ? "-" : GC.getInfo(ePick).getType()), (ePickAI == NO_UNITAI ? "-" : GC.getInfo(ePickAI).getType()), iMaxCost);
+					}
 
 					if (bHaveAnyFallbackUnit)
 					{
@@ -974,7 +1008,24 @@ void CvCity::doTurn()
 
 							// critical: stop the chooser from clearing this emergency order next turn
 							setChooseProductionDirty(false);
+							if (bLogMilitaryProduction)
+							{
+								logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=UNIT_PUSHED unit=%s unitAI=%s replaceHead=%d",
+									kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+									GC.getInfo(ePick).getType(), GC.getInfo(ePickAI).getType(), bReplaceHead);
+							}
 						}
+						else if (bLogMilitaryProduction)
+						{
+							logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=REJECT_SETTLER_FALLBACK unit=%s unitAI=%s",
+								kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+								(ePick == NO_UNIT ? "-" : GC.getInfo(ePick).getType()), (ePickAI == NO_UNITAI ? "-" : GC.getInfo(ePickAI).getType()));
+						}
+					}
+					else if (bLogMilitaryProduction)
+					{
+						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=NO_ELIGIBLE_UNIT",
+							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID());
 					}
 				}
 				// <!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
@@ -1010,6 +1061,19 @@ void CvCity::doTurn()
 							bEmergencyBuilding = true;
 						}
 					}
+					if (bLogMilitaryProduction)
+					{
+						BuildingTypes const eWaterFallbackBuilding = getProductionBuilding();
+						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=%s building=%s",
+							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							(bEmergencyBuilding ? "WATER_BUILDING_PUSHED" : "WATER_BUILDING_NONE"), (eWaterFallbackBuilding == NO_BUILDING ? "-" : GC.getInfo(eWaterFallbackBuilding).getType()));
+					}
+				}
+				else if (bLogMilitaryProduction)
+				{
+					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=NO_FALLBACK_BRANCH forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d",
+						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+						bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE, bInnerRingMostlyWaterNonPeak);
 				}
 			}
 		}

@@ -1416,6 +1416,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
+	<!-- custom: Dedicated AI military-production diagnostics. Level 2 notably reuses the existing AI_chooseProduction branch-choice messages without requiring broad CITY logging; level 3 notably adds structured production context and major military/nonmilitary gates, including spending, generic rolls, unit/fallback selection, and no-production fallback decisions. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
 	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 notably compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
