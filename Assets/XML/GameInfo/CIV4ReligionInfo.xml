@@ -39,14 +39,14 @@
 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
 			<Sound>AS2D_BUILD_PAGAN</Sound>
 		</ReligionInfo>
-		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD (now removed), historically more accurate in terms of year founded (around 4 000 BCE from a quick web search), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, was TECH_POLYTHEISM -->
+		<!-- custom: Move Hinduism from Monarchy to Calendar as an earlier religious alternative that can affect more of the game without requiring a larger ancient-tech rework. (GPT-5.6-Sol) -->
 		<ReligionInfo>
 			<Type>RELIGION_HINDUISM</Type>
 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
-			<!-- custom: Long_Comments_XML.txt #316, was TECH_POLYTHEISM -->
-			<TechPrereq>TECH_MONARCHY</TechPrereq>
+			<!-- custom: Long_Comments_XML.txt #316 -->
+			<TechPrereq>TECH_CALENDAR</TechPrereq>
 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
 			<iFreeUnits>0</iFreeUnits>
 			<iSpreadFactor>100</iSpreadFactor>

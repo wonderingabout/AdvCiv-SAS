@@ -2968,9 +2968,9 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_ALPHABET (now removed) -->
+			<!-- custom: Place Spies with Scotland Yard at Monarchy, creating a coherent early espionage commitment without making either available on the earlier Calendar branch. (GPT-5.6-Sol) -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<PrereqTech>TECH_MONARCHY</PrereqTech>
 			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -7756,6 +7756,7 @@
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -7961,6 +7962,7 @@
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -8197,6 +8199,7 @@
 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<!-- custom: Civil Service no longer requires Iron Working globally, but Macemen retain it individually so the economic path does not unlock heavy melee units by itself. (GPT-5.6-Sol) -->
 			<TechTypes>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -10604,14 +10607,11 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<!-- custom: Engineering already guarantees Hunting through the tech tree, so the additional requirement had no gameplay effect. (GPT-5.6-Sol) -->
+			<TechTypes/>
 			<BonusType>BONUS_IRON</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -10803,14 +10803,10 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<TechTypes/>
 			<!-- custom: add bonus_copper to as of now civ-specific crossbowman units for which it is relevant (i.e. as of now excluding the yeoman_archer as it does not use any metal); Long_Comments_XML.txt #324 -->
 			<BonusType>NONE</BonusType>
 			<!-- custom: was empty. -->
@@ -10861,8 +10857,8 @@
 			<iEvasionProbability>0</iEvasionProbability>
 			<!-- custom: was 0 -->
 			<iWithdrawalProb>25</iWithdrawalProb>
-			<!-- custom: Keep a modest native collateral effect, reduced from 50 to 10, while free PROMOTION_COLLATERAL_DAMAGE1 adds its smaller multiplicative bonus and can persist through upgrades. (GPT-5.6-Sol) -->
-			<iCollateralDamage>10</iCollateralDamage>
+			<!-- custom: Keep a modest native collateral effect, reduced from 50 to 15, while free PROMOTION_COLLATERAL_DAMAGE1 adds its 15% modifier and can persist through upgrades. The separate first-strike reduction still nerfs the unit without making its collateral identity too weak. (GPT-5.6-Sol) -->
+			<iCollateralDamage>15</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
 			<iCityAttack>0</iCityAttack>
@@ -11038,14 +11034,10 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<TechTypes/>
 			<!-- custom: see code comment at UNIT_CHINA_ZHUGE_NU -->
 			<BonusType>NONE</BonusType>
 			<!-- custom: was empty. -->
@@ -11278,14 +11270,10 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY (now removed) -->
+			<!-- custom: Move Crossbows from Civil Service to Engineering, weakening the overloaded Bureaucracy path and giving Engineering a more distinct military role. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<TechTypes/>
 			<!-- custom: was BONUS_IRON in the advciv-sas generic crossbowman -->
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
@@ -14262,12 +14250,8 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_SPACE_EXPLORATION</ObsoleteTech>
 			<PrereqTech>TECH_ADVANCED_FLIGHT</PrereqTech>
-			<!-- custom: was empty -->
-			<TechTypes>
-				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<!-- custom: Advanced Flight already guarantees Assembly Line through the tech tree, so this distant additional requirement had no gameplay effect; was empty in base AdvCiv. (GPT-5.6-Sol) -->
+			<TechTypes/>
 			<BonusType>BONUS_OIL</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>

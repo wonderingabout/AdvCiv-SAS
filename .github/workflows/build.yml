@@ -31,6 +31,9 @@ jobs:
       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
       - run: python .github/workflows/build/xml_child_duplicates.py
       - run: python .github/workflows/build/tech_columns.py
+      - run: python .github/workflows/build/wonder_cost_columns.py
+      - run: python .github/workflows/build/wonder_culture_gpp_columns.py
+      - run: python .github/workflows/build/asset_tech_prereq_redundancy.py
       - run: python .github/workflows/build/civ_specific_asset_techs.py
       - run: python .github/workflows/build/civ_specific_not_weaker.py
       - run: python .github/workflows/build/define_tag_refs.py

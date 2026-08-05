@@ -3351,8 +3351,8 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -3540,8 +3540,8 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -3728,8 +3728,8 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -3919,8 +3919,8 @@
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<!-- custom: Move Granaries to starting-era Pottery so their stored-food effect can shape city growth from the beginning. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -6484,8 +6484,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: change to sooner tech where relevant, maybe historically more accurate too according to https://en.wikipedia.org/wiki/Custom_House,_City_of_London and to make it coincide with the age of exploration of the american continent having a water building around there would be nice, was TECH_ECONOMICS -->
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+			<!-- custom: Move the Custom House from overloaded Astronomy to weaker Banking, giving the economic branch a distinct trade-building reward. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_BANKING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -6666,8 +6666,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_ECONOMICS -->
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+			<!-- custom: Keep the Feitoria aligned with the Custom House's move from overloaded Astronomy to weaker Banking. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_BANKING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -15640,7 +15640,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>180</iCost>
+			<!-- custom: was 180; +50% espionage and two Spy slots make this a substantial late-game specialization building. (GPT-5.6-Sol) -->
+			<iCost>200</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -15703,12 +15704,8 @@
 			<RiverPlotYieldChanges/>
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
-			<CommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>8</iCommerce>
-			</CommerceChanges>
+			<!-- custom: was +8 espionage; retain the +50% modifier and two Spy slots so the Agency rewards cities already committed to espionage instead of also supplying a large flat yield. (GPT-5.6-Sol) -->
+			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers>
@@ -17283,8 +17280,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: see code comment at the pagan_shrine, was NONE -->
-			<PrereqTech>TECH_MONARCHY</PrereqTech>
+			<!-- custom: Keep the Hindu shrine aligned with Hinduism's earlier move from Monarchy to Calendar. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22697,11 +22694,7 @@
 			<YieldChanges/>
 			<CommerceChanges/>
 			<!-- custom: was 0 / 0 / 4 -->
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>8</iCommerce>
-			</ObsoleteSafeCommerceChanges>
+			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -22885,11 +22878,7 @@
 			<CommerceChanges/>
 			<!-- custom: was empty -->
 			<!-- advc.201: Was 2 culture, doubling after 1000 years. -->
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<iCommerce>8</iCommerce>
-			</ObsoleteSafeCommerceChanges>
+			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
 			<GlobalCommerceModifiers/>
@@ -22967,8 +22956,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->
-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<!-- custom: Place Scotland Yard with Spies at Monarchy. It still requires a Great Spy, so this early availability rewards committing to scarce early Spy sources rather than granting a flat espionage bonus. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_MONARCHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -23137,7 +23126,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<!-- custom: Move the Pyramids to Mining so this early wonder becomes available soon enough to shape ancient development. Its production cost still constrains immediate construction. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_MINING</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -23176,7 +23166,7 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>150</iCost>
+			<iCost>125</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -23246,7 +23236,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 5 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -23444,7 +23435,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: Was 8 in BtS, 4 in K-Mod. -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -23836,7 +23828,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 6 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -24436,7 +24429,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 8 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -24814,7 +24808,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this top 6 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25025,7 +25019,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 6 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25107,10 +25101,9 @@
 			<VictoryPrereq>NONE</VictoryPrereq>
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<!-- custom: was TECH_FIREARMS -->
-			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
-			<!-- custom: was TECH_CODE_OF_LAWS -->
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<!-- custom: Construction makes this wonder useful earlier, while Chemistry preserves a meaningful window before obsolescence. (GPT-5.6-Sol) -->
+			<ObsoleteTech>TECH_CHEMISTRY</ObsoleteTech>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25149,8 +25142,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 500 -->
-			<iCost>275</iCost>
+			<!-- custom: was 500; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>200</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25220,7 +25213,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 5 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25353,7 +25346,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<iCost>350</iCost>
+			<!-- custom: Match other constructible world wonders in the same tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>275</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25421,7 +25415,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 10 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -26017,7 +26011,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 8 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -26695,7 +26689,7 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+			<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -26733,8 +26727,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 1500!!! -->
-			<iCost>500</iCost>
+			<!-- custom: was 1500!!!; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>525</iCost>
 			<iHurryCostModifier>200</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -27001,11 +26995,11 @@
 			<CommerceChanges/>
 			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes/>
-			<!-- custom: was 0 / 0 / 50 -->
+			<!-- custom: Restore 50% culture while removing flat culture, so Broadway rewards concentrating existing culture instead of providing both parts of the same strategy. (GPT-5.6-Sol) -->
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>25</iCommerce>
+				<iCommerce>50</iCommerce>
 			</CommerceModifiers>
 			<GlobalCommerceModifiers/>
 			<SpecialistExtraCommerces/>
@@ -27202,7 +27196,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>12</iCommerce>
+				<iCommerce>10</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes/>
 			<!-- custom: was 0 / 0 / 50 -->
@@ -27384,11 +27378,11 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: give a lot of flat culture per turn instead, useful/valuable for end game -->
+			<!-- custom: Give late culture-focused wonders 10 flat culture when they do not instead multiply existing culture. (GPT-5.6-Sol) -->
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>40</iCommerce>
+				<iCommerce>10</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes/>
 			<CommerceModifiers/>
@@ -27848,8 +27842,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: changed so games don't end too soon and the risk is higher going for it despite the strong reward (potentially wining or having higher control over it) was 1000 -->
-			<iCost>1500</iCost>
+			<!-- custom: Keep the UN substantially more expensive than other late world wonders because it can directly enable diplomatic victory, but reduce the prior 1500 cost so it remains practical to build; was 1000. (GPT-5.6-Sol) -->
+			<iCost>1200</iCost>
 			<iHurryCostModifier>300</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
@@ -28150,13 +28144,9 @@
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
 			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
-			<!-- custom: was TECH_POLYTHEISM and tech types empty-->
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<!-- custom: Make the Temple of Artemis a specialized reward of Polytheism and reduce overloaded Construction. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -28195,8 +28185,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 350 -->
-			<iCost>200</iCost>
+			<!-- custom: was 350; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>150</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28267,7 +28257,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: Was 8 in BtS, 6 in K-Mod. -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -28681,7 +28672,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.310: was 2 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Limit columns 1-2 to 4 culture because higher early values create too much automatic border pressure and too easily compound an early culture lead or Great Artist strategy. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -28960,8 +28952,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was TECH_CALENDAR -->
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: Move the Mausoleum of Maussollos to earlier Currency so its Golden Age extension can affect more of the game. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -29000,8 +28992,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 450 -->
-			<iCost>275</iCost>
+			<!-- custom: was 450; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>200</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -29070,7 +29062,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- K-Mod: was 10 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -29150,8 +29142,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: move it sooner so it can be built sooner, seems to fit the theme well and tech_liberalism doesn't have a wonder as well so we can maybe use it, was TECH_RADIO -->
-			<PrereqTech>TECH_LIBERALISM</PrereqTech>
+			<!-- custom: Romanticism fits Cristo Redentor thematically and gives that tech a distinct wonder. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -29191,8 +29183,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: now sooner, adjust cost, was 1000 -->
-			<iCost>525</iCost>
+			<!-- custom: was 1000; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>550</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -29258,13 +29250,8 @@
 			<GlobalSeaPlotYieldChanges/>
 			<YieldChanges/>
 			<CommerceChanges/>
-			<!-- custom: was 0 / 0 / 6 -->
-			<ObsoleteSafeCommerceChanges>
-				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
-				<!-- advc.201: Was 5; now same as Statue of Liberty. -->
-				<iCommerce>8</iCommerce>
-			</ObsoleteSafeCommerceChanges>
+			<!-- custom: Remove flat culture from late wonders without a culture-focused advisor role, preserving their distinct strategic purpose. (GPT-5.6-Sol) -->
+			<ObsoleteSafeCommerceChanges/>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
@@ -29474,7 +29461,7 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 6 -->
-				<iCommerce>8</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -29608,8 +29595,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 250 -->
-			<iCost>475</iCost>
+			<!-- custom: was 250; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>500</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -31217,8 +31204,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
-			<!-- custom: not strictly religious; fits UN being around as of now TECH_MASS_MEDIA -->
-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+			<!-- custom: Move the Apostolic Palace to Philosophy to strengthen that tech and make the religious diplomatic wonder available sooner. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -31256,9 +31243,9 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: make cost quite low as it is more of a shared wonder between all players and we want it in more games than not in them, was 350 -->
+			<!-- custom: Keep this shared wonder inexpensive enough to appear in more games while matching other constructible world wonders in its tech-tree column; was 350. (GPT-5.6-Sol) -->
 			<!-- advc.179: was 400 -->
-			<iCost>300</iCost>
+			<iCost>275</iCost>
 			<iHurryCostModifier>300</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
@@ -31325,7 +31312,7 @@
 			<ObsoleteSafeCommerceChanges>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>4</iCommerce>
+				<iCommerce>6</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -31345,7 +31332,13 @@
 					<iSpecialistCount>2</iSpecialistCount>
 				</SpecialistCount>
 			</SpecialistCounts>
-			<FreeSpecialistCounts/>
+			<!-- custom: The Apostolic Palace's religious voting and production benefits are shared, so give its builder an immediate city reward. A free Priest is useful at once and adds Great Prophet progress without granting a Great Person outright. (GPT-5.6-Sol) -->
+			<FreeSpecialistCounts>
+				<FreeSpecialistCount>
+					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+				</FreeSpecialistCount>
+			</FreeSpecialistCounts>
 			<CommerceFlexibles/>
 			<CommerceChangeOriginalOwners>
 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>

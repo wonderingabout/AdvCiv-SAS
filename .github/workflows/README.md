@@ -79,6 +79,9 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
 - [`build/xml_child_duplicates.py`](#buildxml_child_duplicatespy)
 - [`build/tech_columns.py`](#buildtech_columnspy)
+- [`build/wonder_cost_columns.py`](#buildwonder_cost_columnspy)
+- [`build/wonder_culture_gpp_columns.py`](#buildwonder_culture_gpp_columnspy)
+- [`build/asset_tech_prereq_redundancy.py`](#buildasset_tech_prereq_redundancypy)
 - [`build/civ_specific_asset_techs.py`](#buildciv_specific_asset_techspy)
 - [`build/civ_specific_not_weaker.py`](#buildciv_specific_not_weakerpy)
 - [`build/define_tag_refs.py`](#builddefine_tag_refspy)
@@ -176,6 +179,20 @@ Checks suspicious duplicate child/list XML entries inside the same parent object
 ### `build/tech_columns.py`
 
 Verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
+
+### `build/wonder_cost_columns.py`
+
+Verifies normally constructible world wonders unlocked in the same tech-tree column (`iGridX`) have the same production cost and that world-wonder costs strictly increase in later populated columns. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded, as is the deliberately expensive United Nations diplomatic-victory wonder.
+
+### `build/wonder_culture_gpp_columns.py`
+
+Verifies normally constructible world wonders follow an era-relative flat-culture progression: 4 in the first two Ancient-era columns, 6 through the rest of the Ancient and Classical eras, and 8 through the Medieval and Renaissance eras. From the start of the Industrial era, culture-advisor wonders without a culture percentage modifier have 10 flat culture and other wonders have none; a wonder with a local or global culture modifier has no flat culture in every era.
+
+World-wonder Great Person point rates (`iGreatPeopleRateChange`) must match within each column and never decrease in later populated columns; GP-producing national wonders and ordinary buildings cannot exceed the latest world-wonder rate available by their direct or shared special-building prerequisite tech column. Great Person-founded shrines/corporation headquarters (`iCost=-1`) are excluded.
+
+### `build/asset_tech_prereq_redundancy.py`
+
+Flags stale additional unit/building tech requirements when the primary tech already guarantees them through every valid prerequisite path. To keep nearby foundational requirements explicit when useful, it applies only when the additional tech is from an earlier era and the primary tech is at least two columns after the start of its own era. Era starts and tech-graph guarantees are derived from current XML, so moving or collapsing tech-tree columns updates the check automatically.
 
 ### `build/civ_specific_asset_techs.py`
 

@@ -49,14 +49,14 @@
 			<ProductionTraits/>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,8</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries) -->
+		<!-- custom: Move Monasteries from Monarchy to Calendar to give the earlier religious branch another useful unlock. (GPT-5.6-Sol) -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_MONASTERY</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #16 -->
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_PRIESTHOOD (now removed) -->
-			<TechPrereq>TECH_MONARCHY</TechPrereq>
+			<TechPrereq>TECH_CALENDAR</TechPrereq>
 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
 			<bValid>1</bValid>
 			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas -->

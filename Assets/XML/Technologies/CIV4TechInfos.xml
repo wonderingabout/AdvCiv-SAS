@@ -281,9 +281,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_GENETICS</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Depopulation already requires the modern branches, so do not repeat Genetics here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Quote>
 			<Sound>AS2D_TECH_BIOENGINEERING</Sound>
 			<SoundMP>AS2D_TECH_MP_BIOENGINEERING</SoundMP>
@@ -995,9 +994,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MEDITATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Remove Civil Service's global Iron Working requirement so Bureaucracy can be reached independently; Macemen still require Iron Working on their own unit entries. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CIVIL_SERVICE_QUOTE</Quote>
 			<Sound>AS2D_TECH_CIVIL_SERVICE</Sound>
 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
@@ -4406,9 +4404,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_COMPUTERS</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Depopulation already requires the modern branches, so do not repeat Computers here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_AI_QUOTE</Quote>
 			<Sound>AS2D_TECH_AI</Sound>
 			<SoundMP>AS2D_TECH_MP_AI</SoundMP>
@@ -4428,7 +4425,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+			<!-- custom: Move the free Great Scientist to Terraforming so Fusion's Robotic Tank path is not additionally rewarded with a snowballing Great Person. (GPT-5.6-Sol) -->
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -4481,9 +4479,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_FISSION</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Depopulation already requires the modern branches, so do not repeat Fission here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_FUSION_QUOTE</Quote>
 			<Sound>AS2D_TECH_FUSION</Sound>
 			<SoundMP>AS2D_TECH_MP_FUSION</SoundMP>
@@ -4645,7 +4642,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<!-- custom: Move Terraforming's free Great Merchant to the weaker Space Exploration branch. (GPT-5.6-Sol) -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -4693,9 +4691,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_DEPOPULATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_SATELLITES</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Depopulation already requires the modern branches, so do not repeat Satellites here; this keeps the Future-era branches parallel. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_SPACE_EXPLORATION</Sound>
 			<SoundMP>AS2D_TECH_MP_SPACE_EXPLORATION</SoundMP>
@@ -5082,9 +5079,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_CURRENCY</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Remove the Currency requirement to keep the metal branch independent; Iron Working's high research cost remains its own gate. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_IRON_WORKING_QUOTE</Quote>
 			<Sound>AS2D_TECH_IRONWORK</Sound>
 			<SoundMP>AS2D_TECH_MP_IRONWORK</SoundMP>
@@ -6622,7 +6618,8 @@
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_FUTURE</Era>
-			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
+			<!-- custom: Move Fusion's free Great Scientist here, away from the already strong Robotic Tank path. (GPT-5.6-Sol) -->
+			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
 			<iTradeRoutes>0</iTradeRoutes>
@@ -6965,10 +6962,10 @@
 			</Flavors>
 			<OrPreReqs>
 				<PrereqTech>TECH_BIOENGINEERING</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
 				<PrereqTech>TECH_AI</PrereqTech>
-			</AndPreReqs>
+			</OrPreReqs>
+			<!-- custom: Let either AI or Bioengineering lead to Transhumanism, strengthening Bioengineering and avoiding a single mandatory AI route. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_TRANSHUMANISM</Sound>
 			<SoundMP>AS2D_TECH_MP_TRANSHUMANISM</SoundMP>

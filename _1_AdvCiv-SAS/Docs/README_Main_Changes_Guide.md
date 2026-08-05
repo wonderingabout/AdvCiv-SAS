@@ -664,7 +664,9 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 
 ## Builds
 
-- **Tech prereqs** adjusted (e.g. **Remove Jungle** and **Chop Down a Forest** available together and earlier).
+- **Plantations** are available earlier (as of now at **Agriculture**).
+- **Remove Jungle** and jungle-clearing improvement builds are moved away from overpowered military path, only the weaker jungle remains, and sooner (as of now at **Metal Casting**) to buff jungle too.
+- **Chop Down a Forest** is similarly moved out of the overpowered military path, now to the builder **Masonry** path.
 - **Remove Jungle** and **Chop Down a Forest** builds now use distinct buttons. These are visible both in the **Technology Advisor** and in **Sevopedia Techs' Enables** and in the new **Sevopedia Builds** category panel. See also [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
 
 ## Specialists
@@ -687,7 +689,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 
 - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing; **Upkeep: Medium → High** to counter-balance its per-specialist scaling and thematically reflect the heavier apparatus needed to sustain such systems); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
 - **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Policy Advisor); economy civics are also more specialized/distinct, e.g. the old Environmentalism civic is replaced with `CIVIC_TRADE_BLOC` (earlier regional union/league-style trade civic); `CIVIC_PROTECTIONISM` is now about having **less trade**, not **no trade** (not isolationism); and `CIVIC_STATE_PROPERTY` now redistributes wealth via yield shifts (e.g. −20% hammers in the capital, +10% in all cities → effectively -20 + 10 = −10% in the capital, vs +10% in all other cities); plus other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
-- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv (e.g., **Slavery** moved to **Agriculture**). This improves historical pacing and balance/strategy variety (notably, moving Slavery out of the military line reduces the "everything funnels through Bronze Working" effect). See Tech Tree/Sevopedia/XML for current placements.
+- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv or in a strategically more distinct or versatile paths: notably, **Slavery** moves from overpowered, strong military Tech Bronze Working to **Masonry**, keeping the effect early without placing it at the beginning, or **Pacifism** moves later to **Medicine** which is more distinct that the religious path (plus its Great Person scaling is too strong for the early religious/culture branch). This improves pacing and balance/strategy variety while reducing the "everything funnels through Bronze Working" effect. See Tech Tree/Sevopedia/XML for current placements.
 - **Civics order aligned to tech pace:** Reordered civics in XML so the **Policy Advisor** displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
 
 ## Technologies
@@ -767,7 +769,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 
 ## Buildings
 
-- **Granary:** cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries unchanged (so their relative advantage increases). Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
+- **Granary:** unlocked at **Pottery**; cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries keep their relative advantages. Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
 - **Water building line reworked/buffed** *(Goal: make **water tiles more viable** while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
   - **Harbor** (first water building): health/food oriented.
   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
@@ -777,7 +779,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 - **Great Person Buildings** (e.g. Academy, Scotland Yard) now **require a tech** (e.g. `TECH_LITERATURE`, `TECH_MONARCHY`) so they appear in the tech tree and in the Sevopedia Building's corresponding group rather than in the "No Tech Prerequisite" group. This may make strategic considerations more specialized and help slightly curb military beelines in particular.
 - Fewer **national** wonders and relatively more **world** wonders.
 - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
-- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly lower).
+- (Requires AdvCiv-SAS 6080+) Many world-wonder effects and timings simplified/retuned; overall costs adjusted (often slightly lower). Flat culture and Great Person points now progress consistently with tech timing; late wonders receive culture only when it fits their role, and a culture percentage modifier no longer stacks with flat wonder culture. See also [wonder_culture_gpp_columns.py (.github workflows README)](/.github/workflows/README.md#buildwonder_culture_gpp_columnspy).
 - Most `BonusProductionModifiers` (e.g., +100% with Marble) are greatly reduced. Example: Parthenon is now +25% with Marble (was +100%). Wonder costs were also adjusted to fit this change.
 - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
 - **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
@@ -829,7 +831,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
 - **Animal** units broadly rebalanced; see Sevopedia/XML for details.
 - **Barracks** now require **Hunting**.
 - **Warrior / "Ancient Maceman"** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
-- **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
+- **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow**.
 - **Spearman line:** base Strength **4 → 5**; anti-mounted role strengthened; civ-specific variants further differentiated (see Sevopedia/XML).
 - **Grenadiers & Bazooka (formerly Anti-Tank Infantry)**: rebalanced into **hybrid, versatile "foot-bomber" roles**.
 - **Gun units buffed (relative to pre-gun)**: units that **carry firearms** (e.g., **Musketman**, **Horse/Camel Cuirassiers**) are **relatively stronger** than their pre-gun counterparts.
