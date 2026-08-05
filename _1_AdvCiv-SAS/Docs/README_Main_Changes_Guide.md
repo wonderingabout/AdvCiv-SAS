@@ -172,6 +172,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
 - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
 - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+- (Requires AdvCiv-SAS 6085+) **Dedicated AI military-production BBAI logging**: added `SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL` notably to isolate production diagnostics without enabling broad city logging. Higher detail notably records unit-build probability, spending limits, building/nonunit gates, unit selection and rejection reasons, and no-production fallback decisions.
 
 ### 48 Civs DLL
 

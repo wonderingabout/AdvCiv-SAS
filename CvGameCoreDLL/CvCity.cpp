@@ -837,10 +837,10 @@ void CvCity::doTurn()
 		{
 			// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 -->
 			//const bool bNeedFallback = !isProduction();
-			const bool bQueueEmpty  = (getOrderQueueLength() == 0);
-			const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
+			const bool bQueueEmpty = (getOrderQueueLength() == 0);
 			const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
-			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid || bHeadProcess); 
+			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (GPT-5.6-Thinking) -->
+			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid);
 
 			if (bNeedFallback)
 			{
@@ -849,9 +849,9 @@ void CvCity::doTurn()
 
 				if (bLogDetailedMilitaryProduction)
 				{
-					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headProcess=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
+					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=CONTEXT queueEmpty=%d headInvalid=%d emergencyBuilding=%d forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d innerRingLand=%d era=%d baseProd=%d danger=%d atWar=%d enemyPowerPercent=%d enemyStrong=%d enemyWeak=%d",
 						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-						bQueueEmpty, bHeadProcess, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
+						bQueueEmpty, bHeadInvalid, bEmergencyBuilding, bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE, bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE,
 						bInnerRingMostlyWaterNonPeak, iInnerRingNonWaterNonPeak, iCurrentEra, getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bEnemyStrong, bEnemyWeakNotZero);
 				}
 
