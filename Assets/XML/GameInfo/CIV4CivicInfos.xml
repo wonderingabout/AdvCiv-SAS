@@ -1614,7 +1614,8 @@
 			<Civilopedia>TXT_KEY_CIVIC_ORGANIZED_RELIGION_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Organized_Religion.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,2,2</Button>
-			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+			<!-- custom: Move Organized Religion to Polytheism so its monastery-free missionaries can shape the early religion races instead of arriving after most founding and spread. Polytheism has no other civic, fits early organized state cults, and is a more specialized commitment than Calendar's broader policy path; the civic's high upkeep further keeps this early timing a deliberate choice. (GPT-5.6-Sol) -->
+			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<Upkeep>UPKEEP_HIGH</Upkeep>
 			<iAIWeight>0</iAIWeight>
@@ -1763,7 +1764,8 @@
 			<Civilopedia>TXT_KEY_CIVIC_THEOCRACY_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Button>,Art/Interface/Buttons/Civics/Theocracy.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,6,3</Button>
-			<TechPrereq>TECH_POSTAXIAL_RELIGION</TechPrereq>
+			<!-- custom: Keep Theocracy at Monotheism as the later restrictive/military religious choice, distinct from the earlier missionary-focused Organized Religion civic. (GPT-5.6-Sol) -->
+			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
 			<iAnarchyLength>1</iAnarchyLength>
 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
 			<iAIWeight>0</iAIWeight>

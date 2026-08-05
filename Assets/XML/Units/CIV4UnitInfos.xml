@@ -3151,7 +3151,8 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s); Long_Comments_XML.txt #374, was PrereqTech NONE and TechTypes empty -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+			<!-- custom: Match Cereal Mills' move to TECH_THEORY_OF_EVOLUTION; TECH_CORPORATION remains additionally required. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
@@ -13246,11 +13247,11 @@
 			<PrereqReligion>NONE</PrereqReligion>
 			<PrereqCorporation>NONE</PrereqCorporation>
 			<PrereqBuilding>NONE</PrereqBuilding>
-			<!-- custom: was tech_industrialism and tech_types tech_FIREARMS -->
+			<!-- custom: TECH_INDUSTRIALISM now guarantees TECH_AUTOMOBILES -> TECH_FASCISM, so the explicit Fascism requirement became redundant. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			<TechTypes>
-				<PrereqTech>TECH_FASCISM</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -15212,7 +15213,12 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<TechTypes/>
+			<!-- custom: The Wheel can now be reached through Masonry or Animal Husbandry. Horse reveal and its Pasture normally enforce Animal Husbandry already, but making it an explicit Chariot requirement keeps this early mounted-unit gate visible and robust against unusual bonus access through the Masonry path. (GPT-5.6-Sol) -->
+			<TechTypes>
+				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -15434,7 +15440,12 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<TechTypes/>
+			<!-- custom: Match the generic Chariot's TECH_ANIMAL_HUSBANDRY gate. (GPT-5.6-Sol) -->
+			<TechTypes>
+				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+				<PrereqTech>NONE</PrereqTech>
+			</TechTypes>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -15682,11 +15693,7 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -15889,11 +15896,7 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<BonusType>BONUS_HORSE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -16130,11 +16133,7 @@
 			<PrereqBuilding>NONE</PrereqBuilding>
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_HUNTING</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<BonusType>BONUS_CAMEL</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -16342,11 +16341,7 @@
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -16570,11 +16565,7 @@
 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
-			<TechTypes>
-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<TechTypes/>
 			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>
@@ -19265,7 +19256,8 @@
 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
 			<!-- custom: was TECH_ASSEMBLY_LINE -->
 			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
-			<PrereqTech>TECH_FASCISM</PrereqTech>
+			<!-- custom: move the Tank from Fascism to Automobiles, separating armored warfare from Fascism's Infantry and Machine Gun unlocks. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_AUTOMOBILES</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>

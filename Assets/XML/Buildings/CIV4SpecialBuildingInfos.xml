@@ -37,7 +37,6 @@
 			</ProductionTraits>
 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
 		</SpecialBuildingInfo>
-		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
 		<SpecialBuildingInfo>
 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>

@@ -74,6 +74,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/xml_comments.py`](#buildxml_commentspy)
 - [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
 - [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
+- [`build/xml_civ4_text_characters.py`](#buildxml_civ4_text_characterspy)
 - [`build/xml_sas_text_english.py`](#buildxml_sas_text_englishpy)
 - [`build/xml_text_duplicate_tags.py`](#buildxml_text_duplicate_tagspy)
 - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
@@ -86,6 +87,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/civ_specific_not_weaker.py`](#buildciv_specific_not_weakerpy)
 - [`build/define_tag_refs.py`](#builddefine_tag_refspy)
 - [`build/raw_getinfotype.py`](#buildraw_getinfotypepy)
+- [`build/tech_audio.py`](#buildtech_audiopy)
 - [`build/opening_music.py`](#buildopening_musicpy)
 - [`build/bbai_log.py`](#buildbbai_logpy)
 - [`build/sas_game_summary_log.py`](#buildsas_game_summary_logpy)
@@ -160,6 +162,10 @@ Verifies raw XML files under `Assets/XML` do not contain suspicious malformed-lo
 
 Verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
 
+### `build/xml_civ4_text_characters.py`
+
+Verifies active GameText values do not contain Unicode typography that Civ4 renders as visible artifacts, including em/en dashes, curly quotes, ellipsis characters, and non-breaking spaces. It also catches repeated question marks that indicate lost characters. XML comments are ignored, while readable accented letters remain allowed.
+
 ### `build/xml_sas_text_english.py`
 
 Verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
@@ -211,6 +217,10 @@ Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g
 ### `build/raw_getinfotype.py`
 
 Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly. Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+
+### `build/tech_audio.py`
+
+Verifies every technology's normal and multiplayer audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename, and that each technology keeps a distinct spoken recording. Mod-local resolution matters because missing entries in these replacement audio tables are not inherited from base Civ4; this check would catch the missing Drama entries, malformed Communism multiplayer script ID, and wrong-layer Aesthetics multiplayer reference found during the technology rework.
 
 ### `build/opening_music.py`
 

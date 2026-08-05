@@ -124,8 +124,8 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "People can have the Model T in any color - so long as it's black." - Henry Ford | Assembly Line | Keep |
 | "Astronomy compels the soul to look upwards and leads us from this world to another." - Plato | Astronomy | Keep |
 | "Banking establishments are more dangerous than standing armies." - Thomas Jefferson | Banking | Keep |
-| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Keep |
-| "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Biology |
+| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Automobiles |
+| "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Combustion |
 | "There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib | Education | Broader Education |
 | "It is entirely seemly for a young man killed in battle to lie mangled by the bronze spear. In his death all things appear fair." - Homer | Bronze Working | Keep |
 | "For everything there is a season and a time for every purpose under heaven." - Ecclesiastes | Calendar | Keep |
@@ -143,12 +143,12 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "Everything is worth what its purchaser will pay for it." - Publius Syrus | Currency | Keep |
 | "It has been said that democracy is the worst form of government except all the others that have been tried." - Winston Churchill | Democracy | Keep |
 | "Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein | Economics | Construction |
-| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Romanticism |
-| "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Keep |
+| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Keep |
+| "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Environmentalism |
 | "People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith | Guilds | Economics |
 | "We will make electricity so cheap that only the rich will burn candles." - Thomas Edison | Electricity | Keep |
 | "A designer knows he has achieved perfection not when there is nothing left to add, but when there is nothing left to take away." - Antoine de Saint-Exupry | Engineering | Keep |
-| "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Environmentalism |
+| "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Biology |
 | "The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler | Fascism | Mass Media |
 | "I am the state." - ascribed to Louis XIV | Divine Right | Feudalism |
 | "Political power grows out of the barrel of a gun." - Mao Zedong | Rifling | Firearms |
@@ -162,7 +162,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "If you chase two rabbits, you will lose them both." - proverb | Hunting | Keep |
 | "There is one rule for the industrialist and that is: Make the best quality of goods possible at the lowest cost possible, paying the highest wages possible." - Henry Ford | Industrialism | Keep |
 | "You should hammer your iron when it is glowing hot." - Publius Syrus | Iron Working | Keep |
-| "A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad | Monarchy | Later Abrahamism |
+| "A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad | Monarchy | Keep |
 | "Any society that would give up a little liberty to gain a little security will deserve neither and lose both." - Benjamin Franklin | Liberalism | Keep |
 | "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon | Literature | Keep |
 | "A god from the machine" - Menander | Machinery | Keep |
@@ -176,7 +176,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "Do not throw the arrow which will return against you." - Kurdish Proverb | Archery | Water Wheel |
 | "And them that take the sword shall perish by the sword." - The Bible, Matthew | Metal Casting | Military Tradition |
 | "The man who moves a mountain begins by carrying away small stones." - Confucius | Mining | Keep |
-| "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Monarchy |
+| "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Sacred Architecture |
 | "I am the Lord thy God. Thou shalt have no other gods before Me." - The Bible, Exodus | Monotheism | Keep |
 | "If you speak the truth, have a foot in the stirrup." - Turkish proverb | Horseback Riding | Mounted Combat |
 | "Nature herself has imprinted on the minds of all the idea of God." - Cicero | Mysticism | Bioengineering |
@@ -186,14 +186,14 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
 | "I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle | Philosophy | Keep |
 | "To every action there is always opposed an equal reaction." - Isaac Newton | Physics | Keep |
 | "Not at all similar are the race of the immortal gods and the race of men who walk upon the earth." - Homer | Polytheism | Keep |
-| "The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers | Priesthood | Postaxial Religion |
 | "Hath not the potter power over the clay, to make one vessel unto honor, and another unto dishonor?" - The Bible, Romans | Pottery | Keep |
+| "The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers | Priesthood | Mysticism |
 | "What gunpowder did for war, the printing press has done for the mind." - Wendell Phillips | Printing Press | Keep |
 | "The whole is more than the sum of its parts." - Aristotle | Replaceable Parts | Quantum Mechanics |
 | "Then one fine mornin' she puts on a New York station. You know her life was saved by Rock 'n' Roll." - The Velvet Underground, "Rock And Roll" | Radio | Keep |
 | "The real problem is not whether machines think, but whether men do." - B.F. Skinner | Robotics | Robot Rights |
 | "The Earth is the cradle of the mind, but one cannot eternally live in a cradle." - Konstantin E. Tsiolkovsky | Rocketry | Keep |
-| "If music be the food of love, play on." - William Shakespeare | Music | Mysticism |
+| "If music be the food of love, play on." - William Shakespeare | Music | Romanticism |
 | "You can't direct the wind, but you can adjust your sails." - Unknown | Sailing | Keep |
 | "Beep...beep...beep...beep..." - Sputnik I | Satellites | Keep |
 | "One doesn't discover new lands without losing sight of the shore." - Andre Gide | Optics | Seafaring |

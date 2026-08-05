@@ -5001,7 +5001,8 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info -->
-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+			<!-- custom: Ecology was removed; Composites retains the Recycling Center as the material-processing branch. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_COMPOSITES</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -10790,7 +10791,7 @@
 			<FreeStartEra>ERA_MODERN</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -11571,8 +11572,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was (now removed) TECH_DRAMA -->
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: Restore Theatre to the earlier Drama step so its happiness and culture support arrive with the culture slider, while Aesthetics retains the Culture process. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -18042,7 +18043,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
-			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -20326,7 +20327,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21087,7 +21088,7 @@
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21647,7 +21648,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			<!-- custom: Move Globe Theatre to the later Aesthetics cultural-wonder package, where its theatre identity and national culture role fit directly. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -21687,7 +21689,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 300 -->
-			<iCost>475</iCost>
+			<!-- custom: Match other constructible world wonders in Aesthetics' tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>400</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -22019,8 +22022,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>NONE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
-			<PrereqTech>TECH_NATURALISM</PrereqTech>
+			<!-- custom: Move Hermitage from Naturalism to the later Aesthetics cultural-wonder package, where its artistic identity and strong culture modifier fit directly. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -22060,7 +22063,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 300 -->
-			<iCost>500</iCost>
+			<!-- custom: Match other constructible world wonders in Aesthetics' tech-tree column. (GPT-5.6-Sol) -->
+			<iCost>400</iCost>
 			<iHurryCostModifier>50</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -22623,8 +22627,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 500 -->
-			<iCost>625</iCost>
+			<!-- custom: was 500; use the column-16 world-wonder cost after Fascism moves one column earlier. (GPT-5.6-Sol) -->
+			<iCost>600</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24144,8 +24148,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 250 -->
-			<iCost>175</iCost>
+			<!-- custom: was 250; use the column-2 world-wonder cost after Metal Casting moves one column earlier. (GPT-5.6-Sol) -->
+			<iCost>150</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24216,7 +24220,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 5 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: was 6; use 4 culture for this early wonder column so border pressure, an early cultural lead, and Great Artist generation do not compound too strongly. (GPT-5.6-Sol) -->
+				<iCommerce>4</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -24548,7 +24553,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 400 -->
-			<iCost>225</iCost>
+			<!-- custom: Match other constructible world wonders after Code of Laws moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+			<iCost>200</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -24908,7 +24914,8 @@
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
 			<!-- custom: hagia sophia reworked, never obsoletes now, was TECH_STEAM_POWER -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+			<!-- custom: Sacred Architecture collects major religious monuments before leading into the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -24949,6 +24956,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 500 -->
+			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
 			<iCost>350</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -25019,7 +25027,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 6 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Increase to 8 after moving Hagia Sophia into the later Sacred Architecture wonder column. (GPT-5.6-Sol) -->
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -25307,8 +25316,8 @@
 			<FreeStartEra>NONE</FreeStartEra>
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<!-- custom: was (now removed) TECH_DRAMA -->
-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+			<!-- custom: Move Natya Shastra with Drama: its performing-arts identity fits the tech directly and gives this early cultural branch a distinctive commitment reward. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25347,7 +25356,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: Match other constructible world wonders in the same tech-tree column. (GPT-5.6-Sol) -->
-			<iCost>275</iCost>
+			<iCost>225</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25512,7 +25521,7 @@
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<!-- custom: religion is still relevant in modern era historically so this better reflects that, was TECH_COMPUTERS -->
 			<ObsoleteTech>NONE</ObsoleteTech>
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25551,7 +25560,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 550 -->
-			<iCost>400</iCost>
+			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+			<iCost>350</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25737,7 +25747,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 400 -->
-			<iCost>450</iCost>
+			<!-- custom: Return to 400 to match other constructible world wonders after Broader Education moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+			<iCost>400</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -25900,7 +25911,8 @@
 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_ENGINEERING -->
-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+			<!-- custom: Sacred Architecture collects major religious monuments before leading into the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -25940,6 +25952,7 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 550 -->
+			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
 			<iCost>350</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
@@ -26011,7 +26024,8 @@
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>
 				<!-- advc.201: K-Mod had reduced this to 8 -->
-				<iCommerce>6</iCommerce>
+				<!-- custom: Restore 8 after moving Notre Dame into the later Sacred Architecture wonder column. (GPT-5.6-Sol) -->
+				<iCommerce>8</iCommerce>
 			</ObsoleteSafeCommerceChanges>
 			<CommerceChangeDoubleTimes>
 				<iCommerce>0</iCommerce>
@@ -26107,7 +26121,8 @@
 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: was TECH_NATIONALISM -->
-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+			<!-- custom: Move Taj Mahal from Sacred Architecture to the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			<TechTypes/>
 			<Bonus>NONE</Bonus>
 			<PrereqBonuses/>
@@ -28348,7 +28363,7 @@
 			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 			<!-- custom: was empty -->
 			<TechTypes>
-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+				<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>
 			</TechTypes>
@@ -28390,7 +28405,8 @@
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
 			<!-- custom: was 550 -->
-			<iCost>450</iCost>
+			<!-- custom: Match other constructible world wonders after Broader Education moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+			<iCost>400</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -28992,8 +29008,8 @@
 			<bPrereqReligion>0</bPrereqReligion>
 			<bCenterInCity>0</bCenterInCity>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 450; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
-			<iCost>200</iCost>
+			<!-- custom: was 450; match other constructible world wonders after Currency moved one tech-tree column later. (GPT-5.6-Sol) -->
+			<iCost>225</iCost>
 			<iHurryCostModifier>100</iHurryCostModifier>
 			<iAdvancedStartCost>-1</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -29958,7 +29974,8 @@
 			<ObsoleteTech>NONE</ObsoleteTech>
 			<!-- custom: note: Executives now require tech(s) to be built (see there for details) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
 			<!-- custom: was TECH_MEDICINE -->
-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+			<!-- custom: Move Cereal Mills from removed Ecology's late replacement to TECH_THEORY_OF_EVOLUTION. Its Biology path fits the food corporation and gives the scientific branch an economic payoff without crowding TECH_ENVIRONMENTALISM; TECH_CORPORATION remains additionally required. (GPT-5.6-Sol) -->
+			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			<TechTypes>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
 				<PrereqTech>NONE</PrereqTech>

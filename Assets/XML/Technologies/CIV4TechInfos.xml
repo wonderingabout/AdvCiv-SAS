@@ -210,9 +210,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MYSTICISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MINING</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Polytheism is a specialized religious commitment from Mysticism and does not need the unrelated Mining branch. Its focused path contrasts with Calendar's broader policy unlocks. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_POLYTHEISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_POLYTHEISM</Sound>
 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
@@ -298,7 +297,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>300</iCost>
+			<iCost>425</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_ANCIENT -->
@@ -310,7 +309,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>16</iAsset>
+			<iAsset>24</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -330,7 +329,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>6</iGridX>
+			<iGridX>7</iGridX>
 			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -350,11 +349,12 @@
 					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Monotheism combines the organized state reached through Monarchy with the explicitly religious Polytheism branch. This keeps Monarchy itself secular while preserving a deliberate religious commitment before Christianity and Theocracy. (GPT-5.6-Sol) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MONOTHEISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_MONOTHEISM</Sound>
@@ -370,11 +370,10 @@
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>100</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_CLASSICAL -->
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_CLASSICAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -382,7 +381,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>8</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -402,8 +401,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>3</iGridX>
-			<iGridY>11</iGridY>
+			<iGridX>5</iGridX>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: was empty -->
 			<CommerceFlexible>
@@ -441,12 +440,11 @@
 					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Place Monarchy after the legal state represented by Code of Laws without imposing a religious prerequisite on this secular government technology. (GPT-5.6-Sol) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_CALENDAR</PrereqTech>
+				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MONARCHY_QUOTE</Quote>
 			<Sound>AS2D_TECH_MONARCHY</Sound>
 			<SoundMP>AS2D_TECH_MP_MONARCHY</SoundMP>
@@ -526,9 +524,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Literature develops directly from Writing and does not require an unrelated religious tradition. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_LITERATURE_QUOTE</Quote>
 			<Sound>AS2D_TECH_LITERATURE</Sound>
 			<SoundMP>AS2D_TECH_MP_LITERATURE</SoundMP>
@@ -543,7 +540,7 @@
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>225</iCost>
+			<iCost>150</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_CLASSICAL</Era>
@@ -575,7 +572,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>5</iGridX>
+			<iGridX>4</iGridX>
 			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -601,10 +598,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_MONARCHY</PrereqTech>
+				<PrereqTech>TECH_CALENDAR</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Calendar and Writing provide the record-keeping and shared civic time needed for codified administration, without making either Monarchy or specialized Literature a prerequisite for law. (GPT-5.6-Sol) -->
 			<AndPreReqs>
-				<PrereqTech>TECH_LITERATURE</PrereqTech>
+				<PrereqTech>TECH_WRITING</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CODE_OF_LAWS_QUOTE</Quote>
 			<Sound>AS2D_TECH_CODE_OF_LAWS</Sound>
@@ -683,6 +681,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_LITERATURE</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Restore Construction as Paper's cross-branch beeline gate. Code of Laws is already a strong central prerequisite, while Construction keeps the builder branch relevant and avoids concentrating this part of the tree on the same legal path. (GPT-5.6-Sol) -->
 			<AndPreReqs>
 				<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			</AndPreReqs>
@@ -766,16 +765,16 @@
 			<SoundMP>AS2D_TECH_MP_FEUDALISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Feudalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,10</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_POSTAXIAL_RELIGION -->
-			<Type>TECH_POSTAXIAL_RELIGION</Type>
-			<Description>TXT_KEY_TECH_POSTAXIAL_RELIGION</Description>
-			<Civilopedia>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: replace the former TECH_POSTAXIAL_RELIGION with Drama now that this save-breaking technology-tree revision no longer needs the compatibility type. (GPT-5.6-Sol) -->
+			<Type>TECH_DRAMA</Type>
+			<Description>TXT_KEY_TECH_DRAMA</Description>
+			<Civilopedia>TXT_KEY_TECH_DRAMA_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_RELIGION</Advisor>
+			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>600</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_MEDIEVAL -->
@@ -787,7 +786,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>16</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -807,16 +806,22 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>8</iGridX>
+			<iGridX>5</iGridX>
 			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
-			<CommerceFlexible/>
+			<!-- custom: Make the culture slider available at the earlier Drama step, where trading commerce for happiness, border pressure, or a cultural victory is a timely strategic choice; the later Aesthetics tech retains the production-to-Culture process. (GPT-5.6-Sol) -->
+			<CommerceFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>0</bFlexible>
+				<bFlexible>1</bFlexible>
+				<bFlexible>0</bFlexible>
+			</CommerceFlexible>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_RELIGION</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -824,20 +829,21 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_CULTURE</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Quote>
-			<Sound>AS2D_TECH_POSTAXIAL_RELIGION</Sound>
-			<SoundMP>AS2D_TECH_MP_POSTAXIAL_RELIGION</SoundMP>
-			<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thanks a lot chatgpt. -->
-			<Button>Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds</Button>
+			<AndPreReqs/>
+			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
+			<Sound>AS2D_TECH_DRAMA</Sound>
+			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
+			<Button>,Art/Interface/Buttons/TechTree/Drama.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,3</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_ROMANTICISM -->
 			<Type>TECH_ROMANTICISM</Type>
@@ -1070,17 +1076,17 @@
 			<!-- custom: button import from m-e mod -->
 			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM -->
-			<Type>TECH_LATER_ABRAHAMISM</Type>
-			<Description>TXT_KEY_TECH_LATER_ABRAHAMISM</Description>
-			<Civilopedia>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: replace the former TECH_LATER_ABRAHAMISM with Sacred Architecture now that this save-breaking technology-tree revision no longer needs the compatibility type. (GPT-5.6-Sol) -->
+			<Type>TECH_SACRED_ARCHITECTURE</Type>
+			<Description>TXT_KEY_TECH_SACRED_ARCHITECTURE</Description>
+			<Civilopedia>TXT_KEY_TECH_SACRED_ARCHITECTURE_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_RELIGION</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.174: was 1200 -->
-			<iCost>800</iCost>
+			<iCost>600</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MEDIEVAL</Era>
@@ -1111,8 +1117,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>9</iGridX>
-			<iGridY>11</iGridY>
+			<iGridX>8</iGridX>
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1136,17 +1142,17 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+				<PrereqTech>TECH_DRAMA</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Sacred Architecture combines Drama's developed cultural tradition with Monotheism's religious organization, creating a meaningful non-redundant convergence one column after Monotheism. (GPT-5.6-Sol) -->
 			<AndPreReqs>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
-			<Sound>AS2D_TECH_LATER_ABRAHAMISM</Sound>
-			<SoundMP>AS2D_TECH_MP_LATER_ABRAHAMISM</SoundMP>
-			<!-- custom: art button import from ffh2 mod's tech_fanaticism -->
-			<Button>Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds</Button>
+			<Quote>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Quote>
+			<Sound>AS2D_TECH_SACRED_ARCHITECTURE</Sound>
+			<SoundMP>AS2D_TECH_MP_SACRED_ARCHITECTURE</SoundMP>
+			<!-- custom: art button import from mana mod's divine wrath spell, thanks. -->
+			<Button>Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_NATIONALISM -->
 			<Type>TECH_NATIONALISM</Type>
@@ -1379,9 +1385,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CONSTITUTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_CONSTITUTION</Sound>
 			<SoundMP>AS2D_TECH_MP_CONSTITUTION</SoundMP>
@@ -1519,7 +1523,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BANKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
@@ -1571,7 +1575,8 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>15</iGridX>
-			<iGridY>19</iGridY>
+			<!-- custom: was row 19; move Corporation into Ecology's former row as Economics' branch toward Game Theory. (GPT-5.6-Sol) -->
+			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -1609,11 +1614,11 @@
 			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2500</iCost>
+			<!-- custom: move Fascism one column earlier and match that column's cost, era, and asset value; Automobiles takes its former timing and armored-unit unlocks. (GPT-5.6-Sol) -->
+			<iCost>2400</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_INDUSTRIAL -->
-			<Era>ERA_MODERN</Era>
+			<Era>ERA_INDUSTRIAL</Era>
 			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_GENERAL -->
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
@@ -1622,7 +1627,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>48</iAsset>
+			<iAsset>40</iAsset>
 			<!-- custom: was 0 -->
 			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
@@ -1645,7 +1650,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>17</iGridX>
+			<iGridX>16</iGridX>
 			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -1674,13 +1679,11 @@
 					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Nationalism now branches independently into Fascism or Communism; the removed Communism and Combustion requirements unnecessarily restricted the Fascism path. (GPT-5.6-Sol) -->
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
-				<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_COMBUSTION</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_FASCISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_FASCISM</Sound>
 			<SoundMP>AS2D_TECH_MP_FASCISM</SoundMP>
@@ -1753,15 +1756,16 @@
 					<iFlavor>1</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Economics leads directly to Communism on the political/economic row, while Nationalism makes Communism the political alternative to Fascism; the removed Ecology detour was unrelated. (GPT-5.6-Sol) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
+				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_COMMUNISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMMUNISM</Sound>
-			<SoundMP>AS2D_TECH_MPTECH_COMMUNISM</SoundMP>
+			<SoundMP>AS2D_TECH_MP_COMMUNISM</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/Communism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,2</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_MASS_MEDIA -->
@@ -1840,21 +1844,20 @@
 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
 			<Button>,Art/Interface/Buttons/TechTree/MassMedia.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,5</Button>
 		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_ECOLOGY -->
-			<Type>TECH_ECOLOGY</Type>
-			<Description>TXT_KEY_TECH_ECOLOGY</Description>
-			<Civilopedia>TXT_KEY_TECH_ECOLOGY_PEDIA</Civilopedia>
+		<TechInfo> <!-- custom: replace TECH_ECOLOGY with TECH_AUTOMOBILES to separate Fascism's infantry from its armored-unit unlocks. (GPT-5.6-Sol) -->
+			<Type>TECH_AUTOMOBILES</Type>
+			<Description>TXT_KEY_TECH_AUTOMOBILES</Description>
+			<Civilopedia>TXT_KEY_TECH_AUTOMOBILES_PEDIA</Civilopedia>
 			<Help/>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_GROWTH</Advisor>
+			<Advisor>ADVISOR_MILITARY</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<!-- advc.552: was 10 -->
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2250</iCost>
+			<iCost>2500</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: ERA_MODERN -->
-			<Era>ERA_INDUSTRIAL</Era>
+			<Era>ERA_MODERN</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -1862,10 +1865,10 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>40</iAsset>
-			<iPower>0</iPower>
+			<iAsset>48</iAsset>
+			<iPower>12</iPower>
 			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
+			<bTrade>0</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1882,36 +1885,34 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>15</iGridX>
-			<iGridY>15</iGridY>
+			<iGridX>17</iGridX>
+			<iGridY>7</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: provisional split from Fascism's existing military/production identity; review technology flavors after stabilizing the revised tree. (GPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>5</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>1</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BIOLOGY</PrereqTech>
+				<PrereqTech>TECH_FASCISM</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Automobiles additionally requires Combustion so armored vehicles remain gated by the relevant engine technology. (GPT-5.6-Sol) -->
 			<AndPreReqs>
-				<PrereqTech>TECH_ECONOMICS</PrereqTech>
+				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_ECOLOGY_QUOTE</Quote>
-			<Sound>AS2D_TECH_ECOLOGY</Sound>
-			<SoundMP>AS2D_TECH_MP_ECOLOGY</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Ecology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,3</Button>
+			<Quote>TXT_KEY_TECH_AUTOMOBILES_QUOTE</Quote>
+			<Sound>AS2D_TECH_AUTOMOBILES</Sound>
+			<SoundMP>AS2D_TECH_MP_AUTOMOBILES</SoundMP>
+			<Button>Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_FISHING -->
 			<Type>TECH_FISHING</Type>
@@ -2026,7 +2027,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>3</iGridX>
-			<iGridY>5</iGridY>
+			<iGridY>3</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2054,12 +2055,12 @@
 					<iFlavor>3</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Let either settled construction through Masonry or animal-drawn transport through Animal Husbandry lead to The Wheel; Pottery is not inherently required. Moving the node to their shared upper row keeps both arrows clear. (GPT-5.6-Sol) -->
 			<OrPreReqs>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_POTTERY</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
 			<SoundMP>AS2D_TECH_MP_THE_WHEEL</SoundMP>
@@ -2223,10 +2224,10 @@
 			<Advisor>ADVISOR_CULTURE</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>425</iCost>
+			<iCost>800</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_CLASSICAL</Era>
+			<Era>ERA_MEDIEVAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -2254,16 +2255,10 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>7</iGridX>
+			<iGridX>9</iGridX>
 			<iGridY>15</iGridY>
 			<DomainExtraMoves/>
-			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks, was empty -->
-			<CommerceFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>0</bFlexible>
-				<bFlexible>1</bFlexible>
-				<bFlexible>0</bFlexible>
-			</CommerceFlexible>
+			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
 			<!-- custom: increase culture flavor, was 8 -->
@@ -2282,16 +2277,14 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+				<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_AESTHETICS</Sound>
-			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
-			<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate even though still a bit greek-roman centric but hopefully representative enough of that time-era -->
-			<Button>Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds</Button>
+			<SoundMP>AS2D_TECH_MP_AESTHETICS</SoundMP>
+			<!-- custom: Restore the original Civ4/AdvCiv Aesthetics button now that the tech again represents Aesthetics rather than the earlier classical-culture step. (GPT-5.6-Sol) -->
+			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
 		</TechInfo>
 		<TechInfo> <!-- custom: type: TECH_SEAFARING -->
 			<Type>TECH_SEAFARING</Type>
@@ -2573,7 +2566,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>12</iGridX>
-			<iGridY>17</iGridY>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<!-- custom: was missing (and i assume empty(is the effect from the old TECH_SCIENTIFIC_METHOD (now removed))) -->
 			<SpecialistExtraCommerces>
@@ -2605,11 +2598,12 @@
 					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Let Medicine lead directly into Naturalism, with Aesthetics as the additional cultural/philosophical foundation; this also gives Aesthetics a later continuation. (GPT-5.6-Sol) -->
 			<OrPreReqs>
 				<PrereqTech>TECH_MEDICINE</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
-				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_NATURALISM</Sound>
@@ -2714,11 +2708,10 @@
 			<iAIWeight>20</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- custom: trying to make tech pace more gradual or accurate, was 400 -->
-			<iCost>150</iCost>
+			<iCost>225</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_CLASSICAL -->
-			<Era>ERA_ANCIENT</Era>
+			<Era>ERA_CLASSICAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
@@ -2746,8 +2739,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>4</iGridX>
-			<iGridY>19</iGridY>
+			<iGridX>5</iGridX>
+			<iGridY>17</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -2767,10 +2760,11 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Currency combines Code of Laws' enforceable shared rules and record-keeping with Bronze Working's practical coinage metallurgy. Requiring Bronze Working also makes the lower tech-advisor arrow represent the actual rule rather than merely crossing that node. (GPT-5.6-Sol) -->
 			<AndPreReqs>
-				<PrereqTech>TECH_MONARCHY</PrereqTech>
+				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_CURRENCY_QUOTE</Quote>
 			<Sound>AS2D_TECH_CURRENCY</Sound>
@@ -2916,8 +2910,9 @@
 					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Ecology was removed; Biology now leads directly into Theory of Evolution. (GPT-5.6-Sol) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
+				<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
@@ -2936,77 +2931,9 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.910: was 700 -->
-			<iCost>1300</iCost>
-			<iAdvancedStartCost>100</iAdvancedStartCost>
-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<Era>ERA_MEDIEVAL</Era>
-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
-			<iFeatureProductionModifier>0</iFeatureProductionModifier>
-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
-			<iTradeRoutes>0</iTradeRoutes>
-			<iHealth>0</iHealth>
-			<iHappiness>0</iHappiness>
-			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>32</iAsset>
-			<iPower>0</iPower>
-			<bRepeat>0</bRepeat>
-			<bTrade>1</bTrade>
-			<bDisable>0</bDisable>
-			<bGoodyTech>0</bGoodyTech>
-			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
-			<bMapCentering>0</bMapCentering>
-			<bMapVisible>0</bMapVisible>
-			<bMapTrading>0</bMapTrading>
-			<bTechTrading>0</bTechTrading>
-			<bGoldTrading>0</bGoldTrading>
-			<bOpenBordersTrading>0</bOpenBordersTrading>
-			<bDefensivePactTrading>0</bDefensivePactTrading>
-			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
-			<bVassalTrading>0</bVassalTrading>
-			<bBridgeBuilding>0</bBridgeBuilding>
-			<bIrrigation>0</bIrrigation>
-			<bIgnoreIrrigation>0</bIgnoreIrrigation>
-			<bWaterWork>0</bWaterWork>
-			<iGridX>11</iGridX>
-			<iGridY>19</iGridY>
-			<DomainExtraMoves/>
-			<CommerceFlexible/>
-			<TerrainTrades/>
-			<bRiverTrade>0</bRiverTrade>
-			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>2</iFlavor>
-				</Flavor>
-				<Flavor>
-					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>10</iFlavor>
-				</Flavor>
-			</Flavors>
-			<OrPreReqs>
-				<PrereqTech>TECH_CURRENCY</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
-			</AndPreReqs>
-			<Quote>TXT_KEY_TECH_BANKING_QUOTE</Quote>
-			<Sound>AS2D_TECH_BANKING</Sound>
-			<SoundMP>AS2D_TECH_MP_BANKING</SoundMP>
-			<Button>,Art/Interface/Buttons/TechTree/Banking.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,1</Button>
-		</TechInfo>
-		<TechInfo> <!-- custom: type: TECH_BROADER_EDUCATION -->
-			<Type>TECH_BROADER_EDUCATION</Type>
-			<Description>TXT_KEY_TECH_BROADER_EDUCATION</Description>
-			<Civilopedia>TXT_KEY_TECH_BROADER_EDUCATION_PEDIA</Civilopedia>
-			<Help/>
-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
-			<Advisor>ADVISOR_SCIENCE</Advisor>
-			<iAIWeight>0</iAIWeight>
-			<iAITradeModifier>0</iAITradeModifier>
 			<iCost>1050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
-			<!-- custom: was ERA_RENAISSANCE -->
 			<Era>ERA_MEDIEVAL</Era>
 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
@@ -3036,6 +2963,76 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>10</iGridX>
+			<!-- custom: was row 17; place Banking directly between Broader Education and Democracy now that they form one branch. (GPT-5.6-Sol) -->
+			<iGridY>11</iGridY>
+			<DomainExtraMoves/>
+			<CommerceFlexible/>
+			<TerrainTrades/>
+			<bRiverTrade>0</bRiverTrade>
+			<Flavors>
+				<Flavor>
+					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
+					<iFlavor>10</iFlavor>
+				</Flavor>
+			</Flavors>
+			<OrPreReqs>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+			</OrPreReqs>
+			<!-- custom: Banking still requires both Broader Education and Currency, but using the nearby Broader Education branch for its technology-advisor arrow avoids the long Currency arrow. (GPT-5.6-Sol) -->
+			<AndPreReqs>
+				<PrereqTech>TECH_CURRENCY</PrereqTech>
+			</AndPreReqs>
+			<Quote>TXT_KEY_TECH_BANKING_QUOTE</Quote>
+			<Sound>AS2D_TECH_BANKING</Sound>
+			<SoundMP>AS2D_TECH_MP_BANKING</SoundMP>
+			<Button>,Art/Interface/Buttons/TechTree/Banking.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,1</Button>
+		</TechInfo>
+		<TechInfo> <!-- custom: type: TECH_BROADER_EDUCATION -->
+			<Type>TECH_BROADER_EDUCATION</Type>
+			<Description>TXT_KEY_TECH_BROADER_EDUCATION</Description>
+			<Civilopedia>TXT_KEY_TECH_BROADER_EDUCATION_PEDIA</Civilopedia>
+			<Help/>
+			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+			<Advisor>ADVISOR_SCIENCE</Advisor>
+			<iAIWeight>0</iAIWeight>
+			<iAITradeModifier>0</iAITradeModifier>
+			<iCost>800</iCost>
+			<iAdvancedStartCost>100</iAdvancedStartCost>
+			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+			<!-- custom: was ERA_RENAISSANCE -->
+			<Era>ERA_MEDIEVAL</Era>
+			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+			<iTradeRoutes>0</iTradeRoutes>
+			<iHealth>0</iHealth>
+			<iHappiness>0</iHappiness>
+			<iFirstFreeTechs>0</iFirstFreeTechs>
+			<iAsset>24</iAsset>
+			<iPower>0</iPower>
+			<bRepeat>0</bRepeat>
+			<bTrade>1</bTrade>
+			<bDisable>0</bDisable>
+			<bGoodyTech>0</bGoodyTech>
+			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+			<bMapCentering>0</bMapCentering>
+			<bMapVisible>0</bMapVisible>
+			<bMapTrading>0</bMapTrading>
+			<bTechTrading>0</bTechTrading>
+			<bGoldTrading>0</bGoldTrading>
+			<bOpenBordersTrading>0</bOpenBordersTrading>
+			<bDefensivePactTrading>0</bDefensivePactTrading>
+			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+			<bVassalTrading>0</bVassalTrading>
+			<bBridgeBuilding>0</bBridgeBuilding>
+			<bIrrigation>0</bIrrigation>
+			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+			<bWaterWork>0</bWaterWork>
+			<iGridX>9</iGridX>
 			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -3056,7 +3053,7 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_PAPER</PrereqTech>
@@ -3184,7 +3181,8 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>14</iGridX>
-			<iGridY>19</iGridY>
+			<!-- custom: was row 19; place Economics directly after Liberalism on the political/economic row. (GPT-5.6-Sol) -->
+			<iGridY>11</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3208,11 +3206,10 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_BANKING</PrereqTech>
-			</OrPreReqs>
-			<AndPreReqs>
 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
-			</AndPreReqs>
+			</OrPreReqs>
+			<!-- custom: Liberalism already requires Banking, so another Banking requirement here would be redundant. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ECONOMICS_QUOTE</Quote>
 			<Sound>AS2D_TECH_ECONOMICS</Sound>
 			<SoundMP>AS2D_TECH_MP_ECONOMICS</SoundMP>
@@ -3614,7 +3611,7 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>800</iCost>
+			<iCost>1050</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_INDUSTRIAL -->
@@ -3626,7 +3623,7 @@
 			<iHealth>0</iHealth>
 			<iHappiness>0</iHappiness>
 			<iFirstFreeTechs>0</iFirstFreeTechs>
-			<iAsset>24</iAsset>
+			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
 			<bTrade>1</bTrade>
@@ -3646,8 +3643,8 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>9</iGridX>
-			<iGridY>17</iGridY>
+			<iGridX>10</iGridX>
+			<iGridY>13</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -3672,11 +3669,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_MEDICINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MEDICINE</Sound>
 			<SoundMP>AS2D_TECH_MP_MEDICINE</SoundMP>
@@ -3888,12 +3883,11 @@
 					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
+			<!-- custom: Keep Radio as Fission's direct technical precursor while removing Artillery as an unnecessary military restriction; Fission remains parallel to Industrialism. (GPT-5.6-Sol) -->
 			<OrPreReqs>
 				<PrereqTech>TECH_RADIO</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_ARTILLERY</PrereqTech>
-			</AndPreReqs>
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_FISSION_QUOTE</Quote>
 			<Sound>AS2D_TECH_FISSION</Sound>
 			<SoundMP>AS2D_TECH_MP_FISSION</SoundMP>
@@ -4041,9 +4035,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_FLIGHT</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_FASCISM</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Fascism was an unrelated restriction that delayed Gunships despite their important strategic role as the counter to Tanks; Flight alone provides the relevant progression. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ADVANCED_FLIGHT_QUOTE</Quote>
 			<Sound>AS2D_TECH_ADVANCED_FLIGHT</Sound>
 			<SoundMP>AS2D_TECH_MP_ADVANCED_FLIGHT</SoundMP>
@@ -4106,9 +4099,8 @@
 			</OrPreReqs>
 			<AndPreReqs>
 				<PrereqTech>TECH_SATELLITES</PrereqTech>
-				<PrereqTech>TECH_FISSION</PrereqTech>
 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_DEPOPULATION_QUOTE</Quote>
 			<Sound>AS2D_TECH_DEPOPULATION</Sound>
@@ -4178,9 +4170,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Environmentalism no longer gates this material/industrial branch. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_COMPOSITES_QUOTE</Quote>
 			<Sound>AS2D_TECH_COMPOSITES</Sound>
 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
@@ -4903,7 +4894,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>4</iGridX>
-			<iGridY>17</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -4999,9 +4990,12 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs/>
+			<!-- custom: Requiring The Wheel in addition to Animal Husbandry prevents Mounted Combat from being available too soon alongside the newly unlocked Chariots. (GPT-5.6-Sol) -->
+			<AndPreReqs>
+				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Quote>
 			<Sound>AS2D_TECH_MOUNTED_COMBAT</Sound>
 			<SoundMP>AS2D_TECH_MP_MOUNTED_COMBAT</SoundMP>
@@ -5052,7 +5046,7 @@
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
 			<iGridX>6</iGridX>
-			<iGridY>17</iGridY>
+			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
 			<TerrainTrades/>
@@ -5096,7 +5090,8 @@
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
 			<!-- advc.306: was 450 -->
-			<iCost>100</iCost>
+			<!-- custom: move one column earlier and match its cost so jungle removal is not delayed relative to the revised early tree. (GPT-5.6-Sol) -->
+			<iCost>65</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<!-- custom: was ERA_CLASSICAL -->
@@ -5129,7 +5124,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>3</iGridX>
+			<iGridX>2</iGridX>
 			<iGridY>19</iGridY>
 			<DomainExtraMoves/>
 			<CommerceFlexible/>
@@ -5161,9 +5156,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MINING</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MASONRY</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Metal Casting develops directly from Mining; requiring Masonry needlessly blocked the independent metal/jungle-clearing branch, and moving one column earlier keeps jungle removal timely in the revised early tree. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_METAL_CASTING_QUOTE</Quote>
 			<Sound>AS2D_TECH_METALCAST</Sound>
 			<SoundMP>AS2D_TECH_MP_METALCAST</SoundMP>
@@ -5323,9 +5317,8 @@
 				<PrereqTech>TECH_SAILING</PrereqTech>
 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_MASONRY</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Sailing or The Wheel already represents a practical transport/construction route; requiring Masonry again made the alternative paths converge unnecessarily. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Quote>
 			<Sound>AS2D_TECH_CONSTRUCTION</Sound>
 			<SoundMP>AS2D_TECH_MP_CONSTRUCTION</SoundMP>
@@ -5474,8 +5467,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Remove Iron Working so Engineering's Catapults and Crossbows can form a real alternative to the melee branch; keep The Wheel because Mathematics can be reached through Sailing and does not guarantee it. (GPT-5.6-Sol) -->
 			<AndPreReqs>
-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
@@ -5709,10 +5702,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well)  too much here for variety or such i mean as well-->
+			<!-- custom: Theory of Evolution and Corporation sufficiently gate Game Theory; Communism was an overloaded and unnecessary additional requirement. (GPT-5.6-Sol) -->
 			<AndPreReqs>
 				<PrereqTech>TECH_CORPORATION</PrereqTech>
-				<PrereqTech>TECH_COMMUNISM</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
@@ -5783,9 +5775,9 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</OrPreReqs>
+			<!-- custom: Chemistry and Physics already gate this military/scientific branch sufficiently; requiring the thematically unrelated Democracy reduced strategic versatility. (GPT-5.6-Sol) -->
 			<AndPreReqs>
 				<PrereqTech>TECH_PHYSICS</PrereqTech>
-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
 			</AndPreReqs>
 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>
@@ -6084,9 +6076,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_ECONOMICS</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: Economics was an unrelated beeline gate that unnecessarily restricted the production branch. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ASSEMBLY_LINE_QUOTE</Quote>
 			<Sound>AS2D_TECH_ASSEMBLINE</Sound>
 			<SoundMP>AS2D_TECH_MP_ASSEMBLINE</SoundMP>
@@ -6314,9 +6305,9 @@
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
-				<PrereqTech>TECH_FASCISM</PrereqTech>
+				<PrereqTech>TECH_AUTOMOBILES</PrereqTech>
 			</OrPreReqs>
-			<!-- custom: the TECH_THEORY_OF_EVOLUTION requirement allows to not beeline too fast from past military or such techs, plus not nonsensical e.g. hitler into eugenics which leans into choosing best genes via evolution or such maybe if one were to find a tentative explanation i just got xd but that i think works quite well or is maybe as well quite relevant -->
+			<!-- custom: Retain Theory of Evolution as Industrialism's additional beeline gate until the tree has a more plausible replacement. (GPT-5.6-Sol) -->
 			<AndPreReqs>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
@@ -6403,7 +6394,8 @@
 			<Advisor>ADVISOR_GROWTH</Advisor>
 			<iAIWeight>0</iAIWeight>
 			<iAITradeModifier>0</iAITradeModifier>
-			<iCost>2800</iCost>
+			<!-- custom: move Environmentalism one column later and match that column's cost. (GPT-5.6-Sol) -->
+			<iCost>3000</iCost>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
 			<Era>ERA_MODERN</Era>
@@ -6434,7 +6426,7 @@
 			<bIrrigation>0</bIrrigation>
 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
 			<bWaterWork>0</bWaterWork>
-			<iGridX>19</iGridX>
+			<iGridX>20</iGridX>
 			<iGridY>11</iGridY>
 			<!-- custom: was DOMAIN_SEA 1 -->
 			<DomainExtraMoves/>
@@ -6450,9 +6442,8 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
 			</OrPreReqs>
-			<AndPreReqs>
-				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			</AndPreReqs>
+			<!-- custom: require Mass Media alone so Environmentalism competes with Industrialism instead of depending on it. (GPT-5.6-Sol) -->
+			<AndPreReqs/>
 			<Quote>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Quote>
 			<Sound>AS2D_TECH_ENVIRONMENTALISM</Sound>
 			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>

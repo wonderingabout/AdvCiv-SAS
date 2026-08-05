@@ -12369,8 +12369,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_POSTAXIAL_RELIGION</ScriptID>
-		<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
+		<ScriptID>AS2D_TECH_DRAMA</ScriptID>
+		<SoundID>SND_TECH_DRAMA</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -12461,8 +12461,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_LATER_ABRAHAMISM</ScriptID>
-		<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
+		<ScriptID>AS2D_TECH_SACRED_ARCHITECTURE</ScriptID>
+		<SoundID>SND_TECH_SACRED_ARCHITECTURE</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -12691,8 +12691,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_ECOLOGY</ScriptID>
-		<SoundID>SND_TECH_ECOLOGY</SoundID>
+		<ScriptID>AS2D_TECH_AUTOMOBILES</ScriptID>
+		<SoundID>SND_TECH_AUTOMOBILES</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14485,8 +14485,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_POSTAXIAL_RELIGION</ScriptID>
-		<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
+		<ScriptID>AS2D_TECH_MP_DRAMA</ScriptID>
+		<SoundID>SND_TECH_MP_DRAMA</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14577,8 +14577,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_LATER_ABRAHAMISM</ScriptID>
-		<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
+		<ScriptID>AS2D_TECH_MP_SACRED_ARCHITECTURE</ScriptID>
+		<SoundID>SND_TECH_MP_SACRED_ARCHITECTURE</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>
@@ -14807,8 +14807,8 @@
 		<iNotPlayPercent>0</iNotPlayPercent>
 	</Script2DSound>
 	<Script2DSound>
-		<ScriptID>AS2D_TECH_MP_ECOLOGY</ScriptID>
-		<SoundID>SND_TECH_MP_ECOLOGY</SoundID>
+		<ScriptID>AS2D_TECH_MP_AUTOMOBILES</ScriptID>
+		<SoundID>SND_TECH_MP_AUTOMOBILES</SoundID>
 		<SoundType>GAME_SPEECH</SoundType>
 		<iMinVolume>100</iMinVolume>
 		<iMaxVolume>100</iMaxVolume>

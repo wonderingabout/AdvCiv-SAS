@@ -811,7 +811,7 @@ def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs):
 				iEra = iSpecialEra
 
 	# Also consider PrereqReligion tech prereq (religion founding tech).
-	# Example: Islamic Temple may have no building tech prereq, but RELIGION_ISLAM is founded by TECH_LATER_ABRAHAMISM (Medieval Era), so the building effectively cannot exist before that era (except via conquest/trade of a religion-enabled city).
+	# Example: a Christian Temple may have no building tech prereq, but RELIGION_CHRISTIANITY is founded by TECH_MONOTHEISM, so the building effectively cannot exist before that technology (except via conquest/trade of a religion-enabled city).
 	iPrereqReligion = info.getPrereqReligion()
 	if iPrereqReligion >= 0:
 		iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()

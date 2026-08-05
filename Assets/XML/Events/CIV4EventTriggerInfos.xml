@@ -192,7 +192,7 @@
 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -288,10 +288,10 @@
 				<PrereqTech>TECH_HUNTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case -->
+			<!-- custom: TECH_STEEL was replaced with TECH_MARINE_TECHNOLOGY; use TECH_ENVIRONMENTALISM as the later substitute after Ecology's removal. (GPT-5.6-Sol) -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>1</bRecurring>
@@ -558,7 +558,7 @@
 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -3552,7 +3552,6 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 				<PrereqTech>TECH_LITERATURE</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -7462,7 +7461,7 @@
 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -7975,7 +7974,7 @@
 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8757,7 +8756,7 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
-			<!-- custom: was (now removed) TECH_DRAMA -->
+			<!-- custom: Keep this arts-related event at the later Aesthetics step rather than moving it with the restored Drama identity. (GPT-5.6-Sol) -->
 			<OrPreReqs>
 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
@@ -9906,7 +9905,6 @@
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
@@ -10603,7 +10601,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -13564,7 +13562,7 @@
 				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -14343,7 +14341,7 @@
 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14433,7 +14431,7 @@
 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>

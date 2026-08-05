@@ -35,8 +35,8 @@
 			<Type>PROCESS_CULTURE</Type>
 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22 -->
-			<TechPrereq>TECH_AESTHETICS</TechPrereq>
+			<!-- custom: Move the production-to-Culture process to the earlier Drama tech with the culture slider, leaving the later Aesthetics tech as a concentrated cultural-wonder payoff. (GPT-5.6-Sol) -->
+			<TechPrereq>TECH_DRAMA</TechPrereq>
 			<ProductionToCommerceModifiers>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>

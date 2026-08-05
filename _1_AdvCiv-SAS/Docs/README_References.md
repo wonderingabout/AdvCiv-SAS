@@ -78,6 +78,8 @@ Sound seems strangely louder at first game launch, but then accesing main menu a
 - Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame); also their fpks and asset naming are very clean as far as i can tell from what i looked at (only a few fpks not tons like other mods, and easy to find files from asset names, even filenames are generally clean and direct, thanks a lot), it was also inspiring, for example i was hesitating to rename "_WARRIOR" to "_ANCIENT_MACEMAN" as tedious but would be much cleaner doing so, thanks a lot!
 - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
 too too, thanks,
+- Master of mana, for assets like the Sacred Architecture tech's button (SPELLRESEARCH_ANGELS3 (Divine Wrath Spell)), thanks,
+- Destiny, for assets like the Automobiles tech's button (TECH_AUTOMOBILE), thanks,
 - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
 - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too, thanks, thanks,
 - Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot.

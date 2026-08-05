@@ -3126,15 +3126,15 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
 		<English>Mounted Combat</English>
 	</TEXT>
-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
+	<!-- custom: replace Later Abrahamism with Sacred Architecture after renaming its internal tech type. (GPT-5.6-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION</Tag>
-		<English>Postaxial Religion</English>
+		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE</Tag>
+		<English>Sacred Architecture</English>
 	</TEXT>
-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
+	<!-- custom: replace TECH_ECOLOGY with TECH_AUTOMOBILES to separate Fascism's infantry from its armored-unit unlocks. (GPT-5.6-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
-		<English>Later Abrahamism</English>
+		<Tag>TXT_KEY_TECH_AUTOMOBILES</Tag>
+		<English>Automobiles</English>
 	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM -->
 	<TEXT>
@@ -3269,16 +3269,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
 	</TEXT>
-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION"; update: with the quote of tech_priesthood (now removed) -->
+	<!-- custom: Sacred Architecture uses the former Construction quote about monumental works. (GPT-5.6-Sol) -->
 	<TEXT>
-		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
-		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
-	</TEXT>
-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy -->
-	<!-- Not originally by Herodotus -->
-	<TEXT>
-		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
-		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Tag>
+		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
 	</TEXT>
 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
 	<TEXT>
@@ -3316,10 +3310,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
 		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
 	</TEXT>
-	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote -->
+	<!-- custom: Biology uses the former Refrigeration quote about food. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
-		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
+		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
 	</TEXT>
 	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio -->
 	<TEXT>
@@ -3341,7 +3335,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
 	</TEXT>
-	<!-- custom: quote remap v9: TECH_AI now uses the former TECH_FUSION quote (Arthur C. Clarke). (GPT-5.3-Codex) -->
+	<!-- custom: AI retains the former Fusion quote about advanced technology. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
 		<English>"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke</English>
@@ -3411,9 +3405,14 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
 		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
 	</TEXT>
-	<!-- custom: quote remap v9: TECH_COMBUSTION now uses the former TECH_BIOENGINEERING quote. (GPT-5.3-Codex) -->
+	<!-- custom: Combustion uses the broader former Fiber Optics quote, freeing the car quote for Automobiles while keeping AI's stronger Clarke quote. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
+		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
+	</TEXT>
+	<!-- custom: Automobiles uses the former Combustion quote. (GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_AUTOMOBILES_QUOTE</Tag>
 		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
 	</TEXT>
 	<!-- custom: now using the quote of tech_divine_right (now removed) -->
@@ -3421,10 +3420,10 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
 		<English>"I am the state." - ascribed to Louis XIV</English>
 	</TEXT>
-	<!-- custom: now using the quote of tech_construction -->
+	<!-- custom: return the former Monarchy quote to Monarchy. The attribution is corrected from Herodotus to Homer, The Iliad. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
-		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
+		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
 	</TEXT>
 	<!-- custom: now using the quote of tech_steel (now removed) -->
 	<TEXT>
@@ -3461,25 +3460,30 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
 		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
 	</TEXT>
-	<!-- custom: quote remap v9: TECH_ROMANTICISM now uses the former TECH_PAPER/DRAMA quote (Shakespeare stage line). (GPT-5.3-Codex) -->
+	<!-- custom: Romanticism uses the former Music quote, leaving Drama's stage quote distinct. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
-		<English>"All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts." - William Shakespeare</English>
+		<English>"If music be the food of love, play on." - William Shakespeare</English>
 	</TEXT>
-	<!-- custom: quote remap v9: override base key so TECH_MYSTICISM uses the former TECH_ROMANTICISM quote. (GPT-5.3-Codex) -->
+	<!-- custom: Mysticism uses the former Priesthood/Postaxial Religion blessing. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_MYSTICISM_QUOTE</Tag>
-		<English>"If music be the food of love, play on." - William Shakespeare</English>
+		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
 	</TEXT>
 	<!-- custom: quote remap v9.2: TECH_PAPER now uses the former TECH_AI quote (Jefferson), swapped with LITERATURE. (GPT-5.3-Codex) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_PAPER_QUOTE</Tag>
 		<English>"I cannot live without books" - Thomas Jefferson</English>
 	</TEXT>
-	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
+	<!-- custom: Environmentalism uses the former Ecology quote. (GPT-5.6-Sol) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
-		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
+		<English>"We do not inherit the earth from our ancestors, we borrow it from our children." - Unknown</English>
+	</TEXT>
+	<!-- custom: return the former Computers quote to Computers. (GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_TECH_COMPUTERS_QUOTE</Tag>
+		<English>"Never trust a computer you can't throw out a window." - Steve Wozniak</English>
 	</TEXT>
 	<!-- custom: quote remap v9: TECH_PROFESSIONAL_ARMY now uses the former TECH_STEAM_POWER quote. (GPT-5.3-Codex) -->
 	<TEXT>

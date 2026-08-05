@@ -8397,7 +8397,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MYSTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Music</Filename>
+			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8432,7 +8432,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MONARCHY</SoundID>
-			<Filename>Sounds/Tech/Tech_Construction</Filename>
+			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8466,15 +8466,15 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
-			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
+			<SoundID>SND_TECH_DRAMA</SoundID>
+			<Filename>Sounds/Tech/Tech_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_ROMANTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Drama</Filename>
+			<Filename>Sounds/Tech/Tech_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8494,8 +8494,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
+			<SoundID>SND_TECH_SACRED_ARCHITECTURE</SoundID>
+			<Filename>Sounds/Tech/Tech_Construction</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8564,8 +8564,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_ECOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_Ecology</Filename>
+			<SoundID>SND_TECH_AUTOMOBILES</SoundID>
+			<Filename>Sounds/Tech/Tech_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8705,7 +8705,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_BIOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8733,7 +8733,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -8964,7 +8964,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
+			<Filename>Sounds/Tech/Tech_Ecology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9041,7 +9041,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MYSTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9076,7 +9076,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_MONARCHY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9110,15 +9110,15 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
+			<SoundID>SND_TECH_MP_DRAMA</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_ROMANTICISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9138,8 +9138,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
+			<SoundID>SND_TECH_MP_SACRED_ARCHITECTURE</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9208,8 +9208,8 @@
 			<bInGeneric>1</bInGeneric>
 		</SoundData>
 		<SoundData>
-			<SoundID>SND_TECH_MP_ECOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Ecology</Filename>
+			<SoundID>SND_TECH_MP_AUTOMOBILES</SoundID>
+			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9363,7 +9363,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_COMBUSTION</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
+			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9412,7 +9412,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>
@@ -9608,7 +9608,7 @@
 		</SoundData>
 		<SoundData>
 			<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
-			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
+			<Filename>Sounds/Tech/Tech_MP_Ecology</Filename>
 			<LoadType>DYNAMIC_RES</LoadType>
 			<bIsCompressed>1</bIsCompressed>
 			<bInGeneric>1</bInGeneric>

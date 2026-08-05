@@ -2857,16 +2857,6 @@
 		<Italian>"Un uomo non rischia la vita per pochi soldi o per promozioni insignificanti. Per infervorarlo, bisogna parlare alla sua anima." - Napoleone Bonaparte</Italian>
 		<Spanish>"Un hombre no est&#225; dispuesto a morir por medio penique al d&#237;a ni por un qu&#237;tame all&#225; esas penas. Debes hablarle al alma para conmoverlo." - Napole&#243;n Bonaparte</Spanish>
 	</TEXT>
-	<!-- Earliest known source appears to be Wendell Berry. "Native American
-		 song" smells like a romanticization. -->
-	<TEXT> <!-- redefine -->
-		<Tag>TXT_KEY_TECH_ECOLOGY_QUOTE</Tag>
-		<English>"We do not inherit the earth from our ancestors, we borrow it from our children" - unknown</English>
-		<French>"Nous n'h&#233;ritons pas de la Terre de nos anc&#234;tres, nous l'empruntons &#224; nos enfants." - Inconnu</French>
-		<German>"Wir haben die Erde nicht von unseren Vorfahren geerbt, sondern von unseren Kindern geliehen." - Unbekannt</German>
-		<Italian>"Non ereditiamo la terra dai nostri antenati, la prendiamo in prestito per i nostri figli." - Anonimo</Italian>
-		<Spanish>"La Tierra no es una herencia de nuestros padres, sino un pr&#233;stamo de nuestros hijos." - An&#243;nimo</Spanish>
-	</TEXT>
 	<!-- It might be a Native American proverb but has been attributed
 		 to various cultures. -->
 	<TEXT> <!-- redefine -->

@@ -1184,7 +1184,8 @@
 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
 			<!-- custom: Unlock Counter-Tank with Fascism alongside tanks, so the counter cannot appear before its intended target. (GPT-5.6-Sol) -->
-			<TechPrereq>TECH_FASCISM</TechPrereq>
+			<!-- custom: move Counter Tank from Fascism to Automobiles alongside the Tank. (GPT-5.6-Sol) -->
+			<TechPrereq>TECH_AUTOMOBILES</TechPrereq>
 			<StateReligionPrereq>NONE</StateReligionPrereq>
 			<bLeader>0</bLeader>
 			<iBlitz>0</iBlitz>
