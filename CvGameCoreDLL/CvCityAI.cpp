@@ -2192,38 +2192,47 @@ void CvCityAI::AI_chooseProduction()
 			int iAttackCityCount = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY);
 			int iAttackCount = iAttackCityCount +
 					kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK);
-			if (iAttackCount == 0)
+			// <!-- custom: This generic early city-hunting stack can otherwise bypass the later normal military-spending gate entirely.
+			// Keep its inherited wartime freedom, but while peaceful stop growing the generic offensive stack once the same +15 spending headroom used by normal unit production is exhausted.
+			// The targeted advc.300 Barbarian-city attacker logic below remains unchanged. Full save-file 456 runs exposed peaceful cases such as Roosevelt at turn 100 building another city attacker at unitSpending 200 versus maxUnitSpending 76. See KI#197.5. (ChatGPT-5.6-Sol) -->
+			bool const bCityHuntingStackSpendingAllowed = (bLandWar || iUnitSpending < iMaxUnitSpending + 15);
+			if (gMilitaryProductionLogLevel >= 3) logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S stage=CITY_HUNTING_STACK unitSpending=%d maxPlus15=%d spendingAllowed=%d landWar=%d attackCount=%d attackCityCount=%d startAttackStackRand=%d",
+				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 15, bCityHuntingStackSpendingAllowed, bLandWar, iAttackCount, iAttackCityCount, iStartAttackStackRand);
+			if (bCityHuntingStackSpendingAllowed)
 			{
-				if (!bFinancialTrouble)
+				if (iAttackCount == 0)
 				{
-					if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
-						return;
-				}
-			}
-			else
-			{
-				//if((iAttackCount > 1) && (iAttackCityCount == 0))
-				/*  <advc.017> Just 1 city-attacker? Isn't it supposed to be a
-					"city hunting stack"? Early units don't have the ATTACK_CITY
-					AI type, but AI_chooseUnit doesn't care much about the AI types
-					assigned in XML. Otoh, ATTACK units will be more useful than
-					ATTACK_CITY if we don't end up hunting for any cities ... */
-				if (iAttackCount >= iAttackCityCount &&
-					iAttackCityCount < 1 + iBuildUnitProb / 19) // </advc.017>
-				{
-					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+					if (!bFinancialTrouble)
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
-						return;
+						if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
+							return;
 					}
 				}
-				//else if (iAttackCount < 3 + iBuildUnitProb / 10)
-				else if (iAttackCount < 2 + iBuildUnitProb / 18) // advc.017
+				else
 				{
-					if (AI_chooseUnit(UNITAI_ATTACK))
+					//if((iAttackCount > 1) && (iAttackCityCount == 0))
+					/*  <advc.017> Just 1 city-attacker? Isn't it supposed to be a
+						"city hunting stack"? Early units don't have the ATTACK_CITY
+						AI type, but AI_chooseUnit doesn't care much about the AI types
+						assigned in XML. Otoh, ATTACK units will be more useful than
+						ATTACK_CITY if we don't end up hunting for any cities ... */
+					if (iAttackCount >= iAttackCityCount &&
+						iAttackCityCount < 1 + iBuildUnitProb / 19) // </advc.017>
 					{
-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
-						return;
+						if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+						{
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
+							return;
+						}
+					}
+					//else if (iAttackCount < 3 + iBuildUnitProb / 10)
+					else if (iAttackCount < 2 + iBuildUnitProb / 18) // advc.017
+					{
+						if (AI_chooseUnit(UNITAI_ATTACK))
+						{
+							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
+							return;
+						}
 					}
 				}
 			}
@@ -3667,8 +3676,16 @@ void CvCityAI::AI_chooseProduction()
 		}
 	}
 
-	if (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders &&
-		(!bFinancialTrouble || bLandWar))
+	// <!-- custom: The earlier floating-defender pass respects unit spending, but this late 50% retry did not and could keep topping up peaceful empires far above the generic military budget.
+	// Preserve wartime behavior and severe composition recovery, but for ordinary peaceful shortages require the same +15 spending headroom as the later generic-unit path.
+	// Use the same severe-shortage threshold as floating defender 1 so both passes agree on when deficient army composition is important enough to override spending.
+	// Save files 456, 457, and 458 repeatedly showed the late retry firing over budget, while the first spending-gated save-456 rerun also exposed rare severe shortages that should retain this composition-repair path. See KI#197.3. (ChatGPT-5.6-Sol) -->
+	bool const bFloatingDefender2Candidate = (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders && (!bFinancialTrouble || bLandWar));
+	bool const bFloatingDefendersSeverelyLow = (iTotalFloatingDefenders < (iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2));
+	bool const bFloatingDefender2SpendingAllowed = (bLandWar || bFloatingDefendersSeverelyLow || iUnitSpending < iMaxUnitSpending + 15);
+	if (bLogDetailedMilitaryProduction && bFloatingDefender2Candidate) logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S stage=FLOATING_DEFENDER_2 floatingHave=%d floatingNeed=%d unitSpending=%d maxPlus15=%d spendingAllowed=%d severelyLow=%d landWar=%d",
+		kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iTotalFloatingDefenders, iNeededFloatingDefenders, iUnitSpending, iMaxUnitSpending + 15, bFloatingDefender2SpendingAllowed, bFloatingDefendersSeverelyLow, bLandWar);
+	if (bFloatingDefender2Candidate && bFloatingDefender2SpendingAllowed)
 	{
 		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
 		{
@@ -13361,10 +13378,21 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 
 					if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
 					{
+						// <!-- custom: a concrete UNITAI_CITY_DEFENSE request is not excess while this city is still below its minimum strict city-defense requirement (including Settlers waiting here for an escort), or while the empire is in the same minimal military-per-city state used by the immediate post-Settler defense branch. Keep this narrow to CITY_DEFENSE so ordinary RESERVE/CITY_SPECIAL requests still use the existing anti-defender-overproduction optimization. See KI#197.4. (ChatGPT-5.6-Sol) -->
+						const bool bCityDefenseRequest = (eChangedUnitAI == UNITAI_CITY_DEFENSE);
+						const int iPlotSettlers = getPlot().plotCount(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwner());
+						const int iPlotCityDefenders = getPlot().plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner());
+						const int iMinCityDefenders = AI_minDefenders();
+						const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
+						const bool bMinimumCityDefenseNeed = (bCityDefenseRequest && iPlotCityDefenders < iMinCityDefenders + iPlotSettlers);
+						const bool bEmpireMilitaryThin = (bCityDefenseRequest && iMilitaryUnits <= iNumCities + 1);
+						const bool bStrictDefenderActuallyExcess = (!bMinimumCityDefenseNeed && !bEmpireMilitaryThin);
+						if (bLogDetailedMilitaryProduction && !bStrictDefenderActuallyExcess) logBBAI("MILITARY_PRODUCTION_STRICT_DEFENDER_GATE turn=%d player=%d %S city=%S cityId=%d requestedUnit=%s requestedAI=%s result=PRESERVE_DEFENDER cityDefenseRequest=%d minimumCityDefenseNeed=%d empireMilitaryThin=%d plotCityDefenders=%d minCityDefenders=%d plotSettlers=%d militaryUnits=%d cities=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), bCityDefenseRequest, bMinimumCityDefenseNeed, bEmpireMilitaryThin, iPlotCityDefenders, iMinCityDefenders, iPlotSettlers, iMilitaryUnits, iNumCities);
+
 						// 2) Don’t starve defenders if there’s immediate danger
 						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves -->
 						// if (!bDanger && !(bAtWar && bEnemyStrong))
-						if (!(bAtWar && bEnemyStrong))
+						if (bStrictDefenderActuallyExcess && !(bAtWar && bEnemyStrong))
 						{
 							// // <!-- custom: if we are overall strong and have met unit requirements to defend cities we should go on the offensive. See known issue as of now 53.2.2 for details or related info -->
 
