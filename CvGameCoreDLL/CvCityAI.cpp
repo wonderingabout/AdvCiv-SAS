@@ -3842,15 +3842,24 @@ void CvCityAI::AI_chooseProduction()
 
 	// Short-circuit 3 - a last chance to catch important buildings
 	{
-		int iOdds = std::max(0, (bLandWar ? 160 : 220) * iBestBuildingValue / (iBestBuildingValue
+		int const iBaseOdds = std::max(0, (bLandWar ? 160 : 220) * iBestBuildingValue / (iBestBuildingValue
 				/* <advc.131> was +32 */ + 20 /* </advc.131> */) - 100);
+		// <!-- custom: Base AdvCiv/K-Mod short-circuit 2 already lowers building odds as iBuildUnitProb rises, but this final building short-circuit discarded that military pressure immediately before the generic unit-production gate.
+		// Keep this last chance for important buildings while proportionally reducing its base odds when normal military-production pressure is high and the normal spending gate would still allow more units.
+		// This avoids making SC3 less likely once military spending is already above the same +15 spending threshold used by the generic unit-production gate; later role-specific unit exceptions remain unchanged.
+		// Full runs from save files 458 and 457 repeatedly showed strongly under-strength AIs reaching this gate with high BuildUnitProb and still choosing ordinary buildings, almost always while this spending headroom remained available.
+		// In the final save-file 458 validation, 375 of 640 SC3 evaluations were already over budget and kept Base odds; severe under-strength cases with headroom fell from 48.4% average base odds to 32.9%. See KI#197.2. (ChatGPT-5.6-Sol) -->
+		static const int iBuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT")));
+		bool const bShortCircuit3MilitaryPressureAllowed = (iUnitSpending < iMaxUnitSpending + 15);
+		int const iOddsReductionPercent = (bShortCircuit3MilitaryPressureAllowed ? (iBuildUnitProb * iBuildUnitProbWeightPercent) / 100 : 0);
+		int const iOdds = (iBaseOdds * (100 - iOddsReductionPercent)) / 100;
 		bool const bShortCircuit3BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
-		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d odds=%d chosen=%d",
+		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d buildUnitProb=%d baseOdds=%d buildUnitProbWeightPercent=%d spendingAllowed=%d oddsReductionPercent=%d odds=%d chosen=%d",
 			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
-			iBestBuildingValue, bLandWar, iOdds, bShortCircuit3BuildingChosen);
+			iBestBuildingValue, bLandWar, iBuildUnitProb, iBaseOdds, iBuildUnitProbWeightPercent, bShortCircuit3MilitaryPressureAllowed, iOddsReductionPercent, iOdds, bShortCircuit3BuildingChosen);
 		if (bShortCircuit3BuildingChosen)
 		{
-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d)", sCityName, iOdds);
+			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d, base odds: %d)", sCityName, iOdds, iBaseOdds);
    			return;
 		}
 	}
