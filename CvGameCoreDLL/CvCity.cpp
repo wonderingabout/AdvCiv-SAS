@@ -839,7 +839,7 @@ void CvCity::doTurn()
 			//const bool bNeedFallback = !isProduction();
 			const bool bQueueEmpty = (getOrderQueueLength() == 0);
 			const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
-			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (GPT-5.6-Thinking) -->
+			// <!-- custom: A Process is valid production, not a no-production state. The normal AI can deliberately choose one after its military-spending gate rejects another unit; treating that Process as fallback-needed immediately replaced it with a forced military unit and bypassed the spending limit. Keep this hard safety net limited to genuinely empty or invalid queues. (ChatGPT-5.6-Sol) -->
 			const bool bNeedFallback = (bQueueEmpty || bHeadInvalid);
 
 			if (bNeedFallback)

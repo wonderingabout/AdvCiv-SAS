@@ -2169,6 +2169,19 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Base AdvCiv/K-Mod can throttle unit production when total power is high but has no opposite catch-up when military strength falls behind empire size. Increase AI unit-production probability when power per city is below the city-weighted average power per city of relevant rivals. This strengthens genuinely under-militarized empires without making a small empire try to match a much larger rival's total power or chase one unusually militarized outlier. Financial/economy emergency reductions and the strategy to wait for better units remain respected. 1 enables this AI optimization; 0 disables it. See KI#197. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum multiplicative percentage increase to AI build-unit probability from the relevant-rival average power-per-city understrength adjustment. The actual increase scales with the relative power-per-city deficit up to this cap; 0 makes the adjustment inert while leaving its toggle enabled. See KI#197. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: see code comment at SAS_CAN_SCRAP_OPTIMIZE -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_UNIT_OPTIMIZE</DefineName>

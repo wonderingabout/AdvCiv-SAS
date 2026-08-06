@@ -16739,6 +16739,11 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam()); // kekm.16
 	int iHighestRivalPowForLog = -1;
+	int iOurPowerPerCityX100ForLog = -1;
+	int iRelevantRivalAvgPowerPerCityX100ForLog = -1;
+	int iUnderstrengthBoostPercentForLog = 0;
+	int iPreUnderstrengthProbForLog = -1;
+	int iPostUnderstrengthProbForLog = -1;
 	int iPowerThrottleForLog = 0; // <!-- custom: Diagnostic code: 0 = none, 1 = gradual, 2 = quartered. (ChatGPT-5.6-Sol) -->
 
 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
@@ -16787,8 +16792,9 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 		{
 			CvTeamAI const& kOurTeam = kTeam;
 			int iHighestRivalPow = 0;
-			for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(getTeam());
-				it.hasNext(); ++it)
+			int iRelevantRivalPower = 0;
+			int iRelevantRivalCities = 0;
+			for (TeamAIIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
 			{
 				CvTeamAI const& kRival = *it; // (Akin to code in CvPlayerAI::AI_feelsSafe)
 				if (kOurTeam.AI_getWarPlan(kRival.getID()) != NO_WARPLAN ||
@@ -16799,10 +16805,15 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 					kRival.AI_anyMemberAtVictoryStage(
 					AI_VICTORY_MILITARY3 | AI_VICTORY_MILITARY4))
 				{
-					iHighestRivalPow = std::max(kRival.getPower(true), iHighestRivalPow);
+					int const iRivalPower = kRival.getPower(true);
+					iHighestRivalPow = std::max(iRivalPower, iHighestRivalPow);
+					iRelevantRivalPower += iRivalPower;
+					iRelevantRivalCities += kRival.getNumCities();
 				}
 			}
 			iHighestRivalPowForLog = iHighestRivalPow;
+			iOurPowerPerCityX100ForLog = (100 * kOurTeam.getPower(false)) / std::max(1, kOurTeam.getNumCities());
+			iRelevantRivalAvgPowerPerCityX100ForLog = (iRelevantRivalCities <= 0 ? 0 : (100 * iRelevantRivalPower) / iRelevantRivalCities);
 			// Don't throttle at all until we're clearly ahead of the best rival
 			scaled rTargetAdvantage = per100(25);
 			if (kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY1))
@@ -16831,6 +16842,21 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 					iPowerThrottleForLog = 1;
 				}
 			}
+			// <!-- custom: The existing logic only throttles unit production when our total power is high.
+			// Add bounded pressure in the opposite direction when our power per city is below the city-weighted average of relevant rivals.
+			// This lets genuinely under-militarized empires react before war without making a small empire match a much larger rival's total army or chase one unusually militarized outlier.
+			// Let the existing total-power throttle take precedence when we are already clearly ahead, and preserve deliberate financial/economic and better-units reductions.
+			// Post-fix full runs from save file 458 (two runs) and save file 457 (one independent run) activated the catch-up in about 46-47% of logged BuildUnitProb evaluations, averaging about +7 to +9 actual points when active, with no simultaneous high-power throttle. See KI#197. (ChatGPT-5.6-Sol) -->
+			static const bool bUnderstrengthOptimize = GC.getDefineBOOL("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE");
+			static const int iMaxUnderstrengthBoostPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT"));
+			iPreUnderstrengthProbForLog = r.getPercent();
+			if (bUnderstrengthOptimize && !bGreatlyReduced && rPowRatio <= 1 && !kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS) && kOurTeam.AI_isWarPossible() && iRelevantRivalAvgPowerPerCityX100ForLog > iOurPowerPerCityX100ForLog)
+			{
+				int const iPowerPerCityDeficitPercent = 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog;
+				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, std::max(0, iPowerPerCityDeficitPercent));
+				r *= 1 + per100(iUnderstrengthBoostPercentForLog);
+			}
+			iPostUnderstrengthProbForLog = r.getPercent();
 		}
 		/*  Can't afford to specialize one city entirely on military production
 			until we've expanded a bit */
@@ -16844,10 +16870,10 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 	int const iFinalBuildUnitProb = r.getPercent();
 	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian() && !bDraft)
 	{
-		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
+		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postUnderstrengthProb=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iXPWeight, iFinalBuildUnitProb, getMilitaryProductionModifier(), kOwner.AI_isFinancialTrouble(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
-			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iPowerThrottleForLog, bGreatlyReduced,
+			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostUnderstrengthProbForLog, iPowerThrottleForLog, bGreatlyReduced,
 			kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY3), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY4));
 	}
 	return iFinalBuildUnitProb;
