@@ -16100,6 +16100,23 @@ int CvPlayerAI::AI_countCityFeatures(FeatureTypes eFeature) const
 }
 
 
+// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area may use an XML-tunable workers-per-city floor plus a small standing reserve. See KI#198. (GPT-5.6 Thinking) -->
+static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& kArea)
+{
+	int const iCities = kArea.getCitiesPerPlayer(kPlayer.getID());
+	CvCity const* pCapital = kPlayer.getCapital();
+	int iFloor = iCities + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
+	if (kPlayer.AI_isPrimaryArea(kArea) && iCities > 0)
+	{
+		static const int iPrimaryAreaMinimumPercentPerCity = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY"));
+		static const int iPrimaryAreaMinimumReserve = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE"));
+		int const iPrimaryFloor = (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaMinimumReserve;
+		iFloor = std::max(iFloor, iPrimaryFloor);
+	}
+	return iFloor;
+}
+
+
 int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 {
 	/*  advc.opt: This function is called each time a Worker moves or a city
@@ -16161,6 +16178,9 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 			(fixp(2.15) * iCities).round());
 	// Lower bound was 1 flat. Allow small islands to require 0 workers.
 	int iNeededWorkers = std::max(kArea.getNumRevealedTiles(getTeam()) > 3 && bKeepAreaWorkerReserve ? 1 : 0, iCount);
+	// <!-- custom: The ordinary task calculation can fluctuate below a useful standing workforce even on a large developed core. Enforce the shared SAS minimum here for the primary area so every production/usefulness gate sees the same stronger answer; secondary areas remain demand-driven and may still reach zero. See KI#198. (GPT-5.6 Thinking) -->
+	if (AI_isPrimaryArea(kArea))
+		iNeededWorkers = std::max(iNeededWorkers, SAS_minimumAreaWorkerFloor(*this, kArea));
 	// <!-- custom: Several independent production paths deferred to AI_neededWorkers but could still choose a second Worker while the one-city capital was population 1, halting growth. Keep this as the shared source of truth: until the capital has ever reached the tunable population, the empire needs at most 1 land Worker; normal demand resumes afterward, and losing that Worker still creates a deficit. (GPT-5.5) -->
 	static const int iAdditionalWorkerMinHighestPopulation = std::max(0, GC.getDefineINT("SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION"));
 	CvCity const* pCapital = getCapital();
@@ -16173,10 +16193,8 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
 
 int CvPlayerAI::AI_getSASMinimumAreaWorkers(CvArea const& kArea) const
 {
-	// <!-- custom: Shared AdvCiv-SAS Worker floor used by production and scrap guards so cities do not rebuild fewer Workers than unit logic may retain. Bound the area-local 1-per-city plus capital reserve by AI_neededWorkers, our shared demand source, rather than forcing Workers beyond calculated need. (GPT-5.5) -->
-	CvCity const* pCapital = getCapital();
-	const int iAreaLocalFloor = kArea.getCitiesPerPlayer(getID()) + ((pCapital != NULL && pCapital->isArea(kArea)) ? 1 : 0);
-	return std::min(iAreaLocalFloor, AI_neededWorkers(kArea));
+	// <!-- custom: Shared AdvCiv-SAS Worker floor used by production and scrap guards so cities do not rebuild fewer Workers than unit logic may retain. The primary area uses the stronger XML-tunable floor enforced by AI_neededWorkers; secondary areas remain bounded by actual demand so completed islands can still reach zero. See KI#198. (GPT-5.5 + GPT-5.6 Thinking) -->
+	return std::min(SAS_minimumAreaWorkerFloor(*this, kArea), AI_neededWorkers(kArea));
 }
 
 

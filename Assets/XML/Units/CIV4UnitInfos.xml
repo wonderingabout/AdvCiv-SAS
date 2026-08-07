@@ -14834,7 +14834,21 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<!-- custom: Dedicated land anti-air units should not fill generic offensive or reserve roles; keep their explicit COUNTER, CITY_COUNTER, and CITY_SPECIAL roles instead. Save file 459 exposed repeated SAM Infantry/Mobile SAM selection as ATTACK, ATTACK_CITY, or RESERVE. See KI#199. (GPT-5.6 Thinking) -->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>
@@ -15014,7 +15028,21 @@
 					<bUnitAI>1</bUnitAI>
 				</UnitAI>
 			</UnitAIs>
-			<NotUnitAIs/>
+			<!-- custom: Dedicated land anti-air units should not fill generic offensive or reserve roles; keep their explicit COUNTER, CITY_COUNTER, and CITY_SPECIAL roles instead. Save file 459 exposed repeated SAM Infantry/Mobile SAM selection as ATTACK, ATTACK_CITY, or RESERVE. See KI#199. (GPT-5.6 Thinking) -->
+			<NotUnitAIs>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+				<UnitAI>
+					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+					<bUnitAI>1</bUnitAI>
+				</UnitAI>
+			</NotUnitAIs>
 			<Builds/>
 			<ReligionSpreads/>
 			<CorporationSpreads/>

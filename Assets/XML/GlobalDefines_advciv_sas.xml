@@ -1518,6 +1518,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH</DefineName>
 		<iDefineIntVal>8</iDefineIntVal>
 	</Define>
+	<!-- custom: Minimum standing land-Worker force on the AI primary area, expressed as a percentage of cities before the separate reserve below is added. 100 means 1 Worker per city and 200 means 2. Values below the inherited city-local baseline do not reduce that baseline. The one-city early-growth safeguard still limits the first capital to 1 Worker until its population threshold is reached, and secondary areas remain demand-driven so completed islands can still reach zero. This minimum is shared by production and Worker-scrapping safeguards. See KI#198. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY</DefineName>
+		<iDefineIntVal>200</iDefineIntVal>
+	</Define>
+	<!-- custom: Additional standing land Workers kept on the AI primary area after the per-city minimum above is calculated. This provides a small shared reserve for travel, newly grown tiles and newly available jobs instead of requiring every Worker to be tied to one city. Set to 0 for no extra reserve. See KI#198. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Minimum highest-ever capital population before a one-city empire may need more than 1 land Worker. BBAI logs showed several production paths repeatedly choosing a second Worker at population 1, halting early growth. Centralizing the limit in AI_neededWorkers lets the minimum floor, normal demand logic, and stagnant-city Worker substitutions share the same answer instead of duplicating the gate. Highest-ever population keeps the limit stable after whipping or starvation. Set to 0 to disable this early one-Worker limit. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>

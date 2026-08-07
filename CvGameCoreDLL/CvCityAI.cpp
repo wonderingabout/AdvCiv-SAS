@@ -14147,6 +14147,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 							iMaxUnits = std::max(iMinWorkersInCase, iMaxWorkersDecayed);
 						}
 
+						// <!-- custom: Keep the generic Worker cap at least as high as the shared SAS minimum, so the XML-tuned primary-area floor can actually be rebuilt in later eras instead of being vetoed by the era-decayed maximum. Worker scrapping already uses the same shared minimum. (GPT-5.6 Thinking) -->
+						iMaxUnits = std::max(iMaxUnits, kPlayer.AI_getSASMinimumAreaWorkers(getArea()));
+
 						// <!-- custom: no time for expansion at war or danger or similar, but the worker is so important we'll be a bit more lenient, we may unlock more hammers for example by producing a worker that would then chop or build a mine or workshop or anything useful so don't be too harsh here as advised by chatgpt 5 thanks-->
 						if (bAtWar && bEnemyStrong)
 						{
@@ -19158,8 +19161,9 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
 		{
 			if (kPlot.isBeingWorked())
 			{
-				if (AI_getBestBuild(ePlot) != NO_BUILD &&
-					isArea(kPlot.getArea())) // K-Mod
+				// <!-- custom: AI_getBestBuild is intentionally empty for ordinary land improvements because AI_bestCityBuild owns their exact selection. Treat a currently worked, featureless land plot as Worker demand even when that legacy cache is empty; keep the stricter inherited cache check for unworked plots so KI#192 does not regain speculative/idle Worker demand. See KI#198. (GPT-5.6 Thinking) -->
+				bool const bSASWorkedLandDemand = (!kPlot.isWater() && !kPlot.isFeature() && kPlot.getOwner() == getOwner());
+				if ((AI_getBestBuild(ePlot) != NO_BUILD || bSASWorkedLandDemand) && isArea(kPlot.getArea())) // K-Mod
 				{
 					iUnimprovedWorkedPlotCount++;
 				}
