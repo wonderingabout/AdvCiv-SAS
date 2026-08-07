@@ -2179,6 +2179,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units. 100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
 	<!-- custom: How strongly normal AI build-unit probability reduces the final "short-circuit 3" building chance immediately before generic unit production, while the normal +15 military-spending gate still allows more units. 50 means BuildUnitProb 80 reduces this gate's base building odds by 40% (80 * 50% = 40%); existing production-progress preference inside AI_chooseBuilding remains unchanged. Set to 0 to restore the Base AdvCiv/K-Mod short-circuit 3 odds. See KI#197.2. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>

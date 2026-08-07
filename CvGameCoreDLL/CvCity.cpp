@@ -12604,38 +12604,66 @@ bool CvCity::getProductionBarPercentages(std::vector<float>& afPercentages) cons
 	if (!canBeSelected())
 		return false;
 
-	// <!-- custom: Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5) -->
+	// <!-- custom: Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6 Thinking) -->
 	CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
 	if (pOrderNode == NULL)
 		return false;
+	OrderTypes const eOrderType = pOrderNode->m_data.eOrderType;
 	int const iData1 = pOrderNode->m_data.iData1;
-	switch (pOrderNode->m_data.eOrderType)
+	switch (eOrderType)
 	{
 	case ORDER_TRAIN:     if (iData1 < 0 || iData1 >= GC.getNumUnitInfos())     return false; break;
 	case ORDER_CONSTRUCT: if (iData1 < 0 || iData1 >= GC.getNumBuildingInfos()) return false; break;
 	case ORDER_CREATE:    if (iData1 < 0 || iData1 >= GC.getNumProjectInfos())  return false; break;
-	case ORDER_MAINTAIN:  break; // No array lookup needed for processes
+	case ORDER_MAINTAIN:  return true; // Processes have no production bar
 	default: return false;
 	}
 	// <!-- custom: End - Guard against corrupted order data causing out-of-bounds array access. See KI#103. (GPT-5.2-Codex + Claude code Opus 4.5) -->
 
-	if (!isProductionProcess())
+	// <!-- custom: Reproducible T259 dumps again hit this callback at +0x522. KI#162.2's earlier crashes were at +0x4e2 before the owner/city-registration guard above was added; the +0x40 shift strongly suggests the same underlying instruction survived that hardening. Snapshot the already validated order and use its typed production accessors throughout instead of repeatedly re-reading the queue through isProductionProcess/getCurrentProductionDifference/getProduction.
+	// This keeps one UI callback internally consistent even if a nested cost/Python call re-enters or changes production state; it is a tentative targeted hardening because the dump alone still cannot prove re-entrant queue mutation. See KI#162.3. (ChatGPT-5.5 + GPT-5.6 Thinking) -->
+	int iProductionNeeded = MAX_INT;
+	int iProduction = 0;
+	int iProductionModifier = 0;
+	bool bFoodProduction = false;
+	switch (eOrderType)
 	{
-		// <!-- custom: Reuse one validated production target and reject invalid denominators before doing production-bar math. See KI#162. (ChatGPT-5.5) -->
-		int const iProductionNeeded = getProductionNeeded();
-		if (iProductionNeeded <= 0 || iProductionNeeded == MAX_INT)
-			return false;
-		// <!-- custom: End -->
-
-		afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
-		int iProductionDiffNoFood = getCurrentProductionDifference(true, true);
-		int iProductionDiffJustFood = getCurrentProductionDifference(false, true)
-				- iProductionDiffNoFood;
-		afPercentages[INFOBAR_STORED] = getProduction() / (float)iProductionNeeded;
-		afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float)iProductionNeeded;
-		afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float)iProductionNeeded;
+	case ORDER_TRAIN:
+	{
+		UnitTypes const eUnit = (UnitTypes)iData1;
+		iProductionNeeded = getProductionNeeded(eUnit);
+		iProduction = getUnitProduction(eUnit);
+		iProductionModifier = getProductionModifier(eUnit);
+		bFoodProduction = isFoodProduction(eUnit);
+		break;
 	}
+	case ORDER_CONSTRUCT:
+	{
+		BuildingTypes const eBuilding = (BuildingTypes)iData1;
+		iProductionNeeded = getProductionNeeded(eBuilding);
+		iProduction = getBuildingProduction(eBuilding);
+		iProductionModifier = getProductionModifier(eBuilding);
+		break;
+	}
+	case ORDER_CREATE:
+	{
+		ProjectTypes const eProject = (ProjectTypes)iData1;
+		iProductionNeeded = getProductionNeeded(eProject);
+		iProduction = getProjectProduction(eProject);
+		iProductionModifier = getProductionModifier(eProject);
+		break;
+	}
+	default: return false;
+	}
+	if (iProductionNeeded <= 0 || iProductionNeeded == MAX_INT)
+		return false;
 
+	afPercentages.resize(NUM_INFOBAR_TYPES, 0.0f);
+	int const iProductionDiffNoFood = getProductionDifference(iProductionNeeded, iProduction, iProductionModifier, false, true);
+	int const iProductionDiffJustFood = getProductionDifference(iProductionNeeded, iProduction, iProductionModifier, bFoodProduction, true) - iProductionDiffNoFood;
+	afPercentages[INFOBAR_STORED] = iProduction / (float)iProductionNeeded;
+	afPercentages[INFOBAR_RATE] = iProductionDiffNoFood / (float)iProductionNeeded;
+	afPercentages[INFOBAR_RATE_EXTRA] = iProductionDiffJustFood / (float)iProductionNeeded;
 	return true;
 }
 
