@@ -2789,21 +2789,59 @@ void CvCityAI::AI_chooseProduction()
 		{
 			/*	Don't rely on seaExplorersTarget. Can be 0 if already met all
 				other civs or if there is a larger separate water area. */
-			bool bEnoughWaterUnits = false;
-			int iWaterUnits = 0;
+			// <!-- custom: Base AdvCiv's naval-trade explorer fallback counted only units physically in the water area, so docked/queued ships disappeared from its <3 cap; save-file 456 also showed late Attack Submarine/Destroyer explorers after the entire relevant water area was revealed.
+			// Count actual sea-domain UnitAIs including docked and queued ships, and require at least one unrevealed tile before this special trade-exploration fallback can fire. Keep the inherited cap of 3 ships and 25% explorer choice. (ChatGPT-5.6-Sol) -->
+			int iSeaUnitsAtSea = 0;
+			int iSeaUnitsIncludingDocked = 0;
+			int iSeaUnitsTraining = 0;
 			for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
 			{
-				iWaterUnits += pWaterArea->getNumAIUnits(itMember->getID(), NO_UNITAI);
-				if (iWaterUnits >= 3)
+				CvPlayerAI const& kMember = GET_PLAYER(itMember->getID());
+				FOR_EACH_UNIT(pLoopUnit, kMember)
 				{
-					bEnoughWaterUnits = true;
-					break;
+					if (pLoopUnit->getDomainType() != DOMAIN_SEA)
+						continue;
+					if (&pLoopUnit->getArea() == pWaterArea)
+						iSeaUnitsAtSea++;
+					if (pLoopUnit->getPlot().waterArea() == pWaterArea)
+						iSeaUnitsIncludingDocked++;
+				}
+				FOR_EACH_CITY(pLoopCity, kMember)
+				{
+					if (pLoopCity->waterArea() != pWaterArea)
+						continue;
+					FOR_EACH_ENUM(UnitAI)
+					{
+						if (kMember.AI_unitAIDomainType(eLoopUnitAI) == DOMAIN_SEA)
+							iSeaUnitsTraining += pLoopCity->getNumTrainUnitAI(eLoopUnitAI);
+					}
 				}
 			}
-			/*	Would rather use a condition based on the number of unrevealed
-				tiles, but it's difficult to count just the tiles that an explorer
-				could actually reach. */
-			if (!bEnoughWaterUnits && AI_chooseUnit(UNITAI_EXPLORE_SEA, 25))
+			int const iWaterUnits = iSeaUnitsIncludingDocked + iSeaUnitsTraining;
+			bool const bEnoughWaterUnits = (iWaterUnits >= 3);
+			int const iUnrevealedWaterTiles = pWaterArea->getNumUnrevealedTiles(getTeam());
+			bool const bHasUnrevealedWater = (iUnrevealedWaterTiles > 0);
+			bool const bSeaExplorerEligible = (bHasUnrevealedWater && !bEnoughWaterUnits);
+
+			int iInheritedAreaUnitsExact = 0;
+			int iTeamSeaExplorersNow = 0;
+			if (bLogDetailedMilitaryProduction)
+			{
+				for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
+				{
+					CvPlayerAI const& kMember = GET_PLAYER(itMember->getID());
+					iInheritedAreaUnitsExact += pWaterArea->getNumAIUnits(kMember.getID(), NO_UNITAI);
+					iTeamSeaExplorersNow += kMember.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_EXPLORE_SEA);
+				}
+			}
+			bool bSeaExplorerChosen = false;
+			if (bSeaExplorerEligible)
+				bSeaExplorerChosen = AI_chooseUnit(UNITAI_EXPLORE_SEA, 25);
+			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NAVAL_TRADE_EXPLORER turn=%d player=%d %S city=%S cityId=%d waterArea=%d waterTiles=%d unrevealedWaterTiles=%d hasUnrevealedWater=%d biggestWaterArea=%d metCivs=%d otherCivsAlive=%d seaExplorerTarget=%d seaExplorerNow=%d teamSeaExplorerNow=%d correctedSeaUnits=%d correctedEnough=%d inheritedAreaUnits=%d actualSeaAtSea=%d actualSeaDocked=%d actualSeaIncludingDocked=%d seaTraining=%d actualSeaIncludingDockedAndTraining=%d inheritedNonSeaAreaUnits=%d unitSpending=%d maxPlus15=%d overPlus15=%d financialTrouble=%d landWar=%d assault=%d eligible=%d attempted=%d chosen=%d",
+				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), pWaterArea->getID(), pWaterArea->getNumTiles(), iUnrevealedWaterTiles, bHasUnrevealedWater, GC.getMap().findBiggestArea(true) == pWaterArea, kTeam.getHasMetCivCount(true), kGame.countCivTeamsAlive() - 1,
+				iSeaExplorersTarget, iSeaExplorersNow, iTeamSeaExplorersNow, iWaterUnits, bEnoughWaterUnits, iInheritedAreaUnitsExact, iSeaUnitsAtSea, iSeaUnitsIncludingDocked - iSeaUnitsAtSea, iSeaUnitsIncludingDocked, iSeaUnitsTraining, iSeaUnitsIncludingDocked + iSeaUnitsTraining, iInheritedAreaUnitsExact - iSeaUnitsAtSea,
+				iUnitSpending, iMaxUnitSpending + 15, iUnitSpending >= iMaxUnitSpending + 15, bFinancialTrouble, bLandWar, bAssault, bSeaExplorerEligible, bSeaExplorerEligible, bSeaExplorerChosen);
+			if (bSeaExplorerChosen)
 			{
 				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose sea explorer for naval trade", sCityName);
 				return;
@@ -3889,8 +3927,14 @@ void CvCityAI::AI_chooseProduction()
 			{	// advc.124 (no functional change)
 				if (iSeaExplorersNow < std::min(1, iSeaExplorersTarget))
 				{
-					if (AI_chooseUnit(UNITAI_EXPLORE_SEA))
+					bool const bLateSeaExplorerChosen = AI_chooseUnit(UNITAI_EXPLORE_SEA);
+					if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_SEA_EXPLORER_TARGET turn=%d player=%d %S city=%S cityId=%d stage=LATE_TARGET waterArea=%d waterTiles=%d unrevealedWaterTiles=%d seaExplorerTarget=%d seaExplorerNow=%d unitSpending=%d maxPlus15=%d overPlus15=%d financialTrouble=%d assault=%d chosen=%d",
+						kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), pWaterArea->getID(), pWaterArea->getNumTiles(), pWaterArea->getNumUnrevealedTiles(getTeam()), iSeaExplorersTarget, iSeaExplorersNow, iUnitSpending, iMaxUnitSpending + 15, iUnitSpending >= iMaxUnitSpending + 15, bFinancialTrouble, bAssault, bLateSeaExplorerChosen);
+					if (bLateSeaExplorerChosen)
+					{
+						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose late target sea explorer", sCityName);
 						return;
+					}
 				}
 			}
 		}

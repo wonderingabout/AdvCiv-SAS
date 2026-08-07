@@ -1359,12 +1359,649 @@ static void logSASGameRecordAttitudeLegend()
 			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
 }
 
+struct SASGameRecordLandmassGeography
+{
+	SASGameRecordLandmassGeography() : iAreaId(-1), iAnchorX(-1), iAnchorY(-1), iPlots(0), iHabitablePlots(0), iImpassablePlots(0), iZeroNatureYieldPlots(0), iWaterBorderPlots(0), iSeaBorderPlots(0), iLakeBorderPlots(0), iIceBorderPlots(0), iSeaBorderEdges(0), iLakeBorderEdges(0), iIceBorderEdges(0), iHillsPlots(0), iPeakPlots(0), iRiverSidePlots(0), iFreshWaterPlots(0), iSumWrappedDX(0), iSumWrappedDY(0), iStartingPlayers(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iBonusCount(0) {}
+	int iAreaId;
+	int iAnchorX;
+	int iAnchorY;
+	int iPlots;
+	int iHabitablePlots;
+	int iImpassablePlots;
+	int iZeroNatureYieldPlots;
+	int iWaterBorderPlots;
+	int iSeaBorderPlots;
+	int iLakeBorderPlots;
+	int iIceBorderPlots;
+	int iSeaBorderEdges;
+	int iLakeBorderEdges;
+	int iIceBorderEdges;
+	int iHillsPlots;
+	int iPeakPlots;
+	int iRiverSidePlots;
+	int iFreshWaterPlots;
+	int iSumWrappedDX;
+	int iSumWrappedDY;
+	int iStartingPlayers;
+	int iNatureFood;
+	int iNatureProduction;
+	int iNatureCommerce;
+	int iBonusCount;
+	CvString szStartingPlayers;
+	std::vector<int> aiNoOceanConnectedAreas;
+	std::vector<int> aiNoOceanNavigableConnectedAreas;
+	std::vector<int> aiAdjacentLakeAreas;
+	std::vector<int> aiTerrainCounts;
+	std::vector<int> aiFeatureCounts;
+	std::vector<int> aiBonusCounts;
+	std::vector<CvString> aszBonusCoordinates;
+	std::vector<int> aiEraRevealedRawFood;
+	std::vector<int> aiEraRevealedRawProduction;
+	std::vector<int> aiEraRevealedRawCommerce;
+	std::vector<int> aiEraRevealedRaw321;
+	std::vector<int> aiEraBonusPotentialFood;
+	std::vector<int> aiEraBonusPotentialProduction;
+	std::vector<int> aiEraBonusPotentialCommerce;
+	std::vector<int> aiEraBonusPotential321;
+};
+
+static SASGameRecordLandmassGeography* getSASGameRecordLandmassGeography(std::vector<SASGameRecordLandmassGeography>& aLandmasses, int iAreaId)
+{
+	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
+	{
+		if (aLandmasses[iI].iAreaId == iAreaId)
+			return &aLandmasses[iI];
+	}
+	return NULL;
+}
+
+static void addSASGameRecordUniqueArea(std::vector<int>& aiAreas, int iAreaId)
+{
+	if (iAreaId < 0)
+		return;
+	if (std::find(aiAreas.begin(), aiAreas.end(), iAreaId) == aiAreas.end())
+		aiAreas.push_back(iAreaId);
+}
+
+static CvString getSASGameRecordLandmassName(SASGameRecordLandmassGeography const& kLandmass)
+{
+	CvString szName;
+	szName.Format("LAND_%d_%d_A%d", kLandmass.iAnchorX, kLandmass.iAnchorY, kLandmass.iAreaId);
+	return szName;
+}
+
+static CvString getSASGameRecordLandmassList(std::vector<SASGameRecordLandmassGeography> const& aLandmasses, std::vector<int> const& aiAreas)
+{
+	CvString szList;
+	for (size_t iI = 0; iI < aiAreas.size(); iI++)
+	{
+		for (size_t iJ = 0; iJ < aLandmasses.size(); iJ++)
+		{
+			if (aLandmasses[iJ].iAreaId != aiAreas[iI])
+				continue;
+			CvString szItem;
+			CvString const szName = getSASGameRecordLandmassName(aLandmasses[iJ]);
+			szItem.Format(szList.empty() ? "%s" : ",%s", szName.GetCString());
+			szList += szItem;
+			break;
+		}
+	}
+	return getSASGameRecordOrDash(szList);
+}
+
+static CvString getSASGameRecordLandmassTerrainPercentages(SASGameRecordLandmassGeography const& kLandmass)
+{
+	CvString szList;
+	for (int iTerrain = 0; iTerrain < (int)kLandmass.aiTerrainCounts.size(); iTerrain++)
+	{
+		if (kLandmass.aiTerrainCounts[iTerrain] <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo((TerrainTypes)iTerrain).getType(), getSASGameRecordPercentX100(kLandmass.aiTerrainCounts[iTerrain], kLandmass.iPlots));
+		szList += szItem;
+	}
+	return getSASGameRecordOrDash(szList);
+}
+
+static CvString getSASGameRecordLandmassFeaturePercentages(SASGameRecordLandmassGeography const& kLandmass)
+{
+	CvString szList;
+	for (int iFeature = 0; iFeature < (int)kLandmass.aiFeatureCounts.size(); iFeature++)
+	{
+		if (kLandmass.aiFeatureCounts[iFeature] <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo((FeatureTypes)iFeature).getType(), getSASGameRecordPercentX100(kLandmass.aiFeatureCounts[iFeature], kLandmass.iPlots));
+		szList += szItem;
+	}
+	return getSASGameRecordOrDash(szList);
+}
+
+static int getSASGameRecordAdjacentLakePlots(SASGameRecordLandmassGeography const& kLandmass)
+{
+	int iPlots = 0;
+	for (size_t iI = 0; iI < kLandmass.aiAdjacentLakeAreas.size(); iI++)
+	{
+		CvArea const* pArea = GC.getMap().getArea(kLandmass.aiAdjacentLakeAreas[iI]);
+		if (pArea != NULL && pArea->isLake())
+			iPlots += pArea->getNumTiles();
+	}
+	return iPlots;
+}
+
+static bool isSASGameRecordTechAvailableByEra(TechTypes eTech, EraTypes eEra)
+{
+	return (eTech == NO_TECH || GC.getInfo(eTech).getEra() <= eEra);
+}
+
+static bool isSASGameRecordBuildAvailableByEra(CvPlot const& kPlot, BuildTypes eBuild, EraTypes eEra)
+{
+	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+	if (kBuild.getImprovement() == NO_IMPROVEMENT || !isSASGameRecordTechAvailableByEra(kBuild.getTechPrereq(), eEra))
+		return false;
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	if (eFeature != NO_FEATURE && kBuild.isFeatureRemove(eFeature) && !isSASGameRecordTechAvailableByEra(kBuild.getFeatureTech(eFeature), eEra))
+		return false;
+	return kPlot.canHaveImprovement(kBuild.getImprovement(), NO_TEAM, true, eBuild, false);
+}
+
+static bool isSASGameRecordIrrigationAvailableByEra(EraTypes eEra)
+{
+	static std::vector<char> abAvailable;
+	if (abAvailable.empty())
+	{
+		abAvailable.assign(GC.getNumEraInfos(), 0);
+		FOR_EACH_ENUM(Tech)
+		{
+			if (!GC.getInfo(eLoopTech).isIrrigation())
+				continue;
+			for (int iEra = GC.getInfo(eLoopTech).getEra(); iEra < GC.getNumEraInfos(); iEra++)
+				abAvailable[iEra] = 1;
+		}
+	}
+	return (eEra >= 0 && eEra < (int)abAvailable.size() && abAvailable[eEra] != 0);
+}
+
+static int getSASGameRecordImprovementTechYieldByEra(ImprovementTypes eImprovement, YieldTypes eYield, EraTypes eEra)
+{
+	static std::vector<int> aiYield;
+	int const iNumEras = GC.getNumEraInfos();
+	int const iNumImprovements = GC.getNumImprovementInfos();
+	if (aiYield.empty())
+	{
+		aiYield.assign(iNumEras * iNumImprovements * NUM_YIELD_TYPES, 0);
+		for (int iEra = 0; iEra < iNumEras; iEra++)
+		{
+			for (int iImprovement = 0; iImprovement < iNumImprovements; iImprovement++)
+			{
+				FOR_EACH_ENUM(Yield)
+				{
+					int iValue = 0;
+					FOR_EACH_ENUM(Tech)
+					{
+						if (GC.getInfo(eLoopTech).getEra() <= iEra)
+							iValue += GC.getInfo((ImprovementTypes)iImprovement).getTechYieldChanges(eLoopTech, eLoopYield);
+					}
+					aiYield[(iEra * iNumImprovements + iImprovement) * NUM_YIELD_TYPES + eLoopYield] = iValue;
+				}
+			}
+		}
+	}
+	if (eEra < 0 || eEra >= iNumEras || eImprovement < 0 || eImprovement >= iNumImprovements || eYield < 0 || eYield >= NUM_YIELD_TYPES)
+		return 0;
+	return aiYield[(eEra * iNumImprovements + eImprovement) * NUM_YIELD_TYPES + eYield];
+}
+
+static void getSASGameRecordLandmassPlotPotential(CvPlot const& kPlot, EraTypes eEra, int& iRawFood, int& iRawProduction, int& iRawCommerce, int& iRaw321, int& iPotentialFood, int& iPotentialProduction, int& iPotentialCommerce, int& iPotential321)
+{
+	BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
+	bool const bBonusRevealed = (eBonus != NO_BONUS && isSASGameRecordTechAvailableByEra(GC.getInfo(eBonus).getTechReveal(), eEra));
+	int aiRaw[NUM_YIELD_TYPES] = { 0 };
+	FOR_EACH_ENUM(Yield)
+	{
+		aiRaw[eLoopYield] = kPlot.calculateNatureYield(eLoopYield, NO_TEAM);
+		if (bBonusRevealed)
+			aiRaw[eLoopYield] += GC.getInfo(eBonus).getYieldChange(eLoopYield);
+	}
+	iRawFood = aiRaw[YIELD_FOOD];
+	iRawProduction = aiRaw[YIELD_PRODUCTION];
+	iRawCommerce = aiRaw[YIELD_COMMERCE];
+	iRaw321 = 3 * iRawFood + 2 * iRawProduction + iRawCommerce;
+	iPotentialFood = iRawFood;
+	iPotentialProduction = iRawProduction;
+	iPotentialCommerce = iRawCommerce;
+	iPotential321 = iRaw321;
+	if (!bBonusRevealed || !isSASGameRecordTechAvailableByEra(GC.getInfo(eBonus).getTechCityTrade(), eEra))
+		return;
+	bool const bIrrigationPotential = (isSASGameRecordIrrigationAvailableByEra(eEra) && kPlot.canHavePotentialIrrigation());
+	FOR_EACH_ENUM(Build)
+	{
+		if (!isSASGameRecordBuildAvailableByEra(kPlot, eLoopBuild, eEra))
+			continue;
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eImprovement = kBuild.getImprovement();
+		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+		// <!-- custom: Ordinary Farm/Cottage/Mine/etc. choices encode city specialization rather than intrinsic geography. Only project an improvement when XML explicitly says that it connects this bonus, making the resource improvement a comparatively unambiguous part of the landmass's potential. (ChatGPT-5.6-Sol) -->
+		if (!kImprovement.isImprovementBonusMakesValid(eBonus))
+			continue;
+		int aiYield[NUM_YIELD_TYPES] = { 0 };
+		FOR_EACH_ENUM(Yield)
+		{
+			int iYield = kPlot.calculateNatureYield(eLoopYield, NO_TEAM, kPlot.getFeatureType() != NO_FEATURE && kBuild.isFeatureRemove(kPlot.getFeatureType()));
+			iYield += GC.getInfo(eBonus).getYieldChange(eLoopYield);
+			iYield += kImprovement.getYieldChange(eLoopYield);
+			if (kPlot.isRiverSide())
+				iYield += kImprovement.getRiverSideYieldChange(eLoopYield);
+			if (kPlot.isHills())
+				iYield += kImprovement.getHillsYieldChange(eLoopYield);
+			if (bIrrigationPotential)
+				iYield += kImprovement.getIrrigatedYieldChange(eLoopYield);
+			iYield += getSASGameRecordImprovementTechYieldByEra(eImprovement, eLoopYield, eEra);
+			iYield += kImprovement.getImprovementBonusYield(eBonus, eLoopYield);
+			aiYield[eLoopYield] = std::max(0, iYield);
+		}
+		iPotentialFood = std::max(iPotentialFood, aiYield[YIELD_FOOD]);
+		iPotentialProduction = std::max(iPotentialProduction, aiYield[YIELD_PRODUCTION]);
+		iPotentialCommerce = std::max(iPotentialCommerce, aiYield[YIELD_COMMERCE]);
+		iPotential321 = std::max(iPotential321, 3 * aiYield[YIELD_FOOD] + 2 * aiYield[YIELD_PRODUCTION] + aiYield[YIELD_COMMERCE]);
+	}
+}
+
+static CvString getSASGameRecordEraLandmassYieldList(SASGameRecordLandmassGeography const& kLandmass, bool bBonusPotential)
+{
+	CvString szList;
+	for (int iEra = 0; iEra < GC.getNumEraInfos(); iEra++)
+	{
+		if (kLandmass.iPlots <= 0)
+			continue;
+		std::vector<int> const& aiFood = (bBonusPotential ? kLandmass.aiEraBonusPotentialFood : kLandmass.aiEraRevealedRawFood);
+		std::vector<int> const& aiProduction = (bBonusPotential ? kLandmass.aiEraBonusPotentialProduction : kLandmass.aiEraRevealedRawProduction);
+		std::vector<int> const& aiCommerce = (bBonusPotential ? kLandmass.aiEraBonusPotentialCommerce : kLandmass.aiEraRevealedRawCommerce);
+		std::vector<int> const& ai321 = (bBonusPotential ? kLandmass.aiEraBonusPotential321 : kLandmass.aiEraRevealedRaw321);
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%d/%d/%d/%d" : ",%s:%d/%d/%d/%d", GC.getInfo((EraTypes)iEra).getType(), (100 * aiFood[iEra]) / kLandmass.iPlots, (100 * aiProduction[iEra]) / kLandmass.iPlots, (100 * aiCommerce[iEra]) / kLandmass.iPlots, (100 * ai321[iEra]) / kLandmass.iPlots);
+		szList += szItem;
+	}
+	return getSASGameRecordOrDash(szList);
+}
+
+static CvString getSASGameRecordLandmassBonusTypes(SASGameRecordLandmassGeography const& kLandmass)
+{
+	CvString szTypes;
+	for (int iBonus = 0; iBonus < (int)kLandmass.aiBonusCounts.size(); iBonus++)
+	{
+		if (kLandmass.aiBonusCounts[iBonus] <= 0)
+			continue;
+		appendSASGameRecordTypeCount(szTypes, getSASGameRecordBonusType((BonusTypes)iBonus), kLandmass.aiBonusCounts[iBonus]);
+	}
+	return getSASGameRecordOrDash(szTypes);
+}
+
+static void logSASGameRecordLandmassBonusCoordinates(SASGameRecordLandmassGeography const& kLandmass, CvString const& szLandmassName)
+{
+	std::vector<CvString> aszParts;
+	CvString szPart;
+	for (size_t iI = 0; iI < kLandmass.aszBonusCoordinates.size(); iI++)
+	{
+		CvString const& szItem = kLandmass.aszBonusCoordinates[iI];
+		if (!szPart.empty() && szPart.length() + szItem.length() + 1 > 1200)
+		{
+			aszParts.push_back(szPart);
+			szPart = "";
+		}
+		if (!szPart.empty())
+			szPart += ";";
+		szPart += szItem;
+	}
+	if (!szPart.empty())
+		aszParts.push_back(szPart);
+	if (aszParts.empty())
+	{
+		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_COORDS turn=%d landmass=%s part=1 parts=1 bonuses=-", GC.getGame().getGameTurn(), szLandmassName.GetCString());
+		return;
+	}
+	for (size_t iI = 0; iI < aszParts.size(); iI++)
+		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_COORDS turn=%d landmass=%s part=%d parts=%d bonuses=%s", GC.getGame().getGameTurn(), szLandmassName.GetCString(), (int)iI + 1, (int)aszParts.size(), aszParts[iI].GetCString());
+}
+
+// <!-- custom: Record a map-geography snapshot once per new/load context so autoplay analysis can distinguish crowded continents, isolated islands, coast-connected landmasses, terrain/feature composition, lake/sea structure, map-resource distribution, and underlying land quality without reconstructing the map from later city history.
+// Landmass names use a deterministic anchor coordinate plus the Civ4 area ID; center coordinates are wrap-aware approximations. "habitable" uses CvPlot::isHabitable, while impassable and zero-natural-yield plots remain separate.
+// Nature yields exclude bonuses. Per-era raw value adds a bonus only from its reveal era; conservative potential improves only revealed/connectable bonus plots through an XML-valid resource improvement, leaving ordinary non-bonus specialization choices untouched.
+// Routes, civics and improvement maturation remain excluded because they are not intrinsic geography. (ChatGPT-5.6-Sol); or because they are available everywhere, so counting them or not has no extra strategic information value so do not count them. -->
+static void addSASGameRecordNoOceanConnections(CvMap const& kMap, TerrainTypes eOcean, bool bSkipImpassable, std::vector<SASGameRecordLandmassGeography>& aLandmasses)
+{
+	std::vector<char> abVisited(kMap.numPlots(), 0);
+	for (int iI = 0; iI < kMap.numPlots(); iI++)
+	{
+		CvPlot const& kStart = kMap.getPlotByIndex(iI);
+		if (abVisited[iI] || !kStart.isWater() || kStart.getTerrainType() == eOcean || (bSkipImpassable && kStart.isImpassable()))
+			continue;
+		std::vector<int> aiQueue;
+		std::vector<int> aiBorderLandAreas;
+		abVisited[iI] = 1;
+		aiQueue.push_back(iI);
+		for (size_t iQ = 0; iQ < aiQueue.size(); iQ++)
+		{
+			CvPlot const& kWater = kMap.getPlotByIndex(aiQueue[iQ]);
+			FOR_EACH_ADJ_PLOT(kWater)
+			{
+				if (!pAdj->isWater())
+				{
+					addSASGameRecordUniqueArea(aiBorderLandAreas, pAdj->getArea().getID());
+					continue;
+				}
+				if (pAdj->getTerrainType() == eOcean || (bSkipImpassable && pAdj->isImpassable()))
+					continue;
+				int const iAdjIndex = kMap.plotNum(pAdj->getX(), pAdj->getY());
+				if (iAdjIndex < 0 || abVisited[iAdjIndex])
+					continue;
+				abVisited[iAdjIndex] = 1;
+				aiQueue.push_back(iAdjIndex);
+			}
+		}
+		for (size_t iA = 0; iA < aiBorderLandAreas.size(); iA++)
+		{
+			SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, aiBorderLandAreas[iA]);
+			if (pLandmass == NULL)
+				continue;
+			for (size_t iB = 0; iB < aiBorderLandAreas.size(); iB++)
+			{
+				if (iA == iB)
+					continue;
+				if (bSkipImpassable)
+					addSASGameRecordUniqueArea(pLandmass->aiNoOceanNavigableConnectedAreas, aiBorderLandAreas[iB]);
+				else addSASGameRecordUniqueArea(pLandmass->aiNoOceanConnectedAreas, aiBorderLandAreas[iB]);
+			}
+		}
+	}
+}
+
+static void logSASGameRecordGeography()
+{
+	CvMap const& kMap = GC.getMap();
+	std::vector<SASGameRecordLandmassGeography> aLandmasses;
+	int iLandPlots = 0;
+	int iWaterPlots = 0;
+	int iSeaPlots = 0;
+	int iLakePlots = 0;
+	int iCoastSeaPlots = 0;
+	int iOceanSeaPlots = 0;
+	int iOtherSeaPlots = 0;
+	int iIcePlots = 0;
+	int iIceSeaPlots = 0;
+	int iIceLakePlots = 0;
+	int iIceCoastSeaPlots = 0;
+	int iIceOceanSeaPlots = 0;
+	int iWaterAreas = 0;
+	int iSeaAreas = 0;
+	int iLakeAreas = 0;
+	TerrainTypes const eCoast = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_COAST");
+	TerrainTypes const eOcean = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_OCEAN");
+	FeatureTypes const eIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
+	int iLoop = 0;
+	for (CvArea const* pLoopArea = kMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = kMap.nextArea(&iLoop))
+	{
+		if (pLoopArea->isWater())
+		{
+			iWaterAreas++;
+			if (pLoopArea->isLake())
+				iLakeAreas++;
+			else iSeaAreas++;
+			continue;
+		}
+		SASGameRecordLandmassGeography kLandmass;
+		kLandmass.iAreaId = pLoopArea->getID();
+		kLandmass.aiTerrainCounts.assign(GC.getNumTerrainInfos(), 0);
+		kLandmass.aiFeatureCounts.assign(GC.getNumFeatureInfos(), 0);
+		kLandmass.aiBonusCounts.assign(GC.getNumBonusInfos(), 0);
+		kLandmass.aiEraRevealedRawFood.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraRevealedRawProduction.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraRevealedRawCommerce.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraRevealedRaw321.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraBonusPotentialFood.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraBonusPotentialProduction.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraBonusPotentialCommerce.assign(GC.getNumEraInfos(), 0);
+		kLandmass.aiEraBonusPotential321.assign(GC.getNumEraInfos(), 0);
+		aLandmasses.push_back(kLandmass);
+	}
+	for (int iI = 0; iI < kMap.numPlots(); iI++)
+	{
+		CvPlot const& kPlot = kMap.getPlotByIndex(iI);
+		if (kPlot.isWater())
+		{
+			iWaterPlots++;
+			bool const bIce = (eIce != NO_FEATURE && kPlot.getFeatureType() == eIce);
+			if (bIce)
+				iIcePlots++;
+			if (kPlot.isLake())
+			{
+				iLakePlots++;
+				if (bIce)
+					iIceLakePlots++;
+				FOR_EACH_ADJ_PLOT(kPlot)
+				{
+					if (pAdj->isWater())
+						continue;
+					SASGameRecordLandmassGeography* pAdjacentLandmass = getSASGameRecordLandmassGeography(aLandmasses, pAdj->getArea().getID());
+					if (pAdjacentLandmass != NULL)
+						addSASGameRecordUniqueArea(pAdjacentLandmass->aiAdjacentLakeAreas, kPlot.getArea().getID());
+				}
+			}
+			else
+			{
+				iSeaPlots++;
+				if (bIce)
+					iIceSeaPlots++;
+				if (kPlot.getTerrainType() == eCoast)
+				{
+					iCoastSeaPlots++;
+					if (bIce)
+						iIceCoastSeaPlots++;
+				}
+				else if (kPlot.getTerrainType() == eOcean)
+				{
+					iOceanSeaPlots++;
+					if (bIce)
+						iIceOceanSeaPlots++;
+				}
+				else iOtherSeaPlots++;
+			}
+			continue;
+		}
+		iLandPlots++;
+		SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, kPlot.getArea().getID());
+		if (pLandmass == NULL)
+			continue;
+		if (pLandmass->iPlots == 0)
+		{
+			pLandmass->iAnchorX = kPlot.getX();
+			pLandmass->iAnchorY = kPlot.getY();
+		}
+		pLandmass->iPlots++;
+		if (kPlot.getTerrainType() != NO_TERRAIN)
+			pLandmass->aiTerrainCounts[kPlot.getTerrainType()]++;
+		if (kPlot.getFeatureType() != NO_FEATURE)
+			pLandmass->aiFeatureCounts[kPlot.getFeatureType()]++;
+		if (kPlot.isHills())
+			pLandmass->iHillsPlots++;
+		if (kPlot.isPeak())
+			pLandmass->iPeakPlots++;
+		if (kPlot.isRiverSide())
+			pLandmass->iRiverSidePlots++;
+		if (kPlot.isFreshWater())
+			pLandmass->iFreshWaterPlots++;
+		pLandmass->iSumWrappedDX += kMap.dxWrap(kPlot.getX() - pLandmass->iAnchorX);
+		pLandmass->iSumWrappedDY += kMap.dyWrap(kPlot.getY() - pLandmass->iAnchorY);
+		if (kPlot.isHabitable())
+			pLandmass->iHabitablePlots++;
+		if (kPlot.isImpassable())
+			pLandmass->iImpassablePlots++;
+		int const iNatureFood = kPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM);
+		int const iNatureProduction = kPlot.calculateNatureYield(YIELD_PRODUCTION, NO_TEAM);
+		int const iNatureCommerce = kPlot.calculateNatureYield(YIELD_COMMERCE, NO_TEAM);
+		if (iNatureFood + iNatureProduction + iNatureCommerce <= 0)
+			pLandmass->iZeroNatureYieldPlots++;
+		pLandmass->iNatureFood += iNatureFood;
+		pLandmass->iNatureProduction += iNatureProduction;
+		pLandmass->iNatureCommerce += iNatureCommerce;
+		BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
+		if (eBonus != NO_BONUS)
+		{
+			pLandmass->iBonusCount++;
+			if (eBonus >= 0 && eBonus < (int)pLandmass->aiBonusCounts.size())
+				pLandmass->aiBonusCounts[eBonus]++;
+			CvString szBonus;
+			szBonus.Format("%s@%d,%d", getSASGameRecordBonusType(eBonus), kPlot.getX(), kPlot.getY());
+			pLandmass->aszBonusCoordinates.push_back(szBonus);
+		}
+		for (int iEra = 0; iEra < GC.getNumEraInfos(); iEra++)
+		{
+			int iRawFood = 0;
+			int iRawProduction = 0;
+			int iRawCommerce = 0;
+			int iRaw321 = 0;
+			int iPotentialFood = 0;
+			int iPotentialProduction = 0;
+			int iPotentialCommerce = 0;
+			int iPotential321 = 0;
+			getSASGameRecordLandmassPlotPotential(kPlot, (EraTypes)iEra, iRawFood, iRawProduction, iRawCommerce, iRaw321, iPotentialFood, iPotentialProduction, iPotentialCommerce, iPotential321);
+			pLandmass->aiEraRevealedRawFood[iEra] += iRawFood;
+			pLandmass->aiEraRevealedRawProduction[iEra] += iRawProduction;
+			pLandmass->aiEraRevealedRawCommerce[iEra] += iRawCommerce;
+			pLandmass->aiEraRevealedRaw321[iEra] += iRaw321;
+			pLandmass->aiEraBonusPotentialFood[iEra] += iPotentialFood;
+			pLandmass->aiEraBonusPotentialProduction[iEra] += iPotentialProduction;
+			pLandmass->aiEraBonusPotentialCommerce[iEra] += iPotentialCommerce;
+			pLandmass->aiEraBonusPotential321[iEra] += iPotential321;
+		}
+		bool bBordersWater = false;
+		bool bBordersSea = false;
+		bool bBordersLake = false;
+		bool bBordersIce = false;
+		FOR_EACH_ADJ_PLOT(kPlot)
+		{
+			if (!pAdj->isWater())
+				continue;
+			bBordersWater = true;
+			if (pAdj->isLake())
+			{
+				bBordersLake = true;
+				pLandmass->iLakeBorderEdges++;
+			}
+			else
+			{
+				bBordersSea = true;
+				pLandmass->iSeaBorderEdges++;
+			}
+			if (eIce != NO_FEATURE && pAdj->getFeatureType() == eIce)
+			{
+				bBordersIce = true;
+				pLandmass->iIceBorderEdges++;
+			}
+		}
+		if (bBordersWater) pLandmass->iWaterBorderPlots++;
+		if (bBordersSea) pLandmass->iSeaBorderPlots++;
+		if (bBordersLake) pLandmass->iLakeBorderPlots++;
+		if (bBordersIce) pLandmass->iIceBorderPlots++;
+	}
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
+		CvPlot const* pStart = kPlayer.getStartingPlot();
+		if (!kPlayer.isEverAlive() || kPlayer.isBarbarian() || pStart == NULL || pStart->isWater())
+			continue;
+		SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, pStart->getArea().getID());
+		if (pLandmass == NULL)
+			continue;
+		pLandmass->iStartingPlayers++;
+		CvString szItem;
+		szItem.Format(pLandmass->szStartingPlayers.empty() ? "%d@%d,%d" : ";%d@%d,%d", eLoopPlayer, pStart->getX(), pStart->getY());
+		pLandmass->szStartingPlayers += szItem;
+	}
+	if (eOcean != NO_TERRAIN)
+	{
+		// <!-- custom: Keep terrain-only coastal connectivity for shape/topology, then separately exclude impassable water (currently Ice) to capture what ordinary pre-ocean sea units can actually traverse. (ChatGPT-5.6-Sol) -->
+		addSASGameRecordNoOceanConnections(kMap, eOcean, false, aLandmasses);
+		addSASGameRecordNoOceanConnections(kMap, eOcean, true, aLandmasses);
+	}
+
+	int iLargestAreaId = -1;
+	int iLargestAreaPlots = 0;
+	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
+	{
+		if (aLandmasses[iI].iPlots > iLargestAreaPlots)
+		{
+			iLargestAreaPlots = aLandmasses[iI].iPlots;
+			iLargestAreaId = aLandmasses[iI].iAreaId;
+		}
+	}
+	CvString szLargestLandmass = "-";
+	SASGameRecordLandmassGeography* pLargestLandmass = getSASGameRecordLandmassGeography(aLandmasses, iLargestAreaId);
+	if (pLargestLandmass != NULL)
+		szLargestLandmass = getSASGameRecordLandmassName(*pLargestLandmass);
+	int const iMapPlots = iLandPlots + iWaterPlots;
+	logSASGameRecord("GAME_RECORD_GEOGRAPHY_SUMMARY turn=%d landmasses=%d waterAreas=%d seaAreas=%d lakeAreas=%d mapPlots=%d landPlots=%d landPercentOfMapX100=%d waterPlots=%d waterPercentOfMapX100=%d seaPlots=%d seaPercentOfMapX100=%d coastSeaPlots=%d coastSeaPercentOfMapX100=%d oceanSeaPlots=%d oceanSeaPercentOfMapX100=%d otherSeaPlots=%d lakePlots=%d lakePercentOfMapX100=%d icePlots=%d icePercentOfMapX100=%d icePercentOfWaterX100=%d iceSeaPlots=%d icePercentOfSeaX100=%d iceCoastSeaPlots=%d iceOceanSeaPlots=%d iceLakePlots=%d largestLandmass=%s largestLandmassPlots=%d wrapX=%d wrapY=%d coastTerrain=%s oceanTerrain=%s iceFeature=%s",
+			GC.getGame().getGameTurn(), (int)aLandmasses.size(), iWaterAreas, iSeaAreas, iLakeAreas, iMapPlots, iLandPlots, getSASGameRecordPercentX100(iLandPlots, iMapPlots), iWaterPlots, getSASGameRecordPercentX100(iWaterPlots, iMapPlots), iSeaPlots, getSASGameRecordPercentX100(iSeaPlots, iMapPlots), iCoastSeaPlots, getSASGameRecordPercentX100(iCoastSeaPlots, iMapPlots), iOceanSeaPlots, getSASGameRecordPercentX100(iOceanSeaPlots, iMapPlots), iOtherSeaPlots, iLakePlots, getSASGameRecordPercentX100(iLakePlots, iMapPlots), iIcePlots, getSASGameRecordPercentX100(iIcePlots, iMapPlots), getSASGameRecordPercentX100(iIcePlots, iWaterPlots), iIceSeaPlots, getSASGameRecordPercentX100(iIceSeaPlots, iSeaPlots), iIceCoastSeaPlots, iIceOceanSeaPlots, iIceLakePlots,
+			szLargestLandmass.GetCString(), iLargestAreaPlots, kMap.isWrapX(), kMap.isWrapY(), eCoast == NO_TERRAIN ? "-" : GC.getInfo(eCoast).getType(), eOcean == NO_TERRAIN ? "-" : GC.getInfo(eOcean).getType(), eIce == NO_FEATURE ? "-" : GC.getInfo(eIce).getType());
+	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=terrain_feature_hills_river_without_bonus revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
+	logSASGameRecord("GAME_RECORD_GEOGRAPHY_COMPOSITION_LEGEND percentScale=100 terrainPercentDenominator=landmassPlots featurePercentDenominator=landmassPlots featurelessPercent=plots_without_feature waterBorderLand=land_plots_adjacent_to_any_water seaBorderLand=land_plots_adjacent_to_nonlake_water lakeBorderLand=land_plots_adjacent_to_lake_water borderEdgesPerLandX100=adjacent_land_water_edges_per_land_plot_times_100 iceBorderLand=land_plots_adjacent_to_FEATURE_ICE adjacentLakePlots=unique_lake_area_tiles_touching_landmass adjacentLakePerLandPercentDenominator=landmassPlots noOceanConnected=non_ocean_water_topology_ignoring_impassable_features noOceanNavigable=non_ocean_water_excluding_impassable_plots sea=water_excluding_lakes coastSea=nonlake_TERRAIN_COAST oceanSea=nonlake_TERRAIN_OCEAN");
+	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
+	{
+		SASGameRecordLandmassGeography const& kLandmass = aLandmasses[iI];
+		if (kLandmass.iPlots <= 0)
+			continue;
+		int iCenterX100 = kLandmass.iAnchorX * 100 + (100 * kLandmass.iSumWrappedDX) / kLandmass.iPlots;
+		int iCenterY100 = kLandmass.iAnchorY * 100 + (100 * kLandmass.iSumWrappedDY) / kLandmass.iPlots;
+		if (kMap.isWrapX())
+		{
+			int const iWidthX100 = kMap.getGridWidth() * 100;
+			while (iCenterX100 < 0) iCenterX100 += iWidthX100;
+			while (iCenterX100 >= iWidthX100) iCenterX100 -= iWidthX100;
+		}
+		if (kMap.isWrapY())
+		{
+			int const iHeightX100 = kMap.getGridHeight() * 100;
+			while (iCenterY100 < 0) iCenterY100 += iHeightX100;
+			while (iCenterY100 >= iHeightX100) iCenterY100 -= iHeightX100;
+		}
+		CvString const szName = getSASGameRecordLandmassName(kLandmass);
+		logSASGameRecord("GAME_RECORD_LANDMASS turn=%d landmass=%s area=%d anchor=%d,%d centerX100=%d centerY100=%d plots=%d landSharePercentX100=%d habitablePlots=%d nonHabitablePlots=%d impassablePlots=%d zeroNatureYieldPlots=%d waterBorderPlots=%d seaBorderPlots=%d lakeBorderPlots=%d startingPlayers=%d starts=%s noOceanConnectedCount=%d noOceanConnectedTo=%s",
+				GC.getGame().getGameTurn(), szName.GetCString(), kLandmass.iAreaId, kLandmass.iAnchorX, kLandmass.iAnchorY, iCenterX100, iCenterY100, kLandmass.iPlots, getSASGameRecordPercentX100(kLandmass.iPlots, iLandPlots), kLandmass.iHabitablePlots, kLandmass.iPlots - kLandmass.iHabitablePlots, kLandmass.iImpassablePlots, kLandmass.iZeroNatureYieldPlots, kLandmass.iWaterBorderPlots, kLandmass.iSeaBorderPlots, kLandmass.iLakeBorderPlots, kLandmass.iStartingPlayers, getSASGameRecordOrDash(kLandmass.szStartingPlayers).GetCString(), (int)kLandmass.aiNoOceanConnectedAreas.size(), getSASGameRecordLandmassList(aLandmasses, kLandmass.aiNoOceanConnectedAreas).GetCString());
+		std::vector<int> aiIceBlockedNoOceanAreas;
+		for (size_t iConnection = 0; iConnection < kLandmass.aiNoOceanConnectedAreas.size(); iConnection++)
+		{
+			int const iAreaId = kLandmass.aiNoOceanConnectedAreas[iConnection];
+			if (std::find(kLandmass.aiNoOceanNavigableConnectedAreas.begin(), kLandmass.aiNoOceanNavigableConnectedAreas.end(), iAreaId) == kLandmass.aiNoOceanNavigableConnectedAreas.end())
+				aiIceBlockedNoOceanAreas.push_back(iAreaId);
+		}
+		logSASGameRecord("GAME_RECORD_LANDMASS_NAVIGATION turn=%d landmass=%s noOceanNavigableConnectedCount=%d iceBlockedNoOceanCount=%d iceBlockedNoOceanTo=%s",
+				GC.getGame().getGameTurn(), szName.GetCString(), (int)kLandmass.aiNoOceanNavigableConnectedAreas.size(), (int)aiIceBlockedNoOceanAreas.size(), getSASGameRecordLandmassList(aLandmasses, aiIceBlockedNoOceanAreas).GetCString());
+		int iFeaturePlots = 0;
+		for (size_t iFeature = 0; iFeature < kLandmass.aiFeatureCounts.size(); iFeature++)
+			iFeaturePlots += kLandmass.aiFeatureCounts[iFeature];
+		int const iAdjacentLakePlots = getSASGameRecordAdjacentLakePlots(kLandmass);
+		logSASGameRecord("GAME_RECORD_LANDMASS_COMPOSITION turn=%d landmass=%s hillsPercentX100=%d peakPercentX100=%d riverSidePercentX100=%d freshWaterPercentX100=%d waterBorderLandPercentX100=%d seaBorderLandPercentX100=%d lakeBorderLandPercentX100=%d iceBorderLandPercentX100=%d seaBorderEdgesPerLandX100=%d lakeBorderEdgesPerLandX100=%d iceBorderEdgesPerLandX100=%d featurelessPercentX100=%d adjacentLakePlots=%d adjacentLakePerLandPercentX100=%d terrainPercentX100=%s featurePercentX100=%s",
+				GC.getGame().getGameTurn(), szName.GetCString(), getSASGameRecordPercentX100(kLandmass.iHillsPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iPeakPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iRiverSidePlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iFreshWaterPlots, kLandmass.iPlots),
+				getSASGameRecordPercentX100(kLandmass.iWaterBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iSeaBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iLakeBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iIceBorderPlots, kLandmass.iPlots), (100 * kLandmass.iSeaBorderEdges) / kLandmass.iPlots, (100 * kLandmass.iLakeBorderEdges) / kLandmass.iPlots, (100 * kLandmass.iIceBorderEdges) / kLandmass.iPlots, getSASGameRecordPercentX100(kLandmass.iPlots - iFeaturePlots, kLandmass.iPlots), iAdjacentLakePlots, getSASGameRecordPercentX100(iAdjacentLakePlots, kLandmass.iPlots), getSASGameRecordLandmassTerrainPercentages(kLandmass).GetCString(), getSASGameRecordLandmassFeaturePercentages(kLandmass).GetCString());
+		int const iFinalEra = GC.getNumEraInfos() - 1;
+		int const iNature321 = 3 * kLandmass.iNatureFood + 2 * kLandmass.iNatureProduction + kLandmass.iNatureCommerce;
+		logSASGameRecord("GAME_RECORD_LANDMASS_YIELDS turn=%d landmass=%s natureAvgF100=%d natureAvgH100=%d natureAvgC100=%d natureAvg321X100=%d revealedRawFinalAvgF100=%d revealedRawFinalAvgH100=%d revealedRawFinalAvgC100=%d revealedRawFinalAvg321X100=%d bonusImprovedPotentialFinalAvgF100=%d bonusImprovedPotentialFinalAvgH100=%d bonusImprovedPotentialFinalAvgC100=%d bonusImprovedPotentialFinalAvg321X100=%d eraRevealedRawAvgFHC321X100=%s eraBonusImprovedPotentialAvgFHC321X100=%s",
+				GC.getGame().getGameTurn(), szName.GetCString(), (100 * kLandmass.iNatureFood) / kLandmass.iPlots, (100 * kLandmass.iNatureProduction) / kLandmass.iPlots, (100 * kLandmass.iNatureCommerce) / kLandmass.iPlots, (100 * iNature321) / kLandmass.iPlots,
+				iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawFood[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawProduction[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawCommerce[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRaw321[iFinalEra]) / kLandmass.iPlots,
+				iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialFood[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialProduction[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialCommerce[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotential321[iFinalEra]) / kLandmass.iPlots, getSASGameRecordEraLandmassYieldList(kLandmass, false).GetCString(), getSASGameRecordEraLandmassYieldList(kLandmass, true).GetCString());
+		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_SUMMARY turn=%d landmass=%s bonusCount=%d types=%s", GC.getGame().getGameTurn(), szName.GetCString(), kLandmass.iBonusCount, getSASGameRecordLandmassBonusTypes(kLandmass).GetCString());
+		logSASGameRecordLandmassBonusCoordinates(kLandmass, szName);
+	}
+}
+
 static void logSASGameRecordInitialContext()
 {
 	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_MOD_CONTEXT modName=%s modPath=%s", getSASGameRecordQuoted(GC.getModName().getName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getPathInRoot()).GetCString());
 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
+	logSASGameRecordGeography();
 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -3881,4 +4518,3 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
 				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getX(), pLoser->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
 	}
 }
-
