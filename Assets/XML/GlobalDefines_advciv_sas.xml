@@ -2179,6 +2179,11 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: Additional absolute BuildUnitProb response to the same capped power-per-city deficit when current unit spending is still within the normal max + 15 allowance used by military-production gates. This complements the multiplicative catch-up for peaceful personalities whose low base BuildUnitProb would otherwise react weakly: 50 means a 30% capped deficit can add +15 BuildUnitProb points. Spending is only an affordability brake, not a target to fill, and 0 disables this extra absolute response. See KI#197.8. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units. 100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>

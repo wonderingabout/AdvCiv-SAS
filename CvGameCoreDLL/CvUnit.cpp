@@ -968,6 +968,8 @@ void CvUnit::updateAirCombat(bool bQuick)
 		kAirMission.setUnit(BATTLE_UNIT_DEFENDER, pInterceptor);
 
 		resolveAirCombat(pInterceptor, pPlot, kAirMission);
+		// <!-- custom: Detailed GameRecord interception rows prevent interrupted air missions from being mistaken for unused aircraft; record only the resolved interception combat, without guessing which higher-level air mission was interrupted. (GPT-5.6) -->
+		if (gGameRecordLogLevel >= 3) logSASGameRecordAirInterception(this, pInterceptor, pPlot, kAirMission.getDamage(BATTLE_UNIT_ATTACKER), kAirMission.getDamage(BATTLE_UNIT_DEFENDER));
 
 		if (!bVisible)
 			bFinish = true;
@@ -4963,9 +4965,18 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 	CvCity* pCity = kTarget.getPlotCity();
 	if (pCity != NULL)
 	{
+		// <!-- custom: GameRecord level 3 records actual air city bombardment with before/after defense state; consecutive equivalent actions are synthesized by SASGameRecordLog. Keep the before-state work gated so disabled/lower-level logging has no extra city-defense computation. (GPT-5.6 Thinking) -->
+		int iGameRecordDefenseModifierBefore = -1;
+		int iGameRecordDefenseDamageBefore = -1;
+		if (gGameRecordLogLevel >= 3)
+		{
+			iGameRecordDefenseModifierBefore = pCity->getDefenseModifier(false);
+			iGameRecordDefenseDamageBefore = pCity->getDefenseDamage();
+		}
 		//pCity->changeDefenseModifier(-airBombCurrRate());
 		// advc.004c:
 		pCity->changeDefenseModifier(-std::max(0, airBombDefenseDamage(*pCity)));	
+		if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pCity, "AIR", airBombCurrRate(), true, iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DEFENSES_REDUCED_TO",
 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
@@ -4985,6 +4996,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 		if (bValidOwner && eStructure != NO_STRUCTURE)
 		{
 			bool const bRoute = (eStructure == STRUCTURE_ROUTE);
+			// <!-- custom: Existing level-2 AIR_BOMBING plot changes describe the map mutation; level 3 additionally identifies the acting aircraft, intended structure and success/failure so air-use quality can be reconstructed. (GPT-5.6) -->
+			char const* szGameRecordTargetKind = (bRoute ? "ROUTE" : "IMPROVEMENT");
+			char const* szGameRecordTarget = (bRoute ? GC.getInfo(kTarget.getRouteType()).getType() : GC.getInfo(kTarget.getImprovementType()).getType());
 			wchar const* szStructure = (bRoute ?
 					GC.getInfo(kTarget.getRouteType()).getTextKeyWide() :
 					GC.getInfo(kTarget.getImprovementType()).getTextKeyWide());
@@ -5026,9 +5040,11 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 							getImprovementPillage());
 				}
 				if (bLogPlotChange) recordSASGameRecordPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
+				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, true);
 			}
 			else
 			{
+				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, false);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
@@ -5040,6 +5056,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 			or when plot owner in FoW was out of date */
 		else
 		{
+			if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, "NONE", "-", false);
 			szBuffer = gDLL->getText("TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE", getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 					"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
@@ -5156,8 +5173,17 @@ bool CvUnit::bombard()
 	}
 
 	bool bFirstBombardment = !pBombardCity->isBombarded(); // advc.004g
+	// <!-- custom: Record actual siege/naval bombardment at GameRecord level 3, including the exact city-defense reduction; consecutive equivalent actions are synthesized by SASGameRecordLog, and before-state computation stays gated to detailed logging. (GPT-5.6 Thinking) -->
+	int iGameRecordDefenseModifierBefore = -1;
+	int iGameRecordDefenseDamageBefore = -1;
+	if (gGameRecordLogLevel >= 3)
+	{
+		iGameRecordDefenseModifierBefore = pBombardCity->getDefenseModifier(false);
+		iGameRecordDefenseDamageBefore = pBombardCity->getDefenseDamage();
+	}
 	// advc: Moved into subroutine
 	pBombardCity->changeDefenseModifier(-std::max(0, damageToBombardTarget(getPlot())));
+	if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pBombardCity, getDomainType() == DOMAIN_SEA ? "NAVAL" : "SIEGE", bombardRate(), ignoreBuildingDefense(), iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
 	setMadeAttack(true);
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
@@ -11744,6 +11770,8 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
 	int iDamage = airCombatDamage(pDefender);
+	// <!-- custom: Unit inventories show that aircraft exist; this level-3 action proves that an air strike was actually executed and records its primary-target damage. Log before setDamage because a combat-limit-100 unit could otherwise invalidate the defender pointer. (GPT-5.6) -->
+	const int iGameRecordDefenderDamageBefore = (gGameRecordLogLevel >= 3 ? pDefender->getDamage() : -1);
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
@@ -11766,6 +11794,7 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 			kPlot.getX(), kPlot.getY());
 
 	collateralCombat(&kPlot, pDefender);
+	if (gGameRecordLogLevel >= 3) logSASGameRecordAirStrike(this, pDefender, iGameRecordDefenderDamageBefore, iUnitDamage);
 	pDefender->setDamage(iUnitDamage, getOwner());
 
 	return true;

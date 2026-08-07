@@ -16945,9 +16945,17 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 	int iHighestRivalPowForLog = -1;
 	int iOurPowerPerCityX100ForLog = -1;
 	int iRelevantRivalAvgPowerPerCityX100ForLog = -1;
+	int iPowerPerCityDeficitPercentForLog = 0;
 	int iUnderstrengthBoostPercentForLog = 0;
 	int iPreUnderstrengthProbForLog = -1;
+	int iPostMultiplicativeUnderstrengthProbForLog = -1;
 	int iPostUnderstrengthProbForLog = -1;
+	int iAffordableAbsoluteWeightPercentForLog = 0;
+	int iAffordableUnderstrengthBoostPointsForLog = 0;
+	int iAffordableUnderstrengthUnitSpendingForLog = -1;
+	int iAffordableUnderstrengthMaxUnitSpendingForLog = -1;
+	int iAffordableUnderstrengthSpendingGapForLog = -1;
+	int iAffordableUnderstrengthSpendingAllowedForLog = 0;
 	int iPowerThrottleForLog = 0; // <!-- custom: Diagnostic code: 0 = none, 1 = gradual, 2 = quartered. (ChatGPT-5.6-Sol) -->
 
 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
@@ -17053,12 +17061,28 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 			// Post-fix full runs from save file 458 (two runs) and save file 457 (one independent run) activated the catch-up in about 46-47% of logged BuildUnitProb evaluations, averaging about +7 to +9 actual points when active, with no simultaneous high-power throttle. See KI#197. (ChatGPT-5.6-Sol) -->
 			static const bool bUnderstrengthOptimize = GC.getDefineBOOL("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE");
 			static const int iMaxUnderstrengthBoostPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT"));
+			static const int iAffordableAbsoluteWeightPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT"));
+			iAffordableAbsoluteWeightPercentForLog = iAffordableAbsoluteWeightPercent;
 			iPreUnderstrengthProbForLog = r.getPercent();
 			if (bUnderstrengthOptimize && !bGreatlyReduced && rPowRatio <= 1 && !kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS) && kOurTeam.AI_isWarPossible() && iRelevantRivalAvgPowerPerCityX100ForLog > iOurPowerPerCityX100ForLog)
 			{
-				int const iPowerPerCityDeficitPercent = 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog;
-				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, std::max(0, iPowerPerCityDeficitPercent));
+				iPowerPerCityDeficitPercentForLog = std::max(0, 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog);
+				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, iPowerPerCityDeficitPercentForLog);
 				r *= 1 + per100(iUnderstrengthBoostPercentForLog);
+				iPostMultiplicativeUnderstrengthProbForLog = r.getPercent();
+				// <!-- custom: A multiplicative catch-up remains weak for peaceful personalities with a low base BuildUnitProb. If the AI can still afford more military under the same normal max + 15 allowance used by production gates, convert part of the existing capped power-per-city deficit into absolute BuildUnitProb points. Spending is only a brake here, not a target to fill; this avoids encouraging units solely because support is temporarily cheap. See KI#197.8. (GPT-5.6 Thinking) -->
+				if (!bDraft && iAffordableAbsoluteWeightPercent > 0 && r.getPercent() < 100)
+				{
+					iAffordableUnderstrengthUnitSpendingForLog = kOwner.AI_unitCostPerMil();
+					iAffordableUnderstrengthMaxUnitSpendingForLog = kOwner.AI_maxUnitCostPerMil(area(), r.getPercent());
+					iAffordableUnderstrengthSpendingGapForLog = iAffordableUnderstrengthMaxUnitSpendingForLog + 15 - iAffordableUnderstrengthUnitSpendingForLog;
+					iAffordableUnderstrengthSpendingAllowedForLog = (iAffordableUnderstrengthSpendingGapForLog >= 0);
+					if (iAffordableUnderstrengthSpendingAllowedForLog)
+					{
+						iAffordableUnderstrengthBoostPointsForLog = (iUnderstrengthBoostPercentForLog * iAffordableAbsoluteWeightPercent) / 100;
+						r += per100(iAffordableUnderstrengthBoostPointsForLog);
+					}
+				}
 			}
 			iPostUnderstrengthProbForLog = r.getPercent();
 		}
@@ -17074,10 +17098,11 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
 	int const iFinalBuildUnitProb = r.getPercent();
 	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian() && !bDraft)
 	{
-		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postUnderstrengthProb=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
+		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d powerPerCityDeficitPercent=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postMultiplicativeUnderstrengthProb=%d postUnderstrengthProb=%d affordableAbsoluteWeightPercent=%d affordableBoostPoints=%d affordableUnitSpending=%d affordableMaxUnitSpending=%d affordableSpendingGap=%d affordableSpendingAllowed=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
 			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iXPWeight, iFinalBuildUnitProb, getMilitaryProductionModifier(), kOwner.AI_isFinancialTrouble(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
-			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostUnderstrengthProbForLog, iPowerThrottleForLog, bGreatlyReduced,
+			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iPowerPerCityDeficitPercentForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostMultiplicativeUnderstrengthProbForLog, iPostUnderstrengthProbForLog,
+			iAffordableAbsoluteWeightPercentForLog, iAffordableUnderstrengthBoostPointsForLog, iAffordableUnderstrengthUnitSpendingForLog, iAffordableUnderstrengthMaxUnitSpendingForLog, iAffordableUnderstrengthSpendingGapForLog, iAffordableUnderstrengthSpendingAllowedForLog, iPowerThrottleForLog, bGreatlyReduced,
 			kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY3), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY4));
 	}
 	return iFinalBuildUnitProb;
