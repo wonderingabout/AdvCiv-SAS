@@ -159,7 +159,7 @@ namespace
 	}
 
 	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameRecord's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
-	void getSASBBAITargetMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
+	void getSASBBAITeamMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
 	{
 		iMilitary = 0;
 		iOwnTerritory = 0;
@@ -202,11 +202,13 @@ namespace
 		const int iTargetTotalPower = kTarget.getPower(true);
 		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
 		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
+		int iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities;
 		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
-		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
-		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
+		getSASBBAITeamMilitaryPosture(kAgent.getID(), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities);
+		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d ourMilitary=%d ourMilitaryOwnTerritory=%d ourMilitaryOutsideOwnTerritory=%d ourMilitaryEnemyTerritory=%d ourMilitaryInCities=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
 				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetTotalPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(),
-				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
 		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
 	}
 
@@ -824,7 +826,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 		const int iOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
 		const int iTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
 		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
-		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
 		logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d emergencyPeaceMode=%d preferredEmergencyPeaceTarget=%d emergencyPeace=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWarSuccess=%d targetWarSuccess=%d warSuccessDelta=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d nearestCityDistance=%d attitude=%d attitudeValue=%d",
 				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, bEmergencyPeaceMode, ePreferredEmergencyPeaceTarget, bEmergencyPeace,
 				iOurPower, iTargetTotalPower, iTargetDefensivePower, (100 * iTargetDefensivePower) / iOurPower, iOurCities, iTargetCities, (100 * iOurPower) / std::max(1, iOurCities), (100 * iTargetTotalPower) / std::max(1, iTargetCities), iOurWarSuccess, iTargetWarSuccess, iOurWarSuccess - iTargetWarSuccess, kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
@@ -1925,10 +1927,12 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)));
 			continue;
 		}
-		if (!canSchemeAgainst(eTarget, true, false))
-			kCache.setCanBeHiredAgainst(eTarget, false);
-		if (!canSchemeAgainst(eTarget, false))
-			continue;
+		bool const bCanSchemeIgnoringPlanAndDP = canSchemeAgainst(eTarget, true, false);
+		bool const bCanSchemeNow = canSchemeAgainst(eTarget, false);
+		if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_SCHEME_GATE turn=%d background=%d agentTeam=%d targetTeam=%d canSchemeIgnoringPlanAndDP=%d canSchemeNow=%d existingWarPlan=%s canEventuallyDeclare=%d canDeclareNow=%d forcedPeaceTurns=%d avoidWar=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d targetVassal=%d",
+			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, bCanSchemeIgnoringPlanAndDP, bCanSchemeNow, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), kAgent.canEventuallyDeclareWar(eTarget), kAgent.canDeclareWar(eTarget), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_isAvoidWar(eTarget, true), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getPower(true), GET_TEAM(eTarget).getDefensivePower(kAgent.getID()), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), GET_TEAM(eTarget).isAVassal());
+		if (!bCanSchemeIgnoringPlanAndDP) kCache.setCanBeHiredAgainst(eTarget, false);
+		if (!bCanSchemeNow) continue;
 		m_pReport->log("Scheming against %s", m_pReport->teamName(eTarget));
 		bool bShortWork = kAgent.AI_isPushover(eTarget);
 		if (bShortWork)

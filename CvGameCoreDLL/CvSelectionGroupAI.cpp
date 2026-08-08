@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "CvGame.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics need CvGame::getGameTurn for unit-age logging. (GPT-5.6 Thinking) -->
 #include "CvSelectionGroupAI.h"
 #include "CvUnitAI.h"
 // <advc.004c> for AI_bestUnitForMission
@@ -8,6 +9,7 @@
 #include "CvTeamAI.h"
 #include "AgentIterator.h"
 #include "CvMap.h"
+#include "BBAILog.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics log the selected and final stack attacker. (GPT-5.6 Thinking) -->
 
 
 CvSelectionGroupAI::CvSelectionGroupAI()
@@ -555,6 +557,8 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 		}
 		// BETTER_BTS_AI_MOD: END
 	}
+	CvUnitAI* const pLowPowerSelected = (bUseLowPower ? pBestUnit : NULL);
+	int const iLowPowerSelectedOdds = (bUseLowPower ? iBestOdds : -1);
 	iUnitOdds = iBestOdds;
 	// <advc.048> Cut from CvSelectionGroup::groupAttack
 	if(bSacrifice && iUnitOdds < iOddsThresh)
@@ -569,6 +573,41 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 			iUnitOdds = -1;
 		}
 	} // </advc.048>
+	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering actually spends old/obsolete units when they are present and whether the inherited sacrifice fallback replaces that choice. Age is intentionally logged rather than used for selection; the active behavior still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
+	if (bUseLowPower && gWarLogLevel >= 3 && pLowPowerSelected != NULL && pBestUnit != NULL)
+	{
+		int iEligibleAttackers = 0;
+		int iObsoleteEligible = 0;
+		int iOldestAge = -1;
+		CvUnitAI const* pOldestEligible = NULL;
+		for (CLLNode<IDInfo> const* pLogNode = headUnitNode(); pLogNode != NULL; pLogNode = nextUnitNode(pLogNode))
+		{
+			CvUnitAI const& kLogUnit = *::AI_getUnit(pLogNode->m_data);
+			if (kLogUnit.isDead()) continue;
+			bool bCanAttack = (kLogUnit.getDomainType() == DOMAIN_AIR ? kLogUnit.canAirAttack() : kLogUnit.canAttack());
+			if (bCanAttack && kLogUnit.getDomainType() != DOMAIN_AIR && bNoBlitz && kLogUnit.isBlitz() && kLogUnit.isMadeAttack()) bCanAttack = false;
+			if (!bCanAttack || (!bForce && !kLogUnit.canMove()) || (!bForce && !kLogUnit.canMoveInto(*pPlot, true, bPotentialEnemy))) continue;
+			iEligibleAttackers++;
+			TechTypes const eObsoleteTech = kLogUnit.getUnitInfo().getObsoleteTech();
+			if (eObsoleteTech != NO_TECH && GET_TEAM(kLogUnit.getTeam()).isHasTech(eObsoleteTech)) iObsoleteEligible++;
+			int const iAge = GC.getGame().getGameTurn() - kLogUnit.getGameTurnCreated();
+			if (iAge > iOldestAge)
+			{
+				iOldestAge = iAge;
+				pOldestEligible = &kLogUnit;
+			}
+		}
+		int const iLowPowerHealth = (100 * (std::max(1, pLowPowerSelected->maxHitPoints()) - pLowPowerSelected->getDamage())) / std::max(1, pLowPowerSelected->maxHitPoints());
+		int const iFinalHealth = (100 * (std::max(1, pBestUnit->maxHitPoints()) - pBestUnit->getDamage())) / std::max(1, pBestUnit->maxHitPoints());
+		TechTypes const eLowPowerObsoleteTech = pLowPowerSelected->getUnitInfo().getObsoleteTech();
+		TechTypes const eFinalObsoleteTech = pBestUnit->getUnitInfo().getObsoleteTech();
+		bool const bLowPowerObsolete = (eLowPowerObsoleteTech != NO_TECH && GET_TEAM(pLowPowerSelected->getTeam()).isHasTech(eLowPowerObsoleteTech));
+		bool const bFinalObsolete = (eFinalObsoleteTech != NO_TECH && GET_TEAM(pBestUnit->getTeam()).isHasTech(eFinalObsoleteTech));
+		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerObsolete=%d finalUnit=%s finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
+			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, bLowPowerObsolete,
+			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, bFinalObsolete, pBestUnit != pLowPowerSelected,
+			(pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()), (pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge, (pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()), (pOldestEligible == NULL ? 0 : (pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH && GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
+	}
 	return pBestUnit;
 }
 

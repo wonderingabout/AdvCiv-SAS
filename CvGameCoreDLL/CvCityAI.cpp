@@ -86,6 +86,31 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 }
 
 
+// <!-- custom: Measure currently committed offensive production by base hammers rather than city count, unit count, era, or the inherited upkeep recommendation. A 40-hammer military city therefore matters far more than a 2-hammer new settlement, and the signal scales automatically with empire size and production development. (GPT-5.6 Thinking) -->
+static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
+
+static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, int& iOffensiveBaseProduction, int& iTotalBaseProduction, int& iOffensiveCities, int& iProductiveCities)
+{
+	iOffensiveBaseProduction = 0;
+	iTotalBaseProduction = 0;
+	iOffensiveCities = 0;
+	iProductiveCities = 0;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		int const iBaseProduction = std::max(0, pLoopCity->getBaseYieldRate(YIELD_PRODUCTION));
+		if (iBaseProduction <= 0) continue;
+		iProductiveCities++;
+		iTotalBaseProduction += iBaseProduction;
+		if (pLoopCity->getProductionUnit() != NO_UNIT && SAS_isOffensiveProductionAI(pLoopCity->getProductionUnitAI()))
+		{
+			iOffensiveCities++;
+			iOffensiveBaseProduction += iBaseProduction;
+		}
+	}
+	return (iTotalBaseProduction <= 0 ? 0 : (iOffensiveBaseProduction * 100) / iTotalBaseProduction);
+}
+
 static int SAS_getDangerAdjustedMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
 {
 	int iMinFoundValue = kPlayer.AI_getMinFoundValue();
@@ -2899,6 +2924,36 @@ void CvCityAI::AI_chooseProduction()
 		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose BUILDINGFOCUS_FOOD 3", sCityName);
 		return;
 	}*/ // BtS
+
+	// <!-- custom: Keep a configurable minimum share of healthy empire production committed to offensive units, measured by base-production capacity rather than unit count or the inherited military-upkeep recommendation. This fires only after the existing Worker/Settler/explorer/panic and other earlier essential/foundational production branches, but before opportunistic wonders and the broad later building shortcuts. It therefore lets the AI keep compounding its economy while preventing a mature healthy empire from assigning nearly every productive city to another optional building at once. 0 disables through XML. (GPT-5.6 Thinking) -->
+	static const int iSASMinOffensiveProductionCapacityPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT")));
+	int iOffensiveBaseProduction = 0;
+	int iTotalBaseProduction = 0;
+	int iOffensiveProductionCities = 0;
+	int iProductiveCities = 0;
+	int iOffensiveProductionCapacityPercent = 0;
+	bool const bOffensiveProductionCapacityContextEligible = (iSASMinOffensiveProductionCapacityPercent > 0 && bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
+	if (bOffensiveProductionCapacityContextEligible || bLogDetailedMilitaryProduction) iOffensiveProductionCapacityPercent = SAS_getOffensiveProductionCapacityPercent(kPlayer, iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities);
+	bool const bOffensiveProductionCapacityEligible = (bOffensiveProductionCapacityContextEligible && iOffensiveProductionCapacityPercent < iSASMinOffensiveProductionCapacityPercent);
+	bool bOffensiveProductionCapacityChosen = false;
+	if (bOffensiveProductionCapacityEligible)
+	{
+		UnitAIWeightMap offensiveProductionWeight;
+		offensiveProductionWeight.set(UNITAI_ATTACK, 100);
+		offensiveProductionWeight.set(UNITAI_ATTACK_CITY, 100);
+		bOffensiveProductionCapacityChosen = AI_chooseLeastRepresentedUnit(offensiveProductionWeight);
+	}
+	if (bLogDetailedMilitaryProduction)
+	{
+		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d targetPercent=%d currentPercent=%d offensiveBaseProduction=%d totalBaseProduction=%d offensiveCities=%d productiveCities=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d eligible=%d chosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iSASMinOffensiveProductionCapacityPercent, iOffensiveProductionCapacityPercent,
+			iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities, bPrimaryArea, bFinancialTrouble, bDanger, bAlwaysPeace, bGetBetterUnits, bCultureCity, bUnitExempt, bOffensiveProductionCapacityEligible, bOffensiveProductionCapacityChosen);
+	}
+	if (bOffensiveProductionCapacityChosen)
+	{
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S fills offensive production-capacity floor (%d%% < %d%%)", sCityName, iOffensiveProductionCapacityPercent, iSASMinOffensiveProductionCapacityPercent);
+		return;
+	}
 
 	//opportunistic wonder build
 	if (!bDanger && (!hasActiveWorldWonder() || iNumCities > 3))

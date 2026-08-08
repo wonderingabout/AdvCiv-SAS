@@ -16100,7 +16100,7 @@ int CvPlayerAI::AI_countCityFeatures(FeatureTypes eFeature) const
 }
 
 
-// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area may use an XML-tunable workers-per-city floor plus a small standing reserve. See KI#198. (GPT-5.6 Thinking) -->
+// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area uses an XML-tunable workers-per-city floor plus a signed reserve adjustment so current tuning can reduce the first-city floor without baking that direction into the define. See KI#198. (GPT-5.6 Thinking) -->
 static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& kArea)
 {
 	int const iCities = kArea.getCitiesPerPlayer(kPlayer.getID());
@@ -16109,9 +16109,10 @@ static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& k
 	if (kPlayer.AI_isPrimaryArea(kArea) && iCities > 0)
 	{
 		static const int iPrimaryAreaMinimumPercentPerCity = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY"));
-		static const int iPrimaryAreaMinimumReserve = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_RESERVE"));
-		int const iPrimaryFloor = (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaMinimumReserve;
-		iFloor = std::max(iFloor, iPrimaryFloor);
+		static const int iPrimaryAreaReserve = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE");
+		int const iPrimaryFloor = std::max(1, (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaReserve);
+		// The primary-area percentage plus signed reserve replaces the inherited extra capital-area Worker; keep at least the ordinary one-Worker-per-city baseline when tuned lower.
+		iFloor = std::max(iCities, iPrimaryFloor);
 	}
 	return iFloor;
 }
