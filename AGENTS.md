@@ -199,6 +199,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
 ## C++
 
 - Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
+- Turn-valued SAS integer defines must make game-speed semantics explicit: use `TURN(S)_NORMAL_GAMESPEED` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `TURN(S)_UNSCALED_GAMESPEED` for intentional literal game/path turns such as movement distance. Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines. The build check [`turn_define_gamespeed.py`](/.github/workflows/build/turn_define_gamespeed.py) enforces this.
 - Prefer minimalistic, simple AI changes that are easy to reason about and compile.
 - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
 - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.

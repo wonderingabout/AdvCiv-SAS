@@ -57,7 +57,7 @@ bool isSASGameRecordLogEnabled()
 int getSASGameRecordTurnInterval()
 {
 	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
-	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_TURN_INTERVAL"));
+	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
 	return iInterval;
 }
 
@@ -262,7 +262,7 @@ static void logSASGameRecordGameState(const char* szRowType)
 
 static void logSASGameRecordLogSettings()
 {
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_TURN_INTERVAL=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
 			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
 }
 

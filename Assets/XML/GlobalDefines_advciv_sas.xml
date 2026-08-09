@@ -4,6 +4,7 @@ AI, UI, or other modifications
 Created as part of AdvCiv-SAS improvements
 (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 -->
+<!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds. Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
 	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
@@ -1235,10 +1236,10 @@ Created as part of AdvCiv-SAS improvements
 
 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
+		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND</DefineName>
 		<iDefineIntVal>7</iDefineIntVal>
 	</Define>
-	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
+	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
@@ -1297,7 +1298,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Maximum extra path turns allowed for this post-capital Settler scouting detour compared with the current selected found target. Default 3 is intentionally local but not one-tile-only: save-file 450 testing preserved the corrected uMgungundlovu (17,40) choice, did not create obvious Settler parking by turn 101, and still requires the other promising-site gates above, so ordinary city founding should not turn into broad wandering. See KI#185. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS</DefineName>
+		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
@@ -1318,7 +1319,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>12</iDefineIntVal>
 	</Define>
 	<!-- custom: Corporation-founding buildings can be extremely valuable as one-shot Great Person actions, but feeding the full building value into recurring Great Person point weights can make ordinary citizens overproduce that Great Person type for many turns. This keeps the full settled-specialist baseline, then preserves this percent of only the corporation-founder excess above that baseline when calculating Great Person weights. 100 restores old behavior; 50 halves only the excess; 0 caps corporation-founder building value at the settled-specialist baseline. Actual Great Person action choice is unchanged. (ChatGPT-5.5 + GPT-5.5 review) -->
@@ -1348,7 +1349,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
 	<Define>
-		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
+		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>99</iDefineIntVal>
 	</Define>
 	<!-- custom: Culture process beyond first-ring expansion is a local emergency tool only at or above this culture-pressure factor; otherwise an AI must be actively pursuing culture and the city must rank among the required projected Legendary candidates. Neutral pressure is 100; 150 preserves clearly contested/captured-city recovery while preventing low-pressure non-candidates from converting useful production. (GPT-5.5) -->
@@ -1483,7 +1484,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: BBAI player score-detail log interval in turns. Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo. Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
 	<Define>
-		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
+		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: If BBAI diagnostics are enabled, write each new game and loaded save to a new UTC-timestamped BBAI_*.log file instead of repeatedly appending to BBAI.log. The file begins with the currently active BBAI settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each diagnostic run easier to identify or upload. Set to 0 to preserve fixed-name log behavior. (ChatGPT-5.5 + GPT-5.5) -->
@@ -1501,7 +1502,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Interval in game turns for periodic game-record snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-record level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay records, or higher for broad long-game trends. Clamped to at least 1 in SASGameRecordLog.cpp. (ChatGPT-5.5) -->
 	<Define>
-		<DefineName>SAS_GAME_RECORD_TURN_INTERVAL</DefineName>
+		<DefineName>SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>10</iDefineIntVal>
 	</Define>
 	<!-- custom: If game-record reporting is enabled, write each new game and loaded save to a new UTC-timestamped SASGameRecord_*.log file instead of repeatedly appending to SASGameRecord.log. This is separate from BBAI timestamped filenames so compact run reports can be used without BBAI diagnostic spam. Set to 0 to preserve fixed-name log behavior. (GPT-5.5) -->
@@ -1535,7 +1536,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 5 becomes about 10 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. (GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS</DefineName>
+		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>5</iDefineIntVal>
 	</Define>
 	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit. The comparison is strict: 3 lets a stagnant population-8 city beat a population-10 city, but not population 7. Cities already training a food-production unit count as stagnant, intentionally allowing an efficient large city to produce several Workers or similar units in sequence. If no stagnant city is this close to the largest candidate, highest population wins. 0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
@@ -2125,7 +2126,7 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Long_Comments_XML.txt #183 -->
 	<!-- custom: Long_Comments_XML.txt #111 -->
 	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
@@ -2174,7 +2175,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Long_Comments_XML.txt #205 -->
 	<Define>
-		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
+		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 
@@ -2264,7 +2265,7 @@ Created as part of AdvCiv-SAS improvements
 
 	<!-- custom: Long_Comments_XML.txt #199 -->
 	<Define>
-		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
+		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_NORMAL_GAMESPEED_THRESHOLD</DefineName>
 		<iDefineIntVal>170</iDefineIntVal>
 	</Define>
 	<!-- custom: this is the general toggle, for specific ones, look below. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit -->
@@ -2406,7 +2407,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
 	<Define>
-		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>
+		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>150</iDefineIntVal>
 	</Define>
 
@@ -3029,7 +3030,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: A Barbarian city farther than this many path turns is attacked only if AI_isSASCityLikelyToBenefitUsLongTerm says it is worth keeping. A quick raid can repay its mobilization and combat costs, but travelling farther to raze a city wastes army tempo and removes Barbarian pressure for the nearer rival, who then receives a cleared settlement site. Save-file 450 testing showed Hannibal spending 16 turns taking population-5 Libyan before razing it; Shaka settled the exact plot 10 turns later. Set to 0 to disable this gate. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
+		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Generic reinforcement and invasion sizes can exceed an early transport's entire capacity, preventing even a loaded Galley from considering an achievable nearby city. When enabled, military cargo below those broad army-assembly thresholds still asks the existing target-specific assault evaluation whether its actual strength is sufficient. Safety, escort, imminent-loading, defender-strength, and distant-disposable Barbarian checks still apply. 1 enables, 0 disables. See KI#193. (GPT-5.6-Sol) -->
@@ -3145,7 +3146,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic -->
 	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL</DefineName>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>80</iDefineIntVal>
 	</Define>
 	<Define>
@@ -3154,7 +3155,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: don't force castle or whichever building you set too soon similarly -->
 	<Define>
-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
+		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
 	<!-- custom: note 3: higher increments like 3, 4, 5, etc. are not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed -->
@@ -3264,19 +3265,19 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI hard-rejects a prospective war. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. Current default 15 is intentionally much wider than the old 3-turn limit, which could reject otherwise worthwhile reachable wars before normal UWAI power/utility/diplomacy evaluation. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
+	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI hard-rejects a prospective war. These are intentionally unscaled literal movement/path turns because unit movement does not slow down with game speed. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. Current default 15 is intentionally much wider than the old 3-turn limit. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS</DefineName>
+		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>15</iDefineIntVal>
 	</Define>
 	<!-- custom: Maximum approximate path turns to the nearest target city when naval transport is actually required. Current default 20 gives genuinely naval wars more travel tolerance than land wars while still retaining a high outer sanity bound for exceptionally remote targets. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS</DefineName>
+		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Extra cached path turns tolerated after a war plan has already started. This prevents a single pillaged route or border fluctuation from canceling an otherwise profitable mobilization, while new targets still obey the strict land or sea contact limit above. Save-file 450 reproduced a direct Holy Roman plan changing from 3 to 4 turns and being canceled immediately; 1 narrowly covers that fluctuation without broadening initial target selection. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS</DefineName>
+		<DefineName>SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
@@ -3326,7 +3327,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<!-- custom: Minimum war-plan age before negative-utility severity alone may cancel a preparation. Save-file 452 testing showed the first deterministic version could cancel at age 1 after a transient utility drop, then select the same target again next turn; 3 gives the plan two full reviews to settle. This does not delay illegal-target, preparation-deadline, or imminent-war cancellations. See KI#189. (GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE</DefineName>
+		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum relative advantage score required to switch an existing war preparation to the best alternative target. UWAI used the score as a random chance on every review, making target choice unstable; 50 requires a materially better target, while 0 accepts any alternative that has higher utility. Save-file 452 diagnostics would accept 15 of 71 real comparisons at 50 instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
@@ -3342,19 +3343,19 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UWAI_VICTORY_DENIAL_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Countdown window for the victory-denial utility boost. For example, 20 starts the boost when the target can win within 20 turns; the boost grows as the countdown gets shorter. Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5) -->
+	<!-- custom: Normal-speed countdown window for the victory-denial utility boost, scaled by VictoryDelayPercent to match the victory countdown itself. For example, 20 means 20 turns on Normal and 40 on Marathon (200%); the boost grows as the countdown gets shorter. Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_BOOST</DefineName>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass. Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 is deliberately enough time for attackers to disrupt a victory, not just a small delay tweak over the old too-late 10-turn window. See KI#184. (GPT-5.5) -->
+	<!-- custom: Normal-speed maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass; scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds. Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 Normal-speed turns is deliberately enough time for attackers to disrupt a victory. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR</DefineName>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum countdown where victory-denial wars refuse ordinary peace. In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5) -->
+	<!-- custom: Normal-speed maximum countdown where victory-denial wars refuse ordinary peace, scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds. In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
 	<Define>
-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE</DefineName>
+		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE</DefineName>
 		<iDefineIntVal>20</iDefineIntVal>
 	</Define>
 	<!-- custom: Also refuse peace with stage-4 victory threats before countdown starts. After earlier victory-denial changes stopped Lincoln, Egypt still won Space because stage-4 anti-spaceship wars ended after 1-2 turns before Egypt's countdown existed; this keeps the emergency war active through the pre-countdown disruption window too. See KI#184. (GPT-5.5) -->

@@ -71,6 +71,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
 - [`build/launch_guard.py`](#buildlaunch_guardpy)
 - [`build/define_int_bounds.py`](#builddefine_int_boundspy)
+- [`build/turn_define_gamespeed.py`](#buildturn_define_gamespeedpy)
 - [`build/xml_comments.py`](#buildxml_commentspy)
 - [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
 - [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
@@ -150,6 +151,13 @@ Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match 
 
 Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except specific intentional outliers such as the launch-guard sentinel checked by [`build/launch_guard.py`](#buildlaunch_guardpy) and the high bonus-Fallout scrub worker value.
 
+### `build/turn_define_gamespeed.py`
+
+Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `TURN(S)_NORMAL_GAMESPEED` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `TURN(S)_UNSCALED_GAMESPEED` means literal game/path turns are intentionally kept unchanged across game speeds. The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names, `...PER_TURN` rates, and `...PATH_TURN_VALUE...` score weights. It also recognizes legacy-looking maximum countdown, minimum/maximum age, and log-interval names so those cannot silently evade the convention.
+
+This naming rule was added after auditing turn gates while implementing non-combat food-production allocation: the new production gate correctly needed `TrainPercent` scaling, nearby UWAI contact limits correctly represented unscaled movement/path turns, and the victory-denial countdown windows were found to need `VictoryDelayPercent` scaling.
+The checker intentionally validates naming/declared intent rather than trying to infer the correct scaling formula from C++: code review still decides whether a Normal-speed value should use `TrainPercent`, `ConstructPercent`, `VictoryDelayPercent`, or another game-speed field. The explicit names make that audit grep-friendly and prevent ambiguous raw turn gates from being added silently.
+
 ### `build/xml_comments.py`
 
 Verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
@@ -228,11 +236,11 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed 
 
 ### `build/bbai_log.py`
 
-Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
 
 ### `build/sas_game_record_log.py`
 
-Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; `SAS_GAME_RECORD_TURN_INTERVAL=10` and `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled records behave but do not enable record logging themselves.
+Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10` and `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled records behave but do not enable record logging themselves.
 
 ### `build/fonts.py`
 

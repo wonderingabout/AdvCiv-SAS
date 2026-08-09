@@ -517,6 +517,15 @@ int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
 	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
 }
 
+// <!-- custom: Victory countdown lengths themselves use VictoryDelayPercent, so SAS countdown gates expressed in Normal-speed turns must use the same scale. Keep the adjusted value per call rather than static so starting a different game speed in the same Civ4 process cannot reuse a stale result. (GPT-5.6 Thinking) -->
+int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns)
+{
+	if (iNormalTurns <= 0)
+		return 0;
+	int const iVictoryDelayPercent = GC.getInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
+	return std::max(1, (iNormalTurns * iVictoryDelayPercent + 50) / 100);
+}
+
 int getSASLeadingSpaceshipPartsBuilt()
 {
 	int iLeadingParts = 0;
@@ -542,7 +551,8 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
 	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
 	if (!bSASUWAIVictoryDenialEnable)
 		return false;
-	static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
+	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
 	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
 	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
 	if (piVictoryCountdown != NULL)

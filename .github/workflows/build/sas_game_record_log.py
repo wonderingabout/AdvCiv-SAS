@@ -17,7 +17,7 @@ from xml_defines import get_default_repo_root, read_global_define_ints, require_
 EXPECTED_GAME_RECORD_DEFAULTS = {
 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
 	# These configure enabled record logging but do not enable it themselves.
-	"SAS_GAME_RECORD_TURN_INTERVAL": 10,
+	"SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED": 10,
 	"SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME": 1,
 }
 

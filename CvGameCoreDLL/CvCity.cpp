@@ -781,8 +781,8 @@ void CvCity::doTurn()
 				// First: Walls
 				if (!bEmergencyBuilding)
 				{
-					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
-					const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
+					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED");
+					const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED * iTrainPct) / 100;
 					// The cutoff is meant to prevent building too early.
 					const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
 
@@ -801,8 +801,8 @@ void CvCity::doTurn()
 				// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
 				if (!bEmergencyBuilding)
 				{
-					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
-					const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
+					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED");
+					const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED * iTrainPct) / 100;
 					// The cutoff is meant to prevent building too early.
 					const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
 

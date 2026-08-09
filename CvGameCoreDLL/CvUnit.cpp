@@ -3555,9 +3555,9 @@ bool CvUnit::canScrap() const
 			CvGame const& kGame = GC.getGame();
 			const int iCurrentTurn = kGame.getGameTurn();
 
-			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL");
+			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED");
 			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me) -->
-			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
 			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
 
 			if (bNoDisbandAtAllPhase)
