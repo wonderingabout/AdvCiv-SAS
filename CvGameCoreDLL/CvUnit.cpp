@@ -1319,6 +1319,13 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
 	if (!isDead() && !pDefender->isDead())
 	{
+		// <!-- custom: GameRecord level 3 also keeps exact unit IDs for non-lethal combat so WAR_ATTACK_ORDER decisions can be joined to withdrawals and combat-limit attacks, not only lethal combatResult events. (GPT-5.6 Thinking) -->
+		if (gGameRecordLogLevel >= 3)
+		{
+			bool const bCombatLimitReached = (combatLimit() < GC.getMAX_HIT_POINTS() && pDefender->getDamage() >= combatLimit());
+			logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d",
+				GC.getGame().getGameTurn(), getOwner(), pDefender->getOwner(), GC.getInfo(getUnitType()).getType(), getID(), GC.getInfo(pDefender->getUnitType()).getType(), pDefender->getID(), (bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL"), pPlot->getX(), pPlot->getY(), pPlot->isCity(), baseCombatStr(), pDefender->baseCombatStr(), getDamage(), pDefender->getDamage(), combatLimit(), withdrawalProbability());
+		}
 		CyArgsList pyArgsSASBattleRetreat;
 		pyArgsSASBattleRetreat.add(getOwner());
 		pyArgsSASBattleRetreat.add(pDefender->getOwner());

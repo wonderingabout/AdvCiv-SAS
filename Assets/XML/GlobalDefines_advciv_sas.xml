@@ -2474,6 +2474,31 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT</DefineName>
 		<iDefineIntVal>60</iDefineIntVal>
 	</Define>
+	<!-- custom: enable AI sacrifice refinement that expends obsolete units instead of current units when the current sacrifice is risky and the obsolete alternative remains tactically close enough (1 on, 0 off). XP does not protect an obsolete unit; the inherited sacrifice value remains the main tactical filter. See KI#200. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: current/non-obsolete sacrifice attack odds at or above this percent are considered safe enough to keep the inherited choice instead of deliberately expending an obsolete unit. See KI#200. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT</DefineName>
+		<iDefineIntVal>90</iDefineIntVal>
+	</Define>
+	<!-- custom: at or below this current/non-obsolete sacrifice attack-odds percent, the current unit is already considered a risky expenditure, so obsolete candidates are not rejected by the normal maximum odds-deficit gate. The inherited sacrifice-value and tactical-role checks still apply. See KI#200. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT</DefineName>
+		<iDefineIntVal>60</iDefineIntVal>
+	</Define>
+	<!-- custom: maximum attack-odds percentage-point deficit an obsolete sacrifice may have relative to the inherited current-unit sacrifice when the current unit is above the odds-deficit-bypass threshold. See KI#200. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: minimum inherited AI_sacrificeValue percent an obsolete sacrifice must retain relative to the current-unit sacrifice; keeps obsolescence as a close-choice refinement rather than overriding major tactical value differences. See KI#200. (GPT-5.6 Thinking) -->
+	<Define>
+		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT</DefineName>
+		<iDefineIntVal>70</iDefineIntVal>
+	</Define>
 
 
 
