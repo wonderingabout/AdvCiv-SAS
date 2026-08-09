@@ -89,6 +89,61 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 // <!-- custom: Measure currently committed offensive production by base hammers rather than city count, unit count, era, or the inherited upkeep recommendation. A 40-hammer military city therefore matters far more than a 2-hammer new settlement, and the signal scales automatically with empire size and production development. (GPT-5.6 Thinking) -->
 static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
 
+// <!-- custom: Food-production civilian units halt growth while trained, so slow cities should normally leave them to stronger food/hammer pumps. Keep combat-capable and nuclear units outside this allocator so a future modmod may still let side cities urgently train food-production fighters. (GPT-5.6 Thinking) -->
+static bool SAS_isNonCombatFoodProductionUnit(UnitTypes eUnit)
+{
+	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+	return (kUnit.isFoodProduction() && kUnit.getCombat() <= 0 && kUnit.getAirCombat() <= 0 && !kUnit.isNuke());
+}
+
+// <!-- custom: Pick the preferred same-area pump for a non-combat food-production unit by population rather than a fragile turns-saved comparison. Only consider cities that can build the unit at least as quickly as the current city, so delegation can never make delivery slower. If a currently stagnant city is within the XML population-gap tolerance of the largest remaining city, prefer the stagnant candidate so an efficient food-production pump can continue producing such units in sequence; otherwise use the largest city. Actual unit turns only break equal-population ties. The caller's fast-enough turn gate still allows several cities to produce in parallel when rapid replacement is needed, and if every city is slow the best available city remains allowed instead of waiting forever. (GPT-5.6 Thinking) -->
+static CvCityAI const* SAS_getPreferredNonCombatFoodProductionCity(CvCityAI const& kCity, UnitTypes eUnit, int iCurrentUnitTurns, int iStagnantPopulationGap, int& iPreferredUnitTurns, int& iMaxPopulation, bool& bPreferredStagnant)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+	iPreferredUnitTurns = MAX_INT;
+	iMaxPopulation = -1;
+	bPreferredStagnant = false;
+	FOR_EACH_CITYAI(pLoopCity, kPlayer)
+	{
+		if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
+		int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
+		if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
+		iMaxPopulation = std::max(iMaxPopulation, pLoopCity->getPopulation());
+	}
+	if (iMaxPopulation < 0) return NULL;
+
+	bool bPreferStagnant = false;
+	if (iStagnantPopulationGap > 0)
+	{
+		FOR_EACH_CITYAI(pLoopCity, kPlayer)
+		{
+			if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
+			int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
+			if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
+			if (pLoopCity->foodDifference(true, false) <= 0 && iMaxPopulation - pLoopCity->getPopulation() < iStagnantPopulationGap)
+			{
+				bPreferStagnant = true;
+				break;
+			}
+		}
+	}
+
+	CvCityAI const* pBestCity = NULL;
+	FOR_EACH_CITYAI(pLoopCity, kPlayer)
+	{
+		if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
+		int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
+		if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
+		bool const bStagnant = (pLoopCity->foodDifference(true, false) <= 0);
+		if (bPreferStagnant && (!bStagnant || iMaxPopulation - pLoopCity->getPopulation() >= iStagnantPopulationGap)) continue;
+		if (pBestCity != NULL && (pLoopCity->getPopulation() < pBestCity->getPopulation() || (pLoopCity->getPopulation() == pBestCity->getPopulation() && iUnitTurns >= iPreferredUnitTurns))) continue;
+		pBestCity = pLoopCity;
+		iPreferredUnitTurns = iUnitTurns;
+		bPreferredStagnant = bStagnant;
+	}
+	return pBestCity;
+}
+
 static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, int& iOffensiveBaseProduction, int& iTotalBaseProduction, int& iOffensiveCities, int& iProductiveCities)
 {
 	iOffensiveBaseProduction = 0;
@@ -12978,6 +13033,26 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
 			(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds, iProgressOddsBonus, iEffectiveOdds, iOdds >= 0, bUnitRollPassed);
 		if (bUnitRollPassed) // K-Mod end
 		{
+			// <!-- custom: For fresh non-combat food-production units, any city that can finish within the XML Normal-speed-equivalent turn gate (scaled by game-speed TrainPercent) is already good enough and may build immediately; this preserves parallel emergency replacement. Slower cities yield only when another safe same-area city is the preferred population/stagnation pump. If all cities are slow, the preferred one still builds. Existing invested production is always finished. (GPT-5.6 Thinking) -->
+			static const int iNonCombatFoodProductionMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS"));
+			static const int iNonCombatFoodProductionStagnantPopulationGap = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP"));
+			int const iNonCombatFoodProductionMaxTurns = (iNonCombatFoodProductionMaxTurnsNormal <= 0 ? 0 : std::max(1, (iNonCombatFoodProductionMaxTurnsNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() + 50) / 100));
+			// <!-- custom: Settlers remain exempt while SAS intentionally restricts them to the capital; otherwise the capital could defer to a non-capital that current production policy will never ask to build the Settler. If that capital-only rule is later removed, this generic allocator is ready to cover Settlers too by removing this one role exemption. (GPT-5.6 Thinking) -->
+			if (!isHuman() && !isBarbarian() && !AI_isDanger() && eUnitAI != UNITAI_SETTLE && iNonCombatFoodProductionMaxTurns > 0 && getUnitProduction(eBestUnit) <= 0 && SAS_isNonCombatFoodProductionUnit(eBestUnit))
+			{
+				int const iCurrentUnitTurns = getProductionTurnsLeft(eBestUnit, 0);
+				CvCityAI const* pPreferredCity = this;
+				int iPreferredUnitTurns = iCurrentUnitTurns;
+				int iMaxPopulation = getPopulation();
+				bool bPreferredStagnant = (foodDifference(true, false) <= 0);
+				if (iCurrentUnitTurns > iNonCombatFoodProductionMaxTurns) pPreferredCity = SAS_getPreferredNonCombatFoodProductionCity(*this, eBestUnit, iCurrentUnitTurns, iNonCombatFoodProductionStagnantPopulationGap, iPreferredUnitTurns, iMaxPopulation, bPreferredStagnant);
+				bool const bDeferToPreferredCity = (iCurrentUnitTurns > iNonCombatFoodProductionMaxTurns && pPreferredCity != NULL && pPreferredCity != this);
+				if (gWorkerLogLevel >= 3 || (gWorkerLogLevel >= 2 && bDeferToPreferredCity)) logBBAI("      FOOD_PRODUCTION_ALLOCATION turn=%d player=%d %S city=%S cityId=%d decision=%s unit=%s unitAI=%s pop=%d stagnant=%d unitTurns=%d maxTurns=%d maxCandidatePop=%d stagnantPopGap=%d preferredCity=%S preferredCityId=%d preferredPop=%d preferredStagnant=%d preferredUnitTurns=%d preferredCurrentUnit=%s",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), (bDeferToPreferredCity ? "DEFER_TO_PREFERRED_CITY" : "KEEP"), GC.getInfo(eBestUnit).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()),
+					getPopulation(), foodDifference(true, false) <= 0, iCurrentUnitTurns, iNonCombatFoodProductionMaxTurns, iMaxPopulation, iNonCombatFoodProductionStagnantPopulationGap, (pPreferredCity == NULL ? L"-" : pPreferredCity->getName().GetCString()), (pPreferredCity == NULL ? -1 : pPreferredCity->getID()),
+					(pPreferredCity == NULL ? -1 : pPreferredCity->getPopulation()), (pPreferredCity == NULL ? 0 : bPreferredStagnant), (pPreferredCity == NULL ? -1 : iPreferredUnitTurns), (pPreferredCity == NULL || pPreferredCity->getProductionUnit() == NO_UNIT ? "-" : GC.getInfo(pPreferredCity->getProductionUnit()).getType()));
+				if (bDeferToPreferredCity) return false;
+			}
 			if (bResolvedSettler && gSettlerLogLevel >= 2)
 				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CALL_CONCRETE", eBestUnit, eUnitAI, iOdds, -1);
 			// <!-- custom: avoid redundance, call same function instead, also so we can tweak it there only once, much cleaner; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate -->
