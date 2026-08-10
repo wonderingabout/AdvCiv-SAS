@@ -7799,7 +7799,7 @@ void CvPlayerAI::AI_chooseFreeTech(/* advc.121: */ bool bEndOfTurn)
 	if (eBestTech != NO_TECH)
 	{
 		GET_TEAM(getTeam()).setHasTech(eBestTech, true, getID(), true, true,
-				bEndOfTurn); // advc.121
+				bEndOfTurn, TECH_ACQUISITION_FREE_CHOICE); // advc.121
 	}
 }
 

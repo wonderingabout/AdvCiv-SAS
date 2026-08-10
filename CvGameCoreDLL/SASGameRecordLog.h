@@ -38,7 +38,8 @@ void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
 void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted);
-void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer);
+// <!-- custom: Added eCause so the existing TECH_ACQUIRED action can name its explicit source. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause);
 void logSASGameRecordCityBuilt(CvCity const* pCity);
 void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
 void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);

@@ -451,7 +451,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			{
 				setResearchProgress(eLoopTech,
 						getResearchProgress(eLoopTech) * iCostMultiplier / 100,
-						getLeaderID());
+						getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 		}
 	} // K-Mod end
@@ -610,7 +610,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 		{	// <kekm.26> "Preserve no tech brokering status."
 			setNoTradeTech(eLoopTech, (!isHasTech(eLoopTech) || isNoTradeTech(eLoopTech)) &&
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)); // </kekm.26>
-			setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	}
 	/*  <kekm.26> "Other direction also done here as other direction of shareItems
@@ -623,7 +623,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					(!GET_TEAM(eTeam).isHasTech(eLoopTech) ||
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)) &&
 					isNoTradeTech(eLoopTech));
-			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	} // </kekm.26>
 
@@ -855,7 +855,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 			{
 				setResearchProgress(eTech,
 						kShareTeam.getResearchProgress(eTech) * getResearchCost(eTech) /
-						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID());
+						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 			//else kShareTeam.setResearchProgress(eTech, getResearchProgress(eTech) * kShareTeam.getResearchCost(eTech) / std::max(1, getResearchCost(eTech)), kShareTeam.getLeaderID());
 		}
@@ -4096,7 +4096,8 @@ int CvTeam::getResearchProgress(TechTypes eIndex) const
 }
 
 
-void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+// <!-- custom: Added eCause and pass it through research-progress helpers to setHasTech when this change completes the technology, preserving the action that actually crossed the threshold. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
 	if(getResearchProgress(eIndex) == iNewValue)
 		return;
@@ -4128,7 +4129,7 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
 		m_aiResearchProgress.add(eIndex,
 				getResearchProgress(eIndex) - getResearchCost(eIndex)); // </advc>
-		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true);
+		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true, eCause);
 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			setNoTradeTech(eIndex, true);*/ // BtS
 		// disabled by K-Mod. I don't know why this was here, and it conflicts with my changes to the order of the doTurn functions.
@@ -4136,12 +4137,12 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 }
 
 
-void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
-	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer);
+	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer, eCause);
 }
 
-int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer)
+int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
 	int iBeakers = 0;
 
@@ -4156,7 +4157,7 @@ int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, Player
 					iResearchCostPersent);
 		}
 
-		changeResearchProgress(eIndex, iBeakers, ePlayer);
+		changeResearchProgress(eIndex, iBeakers, ePlayer, eCause);
 	}
 
 	return iBeakers;
@@ -4472,7 +4473,8 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 	}
 }
 
-void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn)
+// <!-- custom: Added eCause and forward it to the event reporter so TECH_ACQUIRED records the explicit acquisition source without changing technology processing. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn, TechAcquisitionCause eCause)
 {
 	PROFILE_FUNC();
 
@@ -4493,7 +4495,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		m_aiTechCount.add(eTech, 1);
 		setResearchProgress(eTech, 0, ePlayer);
 		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer,
-				bAnnounce && 1 == m_aiTechCount.get(eTech));
+				bAnnounce && 1 == m_aiTechCount.get(eTech), eCause);
 
 		if (m_aiTechCount.get(eTech) == 1 && bAnnounce &&
 			kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
@@ -4538,7 +4540,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		}
 
 		// report event to Python, along with some other key state
-		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce);
+		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce, eCause);
 
 		bool bReligionFounded = false;
 		bool bFirstPerk = false; // advc: Reneamed from bFirstBonus
@@ -5348,7 +5350,7 @@ void CvTeam::doBarbarianResearch()
 			{
 				int const iPossibleCount = it.nextIndex();
 				setResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * iCount) /
-						iPossibleCount, getLeaderID());
+						iPossibleCount, getLeaderID(), TECH_ACQUISITION_BARBARIAN_RESEARCH);
 			}
 		}
 	} // </kekm.28>
@@ -5426,7 +5428,7 @@ void CvTeam::doBarbarianResearch()
 				// <advc.301> No overflow
 				std::max(1, getResearchCost(eLoopTech)
 				- getResearchProgress(eLoopTech))).uround(), // </advc.301>
-				kBarbPlayer.getID()); // </K-Mod>
+				kBarbPlayer.getID(), TECH_ACQUISITION_BARBARIAN_RESEARCH); // </K-Mod>
 	}
 }
 
@@ -5445,7 +5447,7 @@ void CvTeam::updateTechShare(TechTypes eTech, int iOtherKnownThreshold) // advc.
 			iCount += itOther->getNumMembers(); // kekm.38: was +1
 		if (iCount >= iOtherKnownThreshold) // advc.opt: Moved into the loop
 		{
-			setHasTech(eTech, true, NO_PLAYER, true, true);
+			setHasTech(eTech, true, NO_PLAYER, true, true, false, TECH_ACQUISITION_TECH_SHARE);
 			if (GET_PLAYER(getLeaderID()).isSignificantDiscovery(eTech)) // advc.550e
 				setNoTradeTech(eTech, true); // kekm.31
 			return;

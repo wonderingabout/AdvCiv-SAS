@@ -6357,7 +6357,7 @@ bool CvUnit::discover()
 	FAssertMsg(eDiscoveryTech != NO_TECH, "DiscoveryTech is not assigned a valid value");
 	int const iResearch = getDiscoverResearch(eDiscoveryTech);
 
-	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, iResearch, getOwner());
+	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, iResearch, getOwner(), TECH_ACQUISITION_GREAT_PERSON);
 
 	// K-Mod. If the AI bulbs something, let them reconsider their current research.
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
