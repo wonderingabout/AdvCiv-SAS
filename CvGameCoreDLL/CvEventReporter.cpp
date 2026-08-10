@@ -490,8 +490,7 @@ void CvEventReporter::endGoldenAge(PlayerTypes ePlayer)
 
 void CvEventReporter::changeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
 {
-	// <!-- custom: War starts are logged earlier by CvTeam::declareWar while their origin is still available. This callback retains the end row after peace has updated both teams' war counts. (GPT-5.6-Sol) -->
-	if (!bWar && gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(eTeam, eOtherTeam);
+	// <!-- custom: Completed-war summaries are logged in CvTeam::makePeace because this later callback runs after AI_postMakePeace has erased both teams' final war-success values. (GPT-5.6-Sol) -->
 	m_kPythonEventMgr.reportChangeWar(bWar, eTeam, eOtherTeam);
 }
 

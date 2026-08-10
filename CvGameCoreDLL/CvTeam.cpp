@@ -1301,6 +1301,8 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bo
 		kMembers[i]->updatePlotGroups();
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updateTradeRoutes();
+	// <!-- custom: Base AdvCiv's AI_postMakePeace clears both teams' war-success values. Record the completed war and peace context after the war counts change but before that reset, so SASGameRecord can emit an accurate synthetic summary. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(getID(), eTarget, AI().AI_getWarSuccess(eTarget).round(), kTarget.AI().AI_getWarSuccess(getID()).round(), bCapitulate, eBroker, bRandomEvent, pReparations != NULL);
 	// advc: AI code moved down a bit and then into a new function
 	AI().AI_postMakePeace(eTarget);
 	// advc.106o: Vassals now mentioned along with their master

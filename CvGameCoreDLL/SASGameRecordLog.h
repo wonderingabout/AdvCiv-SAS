@@ -44,7 +44,8 @@ void logSASGameRecordCityBuilt(CvCity const* pCity);
 void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
 void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);
 void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, bool bNewDiplo, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause);
-void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam);
+// <!-- custom: Added the pre-reset war-success and peace-context parameters so synthetic war summaries retain the final result before Base AdvCiv's AI_postMakePeace clears it. (GPT-5.6-Sol) -->
+void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAWarSuccess, int iTeamBWarSuccess, bool bCapitulate, TeamTypes eBroker, bool bRandomEvent, bool bReparations);
 void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot);
 void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
