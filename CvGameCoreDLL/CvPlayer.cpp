@@ -10829,6 +10829,7 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 	if(eOldCivic == eNewValue)
 		return;
 
+	ReligionTypes const eOldEffectiveStateReligion = getStateReligion();
 	bool const bWasStateReligion = isStateReligion(); // advc.106
 
 	m_aeCivics.set(eCivicOption, eNewValue);
@@ -10843,6 +10844,8 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 
 	if(!kGame.isFinalInitialized() || /* advc.003n: */ isBarbarian())
 		return;
+	// <!-- custom: Periodic policy snapshots can hide short-lived or between-interval civic switches. Record every post-initialization old/new transition, including effective state-religion changes caused by civics that allow or prohibit one, together with current anarchy turns. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCivicChanged(getID(), eCivicOption, eOldCivic, eNewValue, eOldEffectiveStateReligion, getStateReligion());
 
 	if (getCivics(eCivicOption) != NO_CIVIC &&
 		/* BtS code (which erroneously blocked the message for certain civic switches)

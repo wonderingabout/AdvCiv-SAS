@@ -3463,6 +3463,7 @@ CvUnit* CvCity::initConscriptedUnit()
 	addProductionExperience(pUnit, true);
 	pUnit->setMoves(0);
 	// K-Mod, 26/Jun/2011: Conscription counts as building the unit
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, true);
 	CvEventReporter::getInstance().unitBuilt(this, pUnit);
 
 	return pUnit;
@@ -10547,6 +10548,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		CvUnit* pUnit = kOwner.initUnit(eTrainUnit, getX(), getY(), eTrainAIUnit);
 		pUnit->finishMoves();
 		addProductionExperience(pUnit);
+		// <!-- custom: Record completion before air-capacity relocation because a produced air unit with no valid destination can be destroyed below before the ordinary unitBuilt event fires. (GPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, false);
 		CvPlot* pRallyPlot = getRallyPlot(); // (advc.001b: moved up)
 		if (GC.getInfo(eTrainUnit).getDomainType() == DOMAIN_AIR &&
 			getPlot().countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
@@ -10620,6 +10623,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
 		{
 			iMaxedBuildingOrProject = eConstructBuilding;
 		} // </advc.123f>
+		// <!-- custom: buildingBuilt also fires when a unit constructs a building without city production. Aggregate production completions here, where ORDER_CONSTRUCT proves that the city spent its production. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingCompletedByProduction(this, eConstructBuilding);
 		CvEventReporter::getInstance().buildingBuilt(this, eConstructBuilding);
 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 			logBBAI("    City %S finishes production of building %S", getName().GetCString(), GC.getInfo(eConstructBuilding).getDescription());
@@ -13808,8 +13813,8 @@ void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderType
 	if(iOverflow <= 0)
 		return;
 	setOverflowProduction(iOverflow);
-	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, while overflow capped into lost production or gold is strategically important. Record all nonzero completion overflow at summary level 3, and the rarer loss/gold cases at level 2. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
-	if ((gGameRecordLogLevel >= 3 && iOverflow > 0) || (gGameRecordLogLevel >= 2 && (iLostProduction > 0 || iProductionGold > 0))) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
+	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, so level 2 aggregates it into interval production-flow rows and level 3 also emits each exact action. Production loss or gold remains an exact level-2 action because it is strategically important. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && (iOverflow > 0 || iLostProduction > 0 || iProductionGold > 0)) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
 	if(iProductionGold > 0 || iLostProduction > 0)
 		payOverflowGold(iLostProduction, iProductionGold);
 }

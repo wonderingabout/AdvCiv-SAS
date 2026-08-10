@@ -11,6 +11,7 @@
 #include "CvInfo_GameOption.h"
 #include "BBAILog.h"
 #include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text for structured war diagnostics. (GPT-5.5) -->
+#include "SASGameRecordLog.h" // <!-- custom: Record strategic war-plan transitions separately from detailed BBAI/UWAI evaluations. (GPT-5.6-Sol) -->
 #include "UWAIAgent.h" // advc.104
 #include <numeric> // K-Mod. used in AI_warSpoilsValue
 
@@ -4903,6 +4904,8 @@ void CvTeamAI::AI_setWarPlan(TeamTypes eTarget, WarPlanTypes eNewValue, bool bWa
 		logBBAI("WAR_PLAN_CHANGE turn=%d team=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s bWar=%d atWar=%d stateCounter=%d ourWars=%d targetWars=%d",
 				GC.getGame().getGameTurn(), getID(), eTarget, getSASWarPlanType(eOldValue), getSASWarPlanType(eNewValue), bWar, isAtWar(eTarget), AI_getWarPlanStateCounter(eTarget), getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
 	}
+	// <!-- custom: The game record needs the strategic state transition and preparation duration, not UWAI's full target calculations. Log before resetting the state counter below. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordWarPlanChanged(getID(), eTarget, eOldValue, eNewValue, bWar, AI_getWarPlanStateCounter(eTarget));
 	AI_updateWarPlanCounts(eTarget, m_aeWarPlan.get(eTarget), eNewValue); // advc.opt
 	m_aeWarPlan.set(eTarget, eNewValue);
 	AI_setWarPlanStateCounter(eTarget, 0);

@@ -501,6 +501,7 @@ void CvEventReporter::setPlayerAlive(PlayerTypes ePlayerID, bool bNewValue)
 
 void CvEventReporter::playerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion)
 {
+	if (gGameRecordLogLevel >= 2 && GC.getGame().isFinalInitialized()) logSASGameRecordLastStateReligionChanged(ePlayerID, eOldReligion, eNewReligion);
 	m_kPythonEventMgr.reportPlayerChangeStateReligion(ePlayerID, eNewReligion, eOldReligion);
 }
 
