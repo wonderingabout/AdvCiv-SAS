@@ -2618,6 +2618,14 @@ Created as part of AdvCiv-SAS improvements
 		<English>Lonja</English>
 	</TEXT>
 	<TEXT>
+		<Tag>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Tag>
+		<English>Federal Courthouse</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Tag>
+		<English>Soldiers' Lodge</English>
+	</TEXT>
+	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KHMER_HALL_OF_DANCERS</Tag>
 		<English>Hall of Dancers</English>
 	</TEXT>

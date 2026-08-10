@@ -531,6 +531,22 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: based on https://www.uscourts.gov/about-federal-courts/court-role-and-structure and https://www.uscourts.gov/about-federal-courts/educational-resources/annual-observances/anniversary-federal-court-system (GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE_PEDIA</Tag>
+		<English>[TAB]The Constitution established the judicial branch of the United States as a system distinct from the courts of the individual states. Congress organized the federal judiciary through the Judiciary Act of 1789, creating district and circuit courts beneath the Supreme Court.[PARAGRAPH:1]Federal courthouses serve as local seats of this national judicial system. As the United States expanded, Congress created and reorganized judicial districts and circuits to extend federal administration across new states and territories.[PARAGRAPH:1]Sources: https://www.uscourts.gov/about-federal-courts/court-role-and-structure; https://www.uscourts.gov/about-federal-courts/educational-resources/annual-observances/anniversary-federal-court-system</English>
+	</TEXT>
+
+
+
+	<!-- custom: based on https://plainshumanities.unl.edu/encyclopedia/doc/egp.law.022.html and https://www.sdhspress.com/journal/south-dakota-history-29-3/reservation-akicitas-the-pine-ridge-indian-police-1879-1885/vol-29-no-3-reservation-akicitas.pdf (GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE_PEDIA</Tag>
+		<English>[TAB]Among the Lakota, traditional law enforcers known as akicitas came from men's societies and were appointed by a band's camp administrator. They policed camp movements, regulated communal buffalo hunts, and enforced tribal laws and customs. When dealing with lawbreakers, akicitas could perform judicial as well as policing duties.[PARAGRAPH:1]Akicita societies also trained warriors and participated in hunts and warfare, joining military responsibility with the maintenance of order within the community. Sitting Bull rose to prominence as a hunter and war leader and belonged to several prestigious warrior societies.[PARAGRAPH:1]The Soldiers' Lodge represents these connected warrior, policing, judicial, and community institutions.[PARAGRAPH:1]Sources: https://plainshumanities.unl.edu/encyclopedia/doc/egp.law.022.html; https://www.sdhspress.com/journal/south-dakota-history-29-3/reservation-akicitas-the-pine-ridge-indian-police-1879-1885/vol-29-no-3-reservation-akicitas.pdf</English>
+	</TEXT>
+
+
+
 	<!-- custom: based on https://apsaraauthority.gov.kh/2021/08/12/preah-khan-temple/ -->
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_KHMER_HALL_OF_DANCERS_PEDIA</Tag>

@@ -87,8 +87,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
-					<BuildingType>BUILDING_AMERICAN_MALL</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingType>BUILDING_AMERICAN_FEDERAL_COURTHOUSE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -2870,8 +2870,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
-					<BuildingType>BUILDING_NATIVE_AMERICA_TOTEM</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingType>BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>

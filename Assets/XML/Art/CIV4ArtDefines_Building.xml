@@ -406,16 +406,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
-			<LSystem>LSYSTEM_2x1</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.6</fScale>
-			<fInterfaceScale>0.4</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_EGYPTIAN_OBELISK</Type>
 			<LSystem>LSYSTEM_1x1</LSystem>
 			<bAnimated>0</bAnimated>
@@ -620,16 +610,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/BroadcastTower.dds,Art/Interface/Buttons/Buildings_Atlas.dds,8,1</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_AMERICAN_MALL</Type>
-			<LSystem>LSYSTEM_2x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>2.09</fScale>
-			<fInterfaceScale>0.48</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Shopping Mall/Mall.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Supermarket.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,1</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_MARKET</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -761,6 +741,17 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from Destiny mod's reichstag thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.4</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_JAIL</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>
@@ -770,6 +761,17 @@
 			<NIF>Art/Structures/Buildings/Jail/Jail.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,9</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+		<!-- custom: art from ri mod's tipi thanks. -->
+			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.2</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_INTELLIGENCE_AGENCY</Type>
