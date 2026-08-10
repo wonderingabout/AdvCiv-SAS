@@ -252,9 +252,24 @@ static void logSASGameRecordGameState(const char* szRowType)
 	}
 	if (szVictories.empty())
 		szVictories = "-";
+	CvString szMPOptions;
+	FOR_EACH_ENUM(MPOption)
+	{
+		if (!kGame.isMPOption(eLoopMPOption))
+			continue;
+		if (!szMPOptions.empty())
+			szMPOptions += ",";
+		szMPOptions += GC.getInfo(eLoopMPOption).getType();
+	}
+	if (szMPOptions.empty())
+		szMPOptions = "-";
 	const CvString szLogName = getSASGameRecordLogName();
 	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
 			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	// <!-- custom: Record the engine's durable launch/load and multiplayer identities so standalone logs distinguish ordinary games, scenarios, saves, replays, and supported network/turn modes. The explicit booleans avoid requiring consumers to reproduce Civ4's non-obvious GameType groupings.
+	// Simple Game versus Custom Game is not retained reliably after launch, so do not infer it from mutable player slots or options. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_SESSION_CONTEXT gameType=%s gameMode=%s newGame=%d savedGame=%d scenario=%d gameMultiplayer=%d networkMultiplayer=%d hotseat=%d pbem=%d pitboss=%d simultaneousTeamTurns=%d mpOptions=%s",
+			getSASGameType(kInitCore.getType()), getSASGameMode(kInitCore.getMode()), kInitCore.getNewGame(), kInitCore.getSavedGame(), kGame.isScenario(), kInitCore.getGameMultiplayer(), kGame.isNetworkMultiPlayer(), kGame.isHotSeat(), kGame.isPbem(), kGame.isPitboss(), kGame.isSimultaneousTeamTurns(), szMPOptions.GetCString());
 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
 			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());

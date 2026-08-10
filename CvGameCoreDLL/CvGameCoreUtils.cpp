@@ -426,6 +426,39 @@ char const* getSASWarPlanType(WarPlanTypes eWarPlan)
 	}
 }
 
+char const* getSASGameType(GameType eType)
+{
+	switch (eType)
+	{
+	case GAME_NONE: return "GAME_NONE";
+	case GAME_SP_NEW: return "GAME_SP_NEW";
+	case GAME_SP_SCENARIO: return "GAME_SP_SCENARIO";
+	case GAME_SP_LOAD: return "GAME_SP_LOAD";
+	case GAME_MP_NEW: return "GAME_MP_NEW";
+	case GAME_MP_SCENARIO: return "GAME_MP_SCENARIO";
+	case GAME_MP_LOAD: return "GAME_MP_LOAD";
+	case GAME_HOTSEAT_NEW: return "GAME_HOTSEAT_NEW";
+	case GAME_HOTSEAT_SCENARIO: return "GAME_HOTSEAT_SCENARIO";
+	case GAME_HOTSEAT_LOAD: return "GAME_HOTSEAT_LOAD";
+	case GAME_PBEM_NEW: return "GAME_PBEM_NEW";
+	case GAME_PBEM_SCENARIO: return "GAME_PBEM_SCENARIO";
+	case GAME_PBEM_LOAD: return "GAME_PBEM_LOAD";
+	case GAME_REPLAY: return "GAME_REPLAY";
+	default: return "UNKNOWN_GAME_TYPE";
+	}
+}
+
+char const* getSASGameMode(GameMode eMode)
+{
+	switch (eMode)
+	{
+	case NO_GAMEMODE: return "NO_GAMEMODE";
+	case GAMEMODE_NORMAL: return "GAMEMODE_NORMAL";
+	case GAMEMODE_PITBOSS: return "GAMEMODE_PITBOSS";
+	default: return "UNKNOWN_GAME_MODE";
+	}
+}
+
 char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
 {
 	switch (eCause)
