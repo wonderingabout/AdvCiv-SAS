@@ -4663,6 +4663,8 @@ added most unitai types that are not pure city attack type of, to make trebuchet
 
 emphasize cultural effect more, idea by chatgpt 5 as i had said this building was a bit weak after our rework that removed some happines without significant buff to match it, hopefully more culturally themed as such and still relevant/strong; since an artist specialist gives 3 gpp as of now (and culture or such), this is like give half a free specialist so maybe fine as such for the overall culture (so not so strong building); also to rpely to chagpt 5 that said +2 may be too much, it seems thinking about it that since we reduced the happiness, it's gonna imapct aggresive leaders like alexander that have no use for the extra culture, at least they get something out of it, otherwise buidling is wekaer than before, so maybe fine as such
 
+update: removed effect now that odeon is as of now moved from colosseum to theater
+
 ===== \Assets\XML\Buildings\CIV4BuildingInfos.xml =====
 ----- Comment #341 -----
 

@@ -44,6 +44,7 @@ def check_tech_audio(repo_root: Path) -> tuple[list[str], int]:
 	scripts = read_keyed_values(repo_root, AUDIO_SCRIPTS_REL_PATH, "Script2DSound", "ScriptID", "SoundID")
 	definitions = read_keyed_values(repo_root, AUDIO_DEFINES_REL_PATH, "SoundData", "SoundID", "Filename")
 	resolved_files: dict[str, dict[str, list[str]]] = {"Sound": {}, "SoundMP": {}}
+	used_tech_scripts: set[str] = set()
 	tech_count = 0
 
 	for node in parse_xml(repo_root, TECH_INFOS_REL_PATH).getroot().iter():
@@ -56,6 +57,7 @@ def check_tech_audio(repo_root: Path) -> tuple[list[str], int]:
 			if not script_id:
 				failures.append(f"{tech_type}/{field_name}: missing Audio2DScripts ScriptID")
 				continue
+			used_tech_scripts.add(script_id)
 			sound_id = scripts.get(script_id)
 			if sound_id is None:
 				failures.append(f"{tech_type}/{field_name}: ScriptID {script_id} is not defined in {AUDIO_SCRIPTS_REL_PATH}")
@@ -76,6 +78,10 @@ def check_tech_audio(repo_root: Path) -> tuple[list[str], int]:
 		for filename, tech_types in sorted(by_filename.items()):
 			if len(tech_types) > 1:
 				failures.append(f"{field_name}: spoken recording {filename} is reused by {', '.join(sorted(tech_types))}")
+
+	for script_id in sorted(scripts):
+		if script_id.startswith("AS2D_TECH_") and script_id != "AS2D_TECH_GENERIC" and script_id not in used_tech_scripts:
+			failures.append(f"{AUDIO_SCRIPTS_REL_PATH}: orphan technology ScriptID {script_id} is not used by any TechInfo Sound/SoundMP field")
 
 	if tech_count == 0:
 		failures.append(f"{TECH_INFOS_REL_PATH}: no TechInfo entries found")

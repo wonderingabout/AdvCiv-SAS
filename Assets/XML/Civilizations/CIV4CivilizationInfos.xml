@@ -198,7 +198,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
 					<BuildingType>BUILDING_ARABIAN_MADRASSA</BuildingType>
 				</Building>
 			</Buildings>
@@ -406,7 +406,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
 					<BuildingType>BUILDING_BABYLON_GARDEN</BuildingType>
 				</Building>
 			</Buildings>
@@ -1756,7 +1756,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
 					<BuildingType>BUILDING_GREEK_ODEON</BuildingType>
 				</Building>
 			</Buildings>
@@ -2135,7 +2135,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
 					<BuildingType>BUILDING_INDIAN_MAUSOLEUM</BuildingType>
 				</Building>
 			</Buildings>
@@ -2348,8 +2348,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
-					<BuildingType>BUILDING_KHMER_BARAY</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
+					<BuildingType>BUILDING_KHMER_HALL_OF_DANCERS</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -3564,8 +3564,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
-					<BuildingType>BUILDING_RUSSIAN_GORD</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+					<BuildingType>BUILDING_RUSSIAN_RESEARCH_INSTITUTE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -3785,8 +3785,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
-					<BuildingType>BUILDING_SPANISH_CITADEL</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+					<BuildingType>BUILDING_SPANISH_LONJA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>

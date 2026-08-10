@@ -14,7 +14,8 @@
 # inside <Define>).
 #
 # A tag is REFERENCED if its exact token appears anywhere in:
-#   mod      Assets/Python/**/*.py, CvGameCoreDLL/**/*.{cpp,h},
+#   mod      Assets/Python/**/*.py, PrivateMaps/**/*.py,
+#            CvGameCoreDLL/**/*.{cpp,h}, Assets/Config/**/*.xml,
 #            Assets/XML/**/*.xml   (<Tag>...</Tag> spans scrubbed so a
 #            definition never counts as its own reference)
 #   base     <bts>/Assets/Python/**/*.py + <bts>/Assets/XML/**/*.xml
@@ -54,11 +55,14 @@ VANILLA_ASSETS = (MOD_ROOT.parent.parent.parent / "Assets")  # vanilla Civ4
 TEXT_BLOCK_RE = re.compile(r"<TEXT>(.*?)</TEXT>", re.DOTALL | re.IGNORECASE)
 TAG_DEF_RE = re.compile(r"<Tag>\s*(TXT_KEY_[A-Z0-9_]+)\s*</Tag>", re.IGNORECASE)
 TAG_SPAN_RE = re.compile(r"<Tag>.*?</Tag>", re.DOTALL | re.IGNORECASE)
+XML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+CPP_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+LINE_COMMENT_RE = re.compile(r"(?m)^\s*(?://|#).*$")
 TOKEN_RE = re.compile(r"TXT_KEY_[A-Z0-9_]+")
 
 DERIVED_SUFFIXES = ("_PEDIA", "_STRATEGY", "_HELP", "_QUOTE", "_HEADING", "_DESC", "_ADJECTIVE", "_TEXT", "_HOVER",)
 DYNAMIC_PREFIXES = ("TXT_KEY_BUG_OPT_", "TXT_KEY_BUG_OPTTAB_", "TXT_KEY_BUG_OPTBUTTON_", "TXT_KEY_BUG_OPTLABEL_", "TXT_KEY_BUG_OPTLIST_",)
-MOD_GLOBS = ("Assets/Python/**/*.py", "CvGameCoreDLL/**/*.cpp", "CvGameCoreDLL/**/*.h", "Assets/XML/**/*.xml",)
+MOD_GLOBS = ("Assets/Python/**/*.py", "PrivateMaps/**/*.py", "CvGameCoreDLL/**/*.cpp", "CvGameCoreDLL/**/*.h", "Assets/Config/**/*.xml", "Assets/XML/**/*.xml",)
 EXTERNAL_GLOBS = ("Python/**/*.py", "XML/**/*.xml")
 
 def read(path):
@@ -83,7 +87,7 @@ def collect_definitions(text_paths):
 	defined = {}
 	for path in text_paths:
 		rel = str(path.relative_to(MOD_ROOT)).replace("\\", "/")
-		for block in TEXT_BLOCK_RE.findall(read(path)):
+		for block in TEXT_BLOCK_RE.findall(XML_COMMENT_RE.sub("", read(path))):
 			for tag in TAG_DEF_RE.findall(block):
 				defined.setdefault(tag, set()).add(rel)
 	return dict((t, sorted(f)) for t, f in defined.items())
@@ -94,7 +98,9 @@ def collect_mod_references():
 	for path in iter_glob(MOD_ROOT, MOD_GLOBS):
 		text = read(path)
 		if path.suffix.lower() == ".xml":
-			text = TAG_SPAN_RE.sub("", text)
+			text = XML_COMMENT_RE.sub("", TAG_SPAN_RE.sub("", text))
+		else:
+			text = LINE_COMMENT_RE.sub("", CPP_BLOCK_COMMENT_RE.sub("", text))
 		referenced.update(TOKEN_RE.findall(text))
 	return referenced
 

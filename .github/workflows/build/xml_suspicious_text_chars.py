@@ -62,6 +62,7 @@ MOJIBAKE_PATTERNS = (
 )
 
 CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
+TRACKING_QUERY_PATTERN = re.compile(r"[?&]utm_(?:source|medium|campaign|term|content)=", re.IGNORECASE)
 LANGUAGE_LINE_PATTERN = re.compile(r"^\s*<([A-Za-z]+)(?:\s|>)")
 
 
@@ -198,6 +199,10 @@ def check_xml_text(relative_path: Path, text: str) -> tuple[list[str], list[str]
 		seen_positions.add(key)
 		codepoint = ord(scanned_text[start])
 		failures.append(finding(relative_path, text, start, f"raw control character U+{codepoint:04X}"))
+
+	for match in TRACKING_QUERY_PATTERN.finditer(scanned_text):
+		start = match.start()
+		failures.append(finding(relative_path, text, start, "web tracking query parameter in active XML text"))
 
 	return failures, ignored
 

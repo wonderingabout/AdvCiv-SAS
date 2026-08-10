@@ -1348,7 +1348,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_SEALEVEL_LOW_RECOMMEND</Tag>
 		<English>Low</English>
 	</TEXT>
-	<!-- custom: was "High - fewer players recommended (-25%%)". -->
+	<!-- custom: was "High - fewer players recommended (-25%%)" ingame. -->
 	<TEXT>
 		<Tag>TXT_KEY_SEALEVEL_HIGH_RECOMMEND</Tag>
 		<English>High</English>
@@ -1381,17 +1381,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE</Tag>
 		<English>[ICON_SILVER_STAR]Willing to Capitulate</English>
 	</TEXT>
-
-
-
-	<!-- advc.004y: Heading for "changes" box in trait articles -->
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CHANGES</Tag>
-		<English>Changes</English>
-	</TEXT>
-
-
-
+	<!-- custom: note: removed the unused TXT_KEY_PEDIA_CHANGES as per the CI test and after having checked as per GPT-5.6-Sol's review/change. -->
 	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases -->
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_ERA</Tag>
@@ -1527,10 +1517,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH</Tag>
 		<English>Obsoletes With</English>
-	</TEXT>
-	<TEXT>
-		<Tag>TXT_KEY_PEDIA_TECH_OBSOLETE_UNITS_TREE_NOTE</Tag>
-		<English>Note: the tech tree does not list obsoleted units to avoid clutter.</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM</Tag>
@@ -1716,7 +1702,7 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
 		<English>Top</English>
 	</TEXT>
-	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
+	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia; note: removed the unused TXT_KEY_SEVOPEDIA_TITLE as per the CI test and after having checked as per GPT-5.6-Sol's review/change. -->
 	<TEXT>
 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
 		<English>SEVOPEDIA</English>
@@ -1962,13 +1948,6 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
 		<English>Civilization Buildings</English>
-	</TEXT>
-
-
-
-	<TEXT>
-		<Tag>TXT_KEY_SEVOPEDIA_TITLE</Tag>
-		<English>SEVOPEDIA</English>
 	</TEXT>
 
 
@@ -2635,8 +2614,12 @@ Created as part of AdvCiv-SAS improvements
 		<English>Temple of Kukulcan</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
-		<English>Gord</English>
+		<Tag>TXT_KEY_BUILDING_SPANISH_LONJA</Tag>
+		<English>Lonja</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_KHMER_HALL_OF_DANCERS</Tag>
+		<English>Hall of Dancers</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>

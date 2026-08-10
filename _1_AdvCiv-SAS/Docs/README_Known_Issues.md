@@ -4669,7 +4669,13 @@ Safety rule used:
 - We only rename button assets not tied to NIF texture references by default (cheap/safe).
 - We avoid renaming files under `.../nif/...` unless all NIF references are also updated and validated, to avoid breaking models.
 
+Preventive CI:
+
+- [`.github/workflows/build/art_button_paths.py`](/.github/workflows/build/art_button_paths.py) rejects whitespace in local `.dds` button/image paths under `Assets/Art`, while excluding paths inside `nif` folders according to the safety rule above. This prevents future imports from recreating the inline `<img>` failure while leaving model-embedded texture paths untouched.
+
 So among them we as of now only renamed `indian sreni.dds` to `indian_sreni.dds`.
+
+Note: since then the `Buildings/Natya_Shastra/indian sreni.dds` button was removed and the corresponding asset as of now now uses another art.
 
 ## 119 - (Fixed) Sevopedia category opening on blank placeholder rows (`item == -1`) and polluting BACK/NEXT history
 

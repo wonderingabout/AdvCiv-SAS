@@ -68,11 +68,14 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/temp_files.py`](#buildtemp_filespy)
 - [`build/line_endings.py`](#buildline_endingspy)
 - [`build/assets_dlls.py`](#buildassets_dllspy)
+- [`build/art_button_paths.py`](#buildart_button_pathspy)
+- [`build/unused_sas_text.py`](#buildunused_sas_textpy)
 - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
 - [`build/launch_guard.py`](#buildlaunch_guardpy)
 - [`build/define_int_bounds.py`](#builddefine_int_boundspy)
 - [`build/turn_define_gamespeed.py`](#buildturn_define_gamespeedpy)
 - [`build/xml_comments.py`](#buildxml_commentspy)
+- [`build/xml_element_only_content.py`](#buildxml_element_only_contentpy)
 - [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
 - [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
 - [`build/xml_civ4_text_characters.py`](#buildxml_civ4_text_characterspy)
@@ -139,6 +142,14 @@ But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-
 
 Recursively verifies `Assets` contains only the two expected DLL files (`Assets/CvGameCoreDLL.dll` for the main/48-civ DLL and `Assets/CvGameCoreDLL_18_civs_DLL.dll` for the 18-civ DLL), and verifies the 18-civ DLL is not larger than the main DLL by byte size.
 
+### `build/art_button_paths.py`
+
+Verifies local `.dds` button/image paths under `Assets/Art` contain no whitespace because a path that works through a direct Civ4 button or atlas reference can fail when reused in `<img>` markup. Paths beneath any directory named `nif` are excluded because model texture paths can be embedded in NIF files and are not safely renamed through ordinary XML changes. Base-game art paths referenced from XML are also outside this local-asset check. See [KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses), including the former `Buildings/Natya_Shastra/indian sreni.dds` example.
+
+### `build/unused_sas_text.py`
+
+Verifies every `TXT_KEY` defined across all SAS-owned GameText files (`Assets/XML/Text/AdvCiv-SAS*.xml`) is referenced by active mod XML, BUG configuration, Python, map-script Python, or C++. Explicit exceptions cover confirmed inherited base references, empirically confirmed EXE runtime references with no static reference, and BUG option-key families constructed dynamically at runtime. Every passing run prints the exact keys in all three exception groups so accepted uncertainty stays visible in CI. The two sea-level recommendation labels are runtime exceptions because changing the High label changed its Custom Game list text in-game, and Low uses the matching EXE convention. Inherited AdvCiv/BUG/BULL text remains outside the blocking check because a full static scan produces hundreds of uncertain legacy and dynamic candidates; the broader manual [`audit_unused_text_keys.py`](/LLM_Helpers/README.md#audit_unused_text_keyspy) remains available for optional review audits.
+
 ### `build/global_defines_nonempty.py`
 
 Verifies GlobalDefines XML files under `Assets/XML` have `<Define>` entries with non-empty `<DefineName>` values, unique define names within each file, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`). This preventively catches accidental blank define values. We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
@@ -162,13 +173,17 @@ The checker intentionally validates naming/declared intent rather than trying to
 
 Verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
 
+### `build/xml_element_only_content.py`
+
+Verifies non-GameText XML under `Assets/XML` parses and contains no stray text between child elements. This catches XML that is well-formed but rejected by Civ4's schema loader, such as a leftover wrapped-comment line after a self-closing BuildingInfo field or a Python-style `#` before an XML comment. GameText is excluded because its language elements intentionally contain text content and inherited files can use legacy encodings.
+
 ### `build/xml_suspicious_angle_tags.py`
 
 Verifies raw XML files under `Assets/XML` do not contain suspicious malformed-looking tag punctuation such as doubled opening angles or extra closing angles after tags, catching valid-but-wrong text like `<French>>...`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation. See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
 
 ### `build/xml_suspicious_text_chars.py`
 
-Verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
+Verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, raw control characters, or web tracking query parameters such as `?utm_source=...` in active text; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. XML comments are ignored, allowing source/reference notes to retain their original URLs. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
 
 ### `build/xml_civ4_text_characters.py`
 
@@ -228,7 +243,7 @@ Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvU
 
 ### `build/tech_audio.py`
 
-Verifies every technology's normal and multiplayer audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename, and that each technology keeps a distinct spoken recording. Mod-local resolution matters because missing entries in these replacement audio tables are not inherited from base Civ4; this check would catch the missing Drama entries, malformed Communism multiplayer script ID, and wrong-layer Aesthetics multiplayer reference found during the technology rework.
+Verifies every technology's normal and multiplayer audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename, that each technology keeps a distinct spoken recording, and that no technology-specific `AS2D_TECH_*` script remains orphaned after a technology is removed or renamed. `AS2D_TECH_GENERIC` is the intentional reusable exception. Mod-local resolution matters because missing entries in these replacement audio tables are not inherited from base Civ4; this check would catch the missing Drama entries, malformed Communism multiplayer script ID, wrong-layer Aesthetics multiplayer reference, and stale removed-tech scripts found during a technology rework.
 
 ### `build/opening_music.py`
 

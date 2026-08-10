@@ -787,9 +787,9 @@ DRIFT: 2 key(s) used but not declared in any scanned XML:
 
 - Report-only. Does not modify source.
 - Flags mod GameText `<Tag>TXT_KEY_*` entries that are defined but referenced nowhere.
-- DEFINITION: `<Tag>TXT_KEY_FOO</Tag>` inside a `<TEXT>...</TEXT>` block, in files matched by `--text-glob` (default `Assets/XML/Text/*.xml`).
+- DEFINITION: `<Tag>TXT_KEY_FOO</Tag>` inside an active, non-commented `<TEXT>...</TEXT>` block, in files matched by `--text-glob` (default `Assets/XML/Text/*.xml`).
 - REFERENCED if the exact token appears in:
-  - mod `Assets/Python/**/*.py`, `CvGameCoreDLL/**/*.{cpp,h}`, `Assets/XML/**/*.xml` (`<Tag>` spans scrubbed so a definition is not its own reference)
+  - mod `Assets/Python/**/*.py`, `PrivateMaps/**/*.py`, `CvGameCoreDLL/**/*.{cpp,h}`, `Assets/Config/**/*.xml`, and `Assets/XML/**/*.xml` (`<Tag>` definition spans and source comments are scrubbed so definitions or commented-out uses do not count as references)
   - base BTS `Python/**/*.py` + `XML/**/*.xml` (auto: `<mod-root>/../../Assets`, override `--base-assets`)
   - vanilla Civ4 `Python/**/*.py` + `XML/**/*.xml` (auto: `<mod-root>/../../../Assets`, override `--vanilla-assets`)
   - skip the external scan with `--no-external` (mod-only; expect engine/front-end false positives)
