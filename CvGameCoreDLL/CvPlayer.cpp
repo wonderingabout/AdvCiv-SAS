@@ -9043,7 +9043,7 @@ void CvPlayer::setAlive(bool bNewValue)
 		//killUnits(); // advc.003m: Moved up
 		killCities();
 		killAllDeals();
-		// <!-- custom: SAS game-record logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
+		// <!-- custom: SASGameRecord logs explicit player lifecycle rows because elimination was otherwise only inferable from city captures and missing later snapshots, which made autoplay/LLM review needlessly brittle. Log after cleanup so remaining city/unit counts are final. (GPT-5.5) -->
 		if (gGameRecordLogLevel >= 2 && bEverAlive && !isBarbarian())
 			logSASGameRecordPlayerEliminated(getID());
 

@@ -3,7 +3,7 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# Build check: SAS game-record report logging must be disabled by default.
+# Build check: SASGameRecord report logging must be disabled by default.
 
 from pathlib import Path
 import argparse
@@ -25,18 +25,18 @@ EXPECTED_GAME_RECORD_DEFAULTS = {
 
 
 def main() -> int:
-	parser = argparse.ArgumentParser(description="Check that SAS game-record report logging is disabled by default unless explicitly listed as non-enabling configuration.")
+	parser = argparse.ArgumentParser(description="Check that SASGameRecord report logging is disabled by default unless explicitly listed as non-enabling configuration.")
 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
 	args = parser.parse_args()
 
 	defines = read_global_define_ints(args.repo_root)
 	failures = require_int_values(defines, EXPECTED_GAME_RECORD_DEFAULTS)
 	if failures:
-		print("FAIL SAS game-record report logging disabled by default")
+		print("FAIL SASGameRecord report logging disabled by default")
 		for failure in failures:
 			print(f"  - {failure}")
 		return 1
-	print(f"PASS SAS game-record report logging disabled by default: checked {len(EXPECTED_GAME_RECORD_DEFAULTS)} define(s)")
+	print(f"PASS SASGameRecord report logging disabled by default: checked {len(EXPECTED_GAME_RECORD_DEFAULTS)} define(s)")
 	return 0
 
 

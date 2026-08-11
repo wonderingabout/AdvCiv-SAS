@@ -6682,7 +6682,7 @@ Validation so far:
 - follow-up BBAI logs from save file 450 showed exposed Settlers waiting when no spare escort was available, then moving once a defender was attached;
 - guarded Settler groups were logged with `groupDefenders>=1` and `groupCanDefend=1` before moving to or founding exposed sites;
 - donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
-- the follow-up game-record log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
+- the follow-up `SASGameRecord` log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
 
 AdvCiv-SAS 6067 later refined only the direct founding restriction after KI#194's save-file 449 testing exposed the opposite failure. An Indian Settler reached the valid island site at `(44,10)` around turn 142 with no defender, but `SAS_shouldBlockExposedUnescortedSettler` treated every unowned plot as dangerous. It refused to found despite both current and target plot danger being 0, then remained exposed while moving or waiting for more than 100 turns and finally founded Agra only on turn 257. Once a Settler is already standing unescorted on a valid danger-free site, refusing to found does not protect it; it merely leaves the same unit exposed while forfeiting city growth, production, commerce and culture.
 

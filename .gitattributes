@@ -53,3 +53,7 @@
 
 # <!-- custom: include most doc or debug as not too heavy and may be useful if downloaded as ZIP (manual.odt, manual.txt, CIV4BUG_Sourceforge_net_All_Classes_Doc, git_logs folders, Modding_Ressources, Sevopedia/Debug/) -->
 /Assets/Res/Fonts/other_mods/                             export-ignore
+
+# <!-- custom: Keep a full raw SASGameRecord sample in git for LLM/dev review, but exclude it from GitHub Download ZIP / release archives because the log is large and diagnostic-only. (GPT-5.6) -->
+/_1_AdvCiv-SAS/SASGameRecord_log/     export-ignore
+/_1_AdvCiv-SAS/SASGameRecord_log/**   export-ignore

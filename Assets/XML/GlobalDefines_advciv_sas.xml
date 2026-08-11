@@ -1495,7 +1495,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Dedicated structured SAS game-record report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: Dedicated structured SASGameRecord report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameRecord_*.log, so it can produce compact GAME_RECORD_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the record has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -1509,6 +1509,35 @@ Created as part of AdvCiv-SAS improvements
 	<Define>
 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each one-time level-3 SASGameRecord ASCII map layer. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit the ASCII preview without disabling other level-3 rows. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH</DefineName>
+		<iDefineIntVal>160</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT</DefineName>
+		<iDefineIntVal>120</iDefineIntVal>
+	</Define>
+	<!-- custom: Repeat each resampled map symbol horizontally to compensate for monospace characters usually being about half as wide as they are tall; 2 therefore makes the text-map proportions resemble square Civ4 plots much more closely. The final repeated drawing still fits the maximum character width above. Clamped to 1..4 and cached in SASGameRecordLog.cpp because fonts differ and the setting is used throughout each drawing. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Geography-map symbols in this order: open water, lake, flat land, hills, peaks, mostly-water coast, balanced coast, mostly-land coast. Use comma-separated single printable characters; because literal whitespace and delimiter punctuation are fragile in XML, SPACE, COMMA, COLON, and SEMICOLON are recognized names. Symbols must be unique within this layer, and pipe is reserved for the picture frame. Invalid palettes produce a clear game-record configuration-error row and omit the map instead of silently changing symbols. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS</DefineName>
+		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON</DefineTextVal>
+	</Define>
+	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory. It uses the same comma-separated character and named-token rules as the geography palette, and symbols must be unique within this layer. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS</DefineName>
+		<DefineTextVal>SPACE,.,COLON,@,!,*,+,?</DefineTextVal>
+	</Define>
+	<!-- custom: Direct player-symbol string with exactly MAX_CIV_PLAYERS unique printable characters that do not reuse either map layer's symbols. The default has 48 symbols for AdvCiv-SAS and deliberately omits lowercase h used for hills. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS</DefineName>
+		<DefineTextVal>0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgijklm</DefineTextVal>
 	</Define>
 	<!-- custom: Anonymous runtime metrics for SAS game-record performance review. 1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots. 0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1. This setting has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
 	<Define>

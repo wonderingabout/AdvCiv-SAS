@@ -41,6 +41,7 @@ ROOT_SUBDIRS = (
 EXTRA_SUBDIRS = (
     "_1_AdvCiv-SAS/Docs",
     "_1_AdvCiv-SAS/git_logs",
+    "_1_AdvCiv-SAS/SASGameRecord_log",
 )
 
 # Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g.

@@ -77,6 +77,25 @@ int getSASGameRecordTurnInterval()
 	return iInterval;
 }
 
+// <!-- custom: Cache the tunable preview bounds and horizontal character ratio like the other SASGameRecord settings; 0 for either bound lets level 3 keep its other detail while omitting both text-map layers. (GPT-5.6-Sol) -->
+static int getSASGameRecordMapAsciiMaxWidth()
+{
+	static const int iMaxWidth = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH"));
+	return iMaxWidth;
+}
+
+static int getSASGameRecordMapAsciiMaxHeight()
+{
+	static const int iMaxHeight = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT"));
+	return iMaxHeight;
+}
+
+static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
+{
+	static const int iChars = std::min(4, std::max(1, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL")));
+	return iChars;
+}
+
 // <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
 static CvString createSASGameRecordLogTimestamp(time_t kNow)
 {
@@ -374,7 +393,7 @@ static void logSASGameRecordDisplayContext()
 	g_bSASGameRecordDisplayContextLogged = true;
 }
 
-// <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+// <!-- custom: Use "row" wording for generic SASGameRecord row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
 static void logSASGameRecordGameState(const char* szRowType)
 {
 	CvGame& kGame = GC.getGame();
@@ -463,8 +482,8 @@ static void logSASGameRecordGameState(const char* szRowType)
 
 static void logSASGameRecordLogSettings()
 {
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
 }
 
 static void resetSASGameRecordState();
@@ -2552,6 +2571,313 @@ static void logSASGameRecordGeography()
 	}
 }
 
+enum
+{
+	SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT = 8,
+	SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT = 8
+};
+
+struct SASGameRecordMapAsciiPalette
+{
+	bool bValid;
+	char acGeography[SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT];
+	char acPolitical[SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT];
+	CvString szPlayers;
+	CvString szGeographyDefine;
+	CvString szPoliticalDefine;
+	CvString szError;
+};
+
+static bool parseSASGameRecordMapAsciiSymbol(CvString const& szToken, char& cSymbol)
+{
+	if (szToken == "SPACE") cSymbol = ' ';
+	else if (szToken == "COMMA") cSymbol = ',';
+	else if (szToken == "COLON") cSymbol = ':';
+	else if (szToken == "SEMICOLON") cSymbol = ';';
+	else if (szToken.length() == 1) cSymbol = szToken[0];
+	else return false;
+	return (cSymbol >= 32 && cSymbol <= 126 && cSymbol != '"' && cSymbol != '\\' && cSymbol != '|');
+}
+
+static bool parseSASGameRecordMapAsciiPaletteDefine(char const* szDefineName, int iExpectedSymbols, char* acSymbols, CvString& szRaw, CvString& szError)
+{
+	szRaw = GC.getDefineSTRING(szDefineName);
+	std::vector<CvString> aszTokens;
+	szRaw.getTokens(",", aszTokens);
+	if ((int)aszTokens.size() != iExpectedSymbols)
+	{
+		szError.Format("%s requires %d comma-separated symbols but has %d", szDefineName, iExpectedSymbols, (int)aszTokens.size());
+		return false;
+	}
+	bool abUsed[127] = { false };
+	for (int iSymbol = 0; iSymbol < iExpectedSymbols; iSymbol++)
+	{
+		if (!parseSASGameRecordMapAsciiSymbol(aszTokens[iSymbol], acSymbols[iSymbol]))
+		{
+			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON", szDefineName, iSymbol);
+			return false;
+		}
+		unsigned char const ucSymbol = (unsigned char)acSymbols[iSymbol];
+		if (abUsed[ucSymbol])
+		{
+			szError.Format("%s repeats symbol ASCII %d", szDefineName, (int)ucSymbol);
+			return false;
+		}
+		abUsed[ucSymbol] = true;
+	}
+	return true;
+}
+
+static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
+{
+	static SASGameRecordMapAsciiPalette kPalette;
+	static bool bInitialized = false;
+	if (bInitialized)
+		return kPalette;
+	bInitialized = true;
+	kPalette.bValid = false;
+	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError))
+		return kPalette;
+	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
+	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
+	{
+		kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS requires exactly MAX_CIV_PLAYERS=%d characters but has %d", MAX_CIV_PLAYERS, (int)kPalette.szPlayers.length());
+		return kPalette;
+	}
+	bool abPlayerSymbols[127] = { false };
+	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+	{
+		unsigned char const ucSymbol = (unsigned char)kPalette.szPlayers[iPlayer];
+		if (ucSymbol < 33 || ucSymbol > 126 || ucSymbol == '"' || ucSymbol == '\\' || ucSymbol == '|' || ucSymbol == ',' || ucSymbol == ';' || ucSymbol == '=')
+		{
+			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d uses unsafe ASCII %d", iPlayer, (int)ucSymbol);
+			return kPalette;
+		}
+		if (abPlayerSymbols[ucSymbol])
+		{
+			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS repeats symbol ASCII %d", (int)ucSymbol);
+			return kPalette;
+		}
+		for (int iSymbol = 0; iSymbol < SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT; iSymbol++)
+		{
+			if (ucSymbol == (unsigned char)kPalette.acGeography[iSymbol])
+			{
+				kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d reuses geography symbol ASCII %d", iPlayer, (int)ucSymbol);
+				return kPalette;
+			}
+		}
+		for (int iSymbol = 0; iSymbol < SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT; iSymbol++)
+		{
+			if (ucSymbol == (unsigned char)kPalette.acPolitical[iSymbol])
+			{
+				kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS player %d reuses political symbol ASCII %d", iPlayer, (int)ucSymbol);
+				return kPalette;
+			}
+		}
+		abPlayerSymbols[ucSymbol] = true;
+	}
+	kPalette.bValid = true;
+	return kPalette;
+}
+
+static char getSASGameRecordMapAsciiPlayerSymbol(PlayerTypes ePlayer, SASGameRecordMapAsciiPalette const& kPalette)
+{
+	int const iPlayer = (int)ePlayer;
+	return (iPlayer >= 0 && iPlayer < MAX_CIV_PLAYERS ? kPalette.szPlayers[iPlayer] : '?');
+}
+
+static void appendSASGameRecordMapAsciiSymbol(CvString& szRow, char cSymbol)
+{
+	char acSymbol[2] = { cSymbol, '\0' };
+	szRow += acSymbol;
+}
+
+static char getSASGameRecordMapAsciiGeographySymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
+{
+	int iWater = 0;
+	int iLake = 0;
+	int iLand = 0;
+	int iHills = 0;
+	int iPeaks = 0;
+	for (int iY = iMinY; iY < iMaxY; iY++)
+	{
+		for (int iX = iMinX; iX < iMaxX; iX++)
+		{
+			CvPlot const& kPlot = *kMap.plot(iX, iY);
+			if (kPlot.isWater())
+			{
+				iWater++;
+				if (kPlot.isLake()) iLake++;
+			}
+			else
+			{
+				iLand++;
+				if (kPlot.isPeak()) iPeaks++;
+				else if (kPlot.isHills()) iHills++;
+			}
+		}
+	}
+	if (iLand <= 0)
+		return (iLake == iWater ? kPalette.acGeography[1] : kPalette.acGeography[0]);
+	if (iWater > 0)
+	{
+		int const iPlots = iLand + iWater;
+		if (3 * iLand < iPlots) return kPalette.acGeography[5];
+		if (3 * iLand > 2 * iPlots) return kPalette.acGeography[7];
+		return kPalette.acGeography[6];
+	}
+	if (2 * iPeaks >= iLand) return kPalette.acGeography[4];
+	if (2 * iHills >= iLand) return kPalette.acGeography[3];
+	return kPalette.acGeography[2];
+}
+
+static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, std::vector<PlayerTypes> const& aeStartingPlayers, int iMinX, int iMaxX, int iMinY, int iMaxY)
+{
+	int aiOwnerPlots[MAX_PLAYERS] = { 0 };
+	PlayerTypes eStartingPlayer = NO_PLAYER;
+	bool bMultipleStartingPlayers = false;
+	bool bCivilizationCity = false;
+	bool bBarbarianCity = false;
+	int iWater = 0;
+	int iLand = 0;
+	for (int iY = iMinY; iY < iMaxY; iY++)
+	{
+		for (int iX = iMinX; iX < iMaxX; iX++)
+		{
+			CvPlot const& kPlot = *kMap.plot(iX, iY);
+			if (kPlot.isWater()) iWater++;
+			else iLand++;
+			PlayerTypes const eOwner = kPlot.getOwner();
+			if (eOwner >= 0 && eOwner < MAX_PLAYERS)
+				aiOwnerPlots[eOwner]++;
+			CvCity const* pCity = kPlot.getPlotCity();
+			if (pCity != NULL)
+			{
+				if (pCity->isBarbarian()) bBarbarianCity = true;
+				else bCivilizationCity = true;
+			}
+			PlayerTypes const ePlotStartingPlayer = aeStartingPlayers[kMap.plotNum(iX, iY)];
+			if (ePlotStartingPlayer != NO_PLAYER)
+			{
+				if (eStartingPlayer == NO_PLAYER) eStartingPlayer = ePlotStartingPlayer;
+				else if (eStartingPlayer != ePlotStartingPlayer) bMultipleStartingPlayers = true;
+			}
+		}
+	}
+	if (bCivilizationCity && bBarbarianCity) return kPalette.acPolitical[5];
+	if (bBarbarianCity) return kPalette.acPolitical[4];
+	if (bCivilizationCity) return kPalette.acPolitical[3];
+	if (bMultipleStartingPlayers) return kPalette.acPolitical[6];
+	if (eStartingPlayer != NO_PLAYER) return getSASGameRecordMapAsciiPlayerSymbol(eStartingPlayer, kPalette);
+	PlayerTypes eDominantOwner = NO_PLAYER;
+	int iDominantOwnerPlots = 0;
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+	{
+		if (aiOwnerPlots[iPlayer] > iDominantOwnerPlots)
+		{
+			iDominantOwnerPlots = aiOwnerPlots[iPlayer];
+			eDominantOwner = (PlayerTypes)iPlayer;
+		}
+	}
+	if (eDominantOwner == BARBARIAN_PLAYER) return kPalette.acPolitical[7];
+	if (eDominantOwner != NO_PLAYER) return getSASGameRecordMapAsciiPlayerSymbol(eDominantOwner, kPalette);
+	if (iWater > 0 && iLand > 0) return kPalette.acPolitical[2];
+	return (iWater > 0 ? kPalette.acPolitical[0] : kPalette.acPolitical[1]);
+}
+
+// <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
+// Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture; detailed plot/city facts continue through the structured rows elsewhere. (GPT-5.6-Sol) -->
+static void logSASGameRecordMapAscii()
+{
+	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
+	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
+	if (iMaxWidth <= 0 || iMaxHeight <= 0)
+		return;
+	SASGameRecordMapAsciiPalette const& kPalette = getSASGameRecordMapAsciiPalette();
+	if (!kPalette.bValid)
+	{
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_CONFIG_ERROR error=%s", getSASGameRecordQuoted(kPalette.szError.GetCString()).GetCString());
+		FAssertMsg(false, kPalette.szError.GetCString());
+		return;
+	}
+	CvMap const& kMap = GC.getMap();
+	int const iSourceWidth = kMap.getGridWidth();
+	int const iSourceHeight = kMap.getGridHeight();
+	if (iSourceWidth <= 0 || iSourceHeight <= 0)
+		return;
+	int const iHorizontalCharsPerCell = getSASGameRecordMapAsciiHorizontalCharsPerCell();
+	int const iMaxCellWidth = std::max(1, iMaxWidth / iHorizontalCharsPerCell);
+	int iPreviewWidth = iSourceWidth;
+	int iPreviewHeight = iSourceHeight;
+	if (iSourceWidth > iMaxCellWidth || iSourceHeight > iMaxHeight)
+	{
+		if (iSourceWidth * iMaxHeight >= iSourceHeight * iMaxCellWidth)
+		{
+			iPreviewWidth = iMaxCellWidth;
+			iPreviewHeight = std::max(1, (iSourceHeight * iMaxCellWidth + iSourceWidth / 2) / iSourceWidth);
+		}
+		else
+		{
+			iPreviewHeight = iMaxHeight;
+			iPreviewWidth = std::max(1, (iSourceWidth * iMaxHeight + iSourceHeight / 2) / iSourceHeight);
+		}
+	}
+	int const iOutputWidth = iPreviewWidth * iHorizontalCharsPerCell;
+	bool const bMarkStartingPlots = (GC.getGame().getElapsedGameTurns() == 0);
+	std::vector<PlayerTypes> aeStartingPlayers(kMap.numPlots(), NO_PLAYER);
+	CvString szPlayerSymbols;
+	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iPlayer;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive())
+			continue;
+		if (bMarkStartingPlots && kPlayer.getStartingPlot() != NULL)
+			aeStartingPlayers[kMap.plotNum(kPlayer.getStartingPlot()->getX(), kPlayer.getStartingPlot()->getY())] = ePlayer;
+		// <!-- custom: Copy each display name before calling the next getter because CvInitCore localized-name getters share temporary storage; passing both getters directly left the human player name empty in a confirming game record. (GPT-5.6-Sol) -->
+		CvWString const szCivilizationName = kPlayer.getCivilizationShortDescription(0);
+		CvWString const szPlayerName = kPlayer.getName(0);
+		CvString szPlayerSymbol;
+		szPlayerSymbol.Format("%c=%d:%S(%S)", getSASGameRecordMapAsciiPlayerSymbol(ePlayer, kPalette), iPlayer, szCivilizationName.GetCString(), szPlayerName.GetCString());
+		if (!szPlayerSymbols.empty()) szPlayerSymbols += ";";
+		szPlayerSymbols += szPlayerSymbol;
+	}
+	CvString const szPlayerSymbolsQuoted = getSASGameRecordQuoted(getSASGameRecordOrDash(szPlayerSymbols).GetCString());
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE",
+			GC.getGame().getGameTurn(), iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY palette=%s order=water,lake,flat_or_mostly_flat_land,mostly_hills,mostly_peaks,mostly_water_mixed_land,balanced_water_land,mostly_land_mixed_water",
+		getSASGameRecordQuoted(kPalette.szGeographyDefine.GetCString()).GetCString());
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID:CIV(PLAYER_NAME) playerSymbols=%s startingPlotsMarked=%d",
+		getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
+	for (int iLayer = 0; iLayer < 2; iLayer++)
+	{
+		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : "POLITICAL");
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
+		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
+		{
+			int const iPreviewY = iPreviewHeight - iRow - 1;
+			int const iMinY = (iPreviewY * iSourceHeight) / iPreviewHeight;
+			int const iMaxY = ((iPreviewY + 1) * iSourceHeight) / iPreviewHeight;
+			CvString szPlots = "|";
+			for (int iPreviewX = 0; iPreviewX < iPreviewWidth; iPreviewX++)
+			{
+				int const iMinX = (iPreviewX * iSourceWidth) / iPreviewWidth;
+				int const iMaxX = ((iPreviewX + 1) * iSourceWidth) / iPreviewWidth;
+				char const cSymbol = (iLayer == 0 ?
+						getSASGameRecordMapAsciiGeographySymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY) :
+						getSASGameRecordMapAsciiPoliticalSymbol(kMap, kPalette, aeStartingPlayers, iMinX, iMaxX, iMinY, iMaxY));
+				for (int iRepeat = 0; iRepeat < iHorizontalCharsPerCell; iRepeat++)
+					appendSASGameRecordMapAsciiSymbol(szPlots, cSymbol);
+			}
+			szPlots += "|";
+			logSASGameRecord("%s", szPlots.GetCString());
+		}
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s", szLayer);
+	}
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d layers=2 rowsPerLayer=%d", GC.getGame().getGameTurn(), iPreviewHeight);
+}
+
 static void logSASGameRecordInitialContext()
 {
 	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
@@ -2559,6 +2885,7 @@ static void logSASGameRecordInitialContext()
 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	logSASGameRecordGeography();
+	if (gGameRecordLogLevel >= 3) logSASGameRecordMapAscii();
 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
