@@ -1510,7 +1510,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each one-time level-3 SASGameRecord ASCII map layer. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit the ASCII preview without disabling other level-3 rows. (GPT-5.6-Sol) -->
+	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each level-3 SASGameRecord ASCII map layer. Geography and terrain are normally stable and therefore recorded once at setup/load; exact later exceptions remain available through coordinate-bearing map-change rows. Features are recorded initially because they affect settling, movement, health, and yields, then features and political borders repeat at full interval and victory snapshots because they change frequently. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit all ASCII previews without disabling other level-3 rows. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH</DefineName>
 		<iDefineIntVal>160</iDefineIntVal>
@@ -1524,17 +1524,27 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL</DefineName>
 		<iDefineIntVal>2</iDefineIntVal>
 	</Define>
-	<!-- custom: Geography-map symbols in this order: open water, lake, flat land, hills, peaks, mostly-water coast, balanced coast, mostly-land coast. Use comma-separated single printable characters; because literal whitespace and delimiter punctuation are fragile in XML, SPACE, COMMA, COLON, and SEMICOLON are recognized names. Symbols must be unique within this layer, and pipe is reserved for the picture frame. Invalid palettes produce a clear game-record configuration-error row and omit the map instead of silently changing symbols. (GPT-5.6-Sol) -->
+	<!-- custom: Geography-map symbols in this order: open water, lake, flat land, hills, peaks, mostly-water mixed land, balanced water/land, mostly-land mixed water, ice. The three mixed symbols describe resampled shoreline cells, not TERRAIN_COAST; Geography intentionally shows broad land/water and plot shape rather than shallow-water terrain. Use comma-separated single printable characters; because literal whitespace and delimiter punctuation are fragile in XML, SPACE, COMMA, COLON, and SEMICOLON are recognized names. Symbols must be unique within this layer, and pipe is reserved for the picture frame. Invalid palettes produce a clear game-record configuration-error row and omit the map instead of silently changing symbols. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS</DefineName>
-		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON</DefineTextVal>
+		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON,#</DefineTextVal>
 	</Define>
-	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory. It uses the same comma-separated character and named-token rules as the geography palette, and symbols must be unique within this layer. (GPT-5.6-Sol) -->
+	<!-- custom: Terrain-map symbols corresponding in order to every TerrainInfo loaded by the mod, followed by an ice override. Ice is technically a feature, but it is not ordinarily removable, blocks naval paths, and forms recognizable strategic geography. One character cannot show both ice and its underlying Coast/Ocean terrain, so # replaces * or blank water because blocked access is strategically decisive. The legend records the exact symbol-to-type mapping; resampled cells show their dominant terrain unless ice covers at least half the cell. The number of symbols must exactly match the runtime terrain count plus one so reordered or added XML types cannot silently produce a misleading map. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS</DefineName>
+		<DefineTextVal>g,p,d,t,s,*,SPACE,^,h,#</DefineTextVal>
+	</Define>
+	<!-- custom: Feature-map symbols in this order: featureless water, featureless land, then every FeatureInfo loaded by the mod. Blank water and dotted land preserve the continent silhouette without overlaying another layer. The legend records the exact symbol-to-type mapping, and resampled cells show their dominant feature state. The same named-token and validation rules as the geography palette apply. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS</DefineName>
+		<DefineTextVal>SPACE,.,#,j,o,f,F,X</DefineTextVal>
+	</Define>
+	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory. Keep this layer purely political: Coast or ice overriding a player symbol would hide owned water, while showing them only on unowned plots would make physical geography inconsistent as borders expand. Terrain, Geography, and Features preserve that context separately. It uses the same comma-separated character and named-token rules as the geography palette, and symbols must be unique within this layer. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS</DefineName>
 		<DefineTextVal>SPACE,.,COLON,@,!,*,+,?</DefineTextVal>
 	</Define>
-	<!-- custom: Direct player-symbol string with exactly MAX_CIV_PLAYERS unique printable characters that do not reuse either map layer's symbols. The default has 48 symbols for AdvCiv-SAS and deliberately omits lowercase h used for hills. (GPT-5.6-Sol) -->
+	<!-- custom: Direct player-symbol string with exactly MAX_CIV_PLAYERS unique printable characters that do not reuse political-layer symbols. Separate layers may reuse intuitive characters. The default has 48 symbols for AdvCiv-SAS. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS</DefineName>
 		<DefineTextVal>0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgijklm</DefineTextVal>
