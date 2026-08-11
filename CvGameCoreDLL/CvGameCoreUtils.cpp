@@ -459,6 +459,22 @@ char const* getSASGameMode(GameMode eMode)
 	}
 }
 
+char const* getSASCalendarType(CalendarTypes eCalendar)
+{
+	switch (eCalendar)
+	{
+	case NO_CALENDAR: return "NO_CALENDAR";
+	case CALENDAR_DEFAULT: return "CALENDAR_DEFAULT";
+	case CALENDAR_BI_YEARLY: return "CALENDAR_BI_YEARLY";
+	case CALENDAR_YEARS: return "CALENDAR_YEARS";
+	case CALENDAR_TURNS: return "CALENDAR_TURNS";
+	case CALENDAR_SEASONS: return "CALENDAR_SEASONS";
+	case CALENDAR_MONTHS: return "CALENDAR_MONTHS";
+	case CALENDAR_WEEKS: return "CALENDAR_WEEKS";
+	default: return "UNKNOWN_CALENDAR";
+	}
+}
+
 char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
 {
 	switch (eCause)

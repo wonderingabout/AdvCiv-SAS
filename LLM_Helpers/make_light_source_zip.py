@@ -4,9 +4,9 @@
 # (c) 2026 wonderingabout (see Authors in root README.md)
 #
 # <!-- custom: Create a timestamped Civ4 mod light source ZIP for quick local/LLM review handoffs.
-# Store repo-relative paths with ZIP_STORED/no compression so creation is fast and the archive remains easy to inspect.
+# Store repo-relative paths and use ZIP_DEFLATED by default so adding selected screenshot folders stays reasonably uploadable.
 # Refined with ChatGPT-5.5 and Codex. -->
-# Create a timestamped, no-compression light source ZIP for a Civ4 mod.
+# Create a timestamped light source ZIP for a Civ4 mod.
 
 from __future__ import annotations
 
@@ -14,8 +14,9 @@ import argparse
 import re
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
 from typing import Iterable, Iterator
-from zipfile import ZIP_STORED, ZipFile
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 
 ASSET_SUBDIRS = (
@@ -42,6 +43,16 @@ EXTRA_SUBDIRS = (
     "_1_AdvCiv-SAS/git_logs",
 )
 
+# Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g.
+# advisors, main menu, Sevopedia, and common UI. Keep this explicit instead of
+# including all image folders so broad image additions do not silently bloat the archive.
+IMAGE_SUBDIRS = (
+    "_1_AdvCiv-SAS/Images/advisors",
+    "_1_AdvCiv-SAS/Images/main_menu",
+    "_1_AdvCiv-SAS/Images/sevopedia",
+    "_1_AdvCiv-SAS/Images/ui_other",
+)
+
 DLL_TOP_LEVEL_DIR = "CvGameCoreDLL"
 DLL_PROJECT_DIR = "CvGameCoreDLL/Project"
 DLL_PROJECT_MAX_BYTES = 1 * 1024 * 1024
@@ -49,6 +60,7 @@ DEFAULT_OUTPUT_DIR = "."
 DEFAULT_MOD_NAME = "UnspecifiedModName"
 ARCHIVE_LABEL = "light_source"
 DEFAULT_ARCHIVE_PREFIX = None
+DEFAULT_COMPRESSION_LEVEL = 6
 GENERATED_ARCHIVE_MARKER = "_light_source_"
 
 # Skip Python bytecode/cache folders anywhere in the tree. They are generated,
@@ -85,7 +97,7 @@ SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create a timestamped Civ4 mod light source ZIP with no compression."
+        description="Create a timestamped Civ4 mod light source ZIP."
     )
     parser.add_argument(
         "--repo-root",
@@ -117,9 +129,25 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--compression-level",
+        type=int,
+        default=DEFAULT_COMPRESSION_LEVEL,
+        choices=range(0, 10),
+        metavar="0-9",
+        help=(
+            "ZIP_DEFLATED compression level. Default: "
+            f"{DEFAULT_COMPRESSION_LEVEL}. Use 0 for ZIP_STORED / no compression."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print what would be archived without writing the ZIP.",
+    )
+    parser.add_argument(
+        "--no-duration",
+        action="store_true",
+        help="Do not print ZIP write duration. Useful when stable/deterministic-looking command output is preferred.",
     )
     return parser.parse_args()
 
@@ -302,16 +330,20 @@ def collect_files(repo_root: Path) -> list[Path]:
     for rel_dir in EXTRA_SUBDIRS:
         add(iter_tree_files(repo_root / rel_dir, repo_root))
 
+    for rel_dir in IMAGE_SUBDIRS:
+        add(iter_tree_files(repo_root / rel_dir, repo_root))
+
     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
 
 
-def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path]) -> int:
+def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int) -> int:
     count = 0
     temp_path = zip_path.with_suffix(zip_path.suffix + ".tmp")
     if temp_path.exists():
         temp_path.unlink()
 
-    with ZipFile(temp_path, "w", compression=ZIP_STORED, allowZip64=True) as archive:
+    compression_method = ZIP_STORED if compression_level <= 0 else ZIP_DEFLATED
+    with ZipFile(temp_path, "w", compression=compression_method, compresslevel=(None if compression_method == ZIP_STORED else compression_level), allowZip64=True) as archive:
         preserved_temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
         if preserved_temp_dir.is_dir():
             archive.writestr(PRESERVED_LIGHT_SOURCE_TEMP_DIR.rstrip("/") + "/", b"")
@@ -332,6 +364,7 @@ def main() -> int:
     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
     files = collect_files(repo_root)
     total_bytes = sum(path.stat().st_size for path in files)
+    compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
     print(f"Repo root: {repo_root}")
     print(f"Mod name:  {mod_name}")
@@ -339,7 +372,7 @@ def main() -> int:
     print(f"Archive:   {zip_path}")
     print(f"Files:     {len(files)}")
     print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
-    print("Mode:      ZIP_STORED / no compression")
+    print(f"Mode:      {compression_mode}")
 
     if args.dry_run:
         for path in files:
@@ -347,8 +380,13 @@ def main() -> int:
         print("Dry run only; no archive written.")
         return 0
 
-    count = write_zip(zip_path, repo_root, files)
+    start_time = perf_counter()
+    count = write_zip(zip_path, repo_root, files, args.compression_level)
+    duration_ms = int((perf_counter() - start_time) * 1000)
     print(f"Wrote:     {count} file(s)")
+    print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")
+    if not args.no_duration:
+        print(f"Duration:  {duration_ms:,} ms")
     return 0
 
 

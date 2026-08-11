@@ -119,6 +119,7 @@ char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared ra
 char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
 char const* getSASGameType(GameType eType); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameType has no CvInfo type strings. (GPT-5.6-Sol) -->
 char const* getSASGameMode(GameMode eMode); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameMode has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASCalendarType(CalendarTypes eCalendar); // <!-- custom: Shared raw enum-token text for calendar context because CalendarTypes has no CvInfo type strings. (GPT-5.6-Sol) -->
 char const* getSASWarDeclarationCause(WarDeclarationCause eCause); // <!-- custom: Shared stable labels for war-declaration origins so SASGameRecord and any later BBAI diagnostics do not duplicate the switch. (GPT-5.6-Sol) -->
 char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- custom: Shared stable labels for technology-acquisition origins so callers pass semantic context instead of GameRecord guessing from ambiguous flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->

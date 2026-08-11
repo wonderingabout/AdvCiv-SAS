@@ -58,8 +58,9 @@ Our AdvCiv-SAS documentation is mostly located here:
 - root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
 - Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
 - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
+- Screenshots can help development/review by showing what the mod UI/gameplay screens actually look like, not only source/docs. Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, Sevopedia, common UI).
 
-May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
+For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
 
 Compile errors (e.g., for a "Release" build) at:
 

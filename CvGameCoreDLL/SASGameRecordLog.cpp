@@ -19,6 +19,7 @@
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvInfo_Misc.h" // <!-- custom: Needed to log enabled graphics-option type names; CvGlobals only forward-declares CvGraphicOptionInfo. (GPT-5.6-Sol) -->
+#include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
 #include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
@@ -430,8 +431,11 @@ static void logSASGameRecordGameState(const char* szRowType)
 	logSASGameRecord("GAME_RECORD_SESSION_CONTEXT gameType=%s gameMode=%s newGame=%d savedGame=%d scenario=%d gameMultiplayer=%d networkMultiplayer=%d hotseat=%d pbem=%d pitboss=%d simultaneousTeamTurns=%d mpOptions=%s",
 			getSASGameType(kInitCore.getType()), getSASGameMode(kInitCore.getMode()), kInitCore.getNewGame(), kInitCore.getSavedGame(), kGame.isScenario(), kInitCore.getGameMultiplayer(), kGame.isNetworkMultiPlayer(), kGame.isHotSeat(), kGame.isPbem(), kGame.isPitboss(), kGame.isSimultaneousTeamTurns(), szMPOptions.GetCString());
 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
-			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+	// <!-- custom: Calendar, starting turn and starting year complete the time scale for scenarios and nonstandard calendars; ReplayInfo preserves the same context. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s calendar=%s startTurn=%d startYear=%d gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(),
+			GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(),
+			getSASCalendarType(kGame.getCalendar()), kGame.getStartTurn(), kGame.getStartYear(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
 	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
 	logSASGameRecordDisplayContext();
 	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
@@ -1865,6 +1869,26 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
+	PlayerColorTypes const ePlayerColor = kPlayer.getPlayerColor();
+	char const* szPlayerColor = "-";
+	char const* szPrimaryColor = "-";
+	int iPrimaryRed = -1;
+	int iPrimaryGreen = -1;
+	int iPrimaryBlue = -1;
+	if (ePlayerColor != NO_PLAYERCOLOR)
+	{
+		CvPlayerColorInfo const& kPlayerColor = GC.getInfo(ePlayerColor);
+		ColorTypes const ePrimaryColor = kPlayerColor.getColorTypePrimary();
+		szPlayerColor = kPlayerColor.getType();
+		if (ePrimaryColor != NO_COLOR)
+		{
+			NiColorA const& kPrimaryColor = GC.getInfo(ePrimaryColor).getColor();
+			szPrimaryColor = GC.getInfo(ePrimaryColor).getType();
+			iPrimaryRed = (int)(255 * kPrimaryColor.r);
+			iPrimaryGreen = (int)(255 * kPrimaryColor.g);
+			iPrimaryBlue = (int)(255 * kPrimaryColor.b);
+		}
+	}
 	CvString szTraits;
 	FOR_EACH_ENUM(Trait)
 	{
@@ -1875,8 +1899,11 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
 		szTraits += GC.getInfo(eLoopTrait).getType();
 	}
 	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results. Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), getSASGameRecordQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameRecordQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameRecordQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameRecordQuoted(szLeaderName).GetCString(), getSASGameRecordOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+	// <!-- custom: Log the assigned PlayerColor rather than the civilization default because Civ4 can reassign duplicates. The primary ColorInfo and RGB values help connect text records to maps and screenshots without requiring the source XML. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S playerColor=%s primaryColor=%s primaryColorRGB=%d,%d,%d traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
+			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer),
+			getSASGameRecordQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameRecordQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameRecordQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameRecordQuoted(szLeaderName).GetCString(),
+			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASGameRecordOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
 }
 
 static void logSASGameRecordAttitudeLegend()
@@ -5021,6 +5048,16 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
 	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or map revelation. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(GC.getGame().getGameTurn());
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
+	// <!-- custom: ReplayInfo preserves only the selected player's final and normalized scores. Record both for every civilization once at victory so benchmark review can compare the complete final field without reconstructing Civ4's final-score formula. (GPT-5.6-Sol) -->
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive())
+			continue;
+		bool const bWinner = (kPlayer.getTeam() == eWinner);
+		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d", GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
+	}
 	// <!-- custom: A victory can end the run with wars still active; preserve their observed results without falsely marking them as completed wars. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2)
 	{

@@ -904,10 +904,12 @@ In short: this script is kept as a historical and practical discovery helper, wh
 ### `make_light_source_zip.py`
 
 - Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
-- Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
+- Uses repo-relative archive paths and `ZIP_DEFLATED` compression by default. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review. Use `--compression-level 0` for the old `ZIP_STORED` / no-compression behavior.
+- Compression applies to the whole archive, not only images: JPG/PNG screenshots are already compressed and shrink little, while XML/Python/docs shrink a lot, so whole-ZIP compression is the useful default once selected screenshot folders are included.
+- Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
 - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
 - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
-- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/) and [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/).
+- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), and selected screenshot folders useful for LLM/UI review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). Screenshots are useful because they show what the mod actually looks like in advisors, Sevopedia, the main menu, and common UI. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
 - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
 - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
 - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
@@ -925,15 +927,16 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
 Example of output (Git Bash):
 
 ```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
-SAS
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
-Files:     944
-Size:      43,264,448 bytes before ZIP container overhead
-Mode:      ZIP_STORED / no compression
-Wrote:     944 file(s)
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260811T105205.zip
+Files:     1135
+Size:      92,519,037 bytes before ZIP container overhead
+Mode:      ZIP_DEFLATED / compression level 6
+Wrote:     1135 file(s)
+ZIP size:  53,887,082 bytes
+Duration:  2,136 ms
 ```
 
 ## Workflow rule for timeline tuning
