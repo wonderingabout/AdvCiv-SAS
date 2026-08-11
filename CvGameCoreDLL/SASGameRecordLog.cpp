@@ -2585,11 +2585,13 @@ struct SASGameRecordMapAsciiPalette
 	char acPolitical[SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT];
 	std::vector<char> acTerrain;
 	std::vector<char> acFeatures;
+	std::vector<char> acBonuses;
 	CvString szPlayers;
 	CvString szGeographyDefine;
 	CvString szPoliticalDefine;
 	CvString szTerrainDefine;
 	CvString szFeatureDefine;
+	CvString szBonusDefine;
 	CvString szError;
 };
 
@@ -2599,6 +2601,7 @@ static bool parseSASGameRecordMapAsciiSymbol(CvString const& szToken, char& cSym
 	else if (szToken == "COMMA") cSymbol = ',';
 	else if (szToken == "COLON") cSymbol = ':';
 	else if (szToken == "SEMICOLON") cSymbol = ';';
+	else if (szToken == "EQUALS") cSymbol = '=';
 	else if (szToken.length() == 1) cSymbol = szToken[0];
 	else return false;
 	return (cSymbol >= 32 && cSymbol <= 126 && cSymbol != '"' && cSymbol != '\\' && cSymbol != '|');
@@ -2619,7 +2622,7 @@ static bool parseSASGameRecordMapAsciiPaletteDefine(char const* szDefineName, in
 	{
 		if (!parseSASGameRecordMapAsciiSymbol(aszTokens[iSymbol], acSymbols[iSymbol]))
 		{
-			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON", szDefineName, iSymbol);
+			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON/EQUALS", szDefineName, iSymbol);
 			return false;
 		}
 		unsigned char const ucSymbol = (unsigned char)acSymbols[iSymbol];
@@ -2643,10 +2646,12 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 	kPalette.bValid = false;
 	kPalette.acTerrain.resize(GC.getNumTerrainInfos() + 1);
 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
+	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
 	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS", (int)kPalette.acTerrain.size(), &kPalette.acTerrain[0], kPalette.szTerrainDefine, kPalette.szError) ||
-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError))
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_BONUS_SYMBOLS", (int)kPalette.acBonuses.size(), &kPalette.acBonuses[0], kPalette.szBonusDefine, kPalette.szError))
 		return kPalette;
 	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
 	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
@@ -2695,21 +2700,63 @@ static void appendSASGameRecordMapAsciiSymbol(CvString& szRow, char cSymbol)
 	szRow += acSymbol;
 }
 
+static CvString getSASGameRecordMapAsciiSymbolToken(char cSymbol)
+{
+	if (cSymbol == ' ') return "SPACE";
+	if (cSymbol == ',') return "COMMA";
+	if (cSymbol == ':') return "COLON";
+	if (cSymbol == ';') return "SEMICOLON";
+	if (cSymbol == '=') return "EQUALS";
+	CvString szToken;
+	szToken.Format("%c", cSymbol);
+	return szToken;
+}
+
 static void appendSASGameRecordMapAsciiLegendEntry(CvString& szLegend, char cSymbol, char const* szType)
 {
 	CvString szEntry;
-	if (cSymbol == ' ') szEntry.Format("SPACE=%s", szType);
-	else szEntry.Format("%c=%s", cSymbol, szType);
+	szEntry.Format("%s=%s", getSASGameRecordMapAsciiSymbolToken(cSymbol).GetCString(), szType);
 	if (!szLegend.empty()) szLegend += ";";
 	szLegend += szEntry;
+}
+
+static void appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(CvString& szLegend, char cSymbol, int iType, char const* szType)
+{
+	// <!-- custom: Runtime XML order can differ in another mod, so record the numeric ID with the stable type name and readable map symbol. (GPT-5.6-Sol) -->
+	CvString szIdAndType;
+	szIdAndType.Format("%d:%s", iType, szType);
+	appendSASGameRecordMapAsciiLegendEntry(szLegend, cSymbol, szIdAndType.GetCString());
+}
+
+static CvString getSASGameRecordMapAsciiSymbolCounts(int const aiCounts[127])
+{
+	CvString szCounts;
+	for (int iSymbol = 32; iSymbol <= 126; iSymbol++)
+	{
+		if (aiCounts[iSymbol] <= 0) continue;
+		CvString szEntry;
+		szEntry.Format("%s=%d", getSASGameRecordMapAsciiSymbolToken((char)iSymbol).GetCString(), aiCounts[iSymbol]);
+		if (!szCounts.empty()) szCounts += ";";
+		szCounts += szEntry;
+	}
+	return szCounts;
 }
 
 static CvString getSASGameRecordMapAsciiTerrainLegend(SASGameRecordMapAsciiPalette const& kPalette)
 {
 	CvString szLegend;
 	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
-		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acTerrain[iTerrain], getSASGameRecordTerrainType((TerrainTypes)iTerrain));
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acTerrain[iTerrain], iTerrain, getSASGameRecordTerrainType((TerrainTypes)iTerrain));
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acTerrain[GC.getNumTerrainInfos()], "FEATURE_ICE_OVERRIDE");
+	return szLegend;
+}
+
+static CvString getSASGameRecordMapAsciiGeographyLegend(SASGameRecordMapAsciiPalette const& kPalette)
+{
+	static char const* const aszTypes[SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT] = { "WATER", "LAKE", "FLAT_OR_MOSTLY_FLAT_LAND", "MOSTLY_HILLS", "MOSTLY_PEAKS", "MOSTLY_WATER_MIXED_LAND", "BALANCED_WATER_LAND", "MOSTLY_LAND_MIXED_WATER", "ICE" };
+	CvString szLegend;
+	for (int iType = 0; iType < SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT; iType++)
+		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acGeography[iType], aszTypes[iType]);
 	return szLegend;
 }
 
@@ -2719,7 +2766,18 @@ static CvString getSASGameRecordMapAsciiFeatureLegend(SASGameRecordMapAsciiPalet
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[0], "NO_FEATURE_WATER");
 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[1], "NO_FEATURE_LAND");
 	for (int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
-		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], getSASGameRecordFeatureType((FeatureTypes)iFeature));
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], iFeature, getSASGameRecordFeatureType((FeatureTypes)iFeature));
+	return szLegend;
+}
+
+static CvString getSASGameRecordMapAsciiBonusLegend(SASGameRecordMapAsciiPalette const& kPalette)
+{
+	CvString szLegend;
+	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[0], "NO_BONUS_WATER");
+	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[1], "NO_BONUS_LAND");
+	for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
+		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acBonuses[iBonus + 2], iBonus, getSASGameRecordBonusType((BonusTypes)iBonus));
+	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[GC.getNumBonusInfos() + 2], "MULTIPLE_BONUS_TYPES");
 	return szLegend;
 }
 
@@ -2783,7 +2841,9 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 			if (eTerrain >= 0 && eTerrain < GC.getNumTerrainInfos()) aiCounts[eTerrain]++;
 		}
 	}
-	// <!-- custom: Ice is technically a feature, but it is not ordinarily removable and blocks naval paths, so it reads as part of the strategic surface alongside Coast, land and peaks. One character cannot show both ice and its underlying Coast/Ocean terrain; prefer ice because blocked access is the strategically decisive state. Show exact ice at native resolution and an ice-majority cell after resampling; geography and features retain it for their separate shape/history purposes. (GPT-5.6-Sol) -->
+	// <!-- custom: Ice is technically a feature, but it is not ordinarily removable and blocks naval paths, so it reads as part of the strategic surface alongside Coast, land and peaks.
+	// One character cannot show both ice and its underlying Coast/Ocean terrain; prefer ice because blocked access is the strategically decisive state, while the obscured Coast shape is normally inferable from adjacent Coast and land.
+	// Show exact ice at native resolution and an ice-majority cell after resampling; geography and features retain it for their separate shape/history purposes. (GPT-5.6-Sol) -->
 	int const iPlotCount = (iMaxX - iMinX) * (iMaxY - iMinY);
 	if (iIce > 0 && 2 * iIce >= iPlotCount) return kPalette.acTerrain[GC.getNumTerrainInfos()];
 	TerrainTypes eDominant = NO_TERRAIN;
@@ -2819,6 +2879,31 @@ static char getSASGameRecordMapAsciiFeatureSymbol(CvMap const& kMap, SASGameReco
 		if (aiCounts[iFeature] > aiCounts[iDominant]) iDominant = iFeature;
 	}
 	return kPalette.acFeatures[iDominant];
+}
+
+static char getSASGameRecordMapAsciiBonusSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
+{
+	int iNoBonusWater = 0;
+	int iNoBonusLand = 0;
+	BonusTypes eOnlyBonus = NO_BONUS;
+	for (int iY = iMinY; iY < iMaxY; iY++)
+	{
+		for (int iX = iMinX; iX < iMaxX; iX++)
+		{
+			CvPlot const& kPlot = *kMap.plot(iX, iY);
+			BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
+			if (eBonus == NO_BONUS)
+			{
+				if (kPlot.isWater()) iNoBonusWater++;
+				else iNoBonusLand++;
+			}
+			else if (eOnlyBonus == NO_BONUS) eOnlyBonus = eBonus;
+			else if (eOnlyBonus != eBonus) return kPalette.acBonuses[GC.getNumBonusInfos() + 2];
+		}
+	}
+	// <!-- custom: Bonuses are sparse, so any bonus is more informative than the surrounding empty plots in a resampled cell. Different bonus types collapse to the dedicated multiple marker; exact setup coordinates and later BONUS_CHANGE rows preserve every identity and location. (GPT-5.6-Sol) -->
+	if (eOnlyBonus != NO_BONUS) return kPalette.acBonuses[eOnlyBonus + 2];
+	return kPalette.acBonuses[iNoBonusWater >= iNoBonusLand ? 0 : 1];
 }
 
 static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, std::vector<PlayerTypes> const& aeStartingPlayers, int iMinX, int iMaxX, int iMinY, int iMaxY)
@@ -2878,10 +2963,10 @@ static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRe
 
 // <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
 // Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture.
-// Geography and terrain are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
+// Geography, terrain, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
 static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szReason)
 {
-	int const iLayerCount = (bIncludeStaticLayers ? 4 : 2);
+	int const iLayerCount = (bIncludeStaticLayers ? 5 : 2);
 	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
 	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
 	if (iMaxWidth <= 0 || iMaxHeight <= 0)
@@ -2934,21 +3019,25 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		szPlayerSymbols += szPlayerSymbol;
 	}
 	CvString const szPlayerSymbolsQuoted = getSASGameRecordQuoted(getSASGameRecordOrDash(szPlayerSymbols).GetCString());
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE",
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map",
 			GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
 	if (bIncludeStaticLayers)
 	{
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY palette=%s order=water,lake,flat_or_mostly_flat_land,mostly_hills,mostly_peaks,mostly_water_mixed_land,balanced_water_land,mostly_land_mixed_water,ice", getSASGameRecordQuoted(kPalette.szGeographyDefine.GetCString()).GetCString());
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN palette=%s symbolTypes=%s resampledCell=dominant_type", getSASGameRecordQuoted(kPalette.szTerrainDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
+				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASGameRecordQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
+		// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1", GC.getNumBonusInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
 	}
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES palette=%s symbolTypes=%s resampledCell=dominant_type", getSASGameRecordQuoted(kPalette.szFeatureDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumFeatureInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
 	// <!-- custom: GAME_RECORD_PLAYER_SETUP already stores each player ID's quoted civilization and display name. Keep this repeated map legend to unambiguous SYMBOL=PLAYER_ID pairs so user-controlled punctuation in names cannot break an embedded mini-format or duplicate long names at every snapshot. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
 			getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
-	for (int iLayer = 0; iLayer < 4; iLayer++)
+	for (int iLayer = 0; iLayer < 5; iLayer++)
 	{
-		if (iLayer < 2 && !bIncludeStaticLayers) continue;
-		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "FEATURES" : "POLITICAL");
+		if (iLayer < 3 && !bIncludeStaticLayers) continue;
+		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "BONUSES" : iLayer == 3 ? "FEATURES" : "POLITICAL");
+		int aiSymbolCounts[127] = { 0 };
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
 		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
 		{
@@ -2963,15 +3052,19 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 				char cSymbol;
 				if (iLayer == 0) cSymbol = getSASGameRecordMapAsciiGeographySymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
 				else if (iLayer == 1) cSymbol = getSASGameRecordMapAsciiTerrainSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
-				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiBonusSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+				else if (iLayer == 3) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
 				else cSymbol = getSASGameRecordMapAsciiPoliticalSymbol(kMap, kPalette, aeStartingPlayers, iMinX, iMaxX, iMinY, iMaxY);
+				aiSymbolCounts[(unsigned char)cSymbol]++;
 				for (int iRepeat = 0; iRepeat < iHorizontalCharsPerCell; iRepeat++)
 					appendSASGameRecordMapAsciiSymbol(szPlots, cSymbol);
 			}
 			szPlots += "|";
 			logSASGameRecord("%s", szPlots.GetCString());
 		}
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s", szLayer);
+		int const iPreviewCells = iPreviewWidth * iPreviewHeight;
+		int const iDrawingCharacters = (iOutputWidth + 2) * iPreviewHeight;
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s", szLayer, iPreviewCells, iDrawingCharacters, getSASGameRecordQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
 	}
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d", GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight);
 }

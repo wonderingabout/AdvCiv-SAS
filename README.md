@@ -923,13 +923,13 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 ### SASGameRecord log
 
-`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. Level 3 also includes compact initial geography/terrain pictures and changing feature/political pictures so spatial, environmental, and territorial changes can be understood without screenshots.
+`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. Level 3 also includes compact initial geography/terrain/bonus pictures and changing feature/political pictures so spatial, strategic, environmental, and territorial changes can be understood without screenshots.
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
 The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM needs for analysis.
 
-See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sas_game_record_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
+See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sasgamerecord_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
 
 For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
 
@@ -955,6 +955,7 @@ GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZAT
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_3.PNG" alt="SASGameRecord_text_art_map_3" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_4.PNG" alt="SASGameRecord_text_art_map_4" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_5.PNG" alt="SASGameRecord_text_art_map_5" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG" alt="SASGameRecord_text_art_map_6" width="250"></img>
 
 ## CuCuGS
 
