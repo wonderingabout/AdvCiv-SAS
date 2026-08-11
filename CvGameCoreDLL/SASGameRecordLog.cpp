@@ -4397,6 +4397,82 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iCityGarrison = iGarrison;
 }
 
+// <!-- custom: Ordinary civilization snapshots intentionally omit the Barbarian player because diplomacy, economy and victory-strategy rows do not meaningfully apply. Preserve the strategically useful Barbarian pressure instead through one compact summary, concise city rows, and level-3 unit positions. (GPT-5.6-Sol) -->
+static void logSASGameRecordBarbarians(int iGameTurn)
+{
+	CvPlayer const& kBarbarians = GET_PLAYER(BARBARIAN_PLAYER);
+	std::vector<int> aiUnitTypes(GC.getNumUnitInfos(), 0);
+	std::vector<int> aiUnitAI(NUM_UNITAI_TYPES, 0);
+	std::vector<CvString> aszPositionChunks;
+	CvString szPositionChunk;
+	bool const bLogPositions = (gGameRecordLogLevel >= 3);
+	int iUnits = 0;
+	int iAnimals = 0;
+	int iLandUnits = 0;
+	int iSeaUnits = 0;
+	int iCargoUnits = 0;
+	int iUnitsInCities = 0;
+	int iUnitsInBarbarianTerritory = 0;
+	int iUnitsInUnownedTerritory = 0;
+	int iUnitsInCivilizationTerritory = 0;
+	int iWoundedUnits = 0;
+	int iLoop = 0;
+	for (CvUnit const* pLoopUnit = kBarbarians.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kBarbarians.nextUnit(&iLoop))
+	{
+		iUnits++;
+		if (pLoopUnit->isAnimal()) iAnimals++;
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND) iLandUnits++;
+		else if (pLoopUnit->getDomainType() == DOMAIN_SEA) iSeaUnits++;
+		if (pLoopUnit->isCargo()) iCargoUnits++;
+		if (pLoopUnit->getDamage() > 0) iWoundedUnits++;
+		CvPlot const* pPlot = pLoopUnit->plot();
+		if (pPlot != NULL)
+		{
+			if (pPlot->isCity()) iUnitsInCities++;
+			if (pPlot->getOwner() == BARBARIAN_PLAYER) iUnitsInBarbarianTerritory++;
+			else if (!pPlot->isOwned()) iUnitsInUnownedTerritory++;
+			else iUnitsInCivilizationTerritory++;
+		}
+		if (pLoopUnit->getUnitType() != NO_UNIT) aiUnitTypes[pLoopUnit->getUnitType()]++;
+		UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
+		if (eUnitAI >= 0 && eUnitAI < NUM_UNITAI_TYPES) aiUnitAI[eUnitAI]++;
+		if (bLogPositions && pPlot != NULL)
+		{
+			CvString szItem;
+			szItem.Format("%s%s:%d:%s@(%d,%d)", szPositionChunk.empty() ? "" : ",", getSASGameRecordUnitType(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASGameRecordUnitAIType(eUnitAI), pPlot->getX(), pPlot->getY());
+			if (!szPositionChunk.empty() && szPositionChunk.length() + szItem.length() > 1500)
+			{
+				aszPositionChunks.push_back(szPositionChunk);
+				szPositionChunk.clear();
+				szItem.Format("%s:%d:%s@(%d,%d)", getSASGameRecordUnitType(pLoopUnit->getUnitType()), pLoopUnit->getID(), getSASGameRecordUnitAIType(eUnitAI), pPlot->getX(), pPlot->getY());
+			}
+			szPositionChunk += szItem;
+		}
+	}
+	if (!szPositionChunk.empty()) aszPositionChunks.push_back(szPositionChunk);
+	CvString szUnitTypes;
+	CvString szUnitAI;
+	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++) appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
+	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++) appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
+	logSASGameRecord("GAME_RECORD_BARBARIAN_SUMMARY turn=%d cities=%d population=%d units=%d animals=%d nonAnimals=%d landUnits=%d seaUnits=%d cargoUnits=%d unitsInCities=%d unitsInBarbarianTerritory=%d unitsInUnownedTerritory=%d unitsInCivilizationTerritory=%d woundedUnits=%d unitTypes=%s unitAI=%s",
+			iGameTurn, kBarbarians.getNumCities(), kBarbarians.getTotalPopulation(), iUnits, iAnimals, iUnits - iAnimals, iLandUnits, iSeaUnits, iCargoUnits,
+			iUnitsInCities, iUnitsInBarbarianTerritory, iUnitsInUnownedTerritory, iUnitsInCivilizationTerritory, iWoundedUnits, getSASGameRecordOrDash(szUnitTypes).GetCString(), getSASGameRecordOrDash(szUnitAI).GetCString());
+	int iCityLoop = 0;
+	for (CvCity const* pLoopCity = kBarbarians.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kBarbarians.nextCity(&iCityLoop))
+	{
+		SASGameRecordPlotUnitCounts kCityUnits;
+		collectSASGameRecordPlotUnitCounts(pLoopCity->getPlot(), BARBARIAN_PLAYER, kCityUnits);
+		SASGameRecordPlotComposition const kWorkedPlots = getSASGameRecordWorkedPlotComposition(*pLoopCity);
+		logSASGameRecord("GAME_RECORD_BARBARIAN_CITY turn=%d cityId=%d city=%S x=%d y=%d area=%d foundedTurn=%d age=%d pop=%d foodSurplus=%d prod=%d commerce=%d defenseModifier=%d totalDefense=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d workers=%d attackers=%d worked=%d workedImproved=%d workedUnimproved=%d productionKind=%s production=%s productionTurns=%d",
+				iGameTurn, pLoopCity->getID(), getSASGameRecordQuotedCityName(pLoopCity).GetCString(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getArea().getID(), pLoopCity->getGameTurnFounded(), iGameTurn - pLoopCity->getGameTurnFounded(),
+				pLoopCity->getPopulation(), pLoopCity->foodDifference(), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), pLoopCity->getDefenseModifier(false), pLoopCity->getTotalDefense(false),
+				kCityUnits.iUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iWorkers, kCityUnits.iAttackers, kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved,
+				getSASGameRecordCityProductionKind(*pLoopCity), getSASGameRecordCityProductionType(*pLoopCity), pLoopCity->getProductionTurnsLeft());
+	}
+	for (size_t iI = 0; iI < aszPositionChunks.size(); iI++)
+		logSASGameRecord("GAME_RECORD_BARBARIAN_POSITIONS turn=%d part=%d parts=%d units=%s", iGameTurn, (int)iI + 1, (int)aszPositionChunks.size(), aszPositionChunks[iI].GetCString());
+}
+
 static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvGame const& kGame = GC.getGame();
@@ -4562,6 +4638,7 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 	}
 	if (gGameRecordLogLevel >= 2)
 	{
+		logSASGameRecordBarbarians(iGameTurn);
 		logSASGameRecordBattleBuckets(iGameTurn);
 		logSASGameRecordFlowBuckets(iGameTurn);
 	}
@@ -4696,6 +4773,17 @@ static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit 
 }
 
 // <!-- custom: GAME_RECORD_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_RECORD_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
+// <!-- custom: Ordinary unit-completion hooks do not see animals and other Barbarian units created directly from fog. Record those explicit spawn sites without instrumenting every unrelated CvPlayer::initUnit caller. (GPT-5.6-Sol) -->
+void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
+{
+	if (pUnit == NULL || pUnit->getOwner() != BARBARIAN_PLAYER)
+		return;
+	CvPlot const* pPlot = pUnit->plot();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_UNIT_SPAWNED cause=%s unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d cargo=%d transportId=%d",
+			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
+			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
+}
+
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted)
 {
 	if (pCity == NULL || pUnit == NULL)
@@ -5375,6 +5463,14 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
 	PlayerTypes eLoser = pLoser->getOwner();
 	CvPlot const* pPlot = pLoser->plot();
 	const bool bCityPlot = (pPlot != NULL && pPlot->isCity());
+	// <!-- custom: Aggregate battle rows omit the Barbarian player, and Settler-defense rows cover only one special case. At level 3, retain exact ordinary Barbarian/animal combat so spawned pressure can be followed through its actual outcome. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3 && (pWinner->getOwner() == BARBARIAN_PLAYER || pLoser->getOwner() == BARBARIAN_PLAYER))
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_COMBAT winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserDamage=%d x=%d y=%d cityPlot=%d",
+				GC.getGame().getGameTurn(), pWinner->getOwner(), pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitAIType(pWinner->AI_getUnitAIType()), pWinner->getDamage(),
+				pLoser->getOwner(), pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitAIType(pLoser->AI_getUnitAIType()), pLoser->getDamage(),
+				pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), bCityPlot);
+	}
 	int const iLoserProductionNeeded = (eLoser >= 0 && eLoser < MAX_PLAYERS ? GET_PLAYER(eLoser).getProductionNeeded(pLoser->getUnitType()) : 0);
 	if (eWinner >= 0 && eWinner < MAX_PLAYERS)
 	{

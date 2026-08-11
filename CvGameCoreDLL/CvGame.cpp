@@ -7626,8 +7626,8 @@ void CvGame::createAnimals()
 			}
 			if (eBestUnit != NO_UNIT)
 			{
-				GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit,
-						pPlot->getX(), pPlot->getY(), UNITAI_ANIMAL);
+				CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBestUnit, pPlot->getX(), pPlot->getY(), UNITAI_ANIMAL);
+				if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pNewUnit, "ANIMAL_FOG");
 			}
 		}
 	}
@@ -7761,6 +7761,7 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& 
 				if (pLoadUnit == NULL)
 					break;
 				pLoadUnit->setTransportUnit(pTransport);
+				if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pLoadUnit, "FOG_TRANSPORT_CARGO");
 				// <advc.304>
 				getBarbarianWeightMap().getActivityMap().change(pLoadUnit->getPlot(),
 						BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
@@ -7814,8 +7815,9 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& 
 		UnitTypes eUnitType = randomBarbarianUnit(eUnitAI, *pPlot);
 		if (eUnitType == NO_UNIT)
 			return iCreated;
-		/*CvUnit* pNewUnit =*/GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType,
-				pPlot->getX(), pPlot->getY(), eUnitAI);
+		// <!-- custom: Base AdvCiv commented out this local when it had no caller. Preserve the created unit so level-3 game records can identify the exact fog spawn. (GPT-5.6-Sol) -->
+		CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType, pPlot->getX(), pPlot->getY(), eUnitAI);
+		if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pNewUnit, pShelf == NULL ? "LAND_FOG" : "SEA_FOG");
 		if (!pPlot->isWater())
 			iCreated++;
 		// </advc.300>

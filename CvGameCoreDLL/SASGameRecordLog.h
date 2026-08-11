@@ -37,6 +37,8 @@ void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
 void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);
 void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshold, int iLandDefense, int iIndexBefore, int iIndexBeforeRestoration, int iIndexEnd, int iWarmingChances, int iEventTally);
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
+// <!-- custom: Fog-spawn call sites pass the explicit Barbarian-unit source; ordinary city production continues through logSASGameRecordUnitCompleted. (GPT-5.6-Sol) -->
+void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted);
 // <!-- custom: Added eCause so the existing TECH_ACQUIRED action can name its explicit source. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause);

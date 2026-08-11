@@ -5132,9 +5132,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 					FAssert(eLoopUnit != NO_UNIT);
 					if(eLoopUnit != NO_UNIT)
 					{
-						GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit,
-								pAdj->getX(), pAdj->getY(),
-								(pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+						CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
+						if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
 						iBarbCount++;
 					}
 					if ((iPass > 0 && iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
