@@ -44,12 +44,12 @@ EXTRA_SUBDIRS = (
     "_1_AdvCiv-SAS/SASGameRecord_log",
 )
 
-# Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g.
-# advisors, main menu, Sevopedia, and common UI. Keep this explicit instead of
-# including all image folders so broad image additions do not silently bloat the archive.
+# Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g. advisors, main menu, Sevopedia, rendered SASGameRecord map text, and common UI.
+# Keep this explicit instead of including all image folders so broad image additions do not silently bloat the archive.
 IMAGE_SUBDIRS = (
     "_1_AdvCiv-SAS/Images/advisors",
     "_1_AdvCiv-SAS/Images/main_menu",
+    "_1_AdvCiv-SAS/Images/SASGameRecord_map_text",
     "_1_AdvCiv-SAS/Images/sevopedia",
     "_1_AdvCiv-SAS/Images/ui_other",
 )
@@ -64,13 +64,12 @@ DEFAULT_ARCHIVE_PREFIX = None
 DEFAULT_COMPRESSION_LEVEL = 6
 GENERATED_ARCHIVE_MARKER = "_light_source_"
 
-# Skip Python bytecode/cache folders anywhere in the tree. They are generated,
-# can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
+# Skip Python bytecode/cache folders anywhere in the tree.
+# They are generated, can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
 SKIP_DIR_NAMES = {".git", "__pycache__"}
 
-# Skip whole folders that are included through a parent folder but do not help
-# compact LLM/code-agent review. Civ4 cursor assets are visual/binary UI files
-# and are usually noise for source/debugging tasks.
+# Skip whole folders that are included through a parent folder but do not help compact LLM/code-agent review.
+# Civ4 cursor assets are visual/binary UI files and are usually noise for source/debugging tasks.
 SKIP_REL_DIRS = {"assets/res/cursors"}
 
 # Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
@@ -85,15 +84,13 @@ PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
 # Other small lone project files are useful enough to keep.
 DLL_PROJECT_SKIP_SUFFIXES = {".sdf"}
 
-# Skip original manuals because converted text copies are easier to grep and
-# enough for compact LLM/code-agent review.
+# Skip original manuals because converted text copies are easier to grep and enough for compact LLM/code-agent review.
 SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
 
-# Do not exclude common readable image files globally. Small previews/screenshots
-# can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image
-# folders by not adding those folders to the include lists instead. TGA is
-# excluded above because ChatGPT/code-agent review generally cannot inspect it
-# usefully in this compact source archive.
+# Do not exclude common readable image files globally.
+# Small previews/screenshots can be useful for LLM review, e.g. GameFont previews.
+# Avoid heavy art/image folders by not adding those folders to the include lists instead.
+# TGA is excluded above because ChatGPT/code-agent review generally cannot inspect it usefully in this compact source archive.
 
 
 def parse_args() -> argparse.Namespace:

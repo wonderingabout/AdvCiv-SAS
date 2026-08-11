@@ -31,6 +31,8 @@ void logSASGameRecordTurn(int iGameTurn);
 // <!-- custom: Plot changes and permanent team map revelation are buffered into compact coordinate lists and flushed once per turn; detailed before/after rows are reserved for non-routine causes. The environment hook receives values already computed by CvGame::doGlobalWarming so it adds no map scan. (GPT-5.6-Sol) -->
 void flushSASGameRecordTurnChanges(int iGameTurn);
 void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed);
+// <!-- custom: Directional river edits are rare and independent from ordinary plot-state actions, so record them separately instead of adding unused river fields to every detailed plot-change row. Callers gate this helper before computing logging-only arguments. (GPT-5.6-Sol) -->
+void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary);
 void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam);
 // <!-- custom: Map-visible technologies reveal every plot through thousands of ordinary setRevealed calls. Bracket that bulk operation so the record writes one exact full-map row instead of redundant coordinate chunks. (GPT-5.6-Sol) -->
 void beginSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech);

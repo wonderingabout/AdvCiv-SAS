@@ -19,7 +19,7 @@
 #include "CvDLLFlagEntityIFaceBase.h"
 // <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
 #include "BBAILog.h"
-#include "SASGameRecordLog.h" // <!-- custom: Preserve non-routine plot changes and permanent map revelation in SASGameRecord. (GPT-5.5 + GPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Preserve non-routine plot/river-edge changes and permanent map revelation in SASGameRecord. (GPT-5.5 + GPT-5.6-Sol) -->
 
 /*	advc.make: I've added safeIntCast calls in a few places that looked at least
 	slightly hazardous. Beyond that, explicit casts would only add clutter.
@@ -3853,6 +3853,9 @@ void CvPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (isNOfRiver() == bNewValue && eRiverDir == m_eRiverWEDirection)
 		return; // advc
+	bool const bOldSouthBoundary = isNOfRiver();
+	bool const bLogRiverChange = (gGameRecordLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0 && bOldSouthBoundary != bNewValue);
+	bool const bOldEastBoundary = (bLogRiverChange ? isWOfRiver() : false);
 
 	if (isNOfRiver() != bNewValue)
 	{
@@ -3880,6 +3883,8 @@ void CvPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 	m_eRiverWEDirection = eRiverDir;
 
 	updateRiverSymbol(true, true);
+	// <!-- custom: The setup-only directional river picture would otherwise become stale after a rare WorldBuilder/script/event edge edit. Preserve the exact changed coordinate and before/after boundary state; map generation at elapsed turn zero skips the snapshot work. (GPT-5.6-Sol) -->
+	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
 }
 
 
@@ -3893,6 +3898,9 @@ void CvPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 {
 	if (isWOfRiver() == bNewValue && eRiverDir == m_eRiverNSDirection)
 		return; // advc
+	bool const bOldEastBoundary = isWOfRiver();
+	bool const bLogRiverChange = (gGameRecordLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0 && bOldEastBoundary != bNewValue);
+	bool const bOldSouthBoundary = (bLogRiverChange ? isNOfRiver() : false);
 
 	if (isWOfRiver() != bNewValue)
 	{
@@ -3915,6 +3923,7 @@ void CvPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 	m_eRiverNSDirection = eRiverDir;
 
 	updateRiverSymbol(true, true);
+	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
 }
 
 

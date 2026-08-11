@@ -1185,16 +1185,13 @@ static const char* getSASGameRecordRouteType(RouteTypes eRoute)
 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
 }
 
-SASGameRecordPlotState::SASGameRecordPlotState()
-:	eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
+SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
 {
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		aiExtraYield[iI] = 0;
 }
 
-SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot)
-:	eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()),
-	eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
+SASGameRecordPlotState::SASGameRecordPlotState(CvPlot const& kPlot) : eTerrain(kPlot.getTerrainType()), eFeature(kPlot.getFeatureType()), eBonus(kPlot.getBonusType()), eImprovement(kPlot.getImprovementType()), eRoute(kPlot.getRouteType())
 {
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		aiExtraYield[iI] = GC.getMap().getPlotExtraYield(kPlot, (YieldTypes)iI);
@@ -1311,10 +1308,8 @@ static void prepareSASGameRecordTurnChanges()
 		g_iSASGameRecordPendingPlotTurn = iGameTurn;
 }
 
-void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
+static void bufferSASGameRecordPlotChangeCoordinate(CvPlot const& kPlot, char const* szCategory)
 {
-	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
-		return;
 	prepareSASGameRecordTurnChanges();
 	SASGameRecordPlotChangeGroup* pGroup = NULL;
 	for (size_t iI = 0; iI < g_aSASGameRecordPlotChanges.size(); iI++)
@@ -1333,6 +1328,13 @@ void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState c
 		pGroup = &g_aSASGameRecordPlotChanges.back();
 	}
 	addSASGameRecordCoordinate(pGroup->aCoordinates, kPlot);
+}
+
+void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState const& kOldState, char const* szCategory, char const* szCause, bool bDetailed)
+{
+	if (GC.getGame().getElapsedGameTurns() <= 0 || !isSASGameRecordPlotStateChanged(kOldState, kPlot))
+		return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, szCategory);
 	if (bDetailed)
 	{
 		logSASGameRecord("GAME_RECORD_PLOT_CHANGE turn=%d cause=%s category=%s x=%d y=%d owner=%d terrainOld=%s terrainNew=%s featureOld=%s featureNew=%s bonusOld=%s bonusNew=%s improvementOld=%s improvementNew=%s routeOld=%s routeNew=%s extraFoodOld=%d extraFoodNew=%d extraProductionOld=%d extraProductionNew=%d extraCommerceOld=%d extraCommerceNew=%d",
@@ -1346,6 +1348,16 @@ void recordSASGameRecordPlotChange(CvPlot const& kPlot, SASGameRecordPlotState c
 				kOldState.aiExtraYield[YIELD_PRODUCTION], GC.getMap().getPlotExtraYield(kPlot, YIELD_PRODUCTION),
 				kOldState.aiExtraYield[YIELD_COMMERCE], GC.getMap().getPlotExtraYield(kPlot, YIELD_COMMERCE));
 	}
+}
+
+void logSASGameRecordRiverEdgeChanged(CvPlot const& kPlot, bool bOldSouthBoundary, bool bOldEastBoundary)
+{
+	bool const bNewSouthBoundary = kPlot.isNOfRiver();
+	bool const bNewEastBoundary = kPlot.isWOfRiver();
+	if (bOldSouthBoundary == bNewSouthBoundary && bOldEastBoundary == bNewEastBoundary) return;
+	bufferSASGameRecordPlotChangeCoordinate(kPlot, "riverChanges");
+	logSASGameRecord("GAME_RECORD_RIVER_EDGE_CHANGE turn=%d x=%d y=%d owner=%d southBoundaryOld=%d southBoundaryNew=%d eastBoundaryOld=%d eastBoundaryNew=%d",
+			GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), bOldSouthBoundary, bNewSouthBoundary, bOldEastBoundary, bNewEastBoundary);
 }
 
 void recordSASGameRecordPlotRevealed(CvPlot const& kPlot, TeamTypes eTeam)
@@ -2574,6 +2586,7 @@ static void logSASGameRecordGeography()
 enum
 {
 	SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT = 9,
+	SAS_MAP_ASCII_RIVER_SYMBOL_COUNT = 6,
 	SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT = 8
 };
 
@@ -2582,12 +2595,14 @@ struct SASGameRecordMapAsciiPalette
 {
 	bool bValid;
 	char acGeography[SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT];
+	char acRivers[SAS_MAP_ASCII_RIVER_SYMBOL_COUNT];
 	char acPolitical[SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT];
 	std::vector<char> acTerrain;
 	std::vector<char> acFeatures;
 	std::vector<char> acBonuses;
 	CvString szPlayers;
 	CvString szGeographyDefine;
+	CvString szRiverDefine;
 	CvString szPoliticalDefine;
 	CvString szTerrainDefine;
 	CvString szFeatureDefine;
@@ -2648,6 +2663,7 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
 	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
 	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
+			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_RIVER_SYMBOLS", SAS_MAP_ASCII_RIVER_SYMBOL_COUNT, kPalette.acRivers, kPalette.szRiverDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS", (int)kPalette.acTerrain.size(), &kPalette.acTerrain[0], kPalette.szTerrainDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
@@ -2760,6 +2776,15 @@ static CvString getSASGameRecordMapAsciiGeographyLegend(SASGameRecordMapAsciiPal
 	return szLegend;
 }
 
+static CvString getSASGameRecordMapAsciiRiverLegend(SASGameRecordMapAsciiPalette const& kPalette)
+{
+	static char const* const aszTypes[SAS_MAP_ASCII_RIVER_SYMBOL_COUNT] = { "NO_RIVER_EDGE_WATER", "NO_RIVER_EDGE_LAKE", "NO_RIVER_EDGE_LAND", "SOUTH_BOUNDARY_RIVER_EDGE", "EAST_BOUNDARY_RIVER_EDGE", "SOUTH_AND_EAST_BOUNDARY_RIVER_EDGES" };
+	CvString szLegend;
+	for (int iType = 0; iType < SAS_MAP_ASCII_RIVER_SYMBOL_COUNT; iType++)
+		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acRivers[iType], aszTypes[iType]);
+	return szLegend;
+}
+
 static CvString getSASGameRecordMapAsciiFeatureLegend(SASGameRecordMapAsciiPalette const& kPalette)
 {
 	CvString szLegend;
@@ -2857,6 +2882,35 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 		}
 	}
 	return (eDominant == NO_TERRAIN ? '?' : kPalette.acTerrain[eDominant]);
+}
+
+static char getSASGameRecordMapAsciiRiverSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
+{
+	// <!-- custom: Civ4's isNOfRiver flag means that this plot is north of a river on its southern boundary; isWOfRiver analogously records its eastern boundary. These two bits therefore identify the orthogonal movement edges that cross rivers, unlike a riverside-plot marker. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: When no river edge replaces the background, blank ocean, visible lakes and dotted land keep each river attached to a recognizable landmass. A distinct lake symbol avoids mistaking an inland body near the coast for an ocean inlet; the same majority rule preserves the broad outline after resampling. (GPT-5.6-Sol) -->
+	bool bSouthBoundary = false;
+	bool bEastBoundary = false;
+	int iWater = 0;
+	int iLake = 0;
+	int iLand = 0;
+	for (int iY = iMinY; iY < iMaxY; iY++)
+	{
+		for (int iX = iMinX; iX < iMaxX; iX++)
+		{
+			CvPlot const& kPlot = *kMap.plot(iX, iY);
+			if (kPlot.isNOfRiver()) bSouthBoundary = true;
+			if (kPlot.isWOfRiver()) bEastBoundary = true;
+			if (kPlot.isWater())
+			{
+				iWater++;
+				if (kPlot.isLake()) iLake++;
+			}
+			else iLand++;
+		}
+	}
+	if (bSouthBoundary || bEastBoundary) return kPalette.acRivers[(bSouthBoundary && bEastBoundary) ? 5 : (bSouthBoundary ? 3 : 4)];
+	if (iLand > iWater) return kPalette.acRivers[2];
+	return kPalette.acRivers[iLake == iWater ? 1 : 0];
 }
 
 static char getSASGameRecordMapAsciiFeatureSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
@@ -2961,12 +3015,45 @@ static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRe
 	return (iWater > 0 ? kPalette.acPolitical[0] : kPalette.acPolitical[1]);
 }
 
+// <!-- custom: The bounded river picture can merge edges on oversized maps. Preserve every setup edge in compact coordinate chunks too, using S/E for the plot's south/east boundaries so an external tool can reconstruct exact orthogonal river crossings. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordRiverEdgeCoordinates()
+{
+	CvMap const& kMap = GC.getMap();
+	std::vector<CvString> aszChunks;
+	CvString szChunk;
+	int iEdgePlots = 0;
+	int iRiverEdges = 0;
+	for (int iPlot = 0; iPlot < kMap.numPlots(); iPlot++)
+	{
+		CvPlot const& kPlot = *kMap.plotByIndex(iPlot);
+		bool const bSouth = kPlot.isNOfRiver();
+		bool const bEast = kPlot.isWOfRiver();
+		if (!bSouth && !bEast) continue;
+		char const* const szEdgeDirections = (bSouth && bEast ? "SE" : bSouth ? "S" : "E");
+		iEdgePlots++;
+		iRiverEdges += (bSouth ? 1 : 0) + (bEast ? 1 : 0);
+		CvString szItem;
+		szItem.Format("%s(%d,%d):%s", szChunk.empty() ? "" : ";", kPlot.getX(), kPlot.getY(), szEdgeDirections);
+		if (!szChunk.empty() && szChunk.length() + szItem.length() > 1500)
+		{
+			aszChunks.push_back(szChunk);
+			szChunk.clear();
+			szItem.Format("(%d,%d):%s", kPlot.getX(), kPlot.getY(), szEdgeDirections);
+		}
+		szChunk += szItem;
+	}
+	if (!szChunk.empty()) aszChunks.push_back(szChunk);
+	if (aszChunks.empty()) aszChunks.push_back("-");
+	for (size_t iPart = 0; iPart < aszChunks.size(); iPart++)
+		logSASGameRecord("GAME_RECORD_MAP_RIVER_EDGES turn=%d edgePlots=%d riverEdges=%d part=%d parts=%d edgeFormat=(x,y):D directionCodes=S/E/SE edges=%s", GC.getGame().getGameTurn(), iEdgePlots, iRiverEdges, (int)iPart + 1, (int)aszChunks.size(), aszChunks[iPart].GetCString());
+}
+
 // <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
 // Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture.
-// Geography, terrain, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
+// Geography, terrain, directional river edges, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
 static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szReason)
 {
-	int const iLayerCount = (bIncludeStaticLayers ? 5 : 2);
+	int const iLayerCount = (bIncludeStaticLayers ? 6 : 2);
 	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
 	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
 	if (iMaxWidth <= 0 || iMaxHeight <= 0)
@@ -3001,6 +3088,17 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		}
 	}
 	int const iOutputWidth = iPreviewWidth * iHorizontalCharsPerCell;
+	int iSourceSouthBoundaryRiverEdges = 0;
+	int iSourceEastBoundaryRiverEdges = 0;
+	if (bIncludeStaticLayers)
+	{
+		for (int iPlot = 0; iPlot < kMap.numPlots(); iPlot++)
+		{
+			CvPlot const& kPlot = *kMap.plotByIndex(iPlot);
+			if (kPlot.isNOfRiver()) iSourceSouthBoundaryRiverEdges++;
+			if (kPlot.isWOfRiver()) iSourceEastBoundaryRiverEdges++;
+		}
+	}
 	bool const bMarkStartingPlots = (GC.getGame().getElapsedGameTurns() == 0);
 	std::vector<PlayerTypes> aeStartingPlayers;
 	CvString szPlayerSymbols;
@@ -3026,6 +3124,8 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
 				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASGameRecordQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=RIVERS palette=%s symbolTypes=%s storedEdgeSemantics=plot_south_and_east_boundaries resampledCell=any_source_edge_by_orientation",
+				getSASGameRecordQuoted(kPalette.szRiverDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiRiverLegend(kPalette).GetCString()).GetCString());
 		// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1", GC.getNumBonusInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
 	}
@@ -3033,10 +3133,10 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 	// <!-- custom: GAME_RECORD_PLAYER_SETUP already stores each player ID's quoted civilization and display name. Keep this repeated map legend to unambiguous SYMBOL=PLAYER_ID pairs so user-controlled punctuation in names cannot break an embedded mini-format or duplicate long names at every snapshot. (ChatGPT-5.5 + GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
 			getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
-	for (int iLayer = 0; iLayer < 5; iLayer++)
+	for (int iLayer = 0; iLayer < 6; iLayer++)
 	{
-		if (iLayer < 3 && !bIncludeStaticLayers) continue;
-		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "BONUSES" : iLayer == 3 ? "FEATURES" : "POLITICAL");
+		if (iLayer < 4 && !bIncludeStaticLayers) continue;
+		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "RIVERS" : iLayer == 3 ? "BONUSES" : iLayer == 4 ? "FEATURES" : "POLITICAL");
 		int aiSymbolCounts[127] = { 0 };
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
 		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
@@ -3052,8 +3152,9 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 				char cSymbol;
 				if (iLayer == 0) cSymbol = getSASGameRecordMapAsciiGeographySymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
 				else if (iLayer == 1) cSymbol = getSASGameRecordMapAsciiTerrainSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
-				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiBonusSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
-				else if (iLayer == 3) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiRiverSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+				else if (iLayer == 3) cSymbol = getSASGameRecordMapAsciiBonusSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+				else if (iLayer == 4) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
 				else cSymbol = getSASGameRecordMapAsciiPoliticalSymbol(kMap, kPalette, aeStartingPlayers, iMinX, iMaxX, iMinY, iMaxY);
 				aiSymbolCounts[(unsigned char)cSymbol]++;
 				for (int iRepeat = 0; iRepeat < iHorizontalCharsPerCell; iRepeat++)
@@ -3064,7 +3165,11 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		}
 		int const iPreviewCells = iPreviewWidth * iPreviewHeight;
 		int const iDrawingCharacters = (iOutputWidth + 2) * iPreviewHeight;
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s", szLayer, iPreviewCells, iDrawingCharacters, getSASGameRecordQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
+		if (iLayer == 2)
+			logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s sourceSouthBoundaryRiverEdges=%d sourceEastBoundaryRiverEdges=%d sourceRiverEdges=%d",
+					szLayer, iPreviewCells, iDrawingCharacters, getSASGameRecordQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString(),
+					iSourceSouthBoundaryRiverEdges, iSourceEastBoundaryRiverEdges, iSourceSouthBoundaryRiverEdges + iSourceEastBoundaryRiverEdges);
+		else logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s", szLayer, iPreviewCells, iDrawingCharacters, getSASGameRecordQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
 	}
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d", GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight);
 }
@@ -3076,7 +3181,11 @@ static void logSASGameRecordInitialContext()
 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	logSASGameRecordGeography();
-	if (gGameRecordLogLevel >= 3) logSASGameRecordMapAscii(true, "initialContext");
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecordMapAscii(true, "initialContext");
+		logSASGameRecordRiverEdgeCoordinates();
+	}
 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
