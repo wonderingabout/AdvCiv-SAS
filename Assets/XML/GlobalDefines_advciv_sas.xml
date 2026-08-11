@@ -1510,6 +1510,16 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Anonymous runtime metrics for SAS game-record performance review. 1 records Civ4 process memory, system memory-load percentage, available 32-bit process address space, and foreground/minimized state at full snapshots. 0 skips all corresponding operating-system queries and dynamic PSAPI loading while preserving millisecond timing and every gameplay record row; stable fields remain present as -1. This setting has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Optional static system context that can materially affect autoplay performance, ordered as a privacy/detail ladder: 0 records none and leaves stable placeholders; 1 adds moderately identifying resolution, fullscreen/windowed state, and enabled Civ4 graphics options; 2 (default) also adds native Windows versus Wine/Proton and pointer width; 3 also adds more identifying logical processor count and total physical RAM. Clamped to 0..3 in SASGameRecordLog.cpp. This remains independent from anonymous dynamic performance metrics above and has no effect while SAS_GAME_RECORD_LOG_LEVEL is 0. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
 
 
 

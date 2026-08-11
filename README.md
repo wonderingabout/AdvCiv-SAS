@@ -26,7 +26,7 @@ Also most importantly LLMs like GPT Thinking (i.e. ChatGPT), GPT Codex, Claude c
 
 For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 
-<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
 
 ## Menu
 
@@ -117,10 +117,10 @@ See [README_Military_Tree.md](/_1_AdvCiv-SAS/Docs/README_Military_Tree.md).
 
 These are from autoplay or me playing them myself (for the 4986 rome AI screenshot as of now). AI is very strong, i wanted to showcase that as well as how AI generally behaves and the game looks/feels ingame. Both of these maps were pangea at monarch handicap. Later screenshots are from version 5055 and around version 5200 and 5085.
 
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.960_gameplay_4986_monarch_1.JPG" alt="0.960_gameplay_4986_monarch_1.JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/samples/0.960_gameplay_4986_monarch_1.JPG" alt="0.960_gameplay_4986_monarch_1.JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/samples/0.961_autoplay_pre_5055_monarch_1 (2).JPG" alt="0.961_autoplay_pre_5055_monarch_1 (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/samples/0.962_autoplay_pre_5200_noble_1 (1).JPG" alt="0.962_autoplay_pre_5200_noble_1 (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/samples/0.963_autoplay_pre_5385_monarch_1.JPG" alt="0.963_autoplay_pre_5385_monarch_1.JPG" width="250"></img>
 
 See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) as well, or the google drive link (see [Docs section](/README.md#docs) for link below) for more gameplay samples although some of these may be old/dated now.
 
@@ -762,10 +762,10 @@ We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with t
 
 Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and player count.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
 
 #### SAS_Spiky_Avenues
 
@@ -773,10 +773,10 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
 
 >Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
 
 #### SAS_Large_Facing_Islands
 
@@ -784,10 +784,10 @@ An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking
 
 >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
 
 #### SAS_Parallel_Lines
 
@@ -795,10 +795,10 @@ Our latest addition with the help of GPT-5.3-Codex thanks.
 
 >Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG" alt="0.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG" alt="0.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG" alt="0.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (2).JPG" alt="0.3205_maps_sas_parallel_lines (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (3).JPG" alt="0.3205_maps_sas_parallel_lines (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3205_maps_sas_parallel_lines (4).JPG" alt="0.3205_maps_sas_parallel_lines (4).JPG" width="250"></img>
 
 ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
 
@@ -811,8 +811,8 @@ Note: we also removed some non-essential maps from the Simple Game menu; they re
 Some of them are selectable in the Simple Game menu, while others only via Custom Game.
 
 <img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG" alt="0.310_main_menu_simple_game (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
 
 ### New .dds for maps in Simple Game
 
@@ -822,19 +822,19 @@ This definitely feels like masonry but works and fun xd i guess after having ted
 
 Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/tools/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
 
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/map_previews/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
 
 ## Change from short to int the Found value pipeline
 
@@ -900,9 +900,9 @@ The separate GitHub Actions [`python-ruff.yml`](/.github/workflows/python-ruff.y
 
 The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24-compile.yml) workflow runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using the small Docker image from [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker). This complements Ruff by checking the old parser Civ4 actually embeds, without trying to launch Civ4 or import engine-only modules. A [test run confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow). Added with the very nice help of GPT-5.5 (on Codex) and ChatGPT-5.5 thanks a lot.
 
-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/tools/0.280_py_2.4_pass_previously.PNG" alt="0.280_py_2.4_pass_previously.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/tools/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/tools/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
 
 ## DLL Logging
 
@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 
 
 ### SAS game record log
 
-`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
@@ -945,10 +945,10 @@ GAME_RECORD_UNIT_COMPOSITION turn=190 player=9 unitTypes=UNIT_WORKER:1,UNIT_MUSK
 GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=0 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
 ```
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/sas_game_record_log_example.PNG" alt="sas_game_record_log_example.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
 
 ## CuCuGS
 
@@ -961,8 +961,8 @@ See:
 - [AdvCiv-SAS - CuCuGS: PR compare](https://github.com/wonderingabout/AdvCiv-SAS/pull/19)
 - [CFC forum CuCuGS topic](https://forums.civfanatics.com/threads/replacing-the-custom-game-screen-proof-of-concept.670307/post-16903059)
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
 
@@ -1094,12 +1094,12 @@ After some more time using it, what i like the most is how really accurate and a
 
 After some more time using ChatGPT 5.2, i have been very imrpessed by ChatGPT 5.2's autonomy and plannfication abilities: this sentiment only grew stronger! Just based on a Sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance, ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds! Very impressive, useful and now implemented in our new Sevopedia tech (see [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)) and thanks a lot!!
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
 
 ### GPT-Codex (VS Code extension)
 
@@ -1109,17 +1109,17 @@ Note: see also [AGENTS.md](/AGENTS.md).
 
 Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories](/README.md#other-new-categories)).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
 
 #### Long_Comments extracting
 
 GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
 
 #### 5.3
 
@@ -1131,13 +1131,13 @@ Notably, i used it to add the new Civilization ireland with new leaders, assets,
 
 I made a YouTube demo to show how it works and how impressive and useful Codex can be. It is very autonomous, follows instructions very well, and code just worked (i only had to fix one bug of not adding comments in an art file, else it just worked). The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
 
-<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/LLM/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
 
 ##### add and use LLM_Helpers for speeds calibration and autotuning
 
 See [/LLM_Helpers/](/LLM_Helpers/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/gpt_codex_5_3_speed_calibration.PNG" alt="gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
 
 #### 5.4
 
@@ -1165,21 +1165,21 @@ Note: see also [AGENTS.md](/AGENTS.md).
 
 After having used other LLMs mostly via web chat (i.e. using the web browser), more recently i've been using Claude code (VS Code extension), to successfully implement the CuCuGS screen following f1rpo's original CuCuGS-PoC approach, with claude code Sonnet 4.5. See [CuCuGS](/README.md#cucugs).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
 
 ##### Speeds calibration (with autotuner and compare scripts)
 
 Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_Helpers/](/LLM_Helpers/).
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
 
 ##### Other tasks: e.g. performance optimizations
 
 Just like [GPT-Codex (VS Code extension)](/README.md#gpt-codex-vs-code-extension), i found Claude code very helpful to automate some code tasks such as performance optimizations, etc.
 
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (1).PNG" alt="claude_code_perf_opt (1).PNG" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_perf_opt (2).PNG" alt="claude_code_perf_opt (2).PNG" width="250"></img>
 
 ### Gemini AI
 

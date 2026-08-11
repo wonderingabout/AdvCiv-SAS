@@ -48,7 +48,7 @@ To download the development version, go to the [mod's github main page](https://
 
 (example of how to do it in the screenshot below, click to view it full screen)
 
-<img src="../Images/misc_0.x/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
+<img src="../Images/tools/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
 
 Note: the 18 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the as of now default 48 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
 
@@ -78,7 +78,7 @@ For convenience i have also provided a steam shortcut of this same link just abo
 
 Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
 
-<img src="../Images/misc_0.x/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
+<img src="../Images/tools/0.260_windows_shortcut_example.PNG" alt="0.260_windows_shortcut_example.PNG" width="250"></img>
 
 If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
 
@@ -92,7 +92,7 @@ Disclaimer: try at your own risk.
 
 Sometimes, rarely, when launching the mod nothing happens (i.e. the mod does not start as usual). I don't know the cause, but empirically i have found that going to Windows Task Manager, right click on civ4 process, kill it, then launch the mod again fixes it.
 
-<img src="../Images/misc_0.x/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
+<img src="../Images/tools/0.270_kill_civ4_process.png" alt="0.270_kill_civ4_process.png" width="250"></img>
 
 ## Configure the mod
 

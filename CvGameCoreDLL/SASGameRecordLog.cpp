@@ -18,6 +18,7 @@
 #include "CvInfo_Civics.h" // <!-- custom: Needed for policy/civic names in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+#include "CvInfo_Misc.h" // <!-- custom: Needed to log enabled graphics-option type names; CvGlobals only forward-declares CvGraphicOptionInfo. (GPT-5.6-Sol) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
 #include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
@@ -27,6 +28,7 @@
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
 #include <time.h>
+#include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
 #include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
 #include <utility> // <!-- custom: Needed for Great Person odds pairs in game-record city rows. (ChatGPT-5.5) -->
 #include <vector> // <!-- custom: Used for compact dynamic buckets in game-record known-area, BFC development, advisor, tech-era, worker/settler, and unit-composition rows. (ChatGPT-5.5) -->
@@ -55,6 +57,18 @@ bool isSASGameRecordLogEnabled()
 	return bEnabled;
 }
 
+static bool isSASGameRecordPerformanceMetricsEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE") > 0);
+	return bEnabled;
+}
+
+static int getSASGameRecordSystemContextLevel()
+{
+	static const int iLevel = std::min(3, std::max(0, GC.getDefineINT("SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL")));
+	return iLevel;
+}
+
 int getSASGameRecordTurnInterval()
 {
 	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
@@ -62,12 +76,11 @@ int getSASGameRecordTurnInterval()
 	return iInterval;
 }
 
-static CvString createSASGameRecordLogTimestamp()
+// <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
+static CvString createSASGameRecordLogTimestamp(time_t kNow)
 {
 	CvString szTimestamp;
 	char szBuffer[32];
-	time_t kNow;
-	time(&kNow);
 	struct tm* pUtcTime = gmtime(&kNow);
 	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
 	{
@@ -80,11 +93,121 @@ static CvString createSASGameRecordLogTimestamp()
 	return szTimestamp;
 }
 
+static CvString createSASGameRecordLogTimestamp()
+{
+	time_t kNow;
+	time(&kNow);
+	return createSASGameRecordLogTimestamp(kNow);
+}
+
+// <!-- custom: Snapshot chronology benefits from the same real millisecond precision as the direct duration fields.
+// Keep the established log-filename timestamp format separate. (GPT-5.6-Sol) -->
+static CvString createSASGameRecordSnapshotUtcTimestamp()
+{
+	SYSTEMTIME kUtcTime;
+	GetSystemTime(&kUtcTime);
+	CvString szTimestamp;
+	szTimestamp.Format("%04d%02d%02dT%02d%02d%02d.%03dZ", (int)kUtcTime.wYear, (int)kUtcTime.wMonth, (int)kUtcTime.wDay, (int)kUtcTime.wHour, (int)kUtcTime.wMinute, (int)kUtcTime.wSecond, (int)kUtcTime.wMilliseconds);
+	return szTimestamp;
+}
+
 static CvString g_szSASGameRecordLogTimestamp;
 static int g_iSASGameRecordLogSequence = 0;
 static CvString g_szSASGameRecordLogContext;
+// <!-- custom: Record snapshot UTC plus cumulative and per-interval wall time directly so benchmark duration is visible without external timestamp subtraction.
+// Use the monotonic millisecond timer for useful precision and immunity to system-clock adjustments; wall time intentionally includes pauses and user interaction. (GPT-5.6-Sol) -->
+static uint g_uiSASGameRecordSessionStartTime = 0;
+static uint g_uiSASGameRecordPreviousSnapshotTime = 0;
+static bool g_bSASGameRecordDisplayContextLogged = false;
 static void flushSASGameRecordPendingCityBombard();
 static bool g_bSASGameRecordFlushingCityBombard = false;
+
+// <!-- custom: Windows exposes focus separately from minimization. Find Civ4's visible, unowned top-level process window so background-visible and minimized snapshots remain distinguishable.
+// Return -1 if no suitable window exists. (GPT-5.6-Sol) -->
+struct SASGameRecordProcessWindowState
+{
+	SASGameRecordProcessWindowState() : bFound(false), bMinimized(false) {}
+	bool bFound;
+	bool bMinimized;
+};
+
+static BOOL CALLBACK findSASGameRecordProcessMainWindow(HWND hWindow, LPARAM lParam)
+{
+	DWORD uiProcessId = 0;
+	GetWindowThreadProcessId(hWindow, &uiProcessId);
+	if (uiProcessId != GetCurrentProcessId() || !IsWindowVisible(hWindow) || GetWindow(hWindow, GW_OWNER) != NULL)
+		return TRUE;
+	SASGameRecordProcessWindowState& kState = *(SASGameRecordProcessWindowState*)lParam;
+	kState.bFound = true;
+	kState.bMinimized = (IsIconic(hWindow) != FALSE);
+	return FALSE;
+}
+
+static int getSASGameRecordProcessWindowMinimized()
+{
+	SASGameRecordProcessWindowState kState;
+	EnumWindows(findSASGameRecordProcessMainWindow, (LPARAM)&kState);
+	return kState.bFound ? (kState.bMinimized ? 1 : 0) : -1;
+}
+
+// <!-- custom: Native Win32 and Wine/Proton expose the same DLL APIs, but the distinction helps qualify performance results.
+// Wine does not reliably expose whether its host is Linux or macOS, so do not guess beyond the compatibility layer. (GPT-5.6-Sol) -->
+static char const* getSASGameRecordWin32Runtime()
+{
+	HMODULE const hNtdll = GetModuleHandleA("ntdll.dll");
+	return (hNtdll != NULL && GetProcAddress(hNtdll, "wine_get_version") != NULL ? "WINE_OR_PROTON" : "NATIVE_WINDOWS");
+}
+
+// <!-- custom: Resolve PSAPI only when enabled performance metrics first sample memory, so disabling them also avoids a mandatory runtime dependency. (GPT-5.6-Sol) -->
+static bool getSASGameRecordProcessMemory(PROCESS_MEMORY_COUNTERS& kProcessMemory)
+{
+	typedef BOOL (WINAPI* GetProcessMemoryInfoFunction)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
+	static HMODULE const hPsapi = LoadLibraryA("psapi.dll");
+	static GetProcessMemoryInfoFunction const pGetProcessMemoryInfo = (hPsapi == NULL ? NULL : (GetProcessMemoryInfoFunction)GetProcAddress(hPsapi, "GetProcessMemoryInfo"));
+	return (pGetProcessMemoryInfo != NULL && pGetProcessMemoryInfo(GetCurrentProcess(), &kProcessMemory, sizeof(kProcessMemory)) != FALSE);
+}
+
+struct SASGameRecordSystemSnapshot
+{
+	SASGameRecordSystemSnapshot() : iProcessForeground(-1), iProcessWindowMinimized(-1), iProcessWorkingSetKB(-1), iProcessPeakWorkingSetKB(-1), iProcessPagefileUsageKB(-1), iSystemMemoryLoadPercent(-1), iProcessAvailableVirtualMB(-1) {}
+	int iProcessForeground;
+	int iProcessWindowMinimized;
+	int iProcessWorkingSetKB;
+	int iProcessPeakWorkingSetKB;
+	int iProcessPagefileUsageKB;
+	int iSystemMemoryLoadPercent;
+	int iProcessAvailableVirtualMB;
+};
+
+static SASGameRecordSystemSnapshot getSASGameRecordSystemSnapshot()
+{
+	SASGameRecordSystemSnapshot kSnapshot;
+	if (!isSASGameRecordPerformanceMetricsEnabled())
+		return kSnapshot;
+	DWORD uiForegroundProcessId = 0;
+	HWND const hForegroundWindow = GetForegroundWindow();
+	if (hForegroundWindow != NULL) GetWindowThreadProcessId(hForegroundWindow, &uiForegroundProcessId);
+	kSnapshot.iProcessForeground = (uiForegroundProcessId == GetCurrentProcessId() ? 1 : 0);
+	kSnapshot.iProcessWindowMinimized = getSASGameRecordProcessWindowMinimized();
+	PROCESS_MEMORY_COUNTERS kProcessMemory;
+	ZeroMemory(&kProcessMemory, sizeof(kProcessMemory));
+	kProcessMemory.cb = sizeof(kProcessMemory);
+	if (getSASGameRecordProcessMemory(kProcessMemory))
+	{
+		kSnapshot.iProcessWorkingSetKB = (int)(kProcessMemory.WorkingSetSize / 1024);
+		kSnapshot.iProcessPeakWorkingSetKB = (int)(kProcessMemory.PeakWorkingSetSize / 1024);
+		kSnapshot.iProcessPagefileUsageKB = (int)(kProcessMemory.PagefileUsage / 1024);
+	}
+	MEMORYSTATUSEX kSystemMemory;
+	ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
+	kSystemMemory.dwLength = sizeof(kSystemMemory);
+	if (GlobalMemoryStatusEx(&kSystemMemory) != FALSE)
+	{
+		kSnapshot.iSystemMemoryLoadPercent = (int)kSystemMemory.dwMemoryLoad;
+		kSnapshot.iProcessAvailableVirtualMB = (int)(kSystemMemory.ullAvailVirtual / (1024 * 1024));
+	}
+	return kSnapshot;
+}
 
 static CvString getSASGameRecordLogTimestamp()
 {
@@ -128,9 +251,14 @@ static CvString getSASGameRecordLogName()
 
 static void rollSASGameRecordLog(const char* szContext)
 {
+	time_t kSessionStartTime;
+	time(&kSessionStartTime);
+	g_uiSASGameRecordSessionStartTime = timeGetTime();
+	g_uiSASGameRecordPreviousSnapshotTime = g_uiSASGameRecordSessionStartTime;
+	g_bSASGameRecordDisplayContextLogged = false;
+	g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp(kSessionStartTime);
 	if (isSASGameRecordTimestampedFilenameEnabled())
 	{
-		g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp();
 		g_iSASGameRecordLogSequence++;
 		g_szSASGameRecordLogContext.Format("%s%d", szContext, g_iSASGameRecordLogSequence);
 	}
@@ -214,6 +342,37 @@ static CvWString getSASGameRecordQuotedCityName(CvCity const* pCity)
 	return pCity == NULL ? L"-" : getSASGameRecordQuoted(pCity->getName().GetCString());
 }
 
+// <!-- custom: Save-load context is recorded before Civ4 initializes graphics, which produced a misleading 0x0 resolution row.
+// Defer the optional display context until graphics are ready, but write the display-disabled placeholder immediately because it needs no graphics queries. (GPT-5.6-Sol) -->
+static void logSASGameRecordDisplayContext()
+{
+	if (g_bSASGameRecordDisplayContextLogged)
+		return;
+	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
+	if (iSystemContextLevel < 1)
+	{
+		logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=0 resolution=-1x-1 graphicsInitialized=-1 fullscreen=-1 graphicOptions=-");
+		g_bSASGameRecordDisplayContextLogged = true;
+		return;
+	}
+	if (!GC.IsGraphicsInitialized())
+		return;
+	CvString szGraphicOptions;
+	FOR_EACH_ENUM(GraphicOption)
+	{
+		if (!gDLL->getGraphicOption(eLoopGraphicOption))
+			continue;
+		if (!szGraphicOptions.empty())
+			szGraphicOptions += ",";
+		szGraphicOptions += GC.getInfo(eLoopGraphicOption).getType();
+	}
+	if (szGraphicOptions.empty())
+		szGraphicOptions = "-";
+	CvGame const& kGame = GC.getGame();
+	logSASGameRecord("GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=%d resolution=%dx%d graphicsInitialized=1 fullscreen=%d graphicOptions=%s", iSystemContextLevel, kGame.getScreenWidth(), kGame.getScreenHeight(), gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN), szGraphicOptions.GetCString());
+	g_bSASGameRecordDisplayContextLogged = true;
+}
+
 // <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
 static void logSASGameRecordGameState(const char* szRowType)
 {
@@ -273,13 +432,35 @@ static void logSASGameRecordGameState(const char* szRowType)
 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
 			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
+	logSASGameRecordDisplayContext();
+	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
+	// Record that compatibility layer honestly instead of guessing the host system, plus only compact hardware context useful for performance comparisons. (GPT-5.6-Sol) -->
+	int const iSystemContextLevel = getSASGameRecordSystemContextLevel();
+	if (iSystemContextLevel >= 2)
+	{
+		int iLogicalProcessors = -1;
+		int iTotalPhysicalMemoryMB = -1;
+		if (iSystemContextLevel >= 3)
+		{
+			SYSTEM_INFO kSystemInfo;
+			GetSystemInfo(&kSystemInfo);
+			iLogicalProcessors = (int)kSystemInfo.dwNumberOfProcessors;
+			MEMORYSTATUSEX kSystemMemory;
+			ZeroMemory(&kSystemMemory, sizeof(kSystemMemory));
+			kSystemMemory.dwLength = sizeof(kSystemMemory);
+			if (GlobalMemoryStatusEx(&kSystemMemory)) iTotalPhysicalMemoryMB = (int)(kSystemMemory.ullTotalPhys / (1024 * 1024));
+		}
+		logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=%s pointerBits=%d logicalProcessors=%d totalPhysicalMemoryMB=%d", iSystemContextLevel, getSASGameRecordWin32Runtime(), (int)(8 * sizeof(void*)), iLogicalProcessors, iTotalPhysicalMemoryMB);
+	}
+	else logSASGameRecord("GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=%d win32Runtime=- pointerBits=-1 logicalProcessors=-1 totalPhysicalMemoryMB=-1", iSystemContextLevel);
 	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
 static void logSASGameRecordLogSettings()
 {
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
 }
 
 static void resetSASGameRecordState();
@@ -4314,10 +4495,25 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 {
 	CvGame const& kGame = GC.getGame();
+	// <!-- custom: The initial save-load row is written before graphics initialization; the first full snapshot supplies the deferred display context. (GPT-5.6-Sol) -->
+	logSASGameRecordDisplayContext();
+	uint const uiSnapshotTime = timeGetTime();
+	uint const uiSessionWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordSessionStartTime;
+	uint const uiSnapshotIntervalWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordPreviousSnapshotTime;
+	CvString const szSnapshotUtc = createSASGameRecordSnapshotUtcTimestamp();
+	// <!-- custom: Focus at this instant cannot prove how long Civ4 was foreground during the interval.
+	// Repeated exact samples still help qualify wall-time comparisons without continuous monitoring. (GPT-5.6-Sol) -->
+	// <!-- custom: Working set is Civ4's resident RAM, while page-file usage and available 32-bit virtual space help expose memory growth or address-space pressure.
+	// Sample these only with the existing full snapshot, and skip all optional system calls when performance metrics are disabled. (GPT-5.6-Sol) -->
+	SASGameRecordSystemSnapshot const kSystemSnapshot = getSASGameRecordSystemSnapshot();
 	// <!-- custom: Team death and other state transitions can terminate a war without CvTeam::makePeace. Reconcile before snapshots so such wars still receive one final synthetic summary. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
-	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d",
-			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation());
+	// <!-- custom: This is primarily an autoplay/game-history row, so place its frequently scanned gameplay state first. Keep wall-time and optional operating-system measurements afterward as supporting performance context. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s sessionWallMilliseconds=%u snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
+			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation(),
+			szSnapshotUtc.GetCString(), uiSessionWallMilliseconds, uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
+			kSystemSnapshot.iProcessWorkingSetKB, kSystemSnapshot.iProcessPeakWorkingSetKB, kSystemSnapshot.iProcessPagefileUsageKB, kSystemSnapshot.iSystemMemoryLoadPercent, kSystemSnapshot.iProcessAvailableVirtualMB);
+	g_uiSASGameRecordPreviousSnapshotTime = uiSnapshotTime;
 	logSASGameRecordRunStatus(szReason);
 	if (gGameRecordLogLevel >= 2)
 	{
