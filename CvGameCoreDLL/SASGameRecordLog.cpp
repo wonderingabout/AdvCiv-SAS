@@ -2590,7 +2590,8 @@ enum
 	SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT = 8
 };
 
-// <!-- custom: Keep each layer's palette independent. Ice deliberately has separately configurable Geography, Terrain-override, and Features symbols so a mod-mod can choose how it reads in each picture rather than inheriting one presentation everywhere. (GPT-5.6-Sol) -->
+// <!-- custom: Parse and cache all ASCII-map symbols and related terrain-case settings together once per DLL session; callers therefore do not need separate static define caches.
+// Keep each layer's palette independent. Ice deliberately has separately configurable Geography, Terrain-override, and Features symbols so a mod-mod can choose how it reads in each picture rather than inheriting one presentation everywhere. (GPT-5.6-Sol) -->
 struct SASGameRecordMapAsciiPalette
 {
 	bool bValid;
@@ -2600,6 +2601,8 @@ struct SASGameRecordMapAsciiPalette
 	std::vector<char> acTerrain;
 	std::vector<char> acFeatures;
 	std::vector<char> acBonuses;
+	int iTerrainUppercaseMinNatureFoodSurplus;
+	int iFoodPerPopulation;
 	CvString szPlayers;
 	CvString szGeographyDefine;
 	CvString szRiverDefine;
@@ -2651,6 +2654,11 @@ static bool parseSASGameRecordMapAsciiPaletteDefine(char const* szDefineName, in
 	return true;
 }
 
+static char getSASGameRecordMapAsciiUppercaseSymbol(char cSymbol)
+{
+	return (cSymbol >= 'a' && cSymbol <= 'z' ? cSymbol - 'a' + 'A' : cSymbol);
+}
+
 static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 {
 	static SASGameRecordMapAsciiPalette kPalette;
@@ -2662,6 +2670,8 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 	kPalette.acTerrain.resize(GC.getNumTerrainInfos() + 1);
 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
 	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
+	kPalette.iTerrainUppercaseMinNatureFoodSurplus = GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_UPPERCASE_MIN_NATURE_FOOD_SURPLUS");
+	kPalette.iFoodPerPopulation = GC.getFOOD_CONSUMPTION_PER_POPULATION();
 	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_RIVER_SYMBOLS", SAS_MAP_ASCII_RIVER_SYMBOL_COUNT, kPalette.acRivers, kPalette.szRiverDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
@@ -2669,6 +2679,18 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_BONUS_SYMBOLS", (int)kPalette.acBonuses.size(), &kPalette.acBonuses[0], kPalette.szBonusDefine, kPalette.szError))
 		return kPalette;
+	// <!-- custom: Uppercase is derived rather than configured separately. Reject a base palette that already uses one of those derived symbols for another terrain, which would make the food distinction ambiguous. (GPT-5.6-Sol) -->
+	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+	{
+		char const cUppercase = getSASGameRecordMapAsciiUppercaseSymbol(kPalette.acTerrain[iTerrain]);
+		if (cUppercase == kPalette.acTerrain[iTerrain]) continue;
+		for (int iSymbol = 0; iSymbol < (int)kPalette.acTerrain.size(); iSymbol++)
+		{
+			if (iSymbol == iTerrain || cUppercase != kPalette.acTerrain[iSymbol]) continue;
+			kPalette.szError.Format("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS derived uppercase symbol %c for terrain %d reuses symbol %d", cUppercase, iTerrain, iSymbol);
+			return kPalette;
+		}
+	}
 	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
 	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
 	{
@@ -2776,6 +2798,19 @@ static CvString getSASGameRecordMapAsciiGeographyLegend(SASGameRecordMapAsciiPal
 	return szLegend;
 }
 
+static CvString getSASGameRecordMapAsciiTerrainUppercaseLegend(SASGameRecordMapAsciiPalette const& kPalette)
+{
+	CvString szLegend;
+	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+	{
+		char const cUppercase = getSASGameRecordMapAsciiUppercaseSymbol(kPalette.acTerrain[iTerrain]);
+		if (cUppercase != kPalette.acTerrain[iTerrain])
+			appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, cUppercase, iTerrain, getSASGameRecordTerrainType((TerrainTypes)iTerrain));
+	}
+	if (szLegend.empty()) return "-";
+	return szLegend;
+}
+
 static CvString getSASGameRecordMapAsciiRiverLegend(SASGameRecordMapAsciiPalette const& kPalette)
 {
 	static char const* const aszTypes[SAS_MAP_ASCII_RIVER_SYMBOL_COUNT] = { "NO_RIVER_EDGE_WATER", "NO_RIVER_EDGE_LAKE", "NO_RIVER_EDGE_LAND", "SOUTH_BOUNDARY_RIVER_EDGE", "EAST_BOUNDARY_RIVER_EDGE", "SOUTH_AND_EAST_BOUNDARY_RIVER_EDGES" };
@@ -2854,7 +2889,9 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 {
 	static FeatureTypes const eIce = (FeatureTypes)GC.getDefineINT("COLD_FEATURE");
 	static std::vector<int> aiCounts;
+	static std::vector<int> aiNatureFood;
 	aiCounts.assign(GC.getNumTerrainInfos(), 0);
+	aiNatureFood.assign(GC.getNumTerrainInfos(), 0);
 	int iIce = 0;
 	for (int iY = iMinY; iY < iMaxY; iY++)
 	{
@@ -2863,7 +2900,11 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 			CvPlot const& kPlot = *kMap.plot(iX, iY);
 			if (kPlot.getFeatureType() == eIce) iIce++;
 			TerrainTypes const eTerrain = kPlot.getTerrainType();
-			if (eTerrain >= 0 && eTerrain < GC.getNumTerrainInfos()) aiCounts[eTerrain]++;
+			if (eTerrain >= 0 && eTerrain < GC.getNumTerrainInfos())
+			{
+				aiCounts[eTerrain]++;
+				aiNatureFood[eTerrain] += kPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM);
+			}
 		}
 	}
 	// <!-- custom: Ice is technically a feature, but it is not ordinarily removable and blocks naval paths, so it reads as part of the strategic surface alongside Coast, land and peaks.
@@ -2881,7 +2922,13 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
 			iDominantCount = aiCounts[iTerrain];
 		}
 	}
-	return (eDominant == NO_TERRAIN ? '?' : kPalette.acTerrain[eDominant]);
+	if (eDominant == NO_TERRAIN) return '?';
+	char const cTerrain = kPalette.acTerrain[eDominant];
+	// <!-- custom: Case adds the strategic food information that terrain identity alone loses: e.g. flat Grass versus a Grass hill, or bare Desert versus Flood Plains. At reduced resolution, use the dominant terrain's average rather than letting one fertile plot capitalize a much larger poor cell. (GPT-5.6-Sol) -->
+	int const iUppercaseMinNatureFood = kPalette.iFoodPerPopulation + kPalette.iTerrainUppercaseMinNatureFoodSurplus;
+	if (aiNatureFood[eDominant] >= iUppercaseMinNatureFood * iDominantCount)
+		return getSASGameRecordMapAsciiUppercaseSymbol(cTerrain);
+	return cTerrain;
 }
 
 static char getSASGameRecordMapAsciiRiverSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
@@ -3123,7 +3170,8 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 	{
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
 				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASGameRecordQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s uppercaseFoodSymbols=%s uppercaseMinNatureFoodSurplus=%d foodPerPopulation=%d foodIncludes=hills_features_lakes_rivers_permanent_plot_yields foodExcludes=improvements_bonuses resampledCell=dominant_type_with_average_nature_food_case",
+				GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainUppercaseLegend(kPalette).GetCString()).GetCString(), kPalette.iTerrainUppercaseMinNatureFoodSurplus, kPalette.iFoodPerPopulation);
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=RIVERS palette=%s symbolTypes=%s storedEdgeSemantics=plot_south_and_east_boundaries resampledCell=any_source_edge_by_orientation",
 				getSASGameRecordQuoted(kPalette.szRiverDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiRiverLegend(kPalette).GetCString()).GetCString());
 		// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->

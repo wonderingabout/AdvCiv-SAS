@@ -1529,10 +1529,15 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS</DefineName>
 		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON,#</DefineTextVal>
 	</Define>
-	<!-- custom: Terrain-map symbols corresponding in order to every TerrainInfo loaded by the mod, followed by an ice override. Ice is technically a feature, but it is not ordinarily removable, blocks naval paths, and forms recognizable strategic geography. One character cannot show both ice and its underlying Coast/Ocean terrain, so # replaces * or blank water because blocked access is strategically decisive and the obscured Coast shape is normally inferable from adjacent Coast and land. The legend records the exact symbol-to-type mapping; resampled cells show their dominant terrain unless ice covers at least half the cell. The number of symbols must exactly match the runtime terrain count plus one so reordered or added XML types cannot silently produce a misleading map. (GPT-5.6-Sol) -->
+	<!-- custom: Terrain-map symbols in runtime TerrainInfo order, followed by an ice override. Lowercase letters become uppercase at the natural-food-surplus threshold below; non-letter symbols stay unchanged. Ice replaces its underlying terrain, and the symbol count must equal the runtime terrain count plus one. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS</DefineName>
-		<DefineTextVal>g,p,d,t,s,*,SPACE,^,h,#</DefineTextVal>
+		<DefineTextVal>g,p,d,t,s,c,SPACE,^,h,#</DefineTextVal>
+	</Define>
+	<!-- custom: Minimum natural food minus FOOD_CONSUMPTION_PER_POPULATION for uppercase terrain letters. 0 marks plots that feed the population point working them. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_TERRAIN_UPPERCASE_MIN_NATURE_FOOD_SURPLUS</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<!-- custom: Directional river-map symbols in this order: open water without a river edge, lake without a river edge, land without a river edge, river on the plot's southern boundary, river on its eastern boundary, then both boundaries. Blank ocean, visible lakes and quiet dotted land preserve landmass and inland-water outlines; river symbols take priority over that background. The default = and ! make both river orientations substantially heavier than dotted land, while | remains reserved for the picture frame. Civ4 exposes the two stored boundaries as isNOfRiver and isWOfRiver because the plot is respectively north or west of the river. This preserves which orthogonal movement/attack crosses a river at native resolution instead of merely marking riverside plots; resampled cells report whether either orientation occurs anywhere within them. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	<Define>
