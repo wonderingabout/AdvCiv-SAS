@@ -16100,7 +16100,8 @@ int CvPlayerAI::AI_countCityFeatures(FeatureTypes eFeature) const
 }
 
 
-// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping; the primary area uses an XML-tunable workers-per-city floor plus a signed reserve adjustment so current tuning can reduce the first-city floor without baking that direction into the define. See KI#198. (GPT-5.6 Thinking) -->
+// <!-- custom: Raw area Worker floor shared by AI_neededWorkers and the production/scrap synchronization helper. Secondary areas retain the old city-local baseline and can still reach zero after demand clamping.
+// The primary area uses an XML-tunable workers-per-city floor plus separate signed reserves at one, two and three-or-more cities. This preserves the one-Worker floor during the initial expansion phase, then adds capacity as multiple cities compete for improvements while leaving every stage independently tunable. See KI#198. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
 static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& kArea)
 {
 	int const iCities = kArea.getCitiesPerPlayer(kPlayer.getID());
@@ -16109,9 +16110,12 @@ static int SAS_minimumAreaWorkerFloor(CvPlayerAI const& kPlayer, CvArea const& k
 	if (kPlayer.AI_isPrimaryArea(kArea) && iCities > 0)
 	{
 		static const int iPrimaryAreaMinimumPercentPerCity = std::max(0, GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY"));
-		static const int iPrimaryAreaReserve = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE");
+		static const int iPrimaryAreaReserveOneCity = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE_ONE_CITY");
+		static const int iPrimaryAreaReserveTwoCities = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE_TWO_CITIES");
+		static const int iPrimaryAreaReserveThreePlusCities = GC.getDefineINT("SAS_AI_WORKER_PRIMARY_AREA_RESERVE_THREE_PLUS_CITIES");
+		int const iPrimaryAreaReserve = (iCities == 1 ? iPrimaryAreaReserveOneCity : (iCities == 2 ? iPrimaryAreaReserveTwoCities : iPrimaryAreaReserveThreePlusCities));
 		int const iPrimaryFloor = std::max(1, (iCities * iPrimaryAreaMinimumPercentPerCity + 99) / 100 + iPrimaryAreaReserve);
-		// The primary-area percentage plus signed reserve replaces the inherited extra capital-area Worker; keep at least the ordinary one-Worker-per-city baseline when tuned lower.
+		// <!-- custom: The percentage plus city-count-specific signed reserve replaces the inherited extra capital-area Worker; keep at least the ordinary one-Worker-per-city baseline when tuned lower. (GPT-5.6-Sol) -->
 		iFloor = std::max(iCities, iPrimaryFloor);
 	}
 	return iFloor;

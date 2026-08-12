@@ -1588,9 +1588,19 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_MINIMUM_PERCENT_PER_CITY</DefineName>
 		<iDefineIntVal>200</iDefineIntVal>
 	</Define>
-	<!-- custom: Signed Worker reserve added to the primary-area percentage floor. Positive values add Workers, 0 leaves the percentage floor unchanged and negative values reduce it, while the final primary-area floor still cannot fall below 1 Worker per city. With 200% above and -1 here, the standing floor is 1 Worker at 1 city, 3 at 2 cities, 5 at 3 cities, etc.; set to +1 to restore an extra reserve instead. See KI#198. (GPT-5.6 Thinking) -->
+	<!-- custom: Signed Worker reserve added to the primary-area percentage floor when the area has 1 city. With 200% above and -1 here, the standing floor is 1 Worker so early expansion is not delayed by too many Workers. The final floor still cannot fall below 1 Worker per city. See KI#198. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_RESERVE</DefineName>
+		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_RESERVE_ONE_CITY</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- custom: Signed Worker reserve added to the primary-area percentage floor when the area has 2 cities. With 200% above and -1 here, the standing floor is 3 Workers so early alternative production and city growth are not delayed before the empire has broader improvement demand. See KI#198. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_RESERVE_TWO_CITIES</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- custom: Signed Worker reserve added to the primary-area percentage floor when the area has at least 3 cities. With 200% above and -1 here, the standing floor is 5 Workers at 3 cities and then 2 Workers per additional city. See KI#198. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_WORKER_PRIMARY_AREA_RESERVE_THREE_PLUS_CITIES</DefineName>
 		<iDefineIntVal>-1</iDefineIntVal>
 	</Define>
 	<!-- custom: Minimum highest-ever capital population before a one-city empire may need more than 1 land Worker. BBAI logs showed several production paths repeatedly choosing a second Worker at population 1, halting early growth. Centralizing the limit in AI_neededWorkers lets the minimum floor, normal demand logic, and stagnant-city Worker substitutions share the same answer instead of duplicating the gate. Highest-ever population keeps the limit stable after whipping or starvation. Set to 0 to disable this early one-Worker limit. (GPT-5.5) -->
