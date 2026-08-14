@@ -2630,8 +2630,28 @@ Created as part of AdvCiv-SAS improvements
 		<English>Hall of Dancers</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>
-		<English>Longhouse</English>
+		<Tag>TXT_KEY_BUILDING_GERMAN_ZUNFTHAUS</Tag>
+		<English>Zunfthaus</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_ARABIAN_FURUSIYYA_MAYDAN</Tag>
+		<English>Furusiyya Maydan</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_CARTHAGE_PUNIC_AGORA</Tag>
+		<English>Punic Agora</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_NETHERLANDS_BEURS</Tag>
+		<English>Beurs</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_PORTUGAL_PEIXARIA</Tag>
+		<English>Peixaria</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUILDING_RUSSIAN_PRIKAZ</Tag>
+		<English>Prikaz</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PORT</Tag>
@@ -2743,7 +2763,7 @@ Created as part of AdvCiv-SAS improvements
 		<English>Legionary</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+		<Tag>TXT_KEY_UNIT_NETHERLANDS_SWIFT_WORKER</Tag>
 		<English>Swift Worker</English>
 	</TEXT>
 	<TEXT>
@@ -3311,17 +3331,17 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
 	</TEXT>
-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sasand audio; update: with the quote of tech_theology (now removed) -->
+	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such, also use the base advciv +/- civ4's TECH_LASER's quote; update: with the quote of tech_theology (now removed) -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
 		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
 	</TEXT>
-	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such, also use the base advciv +/- civ4's future_tech's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_TRANSHUMANISM_QUOTE</Tag>
 		<English>"The future will be better tomorrow." - Dan Quayle</English>
 	</TEXT>
-	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such, also use the base advciv +/- civ4's replaceable_parts's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace railroad in "_RAILROAD" and "MP_RAILROAD" with "_QUANTUM_MECHANICS" and such, also use the base advciv +/- civ4's replaceable_parts's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
@@ -3356,12 +3376,12 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_TECH_MASS_MEDIA_QUOTE</Tag>
 		<English>"The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler</English>
 	</TEXT>
-	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such, also use the base advciv +/- civ4's robotics's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace robotics in "_ROBOTICS" and "MP_ROBOTICS" with "_ROBOT_RIGHTS" and such, also use the base advciv +/- civ4's robotics's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ROBOT_RIGHTS_QUOTE</Tag>
 		<English>"The real problem is not whether machines think, but whether men do." - B.F. Skinner</English>
 	</TEXT>
-	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such, also use the base advciv +/- civ4's tech_stealth's quote adjusted or not for advciv-sasand audio -->
+	<!-- custom: replace tech_stealth in related"_STEALTH" and "MP_STEALTH" with "_ALIEN_LIFE" and such, also use the base advciv +/- civ4's tech_stealth's quote and audio -->
 	<TEXT>
 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
@@ -3630,8 +3650,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Scandinavian</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_TRADING_POST</Tag>
-		<English>Trading Post</English>
+		<Tag>TXT_KEY_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Tag>
+		<English>Chieftain's Hall</English>
 	</TEXT>
 	<!-- custom: rename "_BESERKER" to "_VIKING", see code comment at the pedia entry corresponding to this tag/unit for details -->
 	<TEXT>
@@ -3667,8 +3687,8 @@ Created as part of AdvCiv-SAS improvements
 		<English>Michael Collins</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Tag>
-		<English>Scriptorium</English>
+		<Tag>TXT_KEY_BUILDING_IRELAND_MUILEANN_UISCE</Tag>
+		<English>Muileann Uisce</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Tag>

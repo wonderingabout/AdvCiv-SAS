@@ -263,7 +263,7 @@
 			<ExtraYieldThresholds/>
 			<TradeYieldModifiers/>
 			<CommerceChanges/>
-			<!-- custom: based on (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4traitinfos/#commercemodifiers and adjusted or not for advciv-sas, was empty -->
+			<!-- custom: based on (translate to english using web browser or such) https://gforestshade.github.io/kujira/post/civ4traitinfos/#commercemodifiers, was empty -->
 			<CommerceModifiers>
 				<iCommerce>0</iCommerce>
 				<iCommerce>0</iCommerce>

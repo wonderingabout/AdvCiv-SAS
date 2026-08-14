@@ -1439,9 +1439,9 @@
 			<iLeaderExperience>0</iLeaderExperience>
 		</UnitInfo>
 		<!-- custom: Long_Comments_XML.txt #118 -->
-		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_DUTCH_SWIFT_WORKER -->
+		<UnitInfo> <!-- custom: class: UNITCLASS_WORKER, type: UNIT_NETHERLANDS_SWIFT_WORKER -->
 			<Class>UNITCLASS_WORKER</Class>
-			<Type>UNIT_DUTCH_SWIFT_WORKER</Type>
+			<Type>UNIT_NETHERLANDS_SWIFT_WORKER</Type>
 			<UniqueNames/>
 			<Special>NONE</Special>
 			<Capture>UNITCLASS_WORKER</Capture>
@@ -1450,8 +1450,8 @@
 			<DefaultUnitAI>UNITAI_WORKER</DefaultUnitAI>
 			<Invisible>NONE</Invisible>
 			<SeeInvisible>NONE</SeeInvisible>
-			<Description>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Description>
-			<Civilopedia>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Civilopedia>
+			<Description>TXT_KEY_UNIT_NETHERLANDS_SWIFT_WORKER</Description>
+			<Civilopedia>TXT_KEY_UNIT_NETHERLANDS_SWIFT_WORKER_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
 			<Advisor>ADVISOR_ECONOMY</Advisor>
 			<bAnimal>0</bAnimal>
@@ -1681,7 +1681,7 @@
 			<!-- custom: was 2 -->
 			<iAsset>10</iAsset>
 			<iPower>0</iPower>
-			<!-- custom: only one artdefinetag same as for the indian fast worker (no mid or late art change for the dutch swift worker) -->
+			<!-- custom: only one artdefinetag same as for the indian fast worker (no mid or late art change for the netherlands swift worker) -->
 			<UnitMeshGroups>
 				<iGroupSize>2</iGroupSize>
 				<fMaxSpeed>1.75</fMaxSpeed>
@@ -1690,7 +1690,7 @@
 				<iRangedWaveSize>0</iRangedWaveSize>
 				<UnitMeshGroup>
 					<iRequired>2</iRequired>
-					<EarlyArtDefineTag>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</EarlyArtDefineTag>
+					<EarlyArtDefineTag>ART_DEF_UNIT_NETHERLANDS_SWIFT_WORKER</EarlyArtDefineTag>
 				</UnitMeshGroup>
 			</UnitMeshGroups>
 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>

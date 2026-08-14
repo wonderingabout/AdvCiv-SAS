@@ -411,7 +411,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After regenerating map: right after addGameElements() in regenerateMap(...)
 	recomputeMapnameHeaviness();
@@ -670,7 +670,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_eNormalizationLevel = NORMALIZE_DEFAULT; // advc.108
 	m_szScriptData = "";
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks. -->
 	// In your CvGame::reset body where all the other members get defaults, set:
 	m_bLandHeavyMapname  = false;
 	m_bNavalHeavyMapname = false;
@@ -795,7 +795,7 @@ void CvGame::initDiplomacy()
 		}
 	}
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
+	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks. -->
 	// 5) Call sites (in CvGame.cpp) — recap
 	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
 	recomputeMapnameHeaviness();

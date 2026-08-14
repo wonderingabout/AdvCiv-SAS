@@ -88,6 +88,17 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from ri mod's HOF (ART_DEF_BUILDING_VIKING_TEMPLE) thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</Type>
+			<LSystem>LSYSTEM_VIKING_TEMPLE</LSystem>
+			<bAnimated>1</bAnimated>
+			<fScale>5.0</fScale>
+			<fInterfaceScale>1.6</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/nif/norse_temple.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Scandinavia_Chieftains_Hall/Pagan_temple_viking.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_STABLE</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>
@@ -117,6 +128,17 @@
 			<NIF>Art/Structures/Buildings/Byzantine_Hippodrome/Byzantine_Hippodrome.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Colosseum.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,7</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from the sword of islam mod's Stable for the nif and Inn for the button thanks; use the ordinary Stable footprint directly; The Sword of Islam's custom LSYSTEM_STABLE only selects different NIFs by city art style, which this Arabian-specific building does not need. (GPT-5.6-Sol) -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_ARABIAN_FURUSIYYA_MAYDAN</Type>
+			<LSystem>LSYSTEM_2x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>0.8</fScale>
+			<fInterfaceScale>0.75</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Arabian_Furusiyya_Maydan/nif/stable_me.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Arabian_Furusiyya_Maydan/mem_buildings_atlas_8_3.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_BUNKER</Type>
@@ -148,6 +170,16 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,3</Button>
 		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_BABYLON_GARDEN</Type>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>1</bAnimated>
+			<fScale>1.3</fScale>
+			<fInterfaceScale>0.4</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/Babylonian_Garden/Babylonian_Garden.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/HangingGardens.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,7</Button>
+		</BuildingArtInfo>
 		<!-- custom: replace incan "_TERRACE" to "_QULLQA" anyways -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_INCAN_QULLQA</Type>
@@ -158,17 +190,6 @@
 			<NIF>Art/Structures/Buildings/Incan_Terrace/Incan_Terrace.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,4</Button>
-		</BuildingArtInfo>
-		<!-- custom: art from ROM a new dawn mod (ART_DEF_BUILDING_MESOAMERICAN_MONASTERY) thanks, which i then modified with Paint.NET the nif of to remove religion logo -->
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_GERMAN_LONGHOUSE</Type>
-			<LSystem>LSYSTEM_2x3</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>4.00</fScale>
-			<fInterfaceScale>0.55</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/German_Longhouse/nif/AsenMonastery.NIF</NIF>
-			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/German_Longhouse/and_building_atlas_cropped_modified.dds</Button>
 		</BuildingArtInfo>
 		<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
 		<BuildingArtInfo>
@@ -191,7 +212,7 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,4</Button>
 		</BuildingArtInfo>
-		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker) and adjusted or not for advciv-sas; as for the button it is ai-generated (see docs for details). -->
+		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD; as for the button it is ai-generated (see docs for details). -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
 			<LSystem>LSYSTEM_1x1</LSystem>
@@ -202,7 +223,18 @@
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds</Button>
 		</BuildingArtInfo>
-		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time, and adjusted or not for advciv-sas, very pretty result or pleasant even though bit tedious but fast with FFH2's fpks too i mean even though is unrelated to this what other mods are doing or and doworth it i would say maybe yes in this case but anywas etc -->
+		<!-- custom: art from RFC DOC mod's Noria, thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_IRELAND_MUILEANN_UISCE</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>1.0</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Muileann_Uisce/nif/arab_noria.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Muileann_Uisce/Noria.dds</Button>
+		</BuildingArtInfo>
+		<!-- custom: art nif import from FFH2's ART_DEF_BUILDING_INFIRMARY, since the advciv-sas hopsital is now medieval-based/at era time. -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HOSPITAL</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>
@@ -234,16 +266,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Lighthouse.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,4</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SCANDINAVIA_TRADING_POST</Type>
-			<LSystem>LSYSTEM_COAST</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>2.38</fScale>
-			<fInterfaceScale>0.48</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Viking Trading Post/Viking_Post.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Lighthouse.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,4</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_HARBOR</Type>
 			<LSystem>LSYSTEM_HARBOR</LSystem>
 			<bAnimated>0</bAnimated>
@@ -254,16 +276,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Harbor.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,11</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_CARTHAGE_COTHON</Type>
-			<LSystem>LSYSTEM_HARBOR</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>1.1</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Cartheginian Cothon/Cothon.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Harbor.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,3</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_CUSTOM_HOUSE</Type>
 			<LSystem>LSYSTEM_COAST</LSystem>
 			<bAnimated>0</bAnimated>
@@ -272,16 +284,6 @@
 			<NIF>Art/Structures/Buildings/Customs_House/Customs_House.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Bank.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,8</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_PORTUGAL_FEITORIA</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>20.0</fScale>
-			<fInterfaceScale>1.4</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Portuguese_Feitoria/nif/venice_house.nif</NIF>
-			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Portuguese_Feitoria/button_gudang.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_DRYDOCK</Type>
@@ -333,6 +335,17 @@
 			<NIF>Art/AdvCiv_SAS/Buildings/Celtic_La_Tene_Smithy/nif/Bronzeshop_barb.nif</NIF>
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Celtic_La_Tene_Smithy/button_building_herbary.dds</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from Thomas' War mod's Guild house thanks; used the nif1 instead of the nif2 as seems to fit better for this crafting/forge building than generic housig like the other seems to be more like at least for our need. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_GERMAN_ZUNFTHAUS</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1</fScale>
+			<fInterfaceScale>0.58</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/German_Zunfthaus/nif/medieval_house1.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/German_Zunfthaus/mh1_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FACTORY</Type>
@@ -455,16 +468,6 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
 		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
-			<LSystem>LSYSTEM_2x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.8</fScale>
-			<fInterfaceScale>0.47</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Madrassa/Madrassa.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,2</Button>
-		</BuildingArtInfo>
 		<!-- custom: art from the sengoku mod thanks -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_KOREAN_GYEONGDANG</Type>
@@ -498,16 +501,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,7</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_RUSSIAN_RESEARCH_INSTITUTE</Type>
-			<LSystem>LSYSTEM_3x1</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.3</fScale>
-			<fInterfaceScale>0.77</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Russian Research Institute/Research_Institute.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Laboratory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,3</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>
 			<LSystem>LSYSTEM_2x1</LSystem>
 			<bAnimated>0</bAnimated>
@@ -518,16 +511,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Observatory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,2</Button>
 		</BuildingArtInfo>
 		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
-			<LSystem>LSYSTEM_4x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.1</fScale>
-			<fInterfaceScale>0.8</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
-			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
-		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_LABORATORY</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
@@ -619,17 +602,6 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Market.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,3</Button>
 		</BuildingArtInfo>
-		<!-- custom: art from BASE 6.4 mod's Ksar thanks. Note: the values were 20 for fScale high in BASE 6.4 mod, and using lower expected values caused the art to be very small, hardly visible, so increased even more to match seemingly usual SAS buildings size. -->
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_SPANISH_LONJA</Type>
-			<LSystem>LSYSTEM_3x3</LSystem>
-			<bAnimated>1</bAnimated>
-			<fScale>25</fScale>
-			<fInterfaceScale>0.45</fInterfaceScale>
-			<NIF>Art/AdvCiv_SAS/Buildings/Spanish_Lonja/nif/fortress.nif</NIF>
-			<KFM/>
-			<Button>Art/AdvCiv_SAS/Buildings/Spanish_Lonja/BerberKsar_Btn.dds</Button>
-		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_ROMAN_FORUM</Type>
 			<LSystem>LSYSTEM_2x3</LSystem>
@@ -650,6 +622,17 @@
 			<NIF>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif</NIF>
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from BASE 6.4 mod's Ksar thanks. Note: the values were 20 for fScale high in BASE 6.4 mod, and using lower expected values caused the art to be very small, hardly visible, so increased even more to match seemingly usual SAS buildings size. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_SPANISH_LONJA</Type>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>1</bAnimated>
+			<fScale>25</fScale>
+			<fInterfaceScale>0.45</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Spanish_Lonja/nif/fortress.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Spanish_Lonja/BerberKsar_Btn.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PORT</Type>
@@ -672,16 +655,6 @@
 			<Button>,Art/Interface/Buttons/Buildings/Grocer.dds,Art/Interface/Buttons/Buildings_Atlas.dds,8,11</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_BABYLON_GARDEN</Type>
-			<LSystem>LSYSTEM_3x3</LSystem>
-			<bAnimated>1</bAnimated>
-			<fScale>1.3</fScale>
-			<fInterfaceScale>0.4</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Babylonian_Garden/Babylonian_Garden.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/HangingGardens.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,7</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PERSIAN_APOTHECARY</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>
 			<bAnimated>0</bAnimated>
@@ -690,6 +663,28 @@
 			<NIF>Art/Structures/Buildings/Persian Apothecary/Apothecary.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Grocer.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,3</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from ri mod's baal temple thanks (note: i guessedly replaced LSYSTEM_CARTHAGE_TEMPLE with LSYSTEM_1x1 instead as it seemed listed among the 1x1 ones them in ri mod, i don't know much about these though, but seems to display fine in sevopedia at least it seems). -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_CARTHAGE_PUNIC_AGORA</Type>
+			<LSystem>LSYSTEM_1x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>2.5</fScale>
+			<fInterfaceScale>2.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Carthage_Punic_Agora/nif/carthage_temple.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Carthage_Punic_Agora/baal_temple.dds</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from thecowwarrior's Variety Mod mod's Palmyrene Market thanks; also as ingame animation is too small, increase fScale from 2.2 to 4 (and guessedly fInterfaceScale from 0.52 to 1.0 (i dont know if needed or should be done but seems to run fine in sevopedia)). -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_PORTUGAL_PEIXARIA</Type>
+			<LSystem>LSYSTEM_2x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>3.0</fScale>
+			<fInterfaceScale>0.75</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Portugal_Peixaria/nif/FarmersMarket3.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Portugal_Peixaria/Market_Button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_BANK</Type>
@@ -711,6 +706,17 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Bank.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,2</Button>
 		</BuildingArtInfo>
+		<!-- custom: art from History rewritten mod's Bourse thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_NETHERLANDS_BEURS</Type>
+			<LSystem>LSYSTEM_3x1</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.0</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Netherlands_Beurs/nif/konink.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Netherlands_Beurs/Button_Bourse.dds</Button>
+		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_SUPERMARKET</Type>
 			<LSystem>LSYSTEM_3x2</LSystem>
@@ -731,16 +737,6 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,2</Button>
 		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_HOLY_ROMAN_RATHAUS</Type>
-			<LSystem>LSYSTEM_3x2</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>2.0</fScale>
-			<fInterfaceScale>0.35</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/HRE_RathHouse/HRE_RathHouse.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
-		</BuildingArtInfo>
 		<!-- custom: art from Destiny mod's reichstag thanks. -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Type>
@@ -751,6 +747,27 @@
 			<NIF>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif</NIF>
 			<KFM/>
 			<Button>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds</Button>
+		</BuildingArtInfo>
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_HOLY_ROMAN_RATHAUS</Type>
+			<LSystem>LSYSTEM_3x2</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>2.0</fScale>
+			<fInterfaceScale>0.35</fInterfaceScale>
+			<NIF>Art/Structures/Buildings/HRE_RathHouse/HRE_RathHouse.nif</NIF>
+			<KFM/>
+			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
+		</BuildingArtInfo>
+		<!-- custom: art from BASE 6.4 mod's Sejmik thanks. -->
+		<BuildingArtInfo>
+			<Type>ART_DEF_BUILDING_RUSSIAN_PRIKAZ</Type>
+			<LSystem>LSYSTEM_3x3</LSystem>
+			<bAnimated>0</bAnimated>
+			<fScale>1.5</fScale>
+			<fInterfaceScale>0.5</fInterfaceScale>
+			<NIF>Art/AdvCiv_SAS/Buildings/Russian_Prikaz/nif/mta.nif</NIF>
+			<KFM/>
+			<Button>Art/AdvCiv_SAS/Buildings/Russian_Prikaz/mta_button.dds</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_JAIL</Type>
@@ -802,16 +819,6 @@
 			<NIF>Art/Structures/Buildings/Levee/Levee.nif</NIF>
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Wall.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,8</Button>
-		</BuildingArtInfo>
-		<BuildingArtInfo>
-			<Type>ART_DEF_BUILDING_NETHERLANDS_DIKE</Type>
-			<LSystem>LSYSTEM_COAST</LSystem>
-			<bAnimated>0</bAnimated>
-			<fScale>1.0</fScale>
-			<fInterfaceScale>0.6</fInterfaceScale>
-			<NIF>Art/Structures/Buildings/Dutch_Dike/Dutch_Dike.nif</NIF>
-			<KFM/>
-			<Button>,Art/Interface/Buttons/Buildings/Wall.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,8</Button>
 		</BuildingArtInfo>
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_JEWISH_TEMPLE</Type>
@@ -1013,7 +1020,7 @@
 			<KFM/>
 			<Button>,Art/Interface/Buttons/Buildings/Shrine_Buddhist.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,13</Button>
 		</BuildingArtInfo>
-		<!-- custom: art import for the pagan (i.e. religious) buildings from RFC DOC mod zoroastrian buildings's art assets such as ART_DEF_BUILDING_ZOROASTRIAN_TEMPLE and adjusted or not for advciv-sas. -->
+		<!-- custom: art import for the pagan (i.e. religious) buildings from RFC DOC mod zoroastrian buildings's art assets such as ART_DEF_BUILDING_ZOROASTRIAN_TEMPLE. -->
 		<BuildingArtInfo>
 			<Type>ART_DEF_BUILDING_PAGAN_TEMPLE</Type>
 			<LSystem>LSYSTEM_2x2</LSystem>

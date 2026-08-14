@@ -3,7 +3,7 @@
 <!-- Sid Meier's Civilization 4 -->
 <!-- Copyright Firaxis Games 2005 -->
 <!-- -->
-<!-- custom: import from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo and adjusted or not for AdvCiv-SAS-->
+<!-- custom: import from (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\GameInfo -->
 <!-- Vote Infos -->
 <!-- custom: added a new optional VoteInfo Civilopedia field in schema and populated entries here for all votes; UN votes use TXT_KEY_CONCEPT_UNITED_NATIONS_PEDIA and Apostolic votes use TXT_KEY_CONCEPT_APOSTOLIC_PALACE_PEDIA. (GPT-5.3-Codex) -->
 <Civ4VoteInfo xmlns="x-schema:CIV4GameInfoSchema.xml">

@@ -382,7 +382,7 @@ class SevoPediaTerrain:
 				if BonusInfo.isFeatureTerrain(self.iTerrain):
 					screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
 
-	# <!-- custom: code provided with the help of chatgpt thanks and adjusted or not for advciv-sas -->
+	# <!-- custom: code provided with the help of chatgpt thanks -->
 	def placeRelevantUnits(self):
 		xPanel = self.X_RELEVANT_UNITS
 		yPanel = self.Y_RELEVANT_UNITS
@@ -522,7 +522,7 @@ class SevoPediaTerrain:
 					#isButtonFound = True
 					iButtonIndex += 1
 
-	# <!-- custom: code provided with the help of chatgpt thanks and adjusted or not for advciv-sas -->
+	# <!-- custom: code provided with the help of chatgpt thanks -->
 	def placeUnitsImpassable(self):
 		xPanel = self.X_UNITS_IMPASSABLE
 		yPanel = self.Y_UNITS_IMPASSABLE

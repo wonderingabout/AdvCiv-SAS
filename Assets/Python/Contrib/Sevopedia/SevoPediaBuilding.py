@@ -611,7 +611,7 @@ class SevoPediaBuilding:
 		else:
 			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
 
-	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
+	# <!-- custom: code with the help of gemini ai. -->  
 	def is_building_prereq_overridden_by_civic(self, iBuildingId):
 		# Checks if the prerequisite for the given building ID can be overridden by any civic.
 		# Returns True if an override exists, False otherwise.
@@ -693,7 +693,7 @@ class SevoPediaBuilding:
 				isButtonFound = True
 				iButtonIndex += 1
 
-		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas thanks -->
+		# <!-- custom: code provided with the help of gemini ai. -->
 		# Loop through all units to check their building prerequisites
 		for iLoopUnit in range(gc.getNumUnitInfos()):
 			loopUnitInfo = gc.getUnitInfo(iLoopUnit)

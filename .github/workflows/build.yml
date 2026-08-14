@@ -32,14 +32,14 @@ jobs:
       - run: python .github/workflows/build/xml_civ4_text_characters.py
       - run: python .github/workflows/build/xml_sas_text_english.py
       - run: python .github/workflows/build/xml_text_duplicate_tags.py
-      - run: python .github/workflows/build/unused_sas_text.py
+      - run: python .github/workflows/build/sas_text_references.py
       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
       - run: python .github/workflows/build/xml_child_duplicates.py
       - run: python .github/workflows/build/tech_columns.py
       - run: python .github/workflows/build/wonder_cost_columns.py
       - run: python .github/workflows/build/wonder_culture_gpp_columns.py
       - run: python .github/workflows/build/asset_tech_prereq_redundancy.py
-      - run: python .github/workflows/build/civ_specific_asset_techs.py
+      - run: python .github/workflows/build/civ_specific_assets.py
       - run: python .github/workflows/build/civ_specific_not_weaker.py
       - run: python .github/workflows/build/define_tag_refs.py
       - run: python .github/workflows/build/raw_getinfotype.py

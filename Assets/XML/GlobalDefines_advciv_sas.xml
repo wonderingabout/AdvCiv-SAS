@@ -94,11 +94,6 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
 		<iDefineIntVal>3</iDefineIntVal>
 	</Define>
-	<!-- custom: show raw map coordinates in ordinary plot hover help (e.g., 63,46) so screenshots can be compared directly with BBAI.log / DLL diagnostics. 1=enabled, 0=disabled. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_PLOT_HELP_COORDINATES_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
 
 
 
@@ -294,6 +289,19 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Long_Comments_XML.txt #212 -->
+	<Define>
+		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<!-- custom: Applied only after the attacker/defender strength ratio exceeds the existing AI_EVACUATION_THRESH-based doom threshold (raised for important cities, as it is worth defending them and generally bad to evacuate them). Enable to make every eligible land unit attempt retreat; disable to use instead Base AdvCiv's probabilistic unit selection. Note: Retreat can still fail without a safe city/path. Default enabled and recommended. See KI#172. (GPT-5.5) -->
+	<Define>
+		<DefineName>SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: some players may prefer that all leaders keep a single fixed leaderhead art across the whole game. When enabled, leaders with EraArtDefineTags entries in CIV4LeaderHeadInfos.xml show different art for their current era; when disabled the parser is skipped at XML load and every leader always shows the base ArtDefineTag. (Claude code Opus 4.7) -->
 	<Define>
 		<DefineName>SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS</DefineName>
@@ -673,10 +681,10 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Long_Comments_XML.txt #212 -->
+	<!-- custom: show raw map coordinates in ordinary plot hover help (e.g., 63,46) so screenshots can be compared directly with BBAI.log / DLL diagnostics. 1=enabled, 0=disabled. (GPT-5.5) -->
 	<Define>
-		<DefineName>SAS_UPGRADE_PRICE_UNIT_UPGRADE_COST_PERCENT</DefineName>
-		<iDefineIntVal>75</iDefineIntVal>
+		<DefineName>SAS_PLOT_HELP_COORDINATES_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 
 
@@ -3539,14 +3547,6 @@ Created as part of AdvCiv-SAS improvements
 	<!-- custom: Preserve both old (SAS define disabled) and and new (SAS define enabled) Base AdvCiv paths instead of merging only the new one and deleting the old as as of now in Base AdvCiv, so players can choose between them: 0 restores the older population rule that keeps New World Barbarians relatively peaceful within their area until civilization population exceeds Barbarian population; 1 uses the newer city/population presence score, which ends that grace period earlier, especially on large maps. (GPT-5.5) -->
 	<Define>
 		<DefineName>SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE</DefineName>
-		<iDefineIntVal>1</iDefineIntVal>
-	</Define>
-
-
-
-	<!-- custom: Applied only after the attacker/defender strength ratio exceeds the existing AI_EVACUATION_THRESH-based doom threshold (raised for important cities, as it is worth defending them and generally bad to evacuate them). Enable to make every eligible land unit attempt retreat; disable to use instead Base AdvCiv's probabilistic unit selection. Note: Retreat can still fail without a safe city/path. Default enabled and recommended. See KI#172. (GPT-5.5) -->
-	<Define>
-		<DefineName>SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
 </Civ4Defines>

@@ -198,8 +198,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
-					<BuildingType>BUILDING_ARABIAN_MADRASSA</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+					<BuildingType>BUILDING_ARABIAN_FURUSIYYA_MAYDAN</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -406,7 +406,7 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
 					<BuildingType>BUILDING_BABYLON_GARDEN</BuildingType>
 				</Building>
 			</Buildings>
@@ -623,8 +623,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
-					<BuildingType>BUILDING_CARTHAGE_COTHON</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+					<BuildingType>BUILDING_CARTHAGE_PUNIC_AGORA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -1298,8 +1298,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>BUILDING_IRELAND_SCRIPTORIUM</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+					<BuildingType>BUILDING_IRELAND_MUILEANN_UISCE</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -1641,8 +1641,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
-					<BuildingType>BUILDING_GERMAN_LONGHOUSE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+					<BuildingType>BUILDING_GERMAN_ZUNFTHAUS</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -2981,16 +2981,16 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_LEVEE</BuildingClassType>
-					<BuildingType>BUILDING_NETHERLANDS_DIKE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
+					<BuildingType>BUILDING_NETHERLANDS_BEURS</BuildingType>
 				</Building>
 			</Buildings>
-			<!-- custom: east indiaman of class frigate now replaced with DUTCH_SWIFT_WORKER of class worker -->
+			<!-- custom: east indiaman of class frigate now replaced with NETHERLANDS_SWIFT_WORKER of class worker -->
 			<Units>
 				<Unit>
 					<!-- advc.905b: was GALLEON -->
 					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
-					<UnitType>UNIT_DUTCH_SWIFT_WORKER</UnitType>
+					<UnitType>UNIT_NETHERLANDS_SWIFT_WORKER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3335,8 +3335,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClassType>
-					<BuildingType>BUILDING_PORTUGAL_FEITORIA</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+					<BuildingType>BUILDING_PORTUGAL_PEIXARIA</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -3564,8 +3564,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-					<BuildingType>BUILDING_RUSSIAN_RESEARCH_INSTITUTE</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
+					<BuildingType>BUILDING_RUSSIAN_PRIKAZ</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
@@ -3678,8 +3678,8 @@ Created as part of AdvCiv-SAS improvements
 			</Cities>
 			<Buildings>
 				<Building>
-					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
-					<BuildingType>BUILDING_SCANDINAVIA_TRADING_POST</BuildingType>
+					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+					<BuildingType>BUILDING_SCANDINAVIA_CHIEFTAINS_HALL</BuildingType>
 				</Building>
 			</Buildings>
 			<Units>
