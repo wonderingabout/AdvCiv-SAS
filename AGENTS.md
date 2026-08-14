@@ -67,6 +67,12 @@ Compile errors (e.g., for a "Release" build) at:
 
 - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\Project\Release\AdvCiv.log"
 
+### DLL compilation
+
+- By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
+- If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md).
+- Core safety rule: before every full compile attempt, including every retry, `CvGameCoreDLL/Project/temp_files` must contain only its tracked zero-byte `.gitkeep`. After a successful build, verify the generated Release DLL and, when installing it, copy and verify it before cleaning; then return `temp_files` to `.gitkeep` only. Do not accept a DLL resumed from partial intermediates after a failed attempt.
+
 ## Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
 
 For comparison purposes, as of 2026-06-10 we have also processed with the help of ChatGPT-5.5 thanks Base AdvCiv 1.12's `CvMainInterface.py` to single-line: [CvMainInterface_1_12_singleline.py](/LLM_Helpers/examples/CvMainInterface_1_12_singleline.py). If you need to, you may find looking at this file much easier than the old multi-line/unprocessed file. See also if needed [the corresponding readme section](/LLM_Helpers/README.md#comparison-with-base-advciv-112s-main-interface-processed-similarly).

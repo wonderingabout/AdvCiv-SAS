@@ -25,10 +25,22 @@ import sys
 # - Bob Thomas	September 23, 2005
 
 # advc.129c: Master switch for turning off all my terrain changes (they're not extensive enough to justify new subclasses)
+# <!-- custom: SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE makes this base AdvCiv choice independently tunable through XML while retaining bEarthlike for map-script and mod-mod compatibility. (GPT-5.6-Sol) -->
 bEarthlike = True
 
 # advc.tsl: Consult the DLL for this
+SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE = None
+
+def isSASAdvCivLatitudeTerrainEnabled():
+	global SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE
+	if SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE is None:
+		SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE = (CyGlobalContext().getDefineINT("SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE") > 0)
+	return SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE
+
 def latitudeAtPlot(map, iX, iY, iHeight):
+	# <!-- custom: The optional BTS profile uses the original row-based latitude calculation; cache the define because terrain and feature generators call this for every plot. (GPT-5.6-Sol) -->
+	if not isSASAdvCivLatitudeTerrainEnabled():
+		return abs(float((iHeight-1)/2) - iY) / float((iHeight-1)/2)
 	bFallback = (not map.isPlot(iX, iY) or map.getTopLatitude() <= map.getBottomLatitude())
 	if not bFallback:
 		iAbsLat = map.plot(iX, iY).getLatitude() # new DLL call
@@ -85,10 +97,15 @@ class FractalWorld:
 	# Instead, let the DLL decide. Note that Oasis and RandomScriptMap
 	# still use the EXE's defaults. Well, the DLL will check for those
 	# defaults and may overwrite them, so it doesn't ultimately matter.
-	fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
-	fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+	fracXExp=None,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
+	fracYExp=None):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
 	# </advc.137>
 		self.gc = CyGlobalContext()
+		# <!-- custom: Preserve explicit map-script fractal exponents; use the centralized AdvCiv/BTS-compatible defaults only when omitted. (GPT-5.6-Sol) -->
+		if fracXExp is None:
+			fracXExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_X_EXP")
+		if fracYExp is None:
+			fracYExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_Y_EXP")
 		self.map = self.gc.getMap()
 		self.iNumPlotsX = self.map.getGridWidth()
 		self.iNumPlotsY = self.map.getGridHeight()
@@ -109,7 +126,7 @@ class FractalWorld:
 		self.hillGroupTwoRange = self.gc.getClimateInfo(self.map.getClimate()).getHillRange()
 		# <advc.129c>
 		global bEarthlike
-		if bEarthlike:
+		if bEarthlike and self.gc.getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") > 0:
 			self.hillGroupTwoRange += 1
 		# </advc.129c>
 		self.hillGroupTwoBase = 75
@@ -120,9 +137,14 @@ class FractalWorld:
 		# Subclass and override this function to customize/alter/nullify the XML defaults for user selections on Sea Level, Climate, etc.
 		return
 
-	def initFractal(self, continent_grain = 2, rift_grain = 2, has_center_rift = True, invert_heights = False, polar = False):
+	def initFractal(self, continent_grain=None, rift_grain=None, has_center_rift=True, invert_heights=False, polar=False):
 		# For no rifts, use rift_grain = -1
 		#
+		# <!-- custom: Preserve explicit map-script grain values; use the centralized shared-generator defaults only when omitted. (GPT-5.6-Sol) -->
+		if continent_grain is None:
+			continent_grain = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_CONTINENT_GRAIN")
+		if rift_grain is None:
+			rift_grain = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_RIFT_GRAIN")
 		iFlags = self.iFlags
 		if invert_heights:
 			iFlags += CyFractal.FracVals.FRAC_INVERT_HEIGHTS
@@ -239,11 +261,14 @@ class FractalWorld:
 			landWeights[i] = landWeight
 		return landWeights
 
-	def generatePlotTypes(self,
-			water_percent=77, # advc.137: was 0.78
-			shift_plot_types=True, grain_amount=3):
+	def generatePlotTypes(self, water_percent=None, shift_plot_types=True, grain_amount=None):
 		# Check for changes to User Input variances.
 		self.checkForOverrideDefaultUserInputVariances()
+		# <!-- custom: Use centralized defaults only when a map script does not supply its own water percentage or hills/Peaks grain. (GPT-5.6-Sol) -->
+		if water_percent is None:
+			water_percent = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_WATER_PERCENT")
+		if grain_amount is None:
+			grain_amount = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_HILLS_GRAIN")
 
 		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
 		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
@@ -255,7 +280,7 @@ class FractalWorld:
 		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
 		# <advc.tsl>
 		# Better not mess with maps that have strange latitude settings
-		bSparseEquator = (CyGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS) and self.map.getTopLatitude() == -self.map.getBottomLatitude() and self.map.getTopLatitude() <= 90 and self.map.getTopLatitude() >= 80)
+		bSparseEquator = (isSASAdvCivLatitudeTerrainEnabled() and CyGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS) and self.map.getTopLatitude() == -self.map.getBottomLatitude() and self.map.getTopLatitude() <= 90 and self.map.getTopLatitude() >= 80)
 		if bSparseEquator:
 			sparseEquatorFractal = ExplicitFractal(self.continentsFrac, self.map)
 			sparseEquatorFractal.decreaseNearMiddle(self.map.isWrapX() or not self.map.isWrapY(), 0.15)
@@ -266,7 +291,12 @@ class FractalWorld:
 		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
 		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
 		# advc.030: *8/7 to compensate for the removal of coastal peaks
-		iPeakThreshold = self.peaksFrac.getHeightFromPercent((self.peakPercent * 8) / 7)
+		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_ADVCIV_COASTAL_PEAK_REDUCTION_ENABLE") > 0)
+		if bSASAdvCivCoastalPeakReduction:
+			iPeakPercent = (self.peakPercent * 8) / 7
+		else:
+			iPeakPercent = self.peakPercent
+		iPeakThreshold = self.peaksFrac.getHeightFromPercent(iPeakPercent)
 
 		for x in range(self.iNumPlotsX):
 			for y in range(self.iNumPlotsY):
@@ -281,34 +311,38 @@ class FractalWorld:
 					hillVal = self.hillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
 						peakVal = self.peaksFrac.getHeight(x,y)
-						bPeak = False # advc.030
-						if (peakVal <= iPeakThreshold):
-							# <advc.030> Check for orthogonally adjacent water
-							bWaterFound = False
-							for dx in [-1,0,1]:
-								adjx = x + dx
-								if adjx < 0 or adjx >= self.iNumPlotsX:
-									continue
-								for dy in [-1,0,1]:
-									if (dx == 0) == (dy == 0):
+						# <!-- custom: Keep the AdvCiv and BTS Peak decisions separate so later maintenance cannot blend their different eligibility and RNG paths. (GPT-5.6-Sol) -->
+						if bSASAdvCivCoastalPeakReduction:
+							bPeak = False # advc.030
+							if (peakVal <= iPeakThreshold):
+								# <advc.030> Check for orthogonally adjacent water
+								bWaterFound = False
+								for dx in [-1,0,1]:
+									adjx = x + dx
+									if adjx < 0 or adjx >= self.iNumPlotsX:
 										continue
-									adjy = y + dy
-									if adjy < 0 or adjy >= self.iNumPlotsY:
-										continue
-									# <advc.tsl>
-									if (bSparseEquator and sparseEquatorFractal.getHeight(adjx,adjy) <= iWaterThreshold or
-											(not bSparseEquator and # </advc.tsl>
-											self.continentsFrac.getHeight(adjx,adjy) <= iWaterThreshold)):
-										bWaterFound = True
+									for dy in [-1,0,1]:
+										if (dx == 0) == (dy == 0):
+											continue
+										adjy = y + dy
+										if adjy < 0 or adjy >= self.iNumPlotsY:
+											continue
+										# <advc.tsl>
+										if (bSparseEquator and sparseEquatorFractal.getHeight(adjx,adjy) <= iWaterThreshold) or (not bSparseEquator and self.continentsFrac.getHeight(adjx,adjy) <= iWaterThreshold): # </advc.tsl>
+											bWaterFound = True
+											break
+									if bWaterFound:
 										break
-								if bWaterFound:
-									break
-							if not bWaterFound or self.mapRand.get(2, "advc.030") == 0: # </advc.030>
+								if not bWaterFound or self.mapRand.get(2, "advc.030") == 0: # </advc.030>
+									self.plotTypes[i] = PlotTypes.PLOT_PEAK
+									bPeak = True
+							if not bPeak: # </advc.030> # else
+								self.plotTypes[i] = PlotTypes.PLOT_HILLS
+						else:
+							if peakVal <= iPeakThreshold:
 								self.plotTypes[i] = PlotTypes.PLOT_PEAK
-								# <advc.030>
-								bPeak = True
-						if not bPeak: # </advc.030> # else
-							self.plotTypes[i] = PlotTypes.PLOT_HILLS
+							else:
+								self.plotTypes[i] = PlotTypes.PLOT_HILLS
 					else:
 						self.plotTypes[i] = PlotTypes.PLOT_LAND
 
@@ -745,10 +779,15 @@ def printMap(data, w, h, markerx=-1, markery=-1):
 class MultilayeredFractal:
 	def __init__(self,
 	# <advc.137>
-	fracXExp=-1,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
-	fracYExp=-1):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
+	fracXExp=None,#CyFractal.FracVals.DEFAULT_FRAC_X_EXP
+	fracYExp=None):#CyFractal.FracVals.DEFAULT_FRAC_Y_EXP
 	# </advc.137>
 		self.gc = CyGlobalContext()
+		# <!-- custom: Preserve explicit map-script fractal exponents; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
+		if fracXExp is None:
+			fracXExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_X_EXP")
+		if fracYExp is None:
+			fracYExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_Y_EXP")
 		self.map = self.gc.getMap()
 		self.iW = self.map.getGridWidth()
 		self.iH = self.map.getGridHeight()
@@ -892,7 +931,12 @@ class MultilayeredFractal:
 		iHillsBottom2 = regionHillsFrac.getHeightFromPercent(max((75 - self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 0))
 		iHillsTop2 = regionHillsFrac.getHeightFromPercent(min((75 + self.gc.getClimateInfo(self.map.getClimate()).getHillRange()), 100))
 		# advc.030: *8/7
-		iPeakThreshold = regionPeaksFrac.getHeightFromPercent((8*self.gc.getClimateInfo(self.map.getClimate()).getPeakPercent())/7)
+		bSASAdvCivCoastalPeakReduction = (self.gc.getDefineINT("SAS_MAP_ADVCIV_COASTAL_PEAK_REDUCTION_ENABLE") > 0)
+		if bSASAdvCivCoastalPeakReduction:
+			iPeakPercent = (8*self.gc.getClimateInfo(self.map.getClimate()).getPeakPercent())/7
+		else:
+			iPeakPercent = self.gc.getClimateInfo(self.map.getClimate()).getPeakPercent()
+		iPeakThreshold = regionPeaksFrac.getHeightFromPercent(iPeakPercent)
 
 		# Loop through the region's plots
 		for x in range(iRegionWidth):
@@ -905,31 +949,37 @@ class MultilayeredFractal:
 					hillVal = regionHillsFrac.getHeight(x,y)
 					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
 						peakVal = regionPeaksFrac.getHeight(x,y)
-						bPeak = False # advc.030
-						if (peakVal <= iPeakThreshold):
-							# <advc.030> Mostly copy-pasted from Fractal. Don't know enough Python to create a function that the two classes can share.
-							bWaterFound = False
-							for dx in [-1,0,1]:
-								adjx = x + dx
-								if adjx < 0 or adjx >= iRegionWidth:
-									continue
-								for dy in [-1,0,1]:
-									if (dx == 0) == (dy == 0):
+						# <!-- custom: Keep the AdvCiv and BTS Peak decisions separate so later maintenance cannot blend their different eligibility and RNG paths. (GPT-5.6-Sol) -->
+						if bSASAdvCivCoastalPeakReduction:
+							bPeak = False # advc.030
+							if (peakVal <= iPeakThreshold):
+								# <advc.030> Mostly copy-pasted from Fractal. Don't know enough Python to create a function that the two classes can share.
+								bWaterFound = False
+								for dx in [-1,0,1]:
+									adjx = x + dx
+									if adjx < 0 or adjx >= iRegionWidth:
 										continue
-									adjy = y + dy
-									if adjy < 0 or adjy >= iRegionHeight:
-										continue
-									if regionContinentsFrac.getHeight(adjx,adjy) <= iWaterThreshold:
-										bWaterFound = True
+									for dy in [-1,0,1]:
+										if (dx == 0) == (dy == 0):
+											continue
+										adjy = y + dy
+										if adjy < 0 or adjy >= iRegionHeight:
+											continue
+										if regionContinentsFrac.getHeight(adjx,adjy) <= iWaterThreshold:
+											bWaterFound = True
+											break
+									if bWaterFound:
 										break
-								if bWaterFound:
-									break
-							if not bWaterFound or self.dice.get(2, "advc.030") == 0: # </advc.030>
+								if not bWaterFound or self.dice.get(2, "advc.030") == 0: # </advc.030>
+									self.plotTypes[i] = PlotTypes.PLOT_PEAK
+									bPeak = True
+							if not bPeak: # </advc.030> # else
+								self.plotTypes[i] = PlotTypes.PLOT_HILLS
+						else:
+							if peakVal <= iPeakThreshold:
 								self.plotTypes[i] = PlotTypes.PLOT_PEAK
-								# <advc.030>
-								bPeak = True
-						if not bPeak: # </advc.030> # else
-							self.plotTypes[i] = PlotTypes.PLOT_HILLS
+							else:
+								self.plotTypes[i] = PlotTypes.PLOT_HILLS
 					else:
 						self.plotTypes[i] = PlotTypes.PLOT_LAND
 
@@ -1106,15 +1156,37 @@ class TerrainGenerator:
 	# If iDesertPercent=35, then about 35% of all land will be desert. Plains is similar.
 	# Note that all percentages are approximate, as values have to be roughened to achieve a natural look.
 	#
-	def __init__(self, iDesertPercent=32, iPlainsPercent=18,
+	def __init__(self, iDesertPercent=None, iPlainsPercent=None,
 	# advc.tsl: Increased tundra latitude by 0.04 and snow by 0.08. This is done with the noise added (or subtracted) by TerrainGenerator in mind.
-	fSnowLatitude=0.78, fTundraLatitude=0.64,
-	fGrassLatitude=0.1,
-	fDesertBottomLatitude=0.2, fDesertTopLatitude=0.5,
-	fracXExp=-1, fracYExp=-1, grain_amount=4):
+	fSnowLatitude=None, fTundraLatitude=None,
+	fGrassLatitude=None,
+	fDesertBottomLatitude=None, fDesertTopLatitude=None,
+	fracXExp=None, fracYExp=None, grain_amount=None):
 
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
+		# <!-- custom: Preserve explicit map-script fractal exponents and terrain grain; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
+		if fracXExp is None:
+			fracXExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_X_EXP")
+		if fracYExp is None:
+			fracYExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_Y_EXP")
+		if grain_amount is None:
+			grain_amount = self.gc.getDefineINT("SAS_MAP_STANDARD_TERRAIN_GRAIN")
+		# <!-- custom: Preserve explicit map-script terrain percentages and latitude thresholds; use the centralized defaults only when the caller omits them. Divide integer percentages by 100.0 for Python 2.4 floating-point division. (GPT-5.6-Sol) -->
+		if iDesertPercent is None:
+			iDesertPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_PERCENT")
+		if iPlainsPercent is None:
+			iPlainsPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_PLAINS_PERCENT")
+		if fSnowLatitude is None:
+			fSnowLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_SNOW_LATITUDE_PERCENT") / 100.0
+		if fTundraLatitude is None:
+			fTundraLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_TUNDRA_LATITUDE_PERCENT") / 100.0
+		if fGrassLatitude is None:
+			fGrassLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_GRASS_LATITUDE_PERCENT") / 100.0
+		if fDesertBottomLatitude is None:
+			fDesertBottomLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_BOTTOM_LATITUDE_PERCENT") / 100.0
+		if fDesertTopLatitude is None:
+			fDesertTopLatitude = self.gc.getDefineINT("SAS_MAP_STANDARD_DESERT_TOP_LATITUDE_PERCENT") / 100.0
 		# <advc.129c>
 		self.processCustomizations()
 		if self.bEarthlike:
@@ -1245,13 +1317,14 @@ class TerrainGenerator:
 		# Adjust latitude using self.variation fractal, to mix things up:
 		fDiv = 5
 		# <advc.tsl> Dial the variation down, especially with the TSL option b/c temperate civs starting near the tundra look jarring.
-		fDiv += 1.8
 		iVariationHeight = self.variation.getHeight(iX, iY)
-		if self.gc.getGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS):
-			fDiv += 1.5
-			# Grassland and Plains extending to high latitudes is not jarring, and need this Gulf Stream climate to get the Vikings on the map.
-			if iVariationHeight >= 175 and lat > 0.6 and lat < 0.7 and self.map.plot(iX, iY).isCoastalLand():
-				fDiv = 4.5
+		if isSASAdvCivLatitudeTerrainEnabled():
+			fDiv += 1.8
+			if self.gc.getGame().isOption(GameOptionTypes.GAMEOPTION_TRUE_STARTS):
+				fDiv += 1.5
+				# Grassland and Plains extending to high latitudes is not jarring, and need this Gulf Stream climate to get the Vikings on the map.
+				if iVariationHeight >= 175 and lat > 0.6 and lat < 0.7 and self.map.plot(iX, iY).isCoastalLand():
+					fDiv = 4.5
 		# </advc.tsl>
 		lat += (128 - iVariationHeight) / (255.0 * fDiv)
 
@@ -1314,7 +1387,7 @@ class TerrainGenerator:
 	def processCustomizations(self):
 		self.bEarthlike = False
 		global bEarthlike
-		if not bEarthlike:
+		if not bEarthlike or self.gc.getDefineINT("SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE") <= 0:
 			return
 		self.bEarthlike = True
 		# Everything except getLatitudeAtPlot is essential
@@ -1328,10 +1401,23 @@ class TerrainGenerator:
 
 class FeatureGenerator:
 	# advc.108: Default iForestPercent lowered from 60 - to compensate for fewer forests placed during normalization. (Smaller percentage leads to more forests.)
-	def __init__(self, iJunglePercent=80, iForestPercent=57, jungle_grain=5, forest_grain=6, fracXExp=-1, fracYExp=-1):
+	def __init__(self, iJunglePercent=None, iForestPercent=None, jungle_grain=None, forest_grain=None, fracXExp=None, fracYExp=None):
 
 		self.gc = CyGlobalContext()
 		self.map = CyMap()
+		# <!-- custom: Preserve explicit map-script fractal exponents, feature grains, and feature percentages; use the centralized defaults only when omitted. (GPT-5.6-Sol) -->
+		if fracXExp is None:
+			fracXExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_X_EXP")
+		if fracYExp is None:
+			fracYExp = self.gc.getDefineINT("SAS_MAP_FRACTAL_DEFAULT_Y_EXP")
+		if jungle_grain is None:
+			jungle_grain = self.gc.getDefineINT("SAS_MAP_STANDARD_JUNGLE_GRAIN")
+		if forest_grain is None:
+			forest_grain = self.gc.getDefineINT("SAS_MAP_STANDARD_FOREST_GRAIN")
+		if iJunglePercent is None:
+			iJunglePercent = self.gc.getDefineINT("SAS_MAP_STANDARD_JUNGLE_PERCENT")
+		if iForestPercent is None:
+			iForestPercent = self.gc.getDefineINT("SAS_MAP_STANDARD_FOREST_PERCENT")
 		self.mapRand = self.gc.getGame().getMapRand()
 		self.jungles = CyFractal()
 		self.forests = CyFractal()
@@ -1377,6 +1463,12 @@ class FeatureGenerator:
 	def addFeatures(self):
 		# adds features to all plots as appropriate
 		#
+		# <!-- custom: AdvCiv randomizes standard feature traversal so bNoAdjacent features such as Oasis have no fixed scan-direction bias. Keep BTS coordinate-order traversal available independently. (GPT-5.6-Sol) -->
+		if self.gc.getDefineINT("SAS_MAP_ADVCIV_FEATURE_PLACEMENT_ORDER_ENABLE") <= 0:
+			for iX in range(self.iGridW):
+				for iY in range(self.iGridH):
+					self.addFeaturesAtPlot(iX, iY)
+			return
 		# advc.129: Shuffle the plots to avoid biases resulting from the
 		# bNoAdjacent restriction. (Based on code in HintedWorld.findValid.)
 		plots = []

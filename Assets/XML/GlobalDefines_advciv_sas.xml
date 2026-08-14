@@ -689,6 +689,165 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Some players prefer older BTS standard-map generation over AdvCiv's newer approach.
+	How Civ4 builds a map: The selected Python map script determines the overall structure and can replace individual generation steps. When a map script delegates standard plot-type, terrain, or feature generation, it uses shared helpers in Assets/Python/CvMapGeneratorUtil.py. Separately, shared DLL code in CvGameCoreDLL/CvMapGenerator.cpp handles standard rivers, lakes, and bonus placement when the map script does not replace those steps. GlobalDefines tune these systems, while the Terrain, Feature, and Bonus XML files in Assets/XML/Terrain define yields, valid bonus locations, bonus frequencies, and mod content such as Camel.
+	What the defines below control: These newly added SAS defines control the shared CvMapGeneratorUtil.py helpers and CvMapGenerator.cpp DLL behavior described above, not Python map scripts themselves. At their default settings, AdvCiv-SAS continues to use base AdvCiv behavior. Players who prefer BTS can instead restore the corresponding BTS behavior one algorithm at a time. AdvCiv-SAS also changes resulting maps in other layers: it edits Terrain, Feature, and Bonus XML; changes some values in the inherited AdvCiv defines; and includes individual map-script behavior. These defines do not convert the whole mod to BTS, undo AdvCiv-SAS XML balance or content, or override a map script's own implementation. Behavior supplied by a map script must be changed in that script instead.
+	Example of settings not controlled by the defines below, at the XML Info level: With either algorithm profile, players retain AdvCiv-SAS's terrain, feature, and resource definitions. For example, Jungle has no food penalty, Tundra gains commerce, resource eligibility and frequency values differ, and Camel adds a Desert bonus and alternative mount. Players who want different yields, valid bonus locations, bonus frequencies, or resource content must change the corresponding XML in Assets/XML/Terrain instead.
+	Example of related settings at the GlobalDefines level: The inherited base AdvCiv file Assets/XML/GlobalDefines_advc.xml contains additional map and starting-position controls. AdvCiv-SAS keeps some of their AdvCiv values and retunes others, independently of the new defines below. ENABLE_STARTING_POSITION_ITERATION=0 restores BTS starting-position selection; NORMALIZE_STARTPLOTS_AGGRESSIVELY=1 restores aggressive BTS normalization; START_SIGHT_RANGE=0 restores BTS initial visibility; and SUBLINEAR_BONUS_QUANTITIES=0 restores linear BTS quantity scaling for the eligible-tiles component. AdvCiv-SAS sets REMOVAL_CHANCE_BAD_TERRAIN and REMOVAL_CHANCE_PEAK to 0, compared with 75 in base AdvCiv and 100 in BTS/K-Mod, so those normalization probabilities can also be adjusted independently. (GPT-5.6-Sol) -->
+	<!-- custom: 1 uses AdvCiv's standard TerrainGenerator adjustments: no guaranteed equatorial Grassland belt, slightly more and differently clustered Plains, Deserts biased toward Plains, and a tiny hills increase. 0 uses the retained BTS paths for those adjustments. This does not override terrain generators supplied by individual map scripts. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Default source-fractal width exponent. AdvCiv uses -1 so the DLL chooses for the map dimensions; BTS hardcoded 7. A map script that supplies fracXExp keeps its value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_X_EXP</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- custom: Default source-fractal height exponent. AdvCiv uses -1 so the DLL chooses for the map dimensions; BTS hardcoded 6. A map script that supplies fracYExp keeps its value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_Y_EXP</DefineName>
+		<iDefineIntVal>-1</iDefineIntVal>
+	</Define>
+	<!-- custom: Default landmass grain. Higher values produce more and smaller landmasses. Both BTS and AdvCiv use 2; explicit map-script continent_grain remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_CONTINENT_GRAIN</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Default grain for forced rift-water strips; -1 disables rifts. Both BTS and AdvCiv use 2; explicit map-script rift_grain remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_RIFT_GRAIN</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<!-- custom: Default shared hills grain; Peaks use this value + 1. Higher values produce smaller highland patches. Both BTS and AdvCiv use 3; explicit map-script grain_amount remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_HILLS_GRAIN</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<!-- custom: Default water percentage for shared FractalWorld plot generation before the selected sea-level adjustment. AdvCiv changed 78 to 77; use 78 for BTS. A map script that supplies its own water_percent keeps that value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_FRACTAL_DEFAULT_WATER_PERCENT</DefineName>
+		<iDefineIntVal>77</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's coastal-Peak reduction in the shared FractalWorld and MultilayeredFractal generators: half the otherwise eligible coastal Peaks become Hills, while the Peak threshold is raised by 8/7 to compensate. 0 restores BTS's original Peak threshold and allows every eligible coastal Peak. A map script can still alter Peaks afterward. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_COASTAL_PEAK_REDUCTION_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's shared latitude algorithm: DLL plot latitudes, less terrain-latitude variation, and the True Starts sparse-equator and coastal-temperate adjustments. 0 restores BTS row-based latitude and the original variation. Snow and Tundra thresholds are independently tunable below; explicit thresholds and getLatitudeAtPlot overrides supplied by map scripts remain independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: The shared TerrainGenerator inputs below apply only when a map script omits them. Latitude percentages are divided by 100.0 in Python 2.4. (GPT-5.6-Sol) -->
+	<!-- custom: Approximate base Desert share before Climate adjustments and AdvCiv's terrain compensation. Both BTS and AdvCiv start from 32; for the BTS algorithm use 32 with SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE=0. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_DESERT_PERCENT</DefineName>
+		<iDefineIntVal>32</iDefineIntVal>
+	</Define>
+	<!-- custom: Approximate base Plains share. Both BTS and AdvCiv start from 18; the AdvCiv terrain algorithm then adds 2 and uses differently grained Plains fractals. Use 18 with SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE=0 for BTS, or keep 18 with it enabled for current AdvCiv-SAS behavior. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_PLAINS_PERCENT</DefineName>
+		<iDefineIntVal>18</iDefineIntVal>
+	</Define>
+	<!-- custom: Base grain for Desert, Plains, and latitude variation. Higher values produce smaller patches. Both BTS and AdvCiv use 4; WorldInfo TerrainGrainChange is added afterward, and explicit map-script grain_amount remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_TERRAIN_GRAIN</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Latitude below this percentage is guaranteed Grassland before Climate adjustment. The base is 10 in both BTS and AdvCiv. Use 10 with SAS_MAP_ADVCIV_STANDARD_TERRAIN_ENABLE=0 for BTS; with it enabled, AdvCiv subtracts 10, so 10 removes the belt and 20 restores an effective 10% belt while retaining the other AdvCiv terrain changes. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_GRASS_LATITUDE_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<!-- custom: Lowest latitude where Desert may appear before Climate adjustment, on a 0 equator to 100 poles scale. Both BTS and AdvCiv use 20; lowering it permits Desert closer to the equator. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_DESERT_BOTTOM_LATITUDE_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: Upper latitude limit for Desert before Climate adjustment, on the same scale. Both BTS and AdvCiv use 50; raising it permits Desert farther toward the poles. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_DESERT_TOP_LATITUDE_PERCENT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
+	<!-- custom: Default Snow boundary before Climate adjustment, on the same scale. AdvCiv uses 78; BTS uses 70. A higher value confines Snow closer to the poles. For the full BTS latitude profile, use 70 with SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE=0. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_SNOW_LATITUDE_PERCENT</DefineName>
+		<iDefineIntVal>78</iDefineIntVal>
+	</Define>
+	<!-- custom: Default Tundra boundary before Climate adjustment, on the same scale. AdvCiv uses 64; BTS uses 60. A higher value confines Tundra closer to the poles. For the full BTS latitude profile, use 60 with SAS_MAP_ADVCIV_LATITUDE_TERRAIN_ENABLE=0. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_TUNDRA_LATITUDE_PERCENT</DefineName>
+		<iDefineIntVal>64</iDefineIntVal>
+	</Define>
+	<!-- custom: Width of the FeatureGenerator's Jungle fractal acceptance band; higher values make more eligible plots receive Jungle. Both BTS and AdvCiv use 80; latitude, Climate, terrain eligibility, and map-script overrides still apply. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_JUNGLE_PERCENT</DefineName>
+		<iDefineIntVal>80</iDefineIntVal>
+	</Define>
+	<!-- custom: Base Jungle grain; higher values produce smaller Jungle patches. Both BTS and AdvCiv use 5; WorldInfo FeatureGrainChange is added afterward, and explicit map-script jungle_grain remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_JUNGLE_GRAIN</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: Base Forest grain; higher values produce smaller Forest patches. Both BTS and AdvCiv use 6; WorldInfo FeatureGrainChange is added afterward, and explicit map-script forest_grain remains independent. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_FOREST_GRAIN</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
+	<!-- custom: Default iForestPercent threshold for the shared FeatureGenerator; a lower value produces more Forest. AdvCiv uses 57 to compensate for reduced starting-position Forest normalization; use 60 for BTS. A map script that supplies its own threshold keeps that value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_STANDARD_FOREST_PERCENT</DefineName>
+		<iDefineIntVal>57</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's randomized river-source traversal and symmetrical river-direction scoring with slightly stronger attraction to water, which made rivers somewhat shorter. 0 restores the retained BTS traversal and direction-scoring paths. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Random upper bound added to each river-direction score; a larger value makes routing less predictable. AdvCiv changed the BTS value from 10 to 20 to add randomness without materially changing the score scale. Default 20 preserves AdvCiv-SAS; use 10 with SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE=0 for the complete BTS-style routing profile. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_RIVER_DIRECTION_RANDOMNESS</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 randomizes the order of resource types that share an XML PlacementOrder, preventing later XML entries from always losing on crowded maps. 0 restores BTS XML-order tie resolution. The ordinal loop itself remains optimized because processing only PlacementOrder values that exist is functionally equivalent and also supports values above the number of bonus types. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_BONUS_TIE_RANDOMIZATION_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's OneArea resource distribution: prefer landmasses with suitable tiles, reduce the influence of area size as the target is approached, and limit the first allocation on each area so excess copies can spread elsewhere. 0 restores BTS selection by total area size divided by the number of unique resource types already assigned there, allowing stronger concentration on one landmass. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_ONE_AREA_BONUS_DISTRIBUTION_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's less-dense clustering: prevent more than two adjacent copies, keep clustered precious-resource groups apart, randomize a circular GroupRange, and reduce GroupRand after each placed copy. 0 restores BTS's fixed-order square GroupRange with the full XML GroupRand chance for every eligible tile. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_BONUS_CLUSTERING_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's nonlinear PercentPerPlayer component: equal to BTS at 8 players, somewhat higher below 8, and lower above 8. 0 restores BTS linear player-count scaling. This is independent of the eligible-tile component controlled by SUBLINEAR_BONUS_QUANTITIES in GlobalDefines_advc.xml. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_BONUS_PLAYER_COUNT_SCALING_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Relative probability for a desert candidate to receive a lake compared with other eligible terrain; the algorithm compensates to preserve the overall expected lake count. AdvCiv uses 25 to make desert lakes rarer; BTS used 100. Use a positive value. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_DESERT_LAKE_RELATIVE_PERCENT</DefineName>
+		<iDefineIntVal>25</iDefineIntVal>
+	</Define>
+	<!-- custom: 0 preserves AdvCiv's rule that random lakes cannot replace Peaks. 1 restores BTS behavior allowing an otherwise eligible Peak to become a lake. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_LAKE_PEAK_REPLACEMENT_ENABLE</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 uses AdvCiv's randomized standard FeatureGenerator traversal, removing fixed coordinate-order bias for bNoAdjacent features such as Oasis. 0 restores BTS coordinate-order traversal. Custom map scripts that override feature generation retain their own behavior. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MAP_ADVCIV_FEATURE_PLACEMENT_ORDER_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
