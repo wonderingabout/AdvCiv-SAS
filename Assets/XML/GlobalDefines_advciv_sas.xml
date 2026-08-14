@@ -2960,6 +2960,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: AdvCiv change 550a lowers the trade value of technology received by a weaker civilization according to relative technology score and military power. This is rubber-banding rather than merely strategy because relative standing directly changes the fair price for both AI sides, regardless of technology urgency, alternative sellers or the stronger seller's interest. 0 restores BTS strength-independent valuation for this factor, 100 applies the full AdvCiv catch-up effect, and intermediate values soften it. This does not control the separate SAS tech-trade adjustments below. AdvCiv-SAS disables this by default instead of guaranteeing the weaker side that advantage. See KI#201. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: Encourage master/vassal preferential contact as this should be mutually beneficial; Long_Comments_XML.txt #174 -->
 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
 	<Define>

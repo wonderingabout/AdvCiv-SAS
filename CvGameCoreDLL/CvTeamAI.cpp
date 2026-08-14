@@ -2006,48 +2006,58 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 	// <advc.550a>
 	if(!bIgnoreDiscount &&  // No discounts for vassals:
 		!isVassal(eFromTeam) && !GET_TEAM(eFromTeam).isVassal(getID()))
-	{	/*  If they're more advanced/powerful, they shouldn't mind giving us
-			a tech, so we lower our tech value, assuming/hoping that we'll be
-			able to get it cheap.
-			Handle this here instead of CvPlayer::AI_tradeAcceptabilityThreshold
-			b/c tech is shared rather than given away. Giving away e.g. gold is bad
-			even if we don't think the other side is a threat. */
-		scaled rPowRatio(getPower(true),
-				std::max(1, GET_TEAM(eFromTeam).getPower(true)));
-		/*  Don't use CvTeam::getBestKnownTechScorePercent b/c that's based on
-			the teams that the callee has met. This team shouldn't have that info
-			about eTeam. */
-		scaled rTechRatio(GET_PLAYER(getLeaderID()).getTechScore(),
-				/*	(Scores are computed per player, but the tech score is actually
-					the same for all members of a team.) */
-				std::max(1, GET_PLAYER(GET_TEAM(eFromTeam).getLeaderID()).getTechScore()));
-		CvGame const& kGame = GC.getGame();
-		scaled rGameProgress(kGame.getGameTurn() - kGame.getStartTurn(),
-				std::max(1, kGame.getEstimateEndTurn() - kGame.getStartTurn()));
-		// Too big a discount too early this way? Let's try this:
-		if (rGameProgress.isPositive())
-			rGameProgress = 1 / (1 + 1 / rGameProgress);
-		rGameProgress.clamp(0, fixp(0.5));
-		rPowRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
-		rTechRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
-		// Powerful civs shouldn't grant large discounts to advanced civs
-		if(rTechRatio < 1 && rPowRatio > 1)
+	{
+		// <!-- custom: AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, imposing the same discounted idea of a fair price on both AI sides rather than risking an ordinary bargaining refusal.
+		// Scale that relative-strength catch-up effect from 0 (BTS behavior for this factor) to 100 (full AdvCiv behavior); keep the independent SAS military-technology valuation below active at 0. See KI#201. (GPT-5.6-Sol) -->
+		static const int iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT = range(GC.getDefineINT("SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT"), 0, 100);
+		if (iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT > 0)
 		{
-			rPowRatio *= SQR(rTechRatio);
-			rPowRatio.increaseTo(1);
+			/*  If they're more advanced/powerful, they shouldn't mind giving us
+				a tech, so we lower our tech value, assuming/hoping that we'll be
+				able to get it cheap.
+				Handle this here instead of CvPlayer::AI_tradeAcceptabilityThreshold
+				b/c tech is shared rather than given away. Giving away e.g. gold is bad
+				even if we don't think the other side is a threat. */
+			scaled rPowRatio(getPower(true),
+					std::max(1, GET_TEAM(eFromTeam).getPower(true)));
+			/*  Don't use CvTeam::getBestKnownTechScorePercent b/c that's based on
+				the teams that the callee has met. This team shouldn't have that info
+				about eTeam. */
+			scaled rTechRatio(GET_PLAYER(getLeaderID()).getTechScore(),
+					/*	(Scores are computed per player, but the tech score is actually
+						the same for all members of a team.) */
+					std::max(1, GET_PLAYER(GET_TEAM(eFromTeam).getLeaderID()).getTechScore()));
+			CvGame const& kGame = GC.getGame();
+			scaled rGameProgress(kGame.getGameTurn() - kGame.getStartTurn(),
+					std::max(1, kGame.getEstimateEndTurn() - kGame.getStartTurn()));
+			// Too big a discount too early this way? Let's try this:
+			if (rGameProgress.isPositive())
+				rGameProgress = 1 / (1 + 1 / rGameProgress);
+			rGameProgress.clamp(0, fixp(0.5));
+			rPowRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+			rTechRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+			// Powerful civs shouldn't grant large discounts to advanced civs
+			if(rTechRatio < 1 && rPowRatio > 1)
+			{
+				rPowRatio *= SQR(rTechRatio);
+				rPowRatio.increaseTo(1);
+			}
+			else if(rTechRatio > 1 && rPowRatio < 1)
+			{
+				rPowRatio *= SQR(rTechRatio);
+				rPowRatio.decreaseTo(1);
+			}
+			scaled rDiscountModifier = (rPowRatio + 2 * rTechRatio) / 3;
+			/*  Not sure about this guard: Should weak civs charge more for their techs?
+				In tech-vs-tech trades, the modifier would then take effect twice,
+				resulting in one side demanding up to twice as much as the other;
+				too much I think. */
+			if(rDiscountModifier < 1)
+			{
+				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT);
+				rValue *= rDiscountModifier;
+			}
 		}
-		else if(rTechRatio > 1 && rPowRatio < 1)
-		{
-			rPowRatio *= SQR(rTechRatio);
-			rPowRatio.decreaseTo(1);
-		}
-		scaled rDiscountModifier = (rPowRatio + 2 * rTechRatio) / 3;
-		/*  Not sure about this guard: Should weak civs charge more for their techs?
-			In tech-vs-tech trades, the modifier would then take effect twice,
-			resulting in one side demanding up to twice as much as the other;
-			too much I think. */
-		if(rDiscountModifier < 1)
-			rValue *= rDiscountModifier;
 
 		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
