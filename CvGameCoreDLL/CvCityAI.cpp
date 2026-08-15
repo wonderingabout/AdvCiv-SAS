@@ -2980,8 +2980,19 @@ void CvCityAI::AI_chooseProduction()
 		return;
 	}*/ // BtS
 
-	// <!-- custom: Keep a configurable minimum share of healthy empire production committed to offensive units, measured by base-production capacity rather than unit count or the inherited military-upkeep recommendation. This fires only after the existing Worker/Settler/explorer/panic and other earlier essential/foundational production branches, but before opportunistic wonders and the broad later building shortcuts. It therefore lets the AI keep compounding its economy while preventing a mature healthy empire from assigning nearly every productive city to another optional building at once. 0 disables through XML. (GPT-5.6 Thinking) -->
-	static const int iSASMinOffensiveProductionCapacityPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT")));
+	// <!-- custom: Keep an independently configurable minimum share of healthy empire production committed to offensive units in each era, measured by base-production capacity rather than unit count or the inherited military-upkeep recommendation. Lower early defaults leave more production for growth and infrastructure; the 40% floor reached in the Industrial era preserves the empirically effective later military pressure. This fires only after the existing Worker/Settler/explorer/panic and other earlier essential/foundational production branches, but before opportunistic wonders and the broad later building shortcuts. Setting every era to 0 disables through XML. See KI#197.9 and KI#197.10. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
+	static const int aiSASMinOffensiveProductionCapacityPercent[] = {
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT")))
+	};
+	int const iLastConfiguredEra = (int)(sizeof(aiSASMinOffensiveProductionCapacityPercent) / sizeof(aiSASMinOffensiveProductionCapacityPercent[0])) - 1;
+	int const iCurrentEra = std::min(iLastConfiguredEra, std::max(0, (int)kPlayer.getCurrentEra()));
+	int const iSASMinOffensiveProductionCapacityPercent = aiSASMinOffensiveProductionCapacityPercent[iCurrentEra];
 	int iOffensiveBaseProduction = 0;
 	int iTotalBaseProduction = 0;
 	int iOffensiveProductionCities = 0;
@@ -3000,8 +3011,8 @@ void CvCityAI::AI_chooseProduction()
 	}
 	if (bLogDetailedMilitaryProduction)
 	{
-		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d targetPercent=%d currentPercent=%d offensiveBaseProduction=%d totalBaseProduction=%d offensiveCities=%d productiveCities=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d eligible=%d chosen=%d",
-			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iSASMinOffensiveProductionCapacityPercent, iOffensiveProductionCapacityPercent,
+		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d era=%d targetPercent=%d currentPercent=%d offensiveBaseProduction=%d totalBaseProduction=%d offensiveCities=%d productiveCities=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d eligible=%d chosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCurrentEra, iSASMinOffensiveProductionCapacityPercent, iOffensiveProductionCapacityPercent,
 			iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities, bPrimaryArea, bFinancialTrouble, bDanger, bAlwaysPeace, bGetBetterUnits, bCultureCity, bUnitExempt, bOffensiveProductionCapacityEligible, bOffensiveProductionCapacityChosen);
 	}
 	if (bOffensiveProductionCapacityChosen)

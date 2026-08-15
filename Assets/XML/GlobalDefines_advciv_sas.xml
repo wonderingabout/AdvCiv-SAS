@@ -2446,11 +2446,37 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
-	<!-- custom: Minimum percentage of the AI empire's current base-production capacity that should be committed to UNITAI_ATTACK / UNITAI_ATTACK_CITY production before optional wonders and the broad later building shortcuts are considered. This is a production-share floor, not a unit-count target or upkeep budget: high-production cities contribute more than weak new settlements and the target scales naturally with empire development. Existing Worker, Settler, explorer, panic-defense, culture-victory, financial-trouble, wait-for-better-units, and other earlier priority logic remains intact. 0 disables. Current default 40 significantly raises military pressure while preserving more infrastructure/economic scaling; repeated same-save 0/40/100 testing showed that 100 could overcommit production without consistently producing more late-game combat units. See KI#197.9. (GPT-5.6 Thinking) -->
+	<!-- custom: Minimum percentage of the AI empire's current base-production capacity committed to UNITAI_ATTACK / UNITAI_ATTACK_CITY production in each era. This is a production-share floor, not a unit-count target or upkeep budget. Existing Worker, Settler, explorer, panic-defense, culture-victory, financial-trouble, wait-for-better-units, and other earlier priority logic remains intact. Each value is clamped to 0-100; set every era to 0 to disable. See KI#197.9 and KI#197.10. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
 	<Define>
-		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT</DefineName>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_RENAISSANCE_PERCENT</DefineName>
+		<iDefineIntVal>30</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_INDUSTRIAL_PERCENT</DefineName>
+		<iDefineIntVal>35</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT</DefineName>
+		<iDefineIntVal>40</iDefineIntVal>
+	</Define>
+
+
 
 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units. 100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
 	<Define>
@@ -2960,7 +2986,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: AdvCiv change 550a lowers the trade value of technology received by a weaker civilization according to relative technology score and military power. This is rubber-banding rather than merely strategy because relative standing directly changes the fair price for both AI sides, regardless of technology urgency, alternative sellers or the stronger seller's interest. 0 restores BTS strength-independent valuation for this factor, 100 applies the full AdvCiv catch-up effect, and intermediate values soften it. This does not control the separate SAS tech-trade adjustments below. AdvCiv-SAS disables this by default instead of guaranteeing the weaker side that advantage. See KI#201. (GPT-5.6-Sol) -->
+	<!-- custom: AdvCiv change 550a lowers the trade value of technology received by a weaker civilization according to relative technology score and military power. This is rubber-banding rather than merely strategy because relative standing directly changes the fair price for both AI sides, regardless of technology urgency, alternative sellers or the stronger seller's interest. 0 restores BTS strength-independent valuation for this factor, 100 applies the full AdvCiv catch-up effect, and intermediate values soften it. This does not control the separate SAS tech-trade adjustments. AdvCiv-SAS disables this by default instead of guaranteeing the weaker side that advantage. See KI#201. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
