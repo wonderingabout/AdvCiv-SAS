@@ -56,8 +56,8 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
 		BugUtil.error("SASBillboardScale: cannot read %s", szPath)
 		return False
 
-	# Match the CITYBILLBOARD_SCALE fader block and replace its Key lines.
-	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
+	# <!-- custom: Restoring archived comments beside active XML values put comments between this Name and its Keys; the old immediate-Key match failed and disabled runtime billboard scaling. Match and preserve intervening XML comments. (GPT-5.6-Sol) -->
+	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n(?:\s*<!--[\s\S]*?-->\s*\n)*)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
 	replacement = r"\1" + "\n".join(scaledKeyLines) + "\n"
 
 	match = re.search(pattern, content)

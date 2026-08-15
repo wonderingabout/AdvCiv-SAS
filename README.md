@@ -74,7 +74,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Mapscripts](/README.md#mapscripts)\
 &emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)\
 &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
-&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)\
+&emsp;[New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game)\
 [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
 [Long Comments Archive](/README.md#long-comments-archive)\
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)\
@@ -814,7 +814,7 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
 <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
 
-### New .dds for maps in Simple Game
+### New .dds for mapscripts in Simple Game
 
 As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds, as a dark globe or inaccurate dds was not accurate or informative or immersive: adjusted a ratio in the the EXE of around 467 W x 377 H at 1080p, empirically with Paint.NET with a canvas size of 336 W x 256 H with empty bands to avoid overfill and preserve image ratio.
 

@@ -651,6 +651,9 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 	for (int iPass = 0; iPass < (bSASAdvCivOneAreaBonusDistribution ? 2 : 1); iPass++)
 	{	/*  Two passes - just to make sure that the new per-area limit doesn't
 			lead to fewer resources overall. */
+		// <!-- custom: AdvCiv's uncapped second pass could not revisit areas capped during the first pass because this inherited set was never cleared. Resetting it allows the second pass to fill the remaining target where valid plots exist. See KI#202. (GPT-5.6-Sol) -->
+		if (iPass > 0)
+			areas_tried.clear();
 		bool const bIgnoreAreaLimit = (!bSASAdvCivOneAreaBonusDistribution || iPass == 1); // </advc.129>
 		while (/* advc.129: */kMap.getNumBonuses(eBonus) < iTarget)
 		{
