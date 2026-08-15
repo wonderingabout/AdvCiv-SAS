@@ -1677,6 +1677,31 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: Per-layer switches for the level-3 SASGameRecord ASCII map. 1 records that layer; 0 omits its legend and drawing while leaving the other enabled layers unchanged. Geography, Terrain, Rivers, and Bonuses are static setup/load layers; Features and Political also repeat at full snapshots because they change during play. Width or height 0 remains a master switch for all ASCII layers. These switches affect only the text-map drawings, not separate structured coordinate/change rows such as river edges, bonus changes, or map revelation. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each level-3 SASGameRecord ASCII map layer. Geography, terrain, directional river edges, and bonuses are normally stable and therefore recorded once at setup/load; exact later exceptions remain available through coordinate-bearing plot, river-edge, and bonus-change rows. Features are recorded initially because they affect settling, movement, health, and yields, then features and political borders repeat at full interval and victory snapshots because they change frequently. Each layer-end row counts logical preview cells before horizontal character repetition and gives the exact drawing-character total including its pipe frame. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit all ASCII previews without disabling other level-3 rows. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH</DefineName>

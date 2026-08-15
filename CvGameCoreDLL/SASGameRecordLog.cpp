@@ -77,7 +77,7 @@ int getSASGameRecordTurnInterval()
 	return iInterval;
 }
 
-// <!-- custom: Cache the tunable preview bounds and horizontal character ratio like the other SASGameRecord settings; 0 for either bound lets level 3 keep its other detail while omitting both text-map layers. (GPT-5.6-Sol) -->
+// <!-- custom: Cache the tunable preview bounds and horizontal character ratio like the other SASGameRecord settings; 0 for either bound lets level 3 keep its other detail while omitting all text-map layers. (GPT-5.6-Sol) -->
 static int getSASGameRecordMapAsciiMaxWidth()
 {
 	static const int iMaxWidth = std::max(0, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH"));
@@ -94,6 +94,43 @@ static int getSASGameRecordMapAsciiHorizontalCharsPerCell()
 {
 	static const int iChars = std::min(4, std::max(1, GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL")));
 	return iChars;
+}
+
+// <!-- custom: Each text-map layer can be disabled independently to reduce SASGameRecord size while retaining the layers useful for a particular analysis. Cache these XML switches like the other recorder settings; width or height 0 remains a convenient master switch for all ASCII maps. (ChatGPT-5.6-Sol) -->
+static bool isSASGameRecordMapAsciiGeographyEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE") > 0);
+	return bEnabled;
+}
+
+static bool isSASGameRecordMapAsciiTerrainEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE") > 0);
+	return bEnabled;
+}
+
+static bool isSASGameRecordMapAsciiRiversEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE") > 0);
+	return bEnabled;
+}
+
+static bool isSASGameRecordMapAsciiBonusesEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE") > 0);
+	return bEnabled;
+}
+
+static bool isSASGameRecordMapAsciiFeaturesEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE") > 0);
+	return bEnabled;
+}
+
+static bool isSASGameRecordMapAsciiPoliticalEnabled()
+{
+	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE") > 0);
+	return bEnabled;
 }
 
 // <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
@@ -482,8 +519,9 @@ static void logSASGameRecordGameState(const char* szRowType)
 
 static void logSASGameRecordLogSettings()
 {
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(),
+			isSASGameRecordMapAsciiGeographyEnabled(), isSASGameRecordMapAsciiTerrainEnabled(), isSASGameRecordMapAsciiRiversEnabled(), isSASGameRecordMapAsciiBonusesEnabled(), isSASGameRecordMapAsciiFeaturesEnabled(), isSASGameRecordMapAsciiPoliticalEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
 }
 
 static void resetSASGameRecordState();
@@ -3097,10 +3135,23 @@ static void logSASGameRecordRiverEdgeCoordinates()
 
 // <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
 // Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture.
-// Geography, terrain, directional river edges, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
+// Geography, terrain, directional river edges, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szReason)
 {
-	int const iLayerCount = (bIncludeStaticLayers ? 6 : 2);
+	bool const abLayerEnabled[6] =
+	{
+		bIncludeStaticLayers && isSASGameRecordMapAsciiGeographyEnabled(),
+		bIncludeStaticLayers && isSASGameRecordMapAsciiTerrainEnabled(),
+		bIncludeStaticLayers && isSASGameRecordMapAsciiRiversEnabled(),
+		bIncludeStaticLayers && isSASGameRecordMapAsciiBonusesEnabled(),
+		isSASGameRecordMapAsciiFeaturesEnabled(),
+		isSASGameRecordMapAsciiPoliticalEnabled()
+	};
+	int iLayerCount = 0;
+	for (int iLayer = 0; iLayer < 6; iLayer++)
+		if (abLayerEnabled[iLayer]) iLayerCount++;
+	if (iLayerCount <= 0)
+		return;
 	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
 	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
 	if (iMaxWidth <= 0 || iMaxHeight <= 0)
@@ -3137,7 +3188,7 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 	int const iOutputWidth = iPreviewWidth * iHorizontalCharsPerCell;
 	int iSourceSouthBoundaryRiverEdges = 0;
 	int iSourceEastBoundaryRiverEdges = 0;
-	if (bIncludeStaticLayers)
+	if (abLayerEnabled[2])
 	{
 		for (int iPlot = 0; iPlot < kMap.numPlots(); iPlot++)
 		{
@@ -3146,44 +3197,50 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 			if (kPlot.isWOfRiver()) iSourceEastBoundaryRiverEdges++;
 		}
 	}
-	bool const bMarkStartingPlots = (GC.getGame().getElapsedGameTurns() == 0);
+	bool const bMarkStartingPlots = (abLayerEnabled[5] && GC.getGame().getElapsedGameTurns() == 0);
 	std::vector<PlayerTypes> aeStartingPlayers;
 	CvString szPlayerSymbols;
 	if (bMarkStartingPlots) aeStartingPlayers.assign(kMap.numPlots(), NO_PLAYER);
-	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+	if (abLayerEnabled[5])
 	{
-		PlayerTypes const ePlayer = (PlayerTypes)iPlayer;
-		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-		if (!kPlayer.isEverAlive())
-			continue;
-		if (bMarkStartingPlots && kPlayer.getStartingPlot() != NULL)
-			aeStartingPlayers[kMap.plotNum(kPlayer.getStartingPlot()->getX(), kPlayer.getStartingPlot()->getY())] = ePlayer;
-		CvString szPlayerSymbol;
-		szPlayerSymbol.Format("%c=%d", getSASGameRecordMapAsciiPlayerSymbol(ePlayer, kPalette), iPlayer);
-		if (!szPlayerSymbols.empty()) szPlayerSymbols += ";";
-		szPlayerSymbols += szPlayerSymbol;
+		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+		{
+			PlayerTypes const ePlayer = (PlayerTypes)iPlayer;
+			CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+			if (!kPlayer.isEverAlive())
+				continue;
+			if (bMarkStartingPlots && kPlayer.getStartingPlot() != NULL)
+				aeStartingPlayers[kMap.plotNum(kPlayer.getStartingPlot()->getX(), kPlayer.getStartingPlot()->getY())] = ePlayer;
+			CvString szPlayerSymbol;
+			szPlayerSymbol.Format("%c=%d", getSASGameRecordMapAsciiPlayerSymbol(ePlayer, kPalette), iPlayer);
+			if (!szPlayerSymbols.empty()) szPlayerSymbols += ";";
+			szPlayerSymbols += szPlayerSymbol;
+		}
 	}
 	CvString const szPlayerSymbolsQuoted = getSASGameRecordQuoted(getSASGameRecordOrDash(szPlayerSymbols).GetCString());
 	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map",
 			GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
-	if (bIncludeStaticLayers)
-	{
+	if (abLayerEnabled[0])
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
 				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASGameRecordQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
+	if (abLayerEnabled[1])
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s uppercaseFoodSymbols=%s uppercaseMinNatureFoodSurplus=%d foodPerPopulation=%d foodIncludes=hills_features_lakes_rivers_permanent_plot_yields foodExcludes=improvements_bonuses resampledCell=dominant_type_with_average_nature_food_case",
 				GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainUppercaseLegend(kPalette).GetCString()).GetCString(), kPalette.iTerrainUppercaseMinNatureFoodSurplus, kPalette.iFoodPerPopulation);
+	if (abLayerEnabled[2])
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=RIVERS palette=%s symbolTypes=%s storedEdgeSemantics=plot_south_and_east_boundaries resampledCell=any_source_edge_by_orientation",
 				getSASGameRecordQuoted(kPalette.szRiverDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiRiverLegend(kPalette).GetCString()).GetCString());
-		// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (abLayerEnabled[3])
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1", GC.getNumBonusInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
-	}
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumFeatureInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
+	if (abLayerEnabled[4])
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumFeatureInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
 	// <!-- custom: GAME_RECORD_PLAYER_SETUP already stores each player ID's quoted civilization and display name. Keep this repeated map legend to unambiguous SYMBOL=PLAYER_ID pairs so user-controlled punctuation in names cannot break an embedded mini-format or duplicate long names at every snapshot. (ChatGPT-5.5 + GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
-			getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
+	if (abLayerEnabled[5])
+		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
+				getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
 	for (int iLayer = 0; iLayer < 6; iLayer++)
 	{
-		if (iLayer < 4 && !bIncludeStaticLayers) continue;
+		if (!abLayerEnabled[iLayer]) continue;
 		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "RIVERS" : iLayer == 3 ? "BONUSES" : iLayer == 4 ? "FEATURES" : "POLITICAL");
 		int aiSymbolCounts[127] = { 0 };
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);

@@ -36,7 +36,7 @@ cmd.exe /d /s /c 'call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\b
 
 Verification on 2026-08-14: from placeholder-only `temp_files`, this completed a full Release compile and link in about 106 seconds. Full builds on this machine generally take about 1 minute 30 seconds to 1 minute 42 seconds; allow about 2 minutes before treating quiet/buffered output as hung or timing it out.
 
-The command writes `CvGameCoreDLL\Project\Release\CvGameCoreDLL.dll`. Verify successful command output/exit status and the updated DLL. Visual Studio/MSBuild builds also write [`AdvCiv.log`](/CvGameCoreDLL/Project/Release/AdvCiv.log), where success is shown by `Build succeeded.`, but do not assume that direct `nmake` refreshes the IDE build log.
+The command writes `CvGameCoreDLL\Project\Release\CvGameCoreDLL.dll`. Verify successful command output/exit status and the updated DLL. Visual Studio/MSBuild builds also write `CvGameCoreDLL\Project\Release\AdvCiv.log`, where success is shown by `Build succeeded.`, but do not assume that direct `nmake` refreshes the IDE build log.
 
 ## Install, test, and clean
 

@@ -3,15 +3,16 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout (see Authors in root README.md)
 #
-# <!-- custom: Create a timestamped Civ4 mod light source ZIP for quick local/LLM review handoffs.
+# Create a timestamped Civ4 mod light source ZIP for quick local/LLM review handoffs.
 # Store repo-relative paths and use ZIP_DEFLATED by default so adding selected screenshot folders stays reasonably uploadable.
-# Refined with ChatGPT-5.5 and Codex. -->
+# Refined with ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
 # Create a timestamped light source ZIP for a Civ4 mod.
 
 from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
@@ -19,10 +20,11 @@ from typing import Iterable, Iterator
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 
+# <!-- custom: Keep Git's canonical `Assets/Res` casing here even on Windows, whose case-insensitive filesystem may also display/accept `Assets/res`; GitHub/Linux paths and CI are case-sensitive. (ChatGPT-5.6-Sol) -->
 ASSET_SUBDIRS = (
     "Assets/Python",
     "Assets/Config",
-    "Assets/res",
+    "Assets/Res",
     "Assets/XML",
 )
 
@@ -63,6 +65,8 @@ ARCHIVE_LABEL = "light_source"
 DEFAULT_ARCHIVE_PREFIX = None
 DEFAULT_COMPRESSION_LEVEL = 6
 GENERATED_ARCHIVE_MARKER = "_light_source_"
+# Archive-only Git tree helper so ZIP-only LLMs can see tracked paths omitted from the light source.
+GENERATED_GIT_MANIFEST_NAME = "_LLM_REPO_FILE_MANIFEST.txt"
 
 # Skip Python bytecode/cache folders anywhere in the tree.
 # They are generated, can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
@@ -215,6 +219,73 @@ def rel_for_message(path: Path, repo_root: Path) -> str:
         return str(path)
 
 
+def run_git(repo_root: Path, *args: str) -> tuple[str | None, str | None]:
+    """Run Git at repo_root and return stdout or a concise error."""
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as exc:
+        return None, str(exc)
+
+    if result.returncode != 0:
+        error = result.stderr.strip() or f"git exited with status {result.returncode}"
+        return None, error
+    return result.stdout, None
+
+
+def build_git_manifest(repo_root: Path) -> str:
+    """Build an archive-only manifest of the actual local Git tracked tree."""
+    tracked_raw, error = run_git(repo_root, "ls-files", "-z")
+    if tracked_raw is None:
+        return (
+            "# Local Git repository manifest\n"
+            "# Generated automatically by LLM_Helpers/make_light_source_zip.py.\n"
+            "# This helper exists only inside the light-source ZIP; it is not a repository file.\n"
+            "# Git metadata was unavailable while creating this archive.\n\n"
+            f"Git error: {error}\n"
+        )
+
+    tracked = sorted(path for path in tracked_raw.split("\0") if path)
+    branch_raw, _ = run_git(repo_root, "rev-parse", "--abbrev-ref", "HEAD")
+    head_raw, _ = run_git(repo_root, "rev-parse", "HEAD")
+    status_raw, status_error = run_git(repo_root, "status", "--short", "--untracked-files=no")
+
+    branch = branch_raw.strip() if branch_raw else "unknown"
+    head = head_raw.strip() if head_raw else "unknown"
+    lines = [
+        "# Local Git repository manifest",
+        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+        "# This helper exists only inside the light-source ZIP; it is not a repository file.",
+        "# The light archive intentionally omits many tracked assets/binaries. Use this manifest",
+        "# to distinguish 'not included in this ZIP' from 'not present in the local Git repository'.",
+        "# Tracked paths preserve Git's canonical path spelling/casing.",
+        "# Untracked paths are intentionally not enumerated; selected untracked source files can",
+        "# still be present normally in the ZIP, without exposing unrelated local filenames here.",
+        "",
+        f"Branch: {branch}",
+        f"HEAD: {head}",
+        f"Tracked files: {len(tracked)}",
+        "",
+        "[TRACKED FILES - git ls-files]",
+        *tracked,
+        "",
+        "[TRACKED WORKING TREE STATUS - git status --short --untracked-files=no]",
+    ]
+    if status_raw is not None:
+        lines.extend(status_raw.rstrip().splitlines() or ["(clean)"])
+    else:
+        lines.append(f"(unavailable: {status_error})")
+    return "\n".join(lines) + "\n"
+
+
 def should_skip_dir(path: Path, repo_root: Path) -> bool:
     if path.name in SKIP_DIR_NAMES:
         return True
@@ -334,7 +405,7 @@ def collect_files(repo_root: Path) -> list[Path]:
     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
 
 
-def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int) -> int:
+def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int, git_manifest: str) -> int:
     count = 0
     temp_path = zip_path.with_suffix(zip_path.suffix + ".tmp")
     if temp_path.exists():
@@ -349,6 +420,8 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
             rel = path.relative_to(repo_root).as_posix()
             archive.write(path, rel)
             count += 1
+        archive.writestr(GENERATED_GIT_MANIFEST_NAME, git_manifest.encode("utf-8"))
+        count += 1
 
     temp_path.replace(zip_path)
     return count
@@ -361,25 +434,27 @@ def main() -> int:
     prefix = archive_prefix(mod_name, args.prefix)
     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
     files = collect_files(repo_root)
-    total_bytes = sum(path.stat().st_size for path in files)
+    git_manifest = build_git_manifest(repo_root)
+    total_bytes = sum(path.stat().st_size for path in files) + len(git_manifest.encode("utf-8"))
     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
 
     print(f"Repo root: {repo_root}")
     print(f"Mod name:  {mod_name}")
     print(f"Prefix:    {prefix}")
     print(f"Archive:   {zip_path}")
-    print(f"Files:     {len(files)}")
+    print(f"Files:     {len(files)} selected + 1 generated Git manifest")
     print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
     print(f"Mode:      {compression_mode}")
 
     if args.dry_run:
         for path in files:
             print(path.relative_to(repo_root).as_posix())
+        print(f"(generated) {GENERATED_GIT_MANIFEST_NAME}")
         print("Dry run only; no archive written.")
         return 0
 
     start_time = perf_counter()
-    count = write_zip(zip_path, repo_root, files, args.compression_level)
+    count = write_zip(zip_path, repo_root, files, args.compression_level, git_manifest)
     duration_ms = int((perf_counter() - start_time) * 1000)
     print(f"Wrote:     {count} file(s)")
     print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")

@@ -69,6 +69,8 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/line_endings.py`](#buildline_endingspy)
 - [`build/assets_dlls.py`](#buildassets_dllspy)
 - [`build/art_button_paths.py`](#buildart_button_pathspy)
+- [`build/markdown_images.py`](#buildmarkdown_imagespy)
+- [`build/markdown_links.py`](#buildmarkdown_linkspy)
 - [`build/sas_text_references.py`](#buildsas_text_referencespy)
 - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
 - [`build/launch_guard.py`](#buildlaunch_guardpy)
@@ -105,7 +107,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 
 ### `build/temp_files.py`
 
-Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder file and is otherwise empty, verifies `.gitignore` does not hide it, and allows only the matching `.gitattributes` `export-ignore` rules used to keep it out of GitHub Download ZIP / git archive release archives. This helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)).
+Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder file and is otherwise empty, verifies `.gitignore` does not hide it, and allows only the matching `.gitattributes` `export-ignore` rules used to keep it out of GitHub Download ZIP / git archive release archives. This helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwithexact-same-source-files) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe)).
 
 ### `build/line_endings.py`
 
@@ -145,6 +147,18 @@ Recursively verifies `Assets` contains only the two expected DLL files (`Assets/
 ### `build/art_button_paths.py`
 
 Verifies local `.dds` button/image paths under `Assets/Art` contain no whitespace because a path that works through a direct Civ4 button or atlas reference can fail when reused in `<img>` markup. Paths beneath any directory named `nif` are excluded because model texture paths can be embedded in NIF files and are not safely renamed through ordinary XML changes. Base-game art paths referenced from XML are also outside this local-asset check. See [KI#118](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#118---worked-around-military-advisor-inline-img-icons-can-render-magenta-for-button-paths-with-spacesparentheses), including the former `Buildings/Natya_Shastra/indian sreni.dds` example.
+
+### `build/markdown_images.py`
+
+Verifies every repository-local image referenced by a Markdown file resolves to an existing file. It checks normal and reference-style Markdown images plus HTML `<img src="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Repository-root paths and paths relative to each Markdown file are both supported.
+
+This prevents documentation image links from silently breaking when image folders or files are moved or renamed.
+
+### `build/markdown_links.py`
+
+Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors. It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`. Repository-root paths and paths relative to each Markdown file are both supported.
+
+When `_LLM_REPO_FILE_MANIFEST.txt` is present in a light-source ZIP, tracked files and directories intentionally omitted from the bundle are still recognized as existing repository paths; Markdown fragments are checked whenever the target Markdown file itself is bundled. This prevents both moved/renamed repository targets and renamed Markdown headings from silently leaving stale local links.
 
 ### `build/sas_text_references.py`
 

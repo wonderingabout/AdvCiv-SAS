@@ -906,6 +906,8 @@ In short: this script is kept as a historical and practical discovery helper, wh
 - Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
 - Uses repo-relative archive paths and `ZIP_DEFLATED` compression by default. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review. Use `--compression-level 0` for the old `ZIP_STORED` / no-compression behavior.
 - Compression applies to the whole archive, not only images: JPG/PNG screenshots are already compressed and shrink little, while XML/Python/docs shrink a lot, so whole-ZIP compression is the useful default once selected screenshot folders are included.
+- Adds an archive-only `_LLM_REPO_FILE_MANIFEST.txt` generated automatically from the local Git repository. It lists every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP), the current branch/HEAD, and short tracked working-tree status. This lets an external/ZIP-only LLM distinguish "not included in the light archive" from "not present in the local repository" without copying the `.git` folder or maintaining a tree listing manually. Tracked paths also preserve Git's canonical path spelling/casing. Untracked paths are intentionally not enumerated in the manifest to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter. If Git metadata is unavailable, the manifest says so instead of making archive creation fail.
+- Uses Git's canonical `Assets/Res` casing even if Windows locally displays or accepts `Assets/res`; repository paths are case-sensitive on GitHub/Linux CI, and the generated manifest deliberately preserves the Git spelling.
 - Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
 - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
 - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
@@ -927,16 +929,17 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
 Example of output (Git Bash):
 
 ```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond
+ the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260811T105205.zip
-Files:     1135
-Size:      92,519,037 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260816T063903.zip
+Files:     1137 selected + 1 generated Git manifest
+Size:      118,681,435 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-Wrote:     1135 file(s)
-ZIP size:  53,887,082 bytes
-Duration:  2,136 ms
+Wrote:     1138 file(s)
+ZIP size:  59,925,910 bytes
+Duration:  2,440 ms
 ```
 
 ## Workflow rule for timeline tuning

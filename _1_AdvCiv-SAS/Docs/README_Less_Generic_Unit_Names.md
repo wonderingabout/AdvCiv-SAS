@@ -6,7 +6,7 @@ I think some unit names are very lousy, for example for "spearman" it's basicall
 
 ## Menu
 
-[Less generic or inaccurate unit names or combat types (todo and non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md#less-generic-or-inaccurate-unit-names-orand-combat-types-todo-and)\
+[Less generic or inaccurate unit names or combat types (todo and non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Less_Generic_Unit_Names.md#less-generic-or-inaccurate-unit-names-or-combat-types-todo-and-non-exhaustive)\
 
 ## Less generic or inaccurate unit names or combat types (todo and non-exhaustive)
 

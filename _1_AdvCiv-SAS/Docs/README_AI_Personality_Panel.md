@@ -27,7 +27,7 @@ AI attributes (at least i call them this way not sure it is their exact name but
 
 ## Sources about XML AI Attributes and their meaning
 
-See [Modding_Ressources/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#Sources)
+See [Modding_Ressources/README.md's Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)
 
 ## General Aim of the AI Attributes
 

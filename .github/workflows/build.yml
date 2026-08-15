@@ -21,6 +21,8 @@ jobs:
       - run: python .github/workflows/build/line_endings.py
       - run: python .github/workflows/build/assets_dlls.py
       - run: python .github/workflows/build/art_button_paths.py
+      - run: python .github/workflows/build/markdown_images.py
+      - run: python .github/workflows/build/markdown_links.py
       - run: python .github/workflows/build/global_defines_nonempty.py
       - run: python .github/workflows/build/launch_guard.py
       - run: python .github/workflows/build/define_int_bounds.py

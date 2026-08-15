@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Verify AdvCiv-SAS PrivateMaps coverage in map-script SAS defines."""
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# Verify AdvCiv-SAS PrivateMaps coverage in map-script SAS defines.
 
 from __future__ import annotations
 

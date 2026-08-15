@@ -137,7 +137,7 @@ If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer ver
 
 ### If you have trouble downloading/installing/using/upgrading/downgrading the mod
 
-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
+Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
 
 ## Modify AdvCiv-SAS (its development version)
 
