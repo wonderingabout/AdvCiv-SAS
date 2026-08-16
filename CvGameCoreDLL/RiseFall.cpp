@@ -375,7 +375,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
 		currentCh.setScoreAtEnd(currentCh.computeScore());
 		// Even if interludeLength is 0, parts of a round need to be skipped
 		interludeCountdown = interludeLength;
-		g.setAIAutoPlay(0); // In case that the player has retired
+		g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL); // In case that the player has retired
 		setPlayerControl(currentCh.getCiv(), false);
 		abandonPlans(currentCh.getCiv());
 		CvWString replayText = gDLL->getText("TXT_KEY_RF_INTERLUDE_STARTED");
@@ -964,7 +964,7 @@ void RiseFall::prepareForExtendedGame() {
 		chapters[pos]->setScored(GC.getGame().getGameTurn() - 1);
 		if(g.getAIAutoPlay()) {
 			abandonPlans(chapters[pos]->getCiv());
-			g.setAIAutoPlay(0);
+			g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL);
 		}
 	}
 	else {

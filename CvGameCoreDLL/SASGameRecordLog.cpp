@@ -519,8 +519,9 @@ static void logSASGameRecordGameState(const char* szRowType)
 
 static void logSASGameRecordLogSettings()
 {
-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(),
+	// <!-- custom: Read the popup define directly because this settings row is emitted only once per log; unlike repeatedly queried map settings, caching it would add state without avoiding repeat work. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE"), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(),
 			isSASGameRecordMapAsciiGeographyEnabled(), isSASGameRecordMapAsciiTerrainEnabled(), isSASGameRecordMapAsciiRiversEnabled(), isSASGameRecordMapAsciiBonusesEnabled(), isSASGameRecordMapAsciiFeaturesEnabled(), isSASGameRecordMapAsciiPoliticalEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
 }
 
@@ -570,6 +571,14 @@ static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
+// <!-- custom: Recorder-local autoplay state makes each start/end row self-contained and counts active-player transfers without adding savegame fields. AI Auto Play is stopped when a save is loaded, so resetting this state with each log session matches the actual automation boundary. See KI#203. (GPT-5.6-Sol) -->
+static int g_iSASGameRecordAutoPlayRequestId = 0;
+static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
+static int g_iSASGameRecordAutoPlayStartTurn = -1;
+static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
+static int g_iSASGameRecordTotalActivePlayerChanges = 0;
 static int g_iSASGameRecordLastFullSnapshotTurn = -1;
 static int g_iSASGameRecordFlowStartTurn = 0;
 
@@ -1072,6 +1081,14 @@ static void resetSASGameRecordState()
 	g_aSASGameRecordPlotChanges.clear();
 	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
 	g_iSASGameRecordFullMapRevealedBefore = 0;
+	// <!-- custom: AI Auto Play stops when a save is loaded, so clear its recorder-local request boundary and active-player transfer counters with the rest of the new log-session state. See KI#203. (GPT-5.6-Sol) -->
+	g_iSASGameRecordAutoPlayRequestId = 0;
+	g_iSASGameRecordAutoPlayRequestedTurns = 0;
+	g_iSASGameRecordAutoPlayStartTurn = -1;
+	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+	g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	g_iSASGameRecordTotalActivePlayerChanges = 0;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 		g_aaSASGameRecordRevealedPlots[iI].clear();
 }
@@ -5911,22 +5928,62 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
 	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
 }
 
-void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
+void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
 	if (iOldValue == iNewValue)
 		return;
 	CvGame const& kGame = GC.getGame();
-	const char* szAction = (iOldValue <= 0 && iNewValue > 0 ? "AUTOPLAY_STARTED" : (iOldValue > 0 && iNewValue <= 0 ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
-	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d",
-			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus);
+	bool const bStarted = (iOldValue <= 0 && iNewValue > 0);
+	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
+	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
+	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	if (bStarted)
+	{
+		g_iSASGameRecordAutoPlayRequestId++;
+		g_iSASGameRecordAutoPlayRequestedTurns = iNewValue;
+		g_iSASGameRecordAutoPlayStartTurn = kGame.getGameTurn();
+		g_iSASGameRecordAutoPlayStartElapsedTurn = kGame.getElapsedGameTurns();
+		g_eSASGameRecordAutoPlayStartPlayer = eActivePlayer;
+		g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	}
+	if (bEnded && eEndCause == SAS_AUTOPLAY_END_UNSPECIFIED)
+		eEndCause = (kGame.getWinner() != NO_TEAM ? SAS_AUTOPLAY_END_VICTORY : (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive() ? SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED : SAS_AUTOPLAY_END_OTHER));
+	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 : (eEndCause == SAS_AUTOPLAY_END_SCHEDULED ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
+	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
+			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
+			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,
+			getSASAutoPlayEndCause(eEndCause));
 	// <!-- custom: Manual or scheduled autoplay completion is also a useful record boundary even when the game and its wars continue. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2 && iOldValue > 0 && iNewValue <= 0)
+	if (gGameRecordLogLevel >= 2 && bEnded)
 	{
 		reconcileSASGameRecordWars();
 		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
 	}
 	logSASGameRecordRunStatus(szAction);
+	if (bEnded)
+	{
+		g_iSASGameRecordAutoPlayRequestedTurns = 0;
+		g_iSASGameRecordAutoPlayStartTurn = -1;
+		g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
+		g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+		g_iSASGameRecordAutoPlayPlayerChanges = 0;
+	}
+}
+
+void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer)
+{
+	g_iSASGameRecordTotalActivePlayerChanges++;
+	bool const bDuringAutoPlay = (GC.getGame().getAIAutoPlay() > 0 && g_iSASGameRecordAutoPlayRequestedTurns > 0);
+	if (bDuringAutoPlay) g_iSASGameRecordAutoPlayPlayerChanges++;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=ACTIVE_PLAYER_CHANGED oldPlayer=%d newPlayer=%d autoplayActive=%d autoplayTurnsLeft=%d requestId=%d activePlayerChanges=%d totalActivePlayerChanges=%d",
+			GC.getGame().getGameTurn(), eOldPlayer, eNewPlayer, bDuringAutoPlay, GC.getGame().getAIAutoPlay(), bDuringAutoPlay ? g_iSASGameRecordAutoPlayRequestId : -1, bDuringAutoPlay ? g_iSASGameRecordAutoPlayPlayerChanges : 0, g_iSASGameRecordTotalActivePlayerChanges);
+}
+
+void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AUTOPLAY_INFORMATIONAL_POPUP_DISMISSED popupKind=%s autoplayTurnsLeft=%d requestId=%d",
+			GC.getGame().getGameTurn(), szPopupKind, GC.getGame().getAIAutoPlay(), g_iSASGameRecordAutoPlayRequestedTurns > 0 ? g_iSASGameRecordAutoPlayRequestId : -1);
 }
 
 void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)

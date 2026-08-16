@@ -498,6 +498,15 @@ void CyGame::setAIAutoPlay(int iNewValue)
 	m_kGame.setAIAutoPlay(iNewValue);
 }
 
+// <!-- custom: Python's AI Auto Play controller needs a separate explicit-stop API because the legacy setAIAutoPlay(0) cannot report why automation ended. Validate the Python enum value before forwarding it to CvGame. See KI#203. (GPT-5.6-Sol) -->
+void CyGame::endAIAutoPlay(int iEndCause)
+{
+	SASAutoPlayEndCause eEndCause = (SASAutoPlayEndCause)iEndCause;
+	if (eEndCause < SAS_AUTOPLAY_END_SCHEDULED || eEndCause > SAS_AUTOPLAY_END_OTHER)
+		eEndCause = SAS_AUTOPLAY_END_OTHER;
+	m_kGame.setAIAutoPlay(0, true, eEndCause);
+}
+
 // K-Mod, 11/dec/10, start
 int CyGame::getGlobalWarmingIndex() const
 {

@@ -131,6 +131,8 @@ void CyGamePythonInterface()
 
 		.def("getAIAutoPlay", &CyGame::getAIAutoPlay)
 		.def("setAIAutoPlay", &CyGame::setAIAutoPlay)
+		// <!-- custom: Expose the AdvCiv-SAS cause-aware stop method used by AIAutoPlay.py; the legacy setter remains available for compatibility. See KI#203. (GPT-5.6-Sol) -->
+		.def("endAIAutoPlay", &CyGame::endAIAutoPlay)
 
 		.def("getGlobalWarmingIndex", &CyGame::getGlobalWarmingIndex)	// K-Mod
 		.def("getGlobalWarmingChances", &CyGame::getGlobalWarmingChances)	// K-Mod

@@ -514,6 +514,22 @@ char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause)
 	}
 }
 
+char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
+{
+	switch (eCause)
+	{
+	case SAS_AUTOPLAY_END_SCHEDULED: return "SCHEDULED";
+	case SAS_AUTOPLAY_END_USER_INTERRUPTED: return "USER_INTERRUPTED";
+	case SAS_AUTOPLAY_END_VICTORY: return "VICTORY";
+	case SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED: return "ACTIVE_PLAYER_DEFEATED";
+	case SAS_AUTOPLAY_END_DESYNC: return "DESYNC";
+	case SAS_AUTOPLAY_END_ASSERTION: return "ASSERTION";
+	case SAS_AUTOPLAY_END_RISE_FALL: return "RISE_FALL";
+	case SAS_AUTOPLAY_END_OTHER: return "OTHER";
+	default: return "-";
+	}
+}
+
 // <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
 int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
 {

@@ -309,8 +309,9 @@ public:
 	int getAIAutoPlay() const { return m_iAIAutoPlay; } // Exposed to Python
 	// <advc.127>
 	DllExport void setAIAutoPlay(int iNewValue) { setAIAutoPlay(iNewValue, true); } // Exposed to Python
-	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus); // </advc.127>
-	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true);
+	// <!-- custom: Added eEndCause so callers can preserve why automation stopped instead of forcing SASGameRecord to infer it from an ambiguous counter reset. See KI#203. (GPT-5.6-Sol) -->
+	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED); // </advc.127>
+	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED);
 	// <advc.opt>
 	int getCivPlayersEverAlive() const;
 	void changeCivPlayersEverAlive(int iChange);

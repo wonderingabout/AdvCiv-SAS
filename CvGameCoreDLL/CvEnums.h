@@ -1155,6 +1155,20 @@ enum TechAcquisitionCause
 	TECH_ACQUISITION_DEBUG
 };
 
+// <!-- custom: Explicit source for ending AI Auto Play, shared between the DLL, Python controller, and SASGameRecord. This is runtime control/diagnostic metadata, not XML-indexed or savegame-serialized. See KI#203. (GPT-5.6-Sol) -->
+enum SASAutoPlayEndCause
+{
+	SAS_AUTOPLAY_END_UNSPECIFIED = -1,
+	SAS_AUTOPLAY_END_SCHEDULED,
+	SAS_AUTOPLAY_END_USER_INTERRUPTED,
+	SAS_AUTOPLAY_END_VICTORY,
+	SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED,
+	SAS_AUTOPLAY_END_DESYNC,
+	SAS_AUTOPLAY_END_ASSERTION,
+	SAS_AUTOPLAY_END_RISE_FALL,
+	SAS_AUTOPLAY_END_OTHER
+};
+
 enum TradeableItems
 {
 	NO_TRADE_ITEM = -1,

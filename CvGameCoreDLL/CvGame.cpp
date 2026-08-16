@@ -4304,7 +4304,7 @@ void CvGame::reviveActivePlayer()
 {
 	if (GET_PLAYER(getActivePlayer()).isAlive())
 		return;
-	setAIAutoPlay(0, /* advc.127: */ false);
+	setAIAutoPlay(0, /* advc.127: */ false, SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED);
 	GC.getInitCore().setSlotStatus(getActivePlayer(), SS_TAKEN);
 	if (GC.getPythonCaller()->doReviveActivePlayer())
 		return;
@@ -4690,13 +4690,14 @@ void CvGame::initScoreCalculation()
 }
 
 
-void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus)
+void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
 	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
 	m_iAIAutoPlay = std::max(0, iNewValue);
-	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
+	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly.
+	// Explicit completion causes distinguish scheduled completion from interruption, victory, player defeat, desync, assertions, and other resets. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. See KI#203. (GPT-5.5 + GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
-		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
+		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus, eEndCause);
 	if (!bChangePlayerStatus)
 		return; // </advc.127>
 	// Erik <BM1>
@@ -4727,9 +4728,9 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
 }
 
 
-void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus)
+void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
-	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus);
+	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus, eEndCause);
 }
 
 // <advc.opt>
@@ -5420,11 +5421,18 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
 	int const iActiveNetId = (eOldActivePlayer != NO_PLAYER ?
 			GET_PLAYER(eOldActivePlayer).getNetID() : -1);
 	GC.getInitCore().setActivePlayer(eNewValue);
+	// <!-- custom: Active-player transfers during AI Auto Play can explain why automation ended or whose civilization resumed human control. Keep per-request and per-log-session counts in SASGameRecord rather than requiring reviewers to scan every setup/status row. See KI#203. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2)
+		logSASGameRecordActivePlayerChanged(eOldActivePlayer, eNewValue);
 	if (eNewValue != NO_PLAYER && // K-Mod
 		GET_PLAYER(eNewValue).isHuman() &&
 		(isHotSeat() || isPbem() || bForceHotSeat))
 	{
-		gDLL->getPassword(eNewValue);
+		// <!-- custom: Active-player defeat can transfer human control while AI Auto Play still has hundreds of turns remaining. The EXE's handoff/password call then displays an OK-only "it's your turn" prompt and pauses the run; skip only that no-decision prompt during automation. See KI#203. (GPT-5.6-Sol) -->
+		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
+		if (!bSASAutoDismissAutoPlayInformationalPopups || getAIAutoPlay() <= 0)
+			gDLL->getPassword(eNewValue);
+		else if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
 		setHotPbemBetweenTurns(false);
 		gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
 		if (eOldActivePlayer != NO_PLAYER)
@@ -6278,7 +6286,7 @@ void CvGame::doTurn()
 			the counter at the start of a round. Let onEndPlayerTurn in AIAutoPlay.py
 			handle it. (Because human control should resume right before the human
 			turn, which is not necessarily at the beginning of a round.) */
-		changeAIAutoPlay(-1, false);
+		changeAIAutoPlay(-1, false, getAIAutoPlay() == 1 ? SAS_AUTOPLAY_END_SCHEDULED : SAS_AUTOPLAY_END_UNSPECIFIED);
 		if (getAIAutoPlay() > 0)
 			checkInSync(); // May set AutoPlay counter to 0
 		// </advc.127>
@@ -8896,7 +8904,7 @@ bool CvGame::checkInSync()
 			if (iOtherSyncHash != iSyncHash)
 			{
 				FAssert(iOtherSyncHash == iSyncHash);
-				setAIAutoPlay(0);
+				setAIAutoPlay(0, true, SAS_AUTOPLAY_END_DESYNC);
 				return false;
 			}
 		}

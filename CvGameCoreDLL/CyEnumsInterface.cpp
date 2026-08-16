@@ -481,6 +481,19 @@ void CyEnumsPythonInterface()
 		.value("NUM_BUTTONPOPUP_TYPES", NUM_BUTTONPOPUP_TYPES)
 		;
 
+	// <!-- custom: Expose explicit AI Auto Play completion causes so the Python controller can distinguish scheduled completion, user interruption, victory, and player defeat in SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+	python::enum_<SASAutoPlayEndCause>("SASAutoPlayEndCause")
+		.value("SAS_AUTOPLAY_END_UNSPECIFIED", SAS_AUTOPLAY_END_UNSPECIFIED)
+		.value("SAS_AUTOPLAY_END_SCHEDULED", SAS_AUTOPLAY_END_SCHEDULED)
+		.value("SAS_AUTOPLAY_END_USER_INTERRUPTED", SAS_AUTOPLAY_END_USER_INTERRUPTED)
+		.value("SAS_AUTOPLAY_END_VICTORY", SAS_AUTOPLAY_END_VICTORY)
+		.value("SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED", SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
+		.value("SAS_AUTOPLAY_END_DESYNC", SAS_AUTOPLAY_END_DESYNC)
+		.value("SAS_AUTOPLAY_END_ASSERTION", SAS_AUTOPLAY_END_ASSERTION)
+		.value("SAS_AUTOPLAY_END_RISE_FALL", SAS_AUTOPLAY_END_RISE_FALL)
+		.value("SAS_AUTOPLAY_END_OTHER", SAS_AUTOPLAY_END_OTHER)
+		;
+
 	python::enum_<ClimateTypes>("ClimateTypes")
 		.value("NO_CLIMATE", NO_CLIMATE)
 		;

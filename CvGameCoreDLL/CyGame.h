@@ -138,6 +138,8 @@ public:
 
 	int getAIAutoPlay() const;
 	void setAIAutoPlay(int iNewValue);
+	// <!-- custom: Added for the Python AI Auto Play controller to report an explicit completion cause to the DLL/game record. See KI#203. (GPT-5.6-Sol) -->
+	void endAIAutoPlay(int iEndCause);
 
 	int getGlobalWarmingIndex() const;	// K-Mod
 	int getGlobalWarmingChances() const;	// K-Mod

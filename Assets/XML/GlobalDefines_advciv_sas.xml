@@ -1769,6 +1769,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: During AI Auto Play, omit no-decision informational dialogs: BUTTONPOPUP_TEXT notices and active-player handoff/password prompts. This deliberately does not accept or suppress gameplay choices such as diplomacy, events, civics, war, launch, production, or technology. 1 enables; 0 preserves every informational popup. See KI#203. (GPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: if score is equal or higher than this, it means our city has a low food BFC. Used to decide as of now if farms should be more valuable in such cities. -->
 	<!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
 	<Define>
@@ -2478,7 +2486,7 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT</DefineName>
-		<iDefineIntVal>10</iDefineIntVal>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 	<Define>
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT</DefineName>

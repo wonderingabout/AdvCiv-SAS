@@ -75,7 +75,10 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory);
 void logSASGameRecordRunStatus(char const* szReason);
 void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer);
 void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
-void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus);
+// <!-- custom: Added eEndCause for explicit completion attribution; active-player changes update per-request and per-log-session control-transfer counts. Callers remain logging-gated. See KI#203. (GPT-5.6-Sol) -->
+void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause);
+void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer);
+void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind);
 void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
 void logSASGameRecordGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
 void logSASGameRecordGreatPersonConstructed(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding);

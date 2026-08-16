@@ -185,7 +185,7 @@ bool FAssertDlg(const char* szExpr, const char* szMsg, const char* szFile, unsig
 		return false;
 	// <advc.006l>
 	case ASSERT_DLG_STOP:
-		GC.getGame().setAIAutoPlay(0);
+		GC.getGame().setAIAutoPlay(0, true, SAS_AUTOPLAY_END_ASSERTION);
 		return false; // </advc.006l>
 
 	case ASSERT_DLG_EXIT:

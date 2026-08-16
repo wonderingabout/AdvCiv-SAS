@@ -8,7 +8,6 @@
 # Created as part of AdvCiv-SAS improvements
 # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 #
-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
 
 from CvPythonExtensions import *
 import CvScreenEnums
@@ -119,9 +118,9 @@ class AIAutoPlay :
 	#		# About to turn off automation
 	#		pass
 
+	# <!-- custom: Victory ends AI Auto Play through the shared completion path so the DLL records the real cause and restores human control only once. See KI#203. (GPT-5.6-Sol) -->
 	def onVictory( self, argsList ) :
-		self.checkPlayer()
-		game.setAIAutoPlay(0)
+		self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_VICTORY)
 
 	def pickHumanHandler( self, iPlayerID, netUserData, popupReturn ) :
 
@@ -165,8 +164,8 @@ class AIAutoPlay :
 
 		elif( self.bSaveAllDeaths ) :
 			if( game.getAIAutoPlay() == 0 and not gc.getActivePlayer().isAlive() and iPlayer > game.getActivePlayer() ) :
-				self.checkPlayer()
-				game.setAIAutoPlay(0)
+				# <!-- custom: Preserve active-player defeat as the cause when this fallback has to finish AI Auto Play. See KI#203. (GPT-5.6-Sol) -->
+				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
 
 	def onEndPlayerTurn( self, argsList ) :
 		iGameTurn, iPlayer = argsList
@@ -203,13 +202,15 @@ class AIAutoPlay :
 		if turnsLeft <= turnsLeftTarget and iPlayer == preceding:
 			# </advc.127>
 			# About to turn off automation
-			self.checkPlayer() # advc.127: Un-commented this line.
+			self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_SCHEDULED) # advc.127: Un-commented this line.
 
-	def checkPlayer( self ) :
+	# <!-- custom: Carry the explicit completion cause into the DLL so SASGameRecord can distinguish scheduled completion, user interruption, victory, and active-player defeat. See KI#203. (GPT-5.6-Sol) -->
+	def checkPlayer( self, iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_OTHER ) :
 
 		pPlayer = gc.getActivePlayer()
 		# advc.127: Unit check added to avoid multiple popups. Note however: Normally, CvPlayer::verifyAlive automatically transfers human control to a different player when the active player is defeated. The popup here remains only as a fallback. Also added not-human check - should obviously only affect AI Auto Play. Don't know if and how that was working previously.
 		if not pPlayer.isAlive() and pPlayer.getNumUnits() <= 0 and not pPlayer.isHuman():
+			iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED
 			popup = PyPopup.PyPopup(7052,contextType = EventContextTypes.EVENTCONTEXT_ALL)
 			popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_PICK_CIV", ()) )
 			popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_CIV_DIED", ()) )
@@ -239,7 +240,8 @@ class AIAutoPlay :
 
 		CvUtil.pyPrint('CDP: Setting autoplay to 0')
 		# advc.127 (comment): Re-enables humans
-		game.setAIAutoPlay(0)
+		# <!-- custom: Use the AdvCiv-SAS Python API rather than the ambiguous one-argument reset so the end cause reaches CvGame and SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+		game.endAIAutoPlay(iEndCause)
 
 		if( not pPlayer.isHuman() ) :
 			CvUtil.pyPrint('Returning human player to control of %s'%(pPlayer.getCivilizationDescription(0)))
@@ -266,8 +268,7 @@ class AIAutoPlay :
 			if game.getAIAutoPlay() > 0:
 				if self.refortify:
 					doRefortify(game.getActivePlayer())
-				game.setAIAutoPlay(0)
-				self.checkPlayer()
+				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_USER_INTERRUPTED)
 			else:
 				# <advc> for BM1
 				if theKey == int(InputTypes.KB_B):
