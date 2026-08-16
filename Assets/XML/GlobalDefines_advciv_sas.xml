@@ -267,7 +267,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Enable/Disable e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc: Long_Comments_XML.txt #213 -->
+	<!-- custom: Enable/Disable XML unit terrain/feature combat effects, e.g. stronger specialization on favored terrain/features or penalties in difficult features. Terrain/Hills are currently balanced around 10/20% tiers; Features can also use 40% for defining, more situational effects. See README_Assets_Rebalancing.md#unit-terrain-and-feature-combat-modifiers and Long_Comments_XML.txt #213. (ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

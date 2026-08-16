@@ -906,7 +906,15 @@ In short: this script is kept as a historical and practical discovery helper, wh
 - Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
 - Uses repo-relative archive paths and `ZIP_DEFLATED` compression by default. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review. Use `--compression-level 0` for the old `ZIP_STORED` / no-compression behavior.
 - Compression applies to the whole archive, not only images: JPG/PNG screenshots are already compressed and shrink little, while XML/Python/docs shrink a lot, so whole-ZIP compression is the useful default once selected screenshot folders are included.
-- Adds an archive-only `_LLM_REPO_FILE_MANIFEST.txt` generated automatically from the local Git repository. It lists every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP), the current branch/HEAD, and short tracked working-tree status. This lets an external/ZIP-only LLM distinguish "not included in the light archive" from "not present in the local repository" without copying the `.git` folder or maintaining a tree listing manually. Tracked paths also preserve Git's canonical path spelling/casing. Untracked paths are intentionally not enumerated in the manifest to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter. If Git metadata is unavailable, the manifest says so instead of making archive creation fail.
+- Adds an archive-only `_SNAPSHOT_CONTEXT/` folder generated automatically from the local Git repository. The neutral name reflects that these files are extra context for the archive snapshot rather than repository files; they can help human reviewers, LLMs, or other tools. It contains:
+  - `repo_file_manifest.txt`: every tracked path from `git ls-files` (including files intentionally omitted from the light ZIP). It is deliberately only the tracked-file inventory, so repository state is not mixed into the end of the tree listing. This lets an external/ZIP-only reviewer distinguish "not included in the light archive" from "not present in the local repository" without copying `.git`. Tracked paths preserve Git's canonical path spelling/casing. Untracked paths are intentionally not enumerated to avoid exposing unrelated local filenames; selected untracked source files can still be included normally by the exporter.
+  - `git_repository_state.txt`: current branch/HEAD, total commit count, locally known upstream plus ahead/behind counts, tracked `git status --short --untracked-files=no` output, and any files already selected for the ZIP that are not tracked by Git. AdvCiv-SAS commonly uses that total commit count as its practical version number in documentation (e.g. the `X` in `requires AdvCiv-SAS X+`), while `HEAD` is the exact source-state identifier. Git short status uses two columns (`X` = index/staged state, `Y` = working-tree/unstaged state), e.g. `M ` for staged modification, ` M` for unstaged modification, and `MM` for a staged file modified again afterward. General untracked paths are still not enumerated. Upstream/ahead-behind values use the locally known upstream ref and can be stale until `git fetch`. This compact state summary is kept separate from the file manifest and from the full diffs.
+  - `git_ignored_paths_tree.txt`: compact ASCII tree of paths ignored by Git's effective standard ignore rules. Entire ignored directories can be collapsed to one entry, so it can reveal useful local/generated/build context that is absent from the tracked manifest without exploding into a list of every file underneath those directories. It is separate from `repo_file_manifest.txt` because ignored paths are local repository state, not tracked repository contents.
+  - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
+  - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
+  - `git_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`git_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication. Unlike the repository's tracked AdvCiv-SAS Git log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom. Keeping the full commit-message gap preserves detailed implemented notes that may later be removed from the temporary untracked `changes.md`, without needlessly embedding every potentially huge source/XML patch in the light archive.
+  - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
+  If Git metadata or the tracked AdvCiv-SAS Git-log boundary is unavailable, the relevant generated helper explains that instead of making archive creation fail.
 - Uses Git's canonical `Assets/Res` casing even if Windows locally displays or accepts `Assets/res`; repository paths are case-sensitive on GitHub/Linux CI, and the generated manifest deliberately preserves the Git spelling.
 - Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
 - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
@@ -916,7 +924,7 @@ In short: this script is kept as a historical and practical discovery helper, wh
 - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
 - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
 - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP.
-- Created/refined with help of ChatGPT-5.5 and Codex.
+- Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
 
 Tools like here WizTree helped find which folders/files are heavy to exclude.
 
@@ -933,13 +941,13 @@ Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilizatio
  the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260816T063903.zip
-Files:     1137 selected + 1 generated Git manifest
-Size:      118,681,435 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260816T230549.zip
+Files:     1137 selected + 7 generated snapshot-context files
+Size:      128,998,635 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-Wrote:     1138 file(s)
-ZIP size:  59,925,910 bytes
-Duration:  2,440 ms
+Wrote:     1144 file(s)
+ZIP size:  61,387,702 bytes
+Duration:  2,497 ms
 ```
 
 ## Workflow rule for timeline tuning

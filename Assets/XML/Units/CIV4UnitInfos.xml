@@ -8,6 +8,7 @@
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #83 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #84 -->
 <!-- custom: ObsoleteTech (unit field): Long_Comments_XML.txt #359 -->
+<!-- custom: terrain/feature combat-modifier balance rule: Terrain and Hills use 10/20% tiers with an absolute 20% cap because they can affect city combat; Features use 10/20/40% tiers because cities remove features; City modifiers are balanced separately. Historical fit decides where a unit specializes, while gameplay decides the magnitude. Combat-capable civ-specific units normally keep a focused terrain/feature identity: usually one strong 20% terrain or at most two weak 10% terrains, while relevant generic-unit affinities/weaknesses can carry through or be strengthened and feature specialization is budgeted separately. See _1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md for detailed current values and rationales. (ChatGPT-5.6-Sol) -->
 <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
 	<UnitInfos>
 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for VS Code upper tree view while scrolling) -->
@@ -116,7 +117,7 @@
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 2-->
-			<iCombat>4</iCombat>
+			<iCombat>3</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -150,7 +151,16 @@
 				</TerrainNative>
 			</TerrainNatives>
 			<FeatureNatives/>
-			<TerrainAttacks/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>20</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
@@ -298,7 +308,7 @@
 			<TerrainPassableTechs/>
 			<FeaturePassableTechs/>
 			<!-- custom: was 3 -->
-			<iCombat>5</iCombat>
+			<iCombat>4</iCombat>
 			<iCombatLimit>100</iCombatLimit>
 			<iAirCombat>0</iAirCombat>
 			<iAirCombatLimit>0</iAirCombatLimit>
@@ -326,7 +336,12 @@
 			</FeatureNatives>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>20</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -500,7 +515,12 @@
 			</FeatureNatives>
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<FeatureAttacks/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>20</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
@@ -681,7 +701,16 @@
 					<bFeatureNative>1</bFeatureNative>
 				</FeatureNative>
 			</FeatureNatives>
-			<TerrainAttacks/>
+			<TerrainAttacks>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_SNOW</TerrainType>
+					<iTerrainAttack>20</iTerrainAttack>
+				</TerrainAttack>
+				<TerrainAttack>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+					<iTerrainAttack>10</iTerrainAttack>
+				</TerrainAttack>
+			</TerrainAttacks>
 			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
@@ -1367,39 +1396,11 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: not effective as of now as workers don't attack as of now in advciv-sas if not always or not, added for exhaustiveness, and if someday is helpful -->
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<!-- custom: civilian Worker-type units intentionally have no terrain/feature combat modifiers while they have no combat strength; restore such modifiers only if they gain a combat role someday. (ChatGPT-5.6-Sol) -->
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -1649,21 +1650,11 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: civilian Worker-type units intentionally have no terrain/feature combat modifiers while they have no combat strength; restore such modifiers only if they gain a combat role someday. (ChatGPT-5.6-Sol) -->
 			<TerrainAttacks/>
 			<TerrainDefenses/>
-			<!-- custom: not functionnal as of nowas workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy or exhaustiveness -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -2134,8 +2125,8 @@
 			<!-- custom: scout rework. -->
 			<iAnimalCombat>200</iAnimalCombat>
 			<iBarbarianCombat>25</iBarbarianCombat>
-			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>20</iHillsAttack>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -2366,8 +2357,8 @@
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>100</iAnimalCombat>
 			<iBarbarianCombat>100</iBarbarianCombat>
-			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>20</iHillsAttack>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -5633,7 +5624,7 @@
 			<!-- custom: was 25 -->
 			<iCityDefense>-33</iCityDefense>
 			<!-- custom: was 0 -->
-			<iAnimalCombat>50</iAnimalCombat>
+			<iAnimalCombat>33</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
@@ -6051,28 +6042,36 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+					<iFeatureAttack>20</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 25 and UNITCOMBAT_MELEE_SHOCK 25 -->
@@ -6269,42 +6268,36 @@
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 100 and UNITCOMBAT_MELEE_SHOCK 100 -->
@@ -6516,7 +6509,7 @@
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
@@ -6526,7 +6519,7 @@
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -6928,13 +6921,13 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>40</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -7135,21 +7128,13 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<!-- custom: this is still an offensive unit, so keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
@@ -7363,24 +7348,25 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: keep the two weak Persian terrain affinities symmetrical on attack/defense; the unit's spear/lance-like reach and shield make the same small defensive benefit reasonable rather than treating it as a purely offensive swordsman. (ChatGPT-5.6-Sol) -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -7582,44 +7568,26 @@
 			<iCityAttack>10</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: was 0 in the generic swordsman -->
-			<iHillsAttack>25</iHillsAttack>
-			<!-- custom: do not overblow defensive bonus even though it is thematic, as would be unbalanced and identity spill (this is an attacker not a defender, similar reasoning as as of now the flying_column; was 0 in the generic swordsman -->
+			<!-- custom: minor Andean highland identity; keep both attack and defense modest because Peak movement and Sentry already provide substantial UU utility; was 0 in the generic swordsman (ChatGPT-5.6-Sol) -->
+			<iHillsAttack>10</iHillsAttack>
 			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
+			<!-- custom: small Tundra affinity gives the Quechua an actual terrain identity in addition to its separate Hills/Peak plot-type identity, without making an already mobile/scouting-oriented UU broadly stronger. (ChatGPT-5.6-Sol) -->
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
+					<TerrainType>TERRAIN_TUNDRA</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -8030,28 +7998,18 @@
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<!-- custom: see code comment at the UNIT_GERMAN_HUSSAR -->
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -8263,15 +8221,15 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: although vikings have strong a cold weather identity iirc, in terms of gameplay this is still an offensive unit, so emphasize cold resistance more and keep offense dominant (Similar reasoning as as of now for the Hajjan or the Cossack). -->
+			<!-- custom: focused northern identity: Snow and Tundra are two weak cold-terrain affinities; removed the broader Forest package so the Viking is not specialized across too many environments. (ChatGPT-5.6-Sol) -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainAttack>35</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
@@ -8284,18 +8242,8 @@
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: see code comment at the generic maceman for details and additional/related info -->
@@ -8500,7 +8448,7 @@
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: was 0/0 -->
 			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -8727,42 +8675,44 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: same as as of now the generic spearman, was 0/0 -->
+			<!-- custom: stronger hill defense than the generic Spearman while staying within the 20% terrain/hill cap; was 0/0. (ChatGPT-5.6-Sol) -->
 			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: no room to give the woods range advantage of spearmen, unit would have too many modifiers as well -->
-			<FeatureAttacks/>
-			<FeatureDefenses/>
+			<FeatureAttacks>
+				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
+			</FeatureAttacks>
+			<FeatureDefenses>
+				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+			</FeatureDefenses>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: give an extra melee edge to match the shaka aggressive profile, see code comment at the generic spearman for details or related info-->
@@ -8972,7 +8922,7 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -8982,7 +8932,7 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
@@ -9202,28 +9152,20 @@
 			<!-- custom: was 0 in the base advciv-sas spearman; Long_Comments_XML.txt #368 -->
 			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: same as generic spearman in our mod -->
+			<!-- custom: stronger hill defense than the generic Spearman while staying within the 20% terrain/hill cap. (ChatGPT-5.6-Sol) -->
 			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
@@ -9232,10 +9174,18 @@
 					<FeatureType>FEATURE_FOREST</FeatureType>
 					<iFeatureAttack>10</iFeatureAttack>
 				</FeatureAttack>
+				<FeatureAttack>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
+					<iFeatureAttack>10</iFeatureAttack>
+				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>10</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
+					<FeatureType>FEATURE_JUNGLE</FeatureType>
 					<iFeatureDefense>10</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
@@ -9451,7 +9401,7 @@
 			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>10</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -9459,7 +9409,7 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-15</iFeatureAttack>
+					<iFeatureAttack>-10</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -9469,7 +9419,7 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-15</iFeatureDefense>
+					<iFeatureDefense>-10</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
@@ -9691,9 +9641,9 @@
 			<iCityAttack>10</iCityAttack>
 			<iCityDefense>50</iCityDefense>
 			<!-- custom: was 0 -->
-			<iAnimalCombat>50</iAnimalCombat>
+			<iAnimalCombat>25</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -9701,21 +9651,21 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
+					<iFeatureDefense>20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
+					<iFeatureDefense>20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -9943,7 +9893,7 @@
 			<iCityDefense>25</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -10178,41 +10128,31 @@
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
 			<!-- custom: was as of now 25 in the advciv-sas longbowman -->
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>10</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>10</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -10440,27 +10380,19 @@
 			<iCityDefense>10</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -10662,8 +10594,8 @@
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: was attack / defense 0 / 0 -->
-			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>10</iHillsAttack>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -10866,34 +10798,14 @@
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: was attack / defense 0 / 0 -->
-			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>20</iHillsAttack>
+			<iHillsDefense>20</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
+			<FeatureAttacks/>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<!-- custom: see related comment at the generic crossbow -->
@@ -11095,32 +11007,22 @@
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: was attack / defense 0 / 0 -->
-			<iHillsAttack>25</iHillsAttack>
-			<iHillsDefense>25</iHillsDefense>
+			<iHillsAttack>10</iHillsAttack>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -11325,9 +11227,9 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<!-- custom: 7 * 1.20 = 8.4 > 6 * 1.25 = 7.5, but on melee shock + hill 7 * (1 + 0.30 + 0.20) = 10.5 == 6 * (1 + 0.50 + 0.25) = 10.5 so seems more balanced as such as compared to the as of now sas generic crossbowman. Its as of now other perks (no iron (not that rare)) and cost reduction (5 hammer is not big in medieval) are not that strong to not buff it as such. -->
-			<iHillsAttack>20</iHillsAttack>
-			<iHillsDefense>20</iHillsDefense>
+			<!-- custom: keep the Yeoman at the 20% hill-specialization tier while the generic Crossbowman is reduced to 10%; civ-specific terrain/hill strengths should be clearly stronger than the generic counterpart without exceeding the terrain/hill cap. (ChatGPT-5.6-Sol) -->
+			<iHillsAttack>10</iHillsAttack>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
 			<TerrainAttacks/>
@@ -11335,13 +11237,13 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -11719,7 +11621,8 @@
 			<iCollateralDamage>0</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
-			<iCityAttack>0</iCityAttack>
+			<!-- custom: modest city-assault edge; stacks with player-selected Combat/City Raider promotions without dominating the unit's broader elite-infantry role; was 0 (ChatGPT-5.6-Sol) -->
+			<iCityAttack>10</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<iHillsAttack>0</iHillsAttack>
@@ -11728,29 +11631,21 @@
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<TerrainType>TERRAIN_DESERT</TerrainType>
 					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
@@ -11790,10 +11685,10 @@
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
 			<iHotKeyPriority>0</iHotKeyPriority>
-			<!-- custom: give COMBAT2 rather than COMBAT1, same reasoning as of now as the samurai; also matches thematic power spike of this unit; was empty -->
+			<!-- custom: use Combat III rather than a low Combat promotion so the Janissary's elite-training perk is less likely to be redundant on experienced upgraded units; the higher promotion also modestly shortens the path to later Combat ranks without increasing its immediate bonus beyond +10%. (ChatGPT-5.6-Sol) -->
 			<FreePromotions>
 				<FreePromotion>
-					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+					<PromotionType>PROMOTION_COMBAT3</PromotionType>
 					<bFreePromotion>1</bFreePromotion>
 				</FreePromotion>
 			</FreePromotions>
@@ -11977,13 +11872,13 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -12175,38 +12070,12 @@
 			<iCityAttack>0</iCityAttack>
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
-			<iHillsAttack>0</iHillsAttack>
-			<iHillsDefense>0</iHillsDefense>
+			<iHillsAttack>20</iHillsAttack>
+			<iHillsDefense>10</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<FeatureDefenses/>
 			<UnitClassAttackMods/>
@@ -12619,7 +12488,7 @@
 			<iCityDefense>0</iCityDefense>
 			<iAnimalCombat>0</iAnimalCombat>
 			<!-- custom: Note: not giving hill defense so it doesn't overlap with more defensive units, attack is a nice thematic guerilla fit already unlike defense i think too; was 0 in generic rifleman -->
-			<iHillsAttack>25</iHillsAttack>
+			<iHillsAttack>20</iHillsAttack>
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
@@ -12628,13 +12497,13 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
+					<iFeatureDefense>40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -12845,44 +12714,18 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<TerrainAttacks>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainAttacks/>
+			<TerrainDefenses/>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>25</iFeatureDefense>
+					<iFeatureDefense>20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -13885,8 +13728,8 @@
 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
 			<iInterceptionProbability>0</iInterceptionProbability>
 			<iEvasionProbability>0</iEvasionProbability>
-			<!-- custom: add some small withdraw chance that goes with this hit and run ability, was 0 -->
-			<iWithdrawalProb>15</iWithdrawalProb>
+			<!-- custom: strengthen the versatile hit-and-run role slightly; was 0 in base AdvCiv and 15 in earlier AdvCiv-SAS. (ChatGPT-5.6-Sol) -->
+			<iWithdrawalProb>20</iWithdrawalProb>
 			<!-- custom: add some collateral damage, after all don't they have.. grenades xd, was 0 -->
 			<iCollateralDamage>25</iCollateralDamage>
 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
@@ -14311,11 +14154,11 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses/>
@@ -14468,8 +14311,8 @@
 			<ProductionTraits/>
 			<Flavors/>
 			<iAIWeight>0</iAIWeight>
-			<!-- custom: was 125 -->
-			<iCost>130</iCost>
+			<!-- custom: specialized defender was too hammer-efficient at the same/near cost as general gun units; was 125 in base AdvCiv and 130 in earlier AdvCiv-SAS. (ChatGPT-5.6-Sol) -->
+			<iCost>150</iCost>
 			<iHurryCostModifier>0</iHurryCostModifier>
 			<iAdvancedStartCost>100</iAdvancedStartCost>
 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
@@ -15313,22 +15156,22 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<!-- custom: assuming they can sort of defend not too bad from dismounting maybe, was empty -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
@@ -15538,43 +15381,30 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see code comment at the generic chariot at FeatureAttacks or FeatureDefenses if any code comments are there for details, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<!-- custom: assuming they can sort of defend not too bad from dismounting maybe, was empty -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
@@ -15779,11 +15609,11 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -15979,43 +15809,21 @@
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #87 -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
-				</FeatureAttack>
-				<FeatureAttack>
-					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
+			<FeatureAttacks/>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -16222,7 +16030,7 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>10</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -16230,11 +16038,11 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -16428,31 +16236,26 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -16649,26 +16452,21 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; remove jungle defense penalty and give an additional jungle attack advantage as of now for this civ-specific unit due to civ geography world map advantage, see other units's code comments for details or additional info -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -16875,21 +16673,21 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -17088,51 +16886,30 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>10</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<!-- custom: Terrain modifiers: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. Plus, its base strength is already too or very high not needing a too high spike, and grass is strong in particular already so not needing a strong buff that may be unbalanced then. -->
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<!-- custom: keep the Cataphract terrain profile offensive: Grass uses the strong 20% terrain tier and Plains/Desert the minor 10% tier. Its already high base strength does not need positive explicit terrain defense, especially with bNoDefensiveBonus. (ChatGPT-5.6-Sol) -->
+			<TerrainDefenses/>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -17331,35 +17108,30 @@
 			<FeatureNatives/>
 			<TerrainAttacks>
 				<TerrainAttack>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
-				</TerrainAttack>
-				<TerrainAttack>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<TerrainType>TERRAIN_PLAINS</TerrainType>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details. Also remove_forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or such, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureAttack>-20</iFeatureAttack>
+				</FeatureAttack>
+				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
+					<FeatureType>FEATURE_FOREST</FeatureType>
+					<iFeatureDefense>-20</iFeatureDefense>
+				</FeatureDefense>
+				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -17570,34 +17342,29 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details, was empty -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-25</iFeatureAttack>
+					<iFeatureAttack>-20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -17799,25 +17566,20 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>35</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>35</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -18026,11 +17788,11 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -18237,11 +17999,11 @@
 			<iHillsDefense>0</iHillsDefense>
 			<TerrainNatives/>
 			<FeatureNatives/>
-			<!-- custom: more offensive profile ingame for terrain modifiers: Similar reasoning as as of now for the Hajjan or the Cossack. -->
+			<!-- custom: keep the Conquistador terrain profile mostly offensive: 20% Plains attack is a strong but capped terrain specialization, while only 10% Plains defense remains; Forest attack can use 20% as a feature specialization without affecting city combat. (ChatGPT-5.6-Sol) -->
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
 			<TerrainDefenses>
@@ -18251,16 +18013,11 @@
 				</TerrainDefense>
 			</TerrainDefenses>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
+			<FeatureAttacks/>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -18469,25 +18226,20 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_DESERT</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<FeatureAttacks/>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details -->
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -18685,11 +18437,11 @@
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -18890,34 +18642,20 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainAttack>35</iTerrainAttack>
+					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_SNOW</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details -->
-			<FeatureAttacks>
-				<FeatureAttack>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
-				</FeatureAttack>
-			</FeatureAttacks>
+			<FeatureAttacks/>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -19130,23 +18868,18 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<!-- custom: see code comment at featureattacks or featuredefenses of one of the mounted_ranged units for details; removing the forest penalty due to their geography favouring forest, see also as of now the korean civ-specific unit for a similar example. -->
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>25</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-25</iFeatureDefense>
+					<iFeatureDefense>-20</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods>
@@ -19950,21 +19683,21 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-50</iFeatureDefense>
+					<iFeatureDefense>-40</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-50</iFeatureDefense>
+					<iFeatureDefense>-40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -20189,21 +19922,21 @@
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 				<FeatureAttack>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureAttack>-50</iFeatureAttack>
+					<iFeatureAttack>-40</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
 			<FeatureDefenses>
 				<FeatureDefense>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>-50</iFeatureDefense>
+					<iFeatureDefense>-40</iFeatureDefense>
 				</FeatureDefense>
 				<FeatureDefense>
 					<FeatureType>FEATURE_JUNGLE</FeatureType>
-					<iFeatureDefense>-50</iFeatureDefense>
+					<iFeatureDefense>-40</iFeatureDefense>
 				</FeatureDefense>
 			</FeatureDefenses>
 			<UnitClassAttackMods/>
@@ -20599,24 +20332,14 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_GRASS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -20830,28 +20553,14 @@
 					<iTerrainAttack>10</iTerrainAttack>
 				</TerrainAttack>
 			</TerrainAttacks>
-			<TerrainDefenses>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-				<TerrainDefense>
-					<TerrainType>TERRAIN_PLAINS</TerrainType>
-					<iTerrainDefense>10</iTerrainDefense>
-				</TerrainDefense>
-			</TerrainDefenses>
+			<TerrainDefenses/>
 			<FeatureAttacks>
 				<FeatureAttack>
 					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureAttack>50</iFeatureAttack>
+					<iFeatureAttack>20</iFeatureAttack>
 				</FeatureAttack>
 			</FeatureAttacks>
-			<FeatureDefenses>
-				<FeatureDefense>
-					<FeatureType>FEATURE_FOREST</FeatureType>
-					<iFeatureDefense>50</iFeatureDefense>
-				</FeatureDefense>
-			</FeatureDefenses>
+			<FeatureDefenses/>
 			<UnitClassAttackMods/>
 			<UnitClassDefenseMods/>
 			<UnitCombatMods/>
@@ -22418,7 +22127,7 @@
 			<TerrainAttacks>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<iTerrainAttack>25</iTerrainAttack>
+					<iTerrainAttack>20</iTerrainAttack>
 				</TerrainAttack>
 				<TerrainAttack>
 					<TerrainType>TERRAIN_COAST</TerrainType>
@@ -22428,11 +22137,11 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_OCEAN</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>20</iTerrainDefense>
 				</TerrainDefense>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_COAST</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>20</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
@@ -23635,7 +23344,7 @@
 			<TerrainDefenses>
 				<TerrainDefense>
 					<TerrainType>TERRAIN_COAST</TerrainType>
-					<iTerrainDefense>25</iTerrainDefense>
+					<iTerrainDefense>20</iTerrainDefense>
 				</TerrainDefense>
 			</TerrainDefenses>
 			<FeatureAttacks/>
