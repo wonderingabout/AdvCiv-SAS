@@ -278,6 +278,13 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<!-- custom: Sources: https://pmc.ncbi.nlm.nih.gov/articles/PMC4284545/ and https://pmc.ncbi.nlm.nih.gov/articles/PMC10589657/ (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MAYA_QUICK_WORKER_PEDIA</Tag>
+		<English>[TAB]Ancient Maya communities intensively reshaped their landscapes through agriculture and public works. At sites such as Tikal, farmers used terraces, irrigation, household gardens, arboriculture, and systems for retaining and redistributing water. Across the Maya lowlands, reservoirs, canals, wetland fields, causeways, and other infrastructure supported large populations in environments with strong seasonal constraints.[PARAGRAPH:1]These systems depended on organized human labor and continued maintenance. Rural farmers could contribute labor to construction projects and public infrastructure, while roads, waterworks, and agricultural landscapes required repeated investment to connect settlements, expand cultivable land, manage water, and sustain urban centers over long periods.</English>
+	</TEXT>
+
+
 
 	<!-- custom: based on https://en.wikipedia.org/wiki/Patriot_(American_Revolution) -->
 	<TEXT>
@@ -695,6 +702,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_PORTUGAL_PEIXARIA_PEDIA</Tag>
 		<English>[TAB]Peixaria is the Portuguese word for an establishment that sells fish, broadly equivalent to a fish shop or fishmonger's. Such businesses form part of the distribution side of a fishing economy: fish and shellfish are landed, preserved or transported, and then sold through markets and shops to consumers who may live far from the coast.[PARAGRAPH:1]Fishing has long been important to communities along the Portuguese coast. At Armacao de Pera in the Algarve, for example, fishermen were historically attracted by abundant tuna and sardines; after being salted, the catch was sold for consumption in southern and central Portugal. Preservation, transport, and retail markets therefore linked coastal fishing communities with consumers across a much wider area.</English>
+	</TEXT>
+	<!-- custom: Source: https://www.napoleon-series.org/military-information/battles-and-campaigns/were-the-portuguese-cacadores-armed-with-baker-rifles/ (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PORTUGAL_CACADOR_PEDIA</Tag>
+		<English>[TAB]The Caçadores were Portuguese light-infantry battalions raised during the Peninsular War. The first battalions were formed in 1808, and twelve were eventually raised as independent units trained for light-infantry duties.[PARAGRAPH:1]The 1st and 3rd Caçadores became integral parts of the Light Division from 1810. Wearing distinctive brown uniforms, the Caçadores gained a reputation during the war as effective skirmishers and sharpshooters.</English>
 	</TEXT>
 	<!-- custom: Source: https://www.encyclopedia.com/history/encyclopedias-almanacs-transcripts-and-maps/chancellery-system (GPT-5.6 Thinking) -->
 	<TEXT>

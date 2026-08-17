@@ -9363,6 +9363,14 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 			}
 		}
 	}
+	// <!-- custom: Show a builder unit's base XML iWorkRate (CvUnitInfo::getWorkRate) directly in shared unit help used by both Sevopedia special abilities and unit-definition hover help, so Worker variants are visibly distinguishable without relative-vs-default math. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	if (u.getWorkRate() > 0)
+	{
+		szBuffer.append(NEWLINE);
+		szBuffer.append(CvWString::format(L"%c%s", gDLL->getSymbolID(BULLET_CHAR),
+				gDLL->getText("TXT_KEY_UNIT_WORK_RATE", u.getWorkRate()).GetCString()));
+	}
+
 	if (u.isNuke())
 	{
 		szBuffer.append(NEWLINE);

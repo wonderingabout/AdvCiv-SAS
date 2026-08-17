@@ -937,17 +937,16 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
 Example of output (Git Bash):
 
 ```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond
- the Sword\Mods\AdvCiv-SAS
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260816T230549.zip
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260817T110520.zip
 Files:     1137 selected + 7 generated snapshot-context files
-Size:      128,998,635 bytes before ZIP container overhead
+Size:      128,981,178 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
 Wrote:     1144 file(s)
-ZIP size:  61,387,702 bytes
-Duration:  2,497 ms
+ZIP size:  61,387,277 bytes
+Duration:  2,498 ms
 ```
 
 ## Workflow rule for timeline tuning

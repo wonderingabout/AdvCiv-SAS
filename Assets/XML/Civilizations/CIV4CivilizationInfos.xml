@@ -2657,8 +2657,8 @@ Created as part of AdvCiv-SAS improvements
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_SPEARMAN</UnitClassType>
-					<UnitType>UNIT_MAYA_HOLKAN</UnitType>
+					<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+					<UnitType>UNIT_MAYA_QUICK_WORKER</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>
@@ -3341,8 +3341,8 @@ Created as part of AdvCiv-SAS improvements
 			</Buildings>
 			<Units>
 				<Unit>
-					<UnitClassType>UNITCLASS_GALLEON</UnitClassType>
-					<UnitType>UNIT_PORTUGAL_CARRACK</UnitType>
+					<UnitClassType>UNITCLASS_GRENADIER</UnitClassType>
+					<UnitType>UNIT_PORTUGAL_CACADOR</UnitType>
 				</Unit>
 			</Units>
 			<FreeUnitClasses>

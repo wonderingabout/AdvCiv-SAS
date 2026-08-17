@@ -1978,6 +1978,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS</Tag>
 		<English>Build speed modifiers</English>
 	</TEXT>
+	<!-- custom: TXT_KEY_UNIT_WORK_RATE displays the builder unit iWorkRate from CIV4UnitInfos.xml directly in shared Sevopedia/unit hover help. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_WORK_RATE</Tag>
+		<English>Work Rate: %d1%%</English>
+	</TEXT>
 
 
 
@@ -2649,6 +2654,11 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_BUILDING_PORTUGAL_PEIXARIA</Tag>
 		<English>Peixaria</English>
 	</TEXT>
+	<!-- custom: Portuguese light-infantry UU replacing the map-dependent Carrack. (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_PORTUGAL_CACADOR</Tag>
+		<English>Cacador</English>
+	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_BUILDING_RUSSIAN_PRIKAZ</Tag>
 		<English>Prikaz</English>
@@ -2765,6 +2775,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_NETHERLANDS_SWIFT_WORKER</Tag>
 		<English>Swift Worker</English>
+	</TEXT>
+	<!-- custom: Mayan Worker UU focused on work speed rather than movement. (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_MAYA_QUICK_WORKER</Tag>
+		<English>Quick Worker</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
