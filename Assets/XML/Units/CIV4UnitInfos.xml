@@ -13110,11 +13110,8 @@
 			<!-- custom: TECH_INDUSTRIALISM now guarantees TECH_AUTOMOBILES -> TECH_FASCISM, so the explicit Fascism requirement became redundant. (GPT-5.6-Sol) -->
 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
-			<TechTypes>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-				<PrereqTech>NONE</PrereqTech>
-			</TechTypes>
+			<!-- custom: use an empty TechTypes list instead of redundant NONE-only prerequisite entries; see KI#22.7. (ChatGPT-5.6-Sol) -->
+			<TechTypes/>
 			<BonusType>NONE</BonusType>
 			<PrereqBonuses/>
 			<ProductionTraits/>

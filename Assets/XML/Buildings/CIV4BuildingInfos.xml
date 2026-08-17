@@ -29014,7 +29014,7 @@
 			<SpecialistYieldChanges/>
 			<BonusYieldModifiers/>
 			<ImprovementFreeSpecialists/>
-			<!-- custom: use similar reasoning as in base advciv comment below i mean as well as for chichen itza and great wall too, but do not put any flavor at all as military leaders would produce less units; Long_Comments_XML.txt #342 -->
+			<!-- custom: avoid Military flavor so military personalities are not encouraged to divert production from units; retain only a small Production flavor for the wonder itself. Long_Comments_XML.txt #342. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>

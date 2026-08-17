@@ -1363,12 +1363,8 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- advc.015a: Production was 3; add flavor science (was missing)-->
+			<!-- custom: remove the inherited explicit FLAVOR_PRODUCTION 0 entry; omitted flavors already evaluate to 0, so keeping it only adds XML noise. See KI#22.7. (ChatGPT-5.6-Sol) -->
 			<Flavors>
-				<Flavor>
-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>0</iFlavor>
-				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>4</iFlavor>
@@ -1416,8 +1412,8 @@
 			<iAsset>32</iAsset>
 			<iPower>0</iPower>
 			<bRepeat>0</bRepeat>
-			<!-- custom: was 1 -->
-			<bTrade>0</bTrade>
+			<!-- custom: restore tradeability after the SAS tree/reward rework; Naturalism remains protected/untradeable, while Liberalism no longer needs the same no-trade protection and exchanging it can modestly support the peaceful/economic route. (ChatGPT-5.6-Sol) -->
+			<bTrade>1</bTrade>
 			<bDisable>0</bDisable>
 			<bGoodyTech>0</bGoodyTech>
 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
@@ -1891,7 +1887,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: provisional split from Fascism's existing military/production identity; review technology flavors after stabilizing the revised tree. (GPT-5.6-Sol) -->
+			<!-- custom: keep Automobiles primarily military for its Tank/counter-tank role; only a minor Production flavor remains for the Industrialism/Industrial Park continuation. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
@@ -1899,7 +1895,7 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -3341,6 +3337,7 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
+			<!-- custom: current SAS Chemistry directly unlocks Cannon/Hwacha/Houfnice/Frigate and leads into Military Science, so treat it as a key military tech; keep only a modest Science flavor because Physics/Biology are the more science-focused continuations. Chemistry remains tradeable. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -3348,7 +3345,11 @@
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
-					<iFlavor>8</iFlavor>
+					<iFlavor>3</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
+					<iFlavor>6</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -3939,11 +3940,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 4 -->
+			<!-- custom: give Flight a strong Military flavor because it is the first major fighter/bomber air-combat gateway. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
@@ -4369,11 +4370,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: tech is very important for future military units although it itself (if this how to say it in english) doesn't have strong military / offensive or defensive units, but still put high military flavor so AI leaders search this tech strongly if they want later units; it is similarly a key tech to access later future techs so make sure AI leaders research it if they have the science flavor as well by having a high enough flavor_science as well -->
+			<!-- custom: AI is now a direct prerequisite for the current robotic combat units and a major Future-era gateway, so Military 6 intentionally reaches the SAS key-military-tech threshold while Science remains its primary flavor. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -5372,11 +5373,15 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 6 -->
+			<!-- custom: keep a modest Military flavor because Machinery is primarily a production/science tech but currently helps gate Crossbow and siege branches; revisit if those unit prerequisites move. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -5761,11 +5766,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 10 -->
+			<!-- custom: earlier SAS reduced AdvCiv's Military 10 to 5; use 6 for the current Airship/Grenadier/Cacador/Ironclad package so it reaches the SAS key-military-tech threshold without restoring the old extreme weight. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>5</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
+					<iFlavor>6</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -6058,11 +6063,15 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 3, FLAVOR_CULTURE 0 -->
+			<!-- custom: keep a modest Military flavor because Assembly Line is primarily an economic/production tech but currently also gates several major industrial land units, including Tank; revisit if those prerequisites move. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>10</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
@@ -6497,19 +6506,19 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: not too high FLAVOR_MILITARY to not let AIs astray (i don't know too much about these though so this is just a guess) -->
+			<!-- custom: Professional Army is a strong military gateway toward Firearms and also unlocks Privateer/Blitzkrieg; Wage Labor supports substantial Gold and Production interest through gold hurry and unlimited Engineers, so keep those secondary flavors meaningful too. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GOLD</FlavorType>
-					<iFlavor>6</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-					<iFlavor>3</iFlavor>
+					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType><!-- custom: >=6 -> key high military tech -->
+					<iFlavor>8</iFlavor>
 				</Flavor>
 			</Flavors>
 			<OrPreReqs>
@@ -6569,11 +6578,15 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 5 -->
+			<!-- custom: keep a modest Military flavor because Computers is primarily a science tech but currently helps gate Modern Tank; Composites remains the stronger military branch. Revisit if those prerequisites move. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 					<iFlavor>2</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_MILITARY</FlavorType>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
@@ -6720,11 +6733,11 @@
 			<CommerceFlexible/>
 			<TerrainTrades/>
 			<bRiverTrade>0</bRiverTrade>
-			<!-- custom: was FLAVOR_MILITARY 8 -->
+			<!-- custom: keep Rocketry's Military flavor moderate: it mainly advances missile, air-defense, and nuclear branches rather than creating a broad immediate conventional power spike. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_MILITARY</FlavorType>
-					<iFlavor>2</iFlavor>
+					<iFlavor>4</iFlavor>
 				</Flavor>
 				<Flavor>
 					<FlavorType>FLAVOR_SCIENCE</FlavorType>

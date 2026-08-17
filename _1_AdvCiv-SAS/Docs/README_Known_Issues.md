@@ -40,6 +40,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [22 - (now fixed) Obsolete bonuses in tech advisor failing to redirect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#22---now-fixed-obsolete-bonuses-such-as-bonus_elephants-in-tech-advisor-ie-tech-tree-view-failing-to-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-successfully-showing-the-building-items-page)\
 [22.5 - (Addressed) Fixed weird flavors or XML fields](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#225---addressed-seemingly-fixed-weird-flavors-or-xml-fields-mistakes)\
 [22.6 - (Addressed) XML tweaks and fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#226---addressed-xml-tweaks-and-fixes)\
+[22.7 - (Fixed/Prevented) Redundant XML default/list entries that add noise without changing effective values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixedprevented-redundant-xml-defaultlist-entries-that-add-noise-without-changing-effective-values)\
 [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late)\
 [23.2 - (Attemptingly partially addressed/reduced) AI players producing more workboats than needed which then stay parked in city or go explore](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#232---attemptingly-partially-addressedreduced-ai-players-producing-more-workboats-than-needed-which-then-stay-parked-in-city-or-go-explore)
 [24 - (Attemptingly fixed) AI Workers often build forts on bonuses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-bonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive)\
@@ -924,6 +925,14 @@ Fixed the stealth bomber and other units having a lower collateral damage limit 
 ## 22.6 - (Addressed) XML tweaks and fixes
 
 Also fixed/replaced the strange the strange `[PARAGRAPH:2:1]` with the much more commonly used `[PARAGRAPH:2]` in our advciv-sas assets, i don't know what this strange format/thing is, but if the base `:2` can do it no need for a `:2:1`, and strange trailing `[PARAGRAPH:2]</English>` and or such as well that also seem uneeded, and remove unneeded `[PARAGRAPH:1]` in some tech quotes (as of now didn't do it to all tech quotes as bit tedious and not so worth but ideally would but may or may not in this case)
+
+## 22.7 - (Fixed/Prevented) Redundant XML default/list entries that add noise without changing effective values
+
+A flavor audit found two harmless but misleading inherited/stale XML forms: `TECH_CONSTITUTION` explicitly stored `FLAVOR_PRODUCTION` with `iFlavor` 0 even though an omitted flavor already evaluates to 0, and `UNIT_MODERN_INFANTRY` stored a `TechTypes` list containing only `NONE` prerequisites even though an empty `TechTypes` list has the same effective meaning. These entries did not create a gameplay bug, but they make reviews noisier and can make a reader wonder whether the explicit default has special semantics when it does not.
+
+AdvCiv-SAS now removes those redundant entries and checks the two proven-safe patterns with `.github/workflows/build/xml_redundant_defaults.py`: explicit zero-valued `Flavor` entries, and non-empty `TechTypes` lists whose prerequisites are all `NONE`/`NO_TECH`. The check is intentionally narrow. It does not flag ordinary scalar fields such as mandatory `i...=0` values, nor padded/resource lists whose loader/schema semantics have not been separately proven equivalent to an empty list. The rule can be extended later when another redundant representation is confirmed safe to normalize.
+
+Fixed/prevented with the help of ChatGPT-5.6-Sol thanks.
 
 ## 23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it (so without producing a new unit if i'm not mistaken) then producing a new one endlessly for dozen turns until it somehow solved itself but way too late
 

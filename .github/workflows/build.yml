@@ -37,6 +37,7 @@ jobs:
       - run: python .github/workflows/build/sas_text_references.py
       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
       - run: python .github/workflows/build/xml_child_duplicates.py
+      - run: python .github/workflows/build/xml_redundant_defaults.py
       - run: python .github/workflows/build/tech_columns.py
       - run: python .github/workflows/build/wonder_cost_columns.py
       - run: python .github/workflows/build/wonder_culture_gpp_columns.py

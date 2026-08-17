@@ -85,6 +85,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/xml_text_duplicate_tags.py`](#buildxml_text_duplicate_tagspy)
 - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
 - [`build/xml_child_duplicates.py`](#buildxml_child_duplicatespy)
+- [`build/xml_redundant_defaults.py`](#buildxml_redundant_defaultspy)
 - [`build/tech_columns.py`](#buildtech_columnspy)
 - [`build/wonder_cost_columns.py`](#buildwonder_cost_columnspy)
 - [`build/wonder_culture_gpp_columns.py`](#buildwonder_culture_gpp_columnspy)
@@ -218,6 +219,12 @@ Verifies parent-style XML objects are not defined twice with the same key, such 
 ### `build/xml_child_duplicates.py`
 
 Checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
+
+### `build/xml_redundant_defaults.py`
+
+Verifies a small set of XML representations that are known to be semantically redundant in Civ4/AdvCiv-SAS: explicit zero-valued entries inside `Flavors`, where an omitted flavor already evaluates to 0, and non-empty `TechTypes` lists containing only `NONE`/`NO_TECH`, where an empty `TechTypes` list has the same effective meaning. This was added after the flavor audit found both patterns in inherited/stale XML (see [KI#22.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#227---fixedprevented-redundant-xml-defaultlist-entries-that-add-noise-without-changing-effective-values)).
+
+The check is deliberately conservative rather than a generic "zero is bad" rule. Many scalar zero fields are mandatory or meaningful defaults, and some padded list formats may depend on loader/schema behavior. Add another pattern only after confirming that the shorter representation is accepted and semantically identical.
 
 ### `build/tech_columns.py`
 
