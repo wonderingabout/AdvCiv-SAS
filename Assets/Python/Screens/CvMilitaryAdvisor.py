@@ -102,7 +102,7 @@ class CvMilitaryAdvisor:
 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
 		self.H_LEADERS = 380
 		self.LEADER_BUTTON_SIZE = 64
-		self.LEADER_BUTTON_SIZE_OVERFLOW = self.LEADER_BUTTON_SIZE - 8
+		self.LEADER_BUTTON_SIZE_STEP = 8
 		self.LEADER_MARGIN = 12
 
 		self.bUnitDetails = False
@@ -406,7 +406,6 @@ class CvMilitaryAdvisor:
 		self.X_TEXT = self.X_LEADERS + self.W_MAP_MINIMAP + iGap
 		self.W_LEADERS = self.W_MAP_MINIMAP
 		self.W_GREAT_GENERAL_BAR = self.W_MAP_MINIMAP
-		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
 
 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
 		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
@@ -2305,14 +2304,15 @@ class CvMilitaryAdvisor:
 				listLeaders.append(iLoopPlayer)
 
 		iNumLeaders = len(listLeaders)
-		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; at 1080p with 5 rows, SAS48 needs only a mild size reduction (roughly 10 columns x 5 rows) rather than the old half-size icon. (GPT-5.5) -->
-		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
-		if iNumLeaders > iFullLeaderRows * self.LEADER_COLUMNS:
-			iButtonSize = self.LEADER_BUTTON_SIZE_OVERFLOW
-		else:
-			iButtonSize = self.LEADER_BUTTON_SIZE
-
-		iColumns = int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN))
+		# <!-- custom: choose the largest 8-pixel leader-button size that makes the entire current roster fit inside the leader panel. Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size. (ChatGPT-5.6-Sol) -->
+		iButtonSize = self.LEADER_BUTTON_SIZE
+		while iButtonSize > self.LEADER_BUTTON_SIZE_STEP:
+			iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))
+			iRows = (iNumLeaders + iColumns - 1) / iColumns
+			if iRows * (iButtonSize + self.LEADER_MARGIN) <= self.H_LEADERS:
+				break
+			iButtonSize -= self.LEADER_BUTTON_SIZE_STEP
+		iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))
 
 		# loop through all players and display leaderheads
 		for iIndex in range(iNumLeaders):

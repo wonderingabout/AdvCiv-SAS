@@ -24001,8 +24001,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<!-- custom: Use Great Scientist for the Mathematics-era irrigation/horticultural knowledge represented by the Gardens and to strengthen the scarce early Scientist path; this was originally Great Engineer before the later Artist assignment; was UNITCLASS_GREAT_ENGINEER. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -24148,7 +24148,11 @@
 			<Flavors>
 				<Flavor>
 					<FlavorType>FLAVOR_GROWTH</FlavorType>
-					<iFlavor>10</iFlavor>
+					<iFlavor>8</iFlavor>
+				</Flavor>
+				<Flavor>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+					<iFlavor>2</iFlavor>
 				</Flavor>
 			</Flavors>
 			<HotKey/>
@@ -24600,8 +24604,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: seems more consistent with its history, perhaps a bit stronger in terms of gameplay, was UNITCLASS_GREAT_ARTIST -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<!-- custom: Use Great Spy as an early state-power/administrative Great Person source and reduce the Classical Prophet concentration; Great Artist was the original assignment before the later Prophet experiment. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -24740,9 +24744,10 @@
 			<!-- custom: was flavor culture 5 growth 4 -->
 			<!-- advc.020: No flavor in BtS. Provides a fair amount of culture.
 				 GPP is a Culture and Growth thing. -->
+			<!-- custom: Keep Growth 8 as the dominant effect-driven flavor and replace only the small Religion 2 component with Espionage 2 to match the new Great Spy source. (ChatGPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 					<iFlavor>2</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -26595,7 +26600,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+			<!-- custom: Use Great Scientist for the Tower's engineering/scientific-experiment and communications history, while reducing the later-game concentration of Artist-producing Wonders (ChatGPT-5.6-Sol); helps rebalance mismatched GP slots late notably high Great Spy by shuffling them and changing thel. -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -26745,7 +26751,7 @@
 					<iFlavor>5</iFlavor>
 				</Flavor>
 				<Flavor>
-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+					<FlavorType>FLAVOR_SCIENCE</FlavorType>
 					<iFlavor>4</iFlavor>
 				</Flavor>
 			</Flavors>
@@ -27734,7 +27740,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+			<!-- custom: Use Great Engineer for the Pentagon's large technical/construction identity and reduce the Industrial-era concentration of Great Spy Wonders; keep its Military 10 flavor because its gameplay role remains explicitly military. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -28249,8 +28256,8 @@
 			<!-- custom: was NONE -->
 			<FreePromotion>PROMOTION_MEDIC_AMBULATORY</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<!-- custom: Restore Great Merchant after the later Great Prophet experiment: the Artemision also had a strong economic/sanctuary role, and this reduces unnecessary early Prophet concentration while strengthening the scarce early Merchant path. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -28404,7 +28411,7 @@
 			<!-- custom: Remove Military 5 with the military-production modifier; the Medic promotion alone should not make military leaders prioritize this wonder over units. Earlier flavors before the wider rework were Gold 8 / Religion 5. (GPT-5.6-Sol) -->
 			<Flavors>
 				<Flavor>
-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+					<FlavorType>FLAVOR_GOLD</FlavorType>
 					<iFlavor>3</iFlavor>
 				</Flavor>
 				<Flavor>
@@ -28876,8 +28883,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<!-- custom: was UNITCLASS_GREAT_ARTIST -->
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+			<!-- custom: Restore Great Artist because the Statue is fundamentally a monumental sculptural masterpiece; this also offsets the Hanging Gardens moving away from Artist without creating another early Engineer source. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>
 			<bBorderObstacle>0</bBorderObstacle>
@@ -29667,7 +29674,8 @@
 			<FreeBuilding>NONE</FreeBuilding>
 			<FreePromotion>NONE</FreePromotion>
 			<CivicOption>NONE</CivicOption>
-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
+			<!-- custom: Use Great Engineer for the quarrying, transport and erection of the monumental statues, matching the Wonder's strong Production identity while removing another nonessential Prophet source. (ChatGPT-5.6-Sol) -->
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<!-- custom: now a world wonder, increase effect..., was 1 -->
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<iHurryAngerModifier>0</iHurryAngerModifier>

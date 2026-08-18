@@ -28,5 +28,6 @@ __pycache__
 /Logs/
 /Assets/CvGameCoreDLL_d.dll
 /LLM_Helpers/outputs/
-# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too -->
+# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too, same for changelog example, only useful as a changelog for release example, not for actual history which other docs give or handle already. -->
 /changes.md
+/_1_AdvCiv-SAS/Docs/Modding_Ressources/changelog_release_example_6020.txt
