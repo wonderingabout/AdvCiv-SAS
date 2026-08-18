@@ -130,6 +130,8 @@ About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictu
 
 Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
 
+For offline source/history review (notably with external LLMs), [`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees. Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
+
 ## How to play?
 
 If you are a new player or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)

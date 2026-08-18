@@ -17125,7 +17125,9 @@ bool CvUnitAI::AI_join(int iMaxCount)
 			if (canJoin(pLoopCity->plot(), eLoopSpecialist))
 			{
 				// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/20/09, jdog5000: was AI_getPlotDanger
-				if (!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
+				// <!-- custom: If the General is already in an AI_isSafe city, allow immediate Instructor joining despite radius-2 danger.
+				// Joining consumes it immediately just like AI_construct can immediately build a Military Academy there, so the local danger gate should protect travel/arrival rather than force an Academy fallback solely because enemies are nearby. See KI#204. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (at(pLoopCity->getPlot()) || !kOwner.AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
 				{
 					//iValue = pLoopCity->AI_specialistValue(eLoopSpecialist, pLoopCity->AI_avoidGrowth(), false);
 					int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist); // K-Mod
