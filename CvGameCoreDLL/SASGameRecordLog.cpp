@@ -5534,7 +5534,7 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
 }
 
-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted)
+void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
 {
 	if (pCity == NULL || pUnit == NULL)
 		return;
@@ -5557,8 +5557,9 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
 	}
 	if (gGameRecordLogLevel >= 3)
 	{
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d",
-			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded);
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
+			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 	}
 }
 
@@ -5760,7 +5761,7 @@ void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes
 		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion), getSASGameRecordReligionType(eOldEffectiveReligion), getSASGameRecordReligionType(kPlayer.getStateReligion()), kPlayer.getAnarchyTurns());
 }
 
-void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding)
+void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
 {
 	if (pCity == NULL || eBuilding == NO_BUILDING)
 		return;
@@ -5770,8 +5771,11 @@ void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, Building
 	kFlow.iBuildingsCompleted++;
 	kFlow.iBuildingProductionNeeded += iProductionNeeded;
 	kFlow.aiBuildingTypes[eBuilding]++;
-	if (gGameRecordLogLevel >= 3 && !GC.getInfo(eBuilding).isLimited())
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded);
+	// <!-- custom: At level 3, also keep production-completed limited buildings here: WONDER_BUILT remains the rare strategic marker, while BUILDING_COMPLETED now owns the exact production/overflow result like units and projects. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3)
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded,
+			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 }
 
 void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
@@ -5781,7 +5785,7 @@ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
 }
 
-void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
+void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
 {
 	if (pCity == NULL || eProject == NO_PROJECT)
 		return;
@@ -5791,7 +5795,9 @@ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
 	kFlow.iProjectsCompleted++;
 	kFlow.iProjectProductionNeeded += iProductionNeeded;
 	kFlow.aiProjectTypes[eProject]++;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
+		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded,
+		iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 }
 
 void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold)
@@ -5806,8 +5812,11 @@ void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOve
 	kFlow.iLostProduction += iLostProduction;
 	kFlow.iUnusedOverflowCapacity += iUnusedCapacity;
 	kFlow.iOverflowGold += iGold;
-	if (gGameRecordLogLevel >= 3 || iLostProduction > 0 || iGold > 0)
-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
+	// <!-- custom: Level 3 already carries these exact values on the corresponding production-completion row, so avoid a duplicate action.
+	// At level 2, PROJECT_BUILT already owns its exact overflow. Otherwise keep strategically exceptional loss/gold and every Barbarian overflow because ordinary unit/building completion rows and Barbarian production-flow summaries are unavailable there. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel == 2 && !pCity->isProductionProject() && (pCity->isBarbarian() || iLostProduction > 0 || iGold > 0))
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d",
+				GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
 }
 
 void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold)

@@ -41,7 +41,7 @@ void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshol
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
 // <!-- custom: Fog-spawn call sites pass the explicit Barbarian-unit source; ordinary city production continues through logSASGameRecordUnitCompleted. (GPT-5.6-Sol) -->
 void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted);
+void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow = 0, int iUnmodifiedOverflow = 0, int iKeptOverflow = 0, int iLostProduction = 0, int iUnusedOverflowCapacity = 0, int iOverflowGold = 0);
 // <!-- custom: Added eCause so the existing TECH_ACQUIRED action can name its explicit source. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause);
 void logSASGameRecordCityBuilt(CvCity const* pCity);
@@ -59,10 +59,10 @@ void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int
 void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart);
 void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion);
 void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion);
-void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding);
+void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold);
 void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
-void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
-// <!-- custom: City snapshots already expose stored overflow. These action hooks preserve the transient completion result: newly kept overflow, production lost to the cap, overflow gold, and wonder/project fail gold. (GPT-5.6-Sol) -->
+void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold);
+// <!-- custom: City snapshots expose stored overflow and interval production-flow rows summarize it. Level-3 production-completion rows additionally preserve the exact overflow result of each completed unit/building/project; the standalone hook remains for aggregation plus lower-level exceptional/Barbarian rows. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold);
 void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold);
 // <!-- custom: Added the victory type so SASGameRecord can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->

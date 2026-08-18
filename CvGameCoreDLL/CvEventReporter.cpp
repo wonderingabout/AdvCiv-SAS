@@ -426,7 +426,7 @@ void CvEventReporter::buildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
 
 void CvEventReporter::projectBuilt(CvCity *pCity, ProjectTypes eProject)
 {
-	if (gGameRecordLogLevel >= 2) logSASGameRecordProjectBuilt(pCity, eProject);
+	// <!-- custom: SASGameRecord logs production-built projects in CvCity::popOrder so PROJECT_BUILT can carry the exact overflow result; this reporter remains the unchanged Python event path. (ChatGPT-5.6-Sol) -->
 	m_kPythonEventMgr.reportProjectBuilt(pCity, eProject);
 }
 
