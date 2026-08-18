@@ -2340,7 +2340,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
-	<!-- custom: this ignores following SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE related rejects: if a world wonder is cheap enough, grab it ASAP; Long_Comments_XML.txt #163 -->
+	<!-- custom: this ignores following SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE related rejects: if a world wonder is cheap enough, grab it ASAP. These are Normal-speed caps and are scaled by game-speed ConstructPercent to match getProductionNeeded; see Long_Comments_XML.txt #163 and KI#205. -->
 	<Define>
 		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL</DefineName>
 		<iDefineIntVal>60</iDefineIntVal>

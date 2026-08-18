@@ -6618,10 +6618,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			// <!-- custom: see SAS defines to specifically tune its suboptions rather. Code added with the help of chatgpt 5.2 thanks -->
 			if (bWorldWonder && bSAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE)
 			{
-				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable). Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
-				// Cheap World Wonder grab policy: per-era iCost caps (XML-cost gates).
-				// Compare raw iCost vs raw cap (no game-speed scaling) since XML cost is game-speed independent.
-				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future.
+				// <!-- custom: update: in autoplay, the SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE check specifically greatly reduces the number of early wonders (0 wonders vs 6 wonders at turn 100 with vs without it. As for later wonders, thanks to our era based very cheap world wonder checks, we eventually catch up later and build most, just not early when hammer is most valuable).
+				// Default advciv-sas behaviour (enabled) allows to maximize hammer efficiency early, while disabling this or alternatively its sub-knob(s) rather restores a more base AdvCiv-like heavy world wonder building profile. Adjust as you see fit. Code added with the help of chatgpt 5.2 thanks -->
+				// Cheap World Wonder grab policy: per-era Normal-speed iCost caps. getProductionNeeded already scales iCost by ConstructPercent, so scale the Normal-speed cap by the same game-speed factor. See KI#205.
+				// Era index assumed: 0=Ancient, 1=Classical, 2=Medieval, 3=Renaissance, 4=Industrial, 5=Modern, 6=Future. (ChatGPT-5.6-Sol) -->
 
 				static const int iCheapWWCapAncientNormal     = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_ANCIENT_NORMAL");
 				static const int iCheapWWCapClassicalNormal   = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_CHEAP_ICOST_CAP_CLASSICAL_NORMAL");
@@ -6643,8 +6643,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 					default: iCheapWWCapNormal = iCheapWWCapFutureNormal; break; // includes era 6 and any later eras
 				}
 
+				const int iCheapWWCapAdjusted = iCheapWWCapNormal * iGameSpeedMultiplier / 100;
 				// Final flag: cheap enough to consider as "grab it"
-				const bool bCheapWorldWonder = (iCost <= iCheapWWCapNormal);
+				const bool bCheapWorldWonder = (iCost <= iCheapWWCapAdjusted);
 				// If cheap, push it hard (so it doesn't get ignored by other builds).
 				if (bCheapWorldWonder)
 				{
@@ -7269,8 +7270,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 		they've just been moved. */
 	if (iFocusFlags & BUILDINGFOCUS_WORLDWONDER)
 	{
-		if (!bWorldWonder ||
-			iProductionRank <= 3)
+		// <!-- custom: K-Mod 1030 moved the old top-three-production-city World Wonder condition into this early veto but kept the original <= 3 comparison, accidentally rejecting the cities it previously accepted. See KI#205. (ChatGPT-5.6-Sol) -->
+		if (!bWorldWonder || iProductionRank > 3)
 		{
 			/*	Note / TODO: the production condition is from the original BtS code.
 				I intend to remove / change that condition in the future. */
