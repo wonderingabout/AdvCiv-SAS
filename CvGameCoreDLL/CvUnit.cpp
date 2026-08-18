@@ -456,6 +456,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 	if (ePlayer != NO_PLAYER)
 	{
 		CvEventReporter::getInstance().unitKilled(this, ePlayer);
+		// <!-- custom: SASGameRecord's combatResult hook records normal Great-Person combat deaths, but a defenseless Great Person overrun/destroyed directly by another player can reach kill(ePlayer) without that hook.
+		// Record this separate player-kill path here; the helper ignores ordinary units and !isFighting() avoids duplicating ordinary combat rows. This is a SAS logging gap uncovered while investigating KI#204, not the cause of the AI loss itself. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && !isFighting()) logSASGameRecordGreatPersonDied(this, ePlayer, "NONCOMBAT_PLAYER_KILL");
+		bool const bSASGreatGeneralUnit = (m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL);
+		bool const bSASGreatGeneralAttached = (getLeaderUnitType() != NO_UNIT);
+		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached))
+		{
+			logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(), getReplayName().GetCString(), bSASGreatGeneralUnit, bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
+		}
+		// <!-- custom: Base AdvCiv passed getNameKey() directly to the Great General death texts. Once a Great General or its combat unit has a personal name, getNameKey() returns only that name, hiding whether the dead unit was the free Great General itself or e.g. a named Longbowman carrying one.
+		// getReplayName() keeps the unit type and personal name together for Great-General cases; retain getNameKey() for the unrelated Golden-Age notification path. See KI#204. (ChatGPT-5.6-Sol) -->
+		CvWString const szSASGreatGeneralDisplayName = (bSASGreatGeneralUnit || bSASGreatGeneralAttached ? getReplayName() : CvWString(getNameKey()));
 		if (NO_UNIT != getLeaderUnitType() ||
 			// <advc.004u> Treat unattached GP here too
 			m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL ||
@@ -473,14 +485,14 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 				FAssert(kOwner.getID() != ePlayer);
 				if(kObs.getID() == kOwner.getID())
 				{
-					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", getNameKey(),
+					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
 								GET_PLAYER(ePlayer).getCivilizationShortDescription());
 					eColor = eColorRed;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitDefeatScript();
 				}
 				else if(kObs.getID() == ePlayer)
 				{
-					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", getNameKey(),
+					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_BY_YOU", szSASGreatGeneralDisplayName.GetCString(),
 							kOwner.getCivilizationShortDescription());
 					eColor = eColorGreen;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitVictoryScript();
@@ -488,7 +500,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 				else if(GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) || // advc.004u
 					kObs.isSpectator()) // advc.127
 				{
-					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", getNameKey(),
+					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
 							kOwner.getCivilizationShortDescription(),
 							GET_PLAYER(ePlayer).getCivilizationShortDescription());
 					eColor = eColorUnitText;
@@ -506,6 +518,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 						bRev ? getX() : -1, bRev ? getY() : -1, bRev, bRev);
 						// </advc.004u>
 			}
+		}
+		// <!-- custom: Base AdvCiv sends Great General deaths only through transient UI messages; it does not add a replay message. The SAS Info Screen Timeline reads replay data, so the same death consequently vanished from history.
+		// Persist it without coordinates (the original UI notification already exposes it to met observers) so Timeline/replay history can retain the event. See KI#204. (ChatGPT-5.6-Sol) -->
+		if (bSASGreatGeneralUnit || bSASGreatGeneralAttached)
+		{
+			CvWString szReplayBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(), kOwner.getCivilizationShortDescription(), GET_PLAYER(ePlayer).getCivilizationShortDescription());
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, kOwner.getID(), szReplayBuffer, eColorUnitText);
 		}
 	}
 

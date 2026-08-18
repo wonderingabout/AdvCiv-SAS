@@ -8887,9 +8887,21 @@ void CvPlayer::setCombatExperience(int iExperience)
 		// create great person
 		CvCity const* pBestCity = NULL;
 		int iBestValue = MAX_INT;
+		bool bSafeCityExists = false;
+		FOR_EACH_CITY(pLoopCity, *this)
+		{
+			if (pLoopCity->AI().AI_isSafe())
+			{
+				bSafeCityExists = true;
+				break;
+			}
+		}
+		// <!-- custom: Base AdvCiv's automatic Great-General birth-city selection ignored city safety, so a newly earned defenseless General could spawn directly into a besieged city even when safe cities existed. Prefer the normal rank/random scoring among safe cities whenever possible; if every city is unsafe, retain the original fallback and still create the General. Keep the original SyncRandNum call for every city before filtering so this safety correction does not change RNG consumption. This directly matches 6 of 7 reviewed KI#204 losses. (ChatGPT-5.6-Sol) -->
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
 			int iValue = 4 * SyncRandNum(getNumCities());
+			if (bSafeCityExists && !pLoopCity->AI().AI_isSafe())
+				continue;
 			FOR_EACH_ENUM(Yield)
 				iValue += pLoopCity->findYieldRateRank(eLoopYield);
 			iValue += pLoopCity->findPopulationRank();

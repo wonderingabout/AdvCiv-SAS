@@ -9137,8 +9137,20 @@ void CvUnitAI::AI_generalMove()
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), getArea().getAreaAIType(getTeam()));
 
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA");
+	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
+	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA));
+	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use. Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General. The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
+	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, kOwner.getCurrentEra(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA);
+		return;
+	}
+
 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
-	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
+	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: legacy SAS order was after the first academy; the era preference above can now move this before it. (ChatGPT-5.6-Sol) -->
 	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
 	if (AI_construct(1))
 	{
@@ -9146,10 +9158,9 @@ void CvUnitAI::AI_generalMove()
 		return;
 	}
 
-	// NEW: Try joining FIRST <!-- custom: before and instead of any great general leader, but after we have our academy (if we can) --> (allow multiple instructors per city)
+	// NEW: Try joining FIRST <!-- custom: legacy fallback order when Instructor-first preference is disabled; before and instead of any great general leader, but after we have our academy (if we can). (ChatGPT-5.6-Sol) --> (allow multiple instructors per city)
 	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
-	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
-	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
 	{
 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
 		return;
@@ -17037,14 +17048,19 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrength
 /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
 // <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Great General unit attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
-static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
+static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount, CvPlot const* pPathEnd = NULL)
 {
 	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
 	const int iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel(0);
 	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
 	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
-	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d",
-			GC.getGame().getGameTurn(), kGeneral.getOwner(), GET_PLAYER(kGeneral.getOwner()).getCivilizationDescription(0), kGeneral.getID(), kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount, kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true), kCity.AI_isSafe(), GET_PLAYER(kGeneral.getOwner()).AI_isAnyPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft());
+	CvPlayerAI const& kOwner = GET_PLAYER(kGeneral.getOwner());
+	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d currentPlotDangerR2=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) pathEndDangerR2=%d",
+			GC.getGame().getGameTurn(), kGeneral.getOwner(), kOwner.getCivilizationDescription(0), kGeneral.getID(),
+			kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount,
+			kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true),
+			kOwner.AI_getPlotDanger(kGeneral.getPlot(), 2), kCity.AI_isSafe(), kOwner.AI_getPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft(),
+			pPathEnd == NULL ? -1 : pPathEnd->getX(), pPathEnd == NULL ? -1 : pPathEnd->getY(), pPathEnd == NULL ? -1 : kOwner.AI_getPlotDanger(*pPathEnd, 2));
 }
 
 bool CvUnitAI::AI_join(int iMaxCount)
@@ -17055,7 +17071,12 @@ bool CvUnitAI::AI_join(int iMaxCount)
 	CvPlot* pBestPlot = NULL;
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	int iCount = 0;
-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Base AdvCiv's Great-General AI_join relies on MOVE_SAFE_TERRITORY, but that path flag only restricts ownership/revelation and does not make the end-turn plot tactically safe.
+	// Add enemy-avoidance and compare the actual end-turn danger. If the General is already trapped in danger (commonly after spawning in a besieged city), allow a nonzero-danger move only when it is strictly safer than staying; otherwise a safety rule could pin the General inside the doomed city it is meant to escape. See KI#204. (ChatGPT-5.6-Sol) -->
+	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
+	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
 	{
 		// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/19/09, jdog5000: START
 		// BBAI efficiency: check same area
@@ -17071,9 +17092,16 @@ bool CvUnitAI::AI_join(int iMaxCount)
 			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-not-safe", iMaxCount, iCount);
 			continue;
 		}
-		if (!generatePath(pLoopCity->getPlot(), MOVE_SAFE_TERRITORY, true))
+		if (!generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true))
 		{
 			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "no-safe-path", iMaxCount, iCount);
+			continue;
+		}
+		CvPlot const& kPathEnd = getPathEndTurnPlot();
+		int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
+		if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "dangerous-path-end-not-safer", iMaxCount, iCount, &kPathEnd);
 			continue;
 		}
 		// BETTER_BTS_AI_MOD: END
@@ -17107,7 +17135,12 @@ bool CvUnitAI::AI_join(int iMaxCount)
 						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
 						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
 						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
-						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue, pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true), pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(), getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
+						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) currentPlotDangerR2=%d pathEndDangerR2=%d",
+								GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+								pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue,
+								pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true),
+								pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(),
+								getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY(), iSASCurrentPlotDangerR2, kOwner.AI_getPlotDanger(getPathEndTurnPlot(), 2));
 					}
 					if (iValue > iBestValue)
 					{
@@ -17136,7 +17169,7 @@ bool CvUnitAI::AI_join(int iMaxCount)
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
 			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
-			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY);
+			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags);
 			return true;
 		}
 	}
@@ -17155,16 +17188,20 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 	if (!getUnitInfo().isAnyBuildings())
 		return false; // </advc.003t>
 	int iBestValue = 0;
-	CvPlot* pBestPlot = NULL;
+	CvPlot const* pBestPlot = NULL;
 	CvPlot* pBestConstructPlot = NULL;
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iCount = 0;
-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Apply the same Great-General travel safety as AI_join. Base AdvCiv used MOVE_NO_ENEMY_TERRITORY here and did not inspect the actual end-turn danger, so a defenseless General could still route onto an exposed plot. See KI#204. (ChatGPT-5.6-Sol) -->
+	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
+	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
 	{
 		if (!AI_canEnterByLand(pLoopCity->getArea()) || // advc.030 (replacing same-area check)
 			//!AI_plotValid(pLoopCity->plot()) || // advc.opt: Mostly redundant
 			//pLoopCity->getPlot().isVisibleEnemyUnit(this))
-			pLoopCity->AI_isSafe()) // advc.139: Replacing the above
+			!pLoopCity->AI_isSafe()) // advc.139: Replacing the above; <!-- custom: Base AdvCiv had this test inverted as pLoopCity->AI_isSafe(), which skipped safe cities and left unsafe cities eligible for Military Academy targeting. Correct it to match AI_join's intended safety test. See KI#204. (ChatGPT-5.6-Sol) -->
 		{
 			continue;
 		}
@@ -17188,14 +17225,18 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 				kCiv.buildingClassAt(i)) < iMaxSingleBuildingCount)
 			{
 				if (canConstruct(pLoopCity->plot(), eBuilding) &&
-					generatePath(pLoopCity->getPlot(), MOVE_NO_ENEMY_TERRITORY, true)) // K-Mod
+					generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true)) // K-Mod; <!-- custom: use the KI#204 Great-General safety flags instead of only avoiding enemy-owned territory. (ChatGPT-5.6-Sol) -->
 				{
+					CvPlot const& kPathEnd = getPathEndTurnPlot();
+					int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
+					if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
+						continue;
 					int iValue = pLoopCity->AI_buildingValue(eBuilding);
 
 					if (iValue > iThreshold && iValue > iBestValue)
 					{
 						iBestValue = iValue;
-						pBestPlot = &getPathEndTurnPlot();
+						pBestPlot = &kPathEnd;
 						pBestConstructPlot = pLoopCity->plot();
 						eBestBuilding = eBuilding;
 					}
@@ -17214,7 +17255,7 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 		else
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
-			pushGroupMoveTo(*pBestPlot, MOVE_NO_ENEMY_TERRITORY, false, false,
+			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags, false, false,
 					MISSIONAI_CONSTRUCT, pBestConstructPlot);
 			return true;
 		}
@@ -24154,6 +24195,10 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 			if (bPrimary && !kOwner.AI_isPrimaryArea(pLoopCity->getArea()))
 				continue;
 			if (bNeedsAirlift && pLoopCity->getMaxAirlift() == 0)
+				continue;
+			// <!-- custom: Base AdvCiv lets a threatened defenseless unit treat its current city as a retreat candidate. Its zero-turn path then always beats every real escape city and AI_retreatToCity returns MISSION_SKIP, even when another city is reachable.
+			// Exclude that non-retreat candidate while searching; if no alternative exists, the unchanged fallback below can still keep the unit in its current city. This notably explains free Great Generals remaining in besieged birth cities after SAS suppresses weak emergency attachments. See KI#204. (ChatGPT-5.6-Sol) -->
+			if (pLoopCity == pCity && iCurrentDanger > 0 && !getGroup()->canDefend())
 				continue;
 			// <advc.139>
 			/*  When evacuating, exclude other cities that also evacuate

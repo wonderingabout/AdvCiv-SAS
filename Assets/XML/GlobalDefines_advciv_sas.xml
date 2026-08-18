@@ -1609,7 +1609,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
-	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
+	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, target-unit choice, safe-path rejection, and Great General deaths are one strategic decision chain rather than ordinary unit movement. Level 3 notably records numeric current/city/path-end danger so KI#204 safety decisions, including whether a trapped General has a strictly safer escape route, can be audited. (GPT-5.5 + ChatGPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
 		<iDefineIntVal>0</iDefineIntVal>
@@ -3521,6 +3521,11 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: SAS balance policy: prefer settling AI Great Generals as Military Instructors before other uses through this era. -1 disables this extra preference; nonnegative values apply through the corresponding era index, while ERA_FUTURE or higher applies in every era. The all-era cutoff is resolved dynamically in the DLL rather than assuming that Future is always index 6; the default value 6 is ERA_FUTURE in the current era XML. If no suitable Instructor join is available, the normal Great General fallback chain remains available. This policy is separate from the inherited AdvCiv safety fixes documented in KI#204. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
 	<!-- custom: multiply the valuing of a great general being transformed into a great general by this value (was 4 if met civs, 2 if didn't meet any civ in base advciv (note: new value applies regardless of civs we met to simplify code a bit)) -->
 	<Define>
 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_EXTRA_VALUING</DefineName>
